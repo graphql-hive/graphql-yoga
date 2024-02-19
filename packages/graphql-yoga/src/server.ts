@@ -194,8 +194,14 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    */
   extraParamNames?: string[] | undefined;
   allowedResponseHeaders?: string[] | undefined;
+
+  /**
+   * Allowed headers. Headers not part of this list will be striped out.
+   */
   allowedHeaders?: {
+    /** Allowed headers for outgoing responses */
     response?: string[] | undefined;
+    /** Allowed headers for ingoing requests */
     request?: string[] | undefined;
   };
 };
