@@ -7,12 +7,14 @@ describe('Batching', () => {
       type Query {
         hello: String
         bye: String
+        greetings(name: String!): String!
       }
     `,
     resolvers: {
       Query: {
         hello: () => 'hello',
         bye: () => 'bye',
+        greetings: (_root, { name }) => `hello, ${name}`,
       },
     },
   });
@@ -351,5 +353,33 @@ describe('Batching', () => {
     expect(contexts[0]).not.toBe(contexts[1]);
     expect(contexts[0]!.i).toEqual(1);
     expect(contexts[1]!.i).toEqual(2);
+  });
+  it('variable batching', async () => {
+    const yoga = createYoga({
+      schema,
+      batching: {},
+    });
+    const query = /* GraphQL */ `
+      query ($name: String!) {
+        greetings(name: $name)
+      }
+    `;
+    const res = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }],
+      }),
+    });
+    const result = await res.json();
+    expect(result).toEqual([
+      { data: { greetings: 'hello, Alice' } },
+      { data: { greetings: 'hello, Bob' } },
+      { data: { greetings: 'hello, Charlie' } },
+    ]);
   });
 });
