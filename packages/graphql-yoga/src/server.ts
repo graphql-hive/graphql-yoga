@@ -193,7 +193,6 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * @example ['doc_id', 'id']
    */
   extraParamNames?: string[] | undefined;
-  allowedResponseHeaders?: string[] | undefined;
 
   /**
    * Allowed headers. Headers not part of this list will be striped out.
