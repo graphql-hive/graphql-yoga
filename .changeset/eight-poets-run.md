@@ -15,4 +15,9 @@ createYoga<{
 createYoga<{
     req: FastifyRequest
 }>(/* ... */);
+
+// Also allowed
+createYoga<{
+    request: Request // From Fetch API
+}>(/* ... */);
 ```
