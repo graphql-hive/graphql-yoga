@@ -1,5 +1,4 @@
-import { Writable } from 'node:stream';
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { APIGatewayEvent, Context } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
 const yoga = createYoga<{
@@ -22,44 +21,50 @@ const yoga = createYoga<{
   }),
 });
 
-export const handler = awslambda.streamifyResponse(async function handler(
-  event: APIGatewayEvent,
-  responseStream: Writable<Uint8Array>,
-  lambdaContext: Context,
-): Promise<APIGatewayProxyResult> {
-  const response = await yoga.fetch(
-    // Construct the URL
-    event.path +
-      '?' +
-      // Parse query string parameters
-      new URLSearchParams((event.queryStringParameters as Record<string, string>) || {}).toString(),
-    {
-      method: event.httpMethod,
-      headers: event.headers as HeadersInit,
-      // Parse the body
-      body: event.body
-        ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
-        : undefined,
-    },
-    {
-      event,
-      lambdaContext,
-    },
-  );
+export const handler = awslambda.streamifyResponse(
+  async function handler(event, responseStream, lambdaContext) {
+    const response = await yoga.fetch(
+      // Construct the URL
+      event.path +
+        '?' +
+        // Parse query string parameters
+        new URLSearchParams(
+          (event.queryStringParameters as Record<string, string>) || {},
+        ).toString(),
+      {
+        method: event.httpMethod,
+        headers: event.headers as HeadersInit,
+        // Parse the body
+        body: event.body
+          ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
+          : undefined,
+      },
+      {
+        event,
+        lambdaContext,
+      },
+    );
 
-  // Create the metadata object for the response
-  const metadata = {
-    statusCode: response.status,
-    headers: Object.fromEntries(response.headers.entries()),
-  };
+    // Create the metadata object for the response
+    const metadata = {
+      statusCode: response.status,
+      headers: Object.fromEntries(response.headers.entries()),
+    };
 
-  // Attach the metadata to the response stream
-  responseStream = awslambda.HttpResponseStream.from(responseStream, metadata);
+    // Attach the metadata to the response stream
+    const responseWithMetadata = awslambda.HttpResponseStream.from(responseStream, metadata);
 
-  if (response.body) {
-    // Pipe the response body to the response stream
-    response.body.pipe(responseStream);
-  } else {
-    responseStream.end();
-  }
-});
+    const contentType = response.headers.get('content-type');
+    if (contentType) {
+      responseWithMetadata.setContentType(contentType);
+    }
+
+    if (response.body) {
+      // Pipe the response body to the response stream
+      // @ts-expect-error ReadableStream is also Readable
+      response.body.pipe(responseWithMetadata);
+    } else {
+      responseStream.end();
+    }
+  },
+);
