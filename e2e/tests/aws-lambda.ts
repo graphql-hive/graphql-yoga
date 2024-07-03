@@ -69,7 +69,7 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       'func',
       {
         role: lambdaRole.arn,
-        runtime: 'nodejs18.x',
+        runtime: 'nodejs20.x',
         handler: 'index.handler',
         code: new pulumi.asset.AssetArchive({
           'index.js': new pulumi.asset.FileAsset(

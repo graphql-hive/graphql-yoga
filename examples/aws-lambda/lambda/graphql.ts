@@ -23,7 +23,7 @@ const yoga = createYoga<{
 });
 
 export const handler = awslambda.streamifyResponse(
-  async function handler(event, responseStream, lambdaContext) {
+  async function handler(event, res, lambdaContext) {
     const response = await yoga.fetch(
       // Construct the URL
       event.path +
@@ -43,6 +43,7 @@ export const handler = awslambda.streamifyResponse(
       {
         event,
         lambdaContext,
+        res,
       },
     );
 
@@ -53,18 +54,13 @@ export const handler = awslambda.streamifyResponse(
     };
 
     // Attach the metadata to the response stream
-    const responseWithMetadata = awslambda.HttpResponseStream.from(responseStream, metadata);
-
-    const contentType = response.headers.get('content-type');
-    if (contentType) {
-      responseWithMetadata.setContentType(contentType);
-    }
+    const resWithMetadata = awslambda.HttpResponseStream.from(res, metadata);
 
     // Pipe the response body to the response stream
     if (response.body) {
-      await pipeline(response.body, responseWithMetadata);
+      await pipeline(response.body, resWithMetadata);
+    } else {
+      resWithMetadata.end();
     }
-
-    responseStream.end();
   },
 );
