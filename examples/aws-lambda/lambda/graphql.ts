@@ -1,3 +1,4 @@
+import { Writable } from 'node:stream';
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
@@ -21,17 +22,21 @@ const yoga = createYoga<{
   }),
 });
 
-export async function handler(
+export const handler = awslambda.streamifyResponse(async function handler(
   event: APIGatewayEvent,
+  responseStream: Writable<Uint8Array>,
   lambdaContext: Context,
 ): Promise<APIGatewayProxyResult> {
   const response = await yoga.fetch(
+    // Construct the URL
     event.path +
       '?' +
+      // Parse query string parameters
       new URLSearchParams((event.queryStringParameters as Record<string, string>) || {}).toString(),
     {
       method: event.httpMethod,
       headers: event.headers as HeadersInit,
+      // Parse the body
       body: event.body
         ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
         : undefined,
@@ -42,12 +47,19 @@ export async function handler(
     },
   );
 
-  const responseHeaders = Object.fromEntries(response.headers.entries());
-
-  return {
+  // Create the metadata object for the response
+  const metadata = {
     statusCode: response.status,
-    headers: responseHeaders,
-    body: await response.text(),
-    isBase64Encoded: false,
+    headers: Object.fromEntries(response.headers.entries()),
   };
-}
+
+  // Attach the metadata to the response stream
+  responseStream = awslambda.HttpResponseStream.from(responseStream, metadata);
+
+  if (response.body) {
+    // Pipe the response body to the response stream
+    response.body.pipe(responseStream);
+  } else {
+    responseStream.end();
+  }
+});
