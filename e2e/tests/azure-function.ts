@@ -154,7 +154,7 @@ export const azureFunctionDeployment: DeploymentConfiguration<{
           ],
           http20Enabled: true,
           httpLoggingEnabled: true,
-          linuxFxVersion: 'node|18',
+          linuxFxVersion: 'node|20',
         },
       },
       {
