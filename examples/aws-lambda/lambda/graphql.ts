@@ -1,3 +1,4 @@
+import { pipeline } from 'stream/promises';
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
@@ -59,12 +60,11 @@ export const handler = awslambda.streamifyResponse(
       responseWithMetadata.setContentType(contentType);
     }
 
+    // Pipe the response body to the response stream
     if (response.body) {
-      // Pipe the response body to the response stream
-      // @ts-expect-error ReadableStream is also Readable
-      response.body.pipe(responseWithMetadata);
-    } else {
-      responseStream.end();
+      await pipeline(response.body, responseWithMetadata);
     }
+
+    responseStream.end();
   },
 );
