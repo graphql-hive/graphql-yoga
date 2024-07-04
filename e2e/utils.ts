@@ -67,13 +67,13 @@ export async function assertGraphiQL(endpoint: string) {
     },
   });
 
+  const html = await response.text();
+
   if (response.status !== 200) {
-    console.warn(`⚠️ Invalid GraphiQL status code:`, response.status);
+    console.warn(`⚠️ Invalid GraphiQL status code:`, response.status, ', body:', html);
 
     throw new Error(`Failed to locate GraphiQL: invalid status code (${response.status})`);
   }
-
-  const html = await response.text();
 
   if (!html.includes('<title>Yoga GraphiQL</title>')) {
     console.warn(`⚠️ Invalid GraphiQL body:`, html);
