@@ -112,7 +112,24 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
   },
   test: async ({ functionUrl }) => {
     console.log(`ℹ️ AWS Lambda Function deployed to URL: ${functionUrl.value}`);
-    await assertGraphiQL(functionUrl.value + '/graphql');
-    await assertQuery(functionUrl.value + '/graphql');
+    const graphqlUrl = new URL('/graphql', functionUrl.value).toString();
+    const assertions = await Promise.allSettled([
+      assertQuery(graphqlUrl),
+      assertGraphiQL(graphqlUrl),
+    ]);
+    const errors = assertions
+      .filter<PromiseRejectedResult>(assertion => assertion.status === 'rejected')
+      .map(assertion => assertion.reason);
+    if (errors.length > 0) {
+      throw new Error(
+        `Failed to assert the AWS Lambda Function: ${errors
+          .map(error => error.message)
+          .join(', ')}`,
+      );
+    }
+    console.log('✅ AWS Lambda Function is working as expected');
+    console.log('✅ AWS Lambda Function GraphiQL is working as expected');
+    console.log('✅ AWS Lambda Function GraphQL query is working as expected');
+    console.log('✅ All tests passed!');
   },
 };

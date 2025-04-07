@@ -7,7 +7,7 @@ const yoga = createYoga<{
   lambdaContext: Context;
   res: awslambda.ResponseStream;
 }>({
-  graphqlEndpoint: '*',
+  graphqlEndpoint: '/graphql',
   landingPage: false,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
