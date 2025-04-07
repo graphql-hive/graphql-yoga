@@ -52,19 +52,23 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       }),
     });
 
-    const lambdaRolePolicy = new aws.iam.RolePolicy('role-policy', {
-      role: lambdaRole.id,
-      policy: {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-            Resource: 'arn:aws:logs:*:*:*',
-          },
-        ],
+    const lambdaRolePolicy = new aws.iam.RolePolicy(
+      'role-policy',
+      {
+        role: lambdaRole.id,
+        policy: {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+              Resource: 'arn:aws:logs:*:*:*',
+            },
+          ],
+        },
       },
-    });
+      { dependsOn: lambdaRole },
+    );
 
     const func = new aws.lambda.Function(
       'func',
@@ -81,18 +85,26 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       { dependsOn: lambdaRolePolicy },
     );
 
-    new aws.lambda.Permission('streaming-permission', {
-      action: 'lambda:InvokeFunctionUrl',
-      function: func.arn,
-      principal: '*',
-      functionUrlAuthType: 'NONE',
-    });
+    const lambdaPermission = new aws.lambda.Permission(
+      'streaming-permission',
+      {
+        action: 'lambda:InvokeFunctionUrl',
+        function: func.arn,
+        principal: '*',
+        functionUrlAuthType: 'NONE',
+      },
+      { dependsOn: func },
+    );
 
-    const lambdaGw = new awsNative.lambda.Url('streaming-url', {
-      authType: 'NONE',
-      targetFunctionArn: func.arn,
-      invokeMode: 'RESPONSE_STREAM',
-    });
+    const lambdaGw = new awsNative.lambda.Url(
+      'streaming-url',
+      {
+        authType: 'NONE',
+        targetFunctionArn: func.arn,
+        invokeMode: 'RESPONSE_STREAM',
+      },
+      { dependsOn: lambdaPermission },
+    );
 
     return {
       functionUrl: lambdaGw.functionUrl,

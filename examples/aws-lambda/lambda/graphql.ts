@@ -1,3 +1,4 @@
+import { ServerResponse } from 'http';
 import { pipeline } from 'stream/promises';
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
@@ -5,6 +6,7 @@ import { createSchema, createYoga } from 'graphql-yoga';
 const yoga = createYoga<{
   event: APIGatewayEvent;
   lambdaContext: Context;
+  res: awslambda.ResponseStream;
 }>({
   graphqlEndpoint: '/graphql',
   landingPage: false,
