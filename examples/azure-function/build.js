@@ -10,7 +10,7 @@ async function main() {
     minify: false,
     bundle: true,
     platform: 'node',
-    target: 'node18',
+    target: 'node20',
     external: ['@azure/functions-core'],
   });
 
@@ -19,6 +19,7 @@ async function main() {
     JSON.stringify({
       name: 'yoga-test-function',
       version: '0.0.1',
+      main: 'dist/Yoga/index.js',
     }),
   );
 
