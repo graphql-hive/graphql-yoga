@@ -1,4 +1,3 @@
-import { GraphQLErrorOptions } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
 import { MaskError } from '../types.js';
@@ -22,14 +21,14 @@ export const maskError: MaskError = (
   message: string,
   isDev = globalThis.process?.env?.['NODE_ENV'] === 'development',
 ) => {
-  if (isOriginalGraphQLError(error) && !error.extensions?.unexpected) {
+  if (isOriginalGraphQLError(error) && !error.extensions?.['unexpected']) {
     return error;
   }
   const errorExtensions: Record<string, unknown> = {
     code: 'INTERNAL_SERVER_ERROR',
     unexpected: true,
   };
-  const errorOptions: GraphQLErrorOptions = {
+  const errorOptions: Parameters<typeof createGraphQLError>[1] = {
     extensions: errorExtensions,
   };
   if (isGraphQLError(error)) {
