@@ -759,4 +759,43 @@ describe('error masking', () => {
       ['Processing GraphQL Parameters done.'],
     ]);
   });
+
+  it('respects `unexpected` extension flag', async () => {
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () =>
+              createGraphQLError('I like turtles', {
+                extensions: {
+                  unexpected: true,
+                },
+              }),
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    const body = await response.json();
+    expect(body).toMatchObject({
+      errors: [
+        {
+          message: 'Unexpected error.',
+        },
+      ],
+    });
+  });
 });
