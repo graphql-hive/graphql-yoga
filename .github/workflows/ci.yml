@@ -240,9 +240,9 @@ jobs:
       fail-fast: false
       matrix:
         plan:
+          - 'aws-lambda'
           - 'azure-function'
           - 'cf-worker'
-          - 'aws-lambda'
           # - 'vercel-function' # Disabled because vercel API is not actually documented
           - 'docker-node'
           - 'cf-modules'
