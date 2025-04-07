@@ -18,6 +18,7 @@ const yoga = createYoga<InvocationContext>({
 });
 
 app.http('yoga', {
-  method: ['GET', 'POST'],
+  methods: ['GET', 'POST'],
+  authLevel: 'anonymous',
   handler: yoga,
 });
