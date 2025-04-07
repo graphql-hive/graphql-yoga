@@ -1,6 +1,5 @@
-import { ServerResponse } from 'http';
-import { pipeline } from 'stream/promises';
-import { APIGatewayEvent, Context } from 'aws-lambda';
+import { finished, pipeline } from 'stream/promises';
+import type { APIGatewayEvent, Context } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
 const yoga = createYoga<{
@@ -8,7 +7,7 @@ const yoga = createYoga<{
   lambdaContext: Context;
   res: awslambda.ResponseStream;
 }>({
-  graphqlEndpoint: '/graphql',
+  graphqlEndpoint: '*',
   landingPage: false,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
@@ -49,6 +48,12 @@ export const handler = awslambda.streamifyResponse(
       },
     );
 
+    const contentType = response.headers.get('content-type');
+    if (contentType) {
+      // Set the content type of the response stream
+      res.setContentType(contentType);
+    }
+
     // Create the metadata object for the response
     const metadata = {
       statusCode: response.status,
@@ -56,19 +61,16 @@ export const handler = awslambda.streamifyResponse(
     };
 
     // Attach the metadata to the response stream
-    const resWithMetadata = awslambda.HttpResponseStream.from(res, metadata);
-
-    const contentType = response.headers.get('content-type');
-    if (contentType) {
-      // Set the content type for the response stream
-      resWithMetadata.setContentType(contentType);
-    }
+    res = awslambda.HttpResponseStream.from(res, metadata);
 
     // Pipe the response body to the response stream
     if (response.body) {
-      await pipeline(response.body, resWithMetadata);
-    } else {
-      resWithMetadata.end();
+      await pipeline(response.body, res);
     }
+
+    // End the response stream
+    res.end();
+
+    await finished(res);
   },
 );
