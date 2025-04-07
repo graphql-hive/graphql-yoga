@@ -146,7 +146,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.7.2
-        version: 4.7.2(@cloudflare/workers-types@4.20250406.0)
+        version: 4.7.2(@cloudflare/workers-types@4.20250407.0)
 
   benchmark:
     dependencies:
@@ -426,8 +426,8 @@ importers:
         version: link:../../packages/graphql-yoga/dist
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: 4.20250406.0
-        version: 4.20250406.0
+        specifier: 4.20250407.0
+        version: 4.20250407.0
       '@whatwg-node/fetch':
         specifier: ^0.10.1
         version: 0.10.5
@@ -436,7 +436,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.7.2
-        version: 4.7.2(@cloudflare/workers-types@4.20250406.0)
+        version: 4.7.2(@cloudflare/workers-types@4.20250407.0)
 
   examples/cookies:
     dependencies:
@@ -1373,7 +1373,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.7.2
-        version: 4.7.2(@cloudflare/workers-types@4.20250406.0)
+        version: 4.7.2(@cloudflare/workers-types@4.20250407.0)
 
   examples/sofa:
     dependencies:
@@ -3884,6 +3884,9 @@ packages:
 
   '@cloudflare/workers-types@4.20250406.0':
     resolution: {integrity: sha512-E42GP9oZFNOoykucfN9H9qaG3IeID6VMHc2zGjVuDYT2G55uESe56tstuGFYYwjMm36QeNob+ZryyiE92idFYA==}
+
+  '@cloudflare/workers-types@4.20250407.0':
+    resolution: {integrity: sha512-M6cB247uy32VzM/P4NpRSHNNTcPgTn+s31wBV7gD14hkA07jMGBYlEcAv1LOghLNGZ5AEvYxLxQCVSvkF7HNIw==}
 
   '@codemirror/language@6.0.0':
     resolution: {integrity: sha512-rtjk5ifyMzOna1c7PBu7J1VCt0PvA5wy3o8eMVnxMKb7z8KA7JFecvD04dSn14vj/bBaAbqRsGed5OjtofEnLA==}
@@ -19074,6 +19077,8 @@ snapshots:
     optional: true
 
   '@cloudflare/workers-types@4.20250406.0': {}
+
+  '@cloudflare/workers-types@4.20250407.0': {}
 
   '@codemirror/language@6.0.0':
     dependencies:
@@ -35409,6 +35414,24 @@ snapshots:
       workerd: 1.20250404.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250406.0
+      fsevents: 2.3.3
+      sharp: 0.33.5
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  wrangler@4.7.2(@cloudflare/workers-types@4.20250407.0):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.4.0
+      '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250404.0)
+      blake3-wasm: 2.1.5
+      esbuild: 0.25.2
+      miniflare: 4.20250404.0
+      path-to-regexp: 6.3.0
+      unenv: 2.0.0-rc.15
+      workerd: 1.20250404.0
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20250407.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:
