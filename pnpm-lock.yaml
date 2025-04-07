@@ -179,6 +179,9 @@ importers:
       '@pulumi/aws':
         specifier: 6.75.0
         version: 6.75.0(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
+      '@pulumi/aws-native':
+        specifier: 1.26.0
+        version: 1.26.0(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
       '@pulumi/awsx':
         specifier: 2.21.1
         version: 2.21.1(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
@@ -6296,6 +6299,9 @@ packages:
 
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
+
+  '@pulumi/aws-native@1.26.0':
+    resolution: {integrity: sha512-dbmThd7PUJN0kI69NNi749IokTzNpXNC0oIDffBih6P3diSEciY6h6wxwfBnvJYY/Aj7TxiXyJU9e9lUVT7fDw==}
 
   '@pulumi/aws@6.75.0':
     resolution: {integrity: sha512-jid+H6rJNyirKTS/cokK1w+Z/0Eu7YMEdSzBLdceZ6f3iRpEcMH/KiqM91N/00dD+Or4Zj9Hi7Mfx/7pJ7xXfg==}
@@ -22158,6 +22164,15 @@ snapshots:
   '@protobufjs/pool@1.1.0': {}
 
   '@protobufjs/utf8@1.1.0': {}
+
+  '@pulumi/aws-native@1.26.0(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)':
+    dependencies:
+      '@pulumi/pulumi': 3.160.0(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+      - ts-node
+      - typescript
 
   '@pulumi/aws@6.75.0(ts-node@10.9.2(@swc/core@1.11.16(@swc/helpers@0.5.15))(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:

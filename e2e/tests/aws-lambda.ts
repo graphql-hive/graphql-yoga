@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
+import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
 import * as awsx from '@pulumi/awsx';
 import * as pulumi from '@pulumi/pulumi';
@@ -80,23 +81,21 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       { dependsOn: lambdaRolePolicy },
     );
 
-    const lambdaGw = new awsx.classic.apigateway.API('api', {
-      routes: [
-        {
-          path: '/graphql',
-          method: 'GET',
-          eventHandler: func,
-        },
-        {
-          path: '/graphql',
-          method: 'POST',
-          eventHandler: func,
-        },
-      ],
+    new aws.lambda.Permission('streaming-permission', {
+      action: 'lambda:InvokeFunctionUrl',
+      function: func.arn,
+      principal: '*',
+      functionUrlAuthType: 'NONE',
+    });
+
+    const lambdaGw = new awsNative.lambda.Url('streaming-url', {
+      authType: 'NONE',
+      targetFunctionArn: func.arn,
+      invokeMode: 'RESPONSE_STREAM',
     });
 
     return {
-      functionUrl: lambdaGw.url,
+      functionUrl: lambdaGw.functionUrl,
     };
   },
   test: async ({ functionUrl }) => {
