@@ -233,19 +233,19 @@ jobs:
 
   e2e:
     concurrency:
-      group: ${{ github.workflow }}-${{ matrix.plan }}
+      group: ${{ github.workflow }}-e2e
       cancel-in-progress: false
     strategy:
       max-parallel: 1
       fail-fast: false
       matrix:
         plan:
-          - 'cf-worker'
-          - 'cf-modules'
           - 'azure-function'
+          - 'cf-worker'
           - 'aws-lambda'
           # - 'vercel-function' # Disabled because vercel API is not actually documented
           - 'docker-node'
+          - 'cf-modules'
     name: e2e / ${{ matrix.plan }}
 
     runs-on: ubuntu-latest
