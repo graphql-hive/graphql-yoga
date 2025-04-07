@@ -27,8 +27,6 @@ const yoga = createYoga<{
   lambdaContext: Context
   res: awslambda.ResponseStream
 }>({
-  graphqlEndpoint: '/graphql',
-  landingPage: false,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
