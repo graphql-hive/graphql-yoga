@@ -39,8 +39,8 @@ export const maskError: MaskError = (
     if (isDev && error.originalError) {
       errorExtensions['originalError'] = serializeError(error.originalError);
     }
-    if (error.extensions?.http) {
-      errorOptions.extensions.http = error.extensions.http;
+    if (error.extensions?.['http']) {
+      errorExtensions['http'] = error.extensions['http'];
     }
   } else if (isDev) {
     errorExtensions['originalError'] = serializeError(error);
