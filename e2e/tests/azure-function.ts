@@ -1,3 +1,4 @@
+import { join } from 'path';
 import { version } from '@pulumi/azure-native/package.json';
 import * as resources from '@pulumi/azure-native/resources';
 import * as storage from '@pulumi/azure-native/storage';
@@ -108,7 +109,9 @@ export const azureFunctionDeployment: DeploymentConfiguration<{
         resourceGroupName: resourceGroup.name,
         accountName: storageAccount.name,
         containerName: codeContainer.name,
-        source: new pulumi.asset.FileArchive('../examples/azure-function/dist'),
+        source: new pulumi.asset.FileArchive(
+          join(__dirname, '..', '..', 'examples', 'azure-function'),
+        ),
       },
       {
         deleteBeforeReplace: true,

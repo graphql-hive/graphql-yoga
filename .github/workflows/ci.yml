@@ -233,7 +233,7 @@ jobs:
 
   e2e:
     concurrency:
-      group: ${{ github.workflow }}-e2e
+      group: yoga-e2e
       cancel-in-progress: false
     strategy:
       max-parallel: 1
