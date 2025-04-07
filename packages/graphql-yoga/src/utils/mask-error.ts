@@ -21,7 +21,7 @@ export const maskError: MaskError = (
   message: string,
   isDev = globalThis.process?.env?.['NODE_ENV'] === 'development',
 ) => {
-  if (isOriginalGraphQLError(error) && !error.extensions?.['unexpected']) {
+  if (isOriginalGraphQLError(error)) {
     return error;
   }
   const errorExtensions: Record<string, unknown> = {

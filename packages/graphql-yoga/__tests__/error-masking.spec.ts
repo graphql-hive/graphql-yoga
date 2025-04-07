@@ -760,7 +760,16 @@ describe('error masking', () => {
     ]);
   });
 
-  it('respects `unexpected` extension flag', async () => {
+  // Execution engine wraps errors recursively so the only way to make sure it is an unexpected error is to check originalError recursively
+  it('respects wrapped original errors', async () => {
+    const error = new Error('I like turtles');
+    const wrappedError = createGraphQLError('I like tortoises', {
+      originalError: error,
+    });
+    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+      originalError: wrappedError,
+    });
+
     const yoga = createYoga({
       schema: createSchema({
         typeDefs: /* GraphQL */ `
@@ -770,12 +779,7 @@ describe('error masking', () => {
         `,
         resolvers: {
           Query: {
-            a: () =>
-              createGraphQLError('I like turtles', {
-                extensions: {
-                  unexpected: true,
-                },
-              }),
+            a: () => wrappedOverWrappedError,
           },
         },
       }),
