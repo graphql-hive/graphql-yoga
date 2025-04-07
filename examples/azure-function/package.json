@@ -2,9 +2,12 @@
   "name": "example-azure-function",
   "version": "0.0.0",
   "private": true,
+  "main": "dist/Yoga/index.js",
   "scripts": {
     "build": "node build.js",
-    "check": "tsc --pretty --noEmit"
+    "check": "tsc --pretty --noEmit",
+    "prestart": "npm run build",
+    "start": "func start"
   },
   "dependencies": {
     "graphql-yoga": "workspace:*"
