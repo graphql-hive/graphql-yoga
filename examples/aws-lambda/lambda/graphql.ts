@@ -25,8 +25,7 @@ export const handler = awslambda.streamifyResponse(
   async function handler(event, res, lambdaContext) {
     const response = await yoga.fetch(
       // Construct the URL
-      event.path +
-        '?' +
+      '/graphql?' +
         // Parse query string parameters
         new URLSearchParams(
           (event.queryStringParameters as Record<string, string>) || {},
