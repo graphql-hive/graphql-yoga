@@ -2,7 +2,6 @@
 'graphql-yoga': patch
 ---
 
-Handle unexpected errors correctly
+Handle unexpected errors correctly.
 
-- If `extensions.unexpected` is set, consider it as an unexpected error
-- If it has a non GraphQL Error in `originalError`, consider it as an unexpected error
+Yoga checks originalError to see if it is a wrapped error of an unexpected error, because execution engine can wrap it multiple times.
