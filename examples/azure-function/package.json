@@ -2,17 +2,21 @@
   "name": "example-azure-function",
   "version": "0.0.0",
   "private": true,
+  "main": "dist/functions/index.js",
   "scripts": {
-    "build": "node build.js",
-    "check": "tsc --pretty --noEmit"
+    "build": "rm -rf dist/ && node scripts/bundle.js",
+    "check": "tsc --pretty --noEmit",
+    "prestart": "npm run build",
+    "start": "func start"
   },
   "dependencies": {
-    "graphql-yoga": "workspace:*"
+    "@azure/functions": "4.7.0",
+    "graphql": "16.10.0",
+    "graphql-yoga": "workspace:*",
+    "tslib": "2.8.1"
   },
   "devDependencies": {
-    "@azure/functions": "4.7.0",
     "esbuild": "0.25.2",
-    "tslib": "2.8.1",
-    "typescript": "5.8.3"
+    "typescript": "5.8.2"
   }
 }

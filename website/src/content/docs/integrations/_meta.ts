@@ -2,6 +2,7 @@ export default {
   'integration-with-aws-lambda': 'AWS Lambda',
   'integration-with-cloudflare-workers': 'Cloudflare Workers',
   'integration-with-gcp': 'Google Cloud Platform',
+  'integration-with-azure-functions': 'Azure Functions',
   'integration-with-deno': 'Deno',
   'integration-with-express': 'Express',
   'integration-with-fastify': 'Fastify',
