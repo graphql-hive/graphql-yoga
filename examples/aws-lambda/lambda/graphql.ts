@@ -58,6 +58,12 @@ export const handler = awslambda.streamifyResponse(
     // Attach the metadata to the response stream
     const resWithMetadata = awslambda.HttpResponseStream.from(res, metadata);
 
+    const contentType = response.headers.get('content-type');
+    if (contentType) {
+      // Set the content type for the response stream
+      resWithMetadata.setContentType(contentType);
+    }
+
     // Pipe the response body to the response stream
     if (response.body) {
       await pipeline(response.body, resWithMetadata);
