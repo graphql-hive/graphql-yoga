@@ -1,4 +1,4 @@
-import { finished, pipeline } from 'stream/promises';
+import { pipeline } from 'stream/promises';
 import type { Context, LambdaFunctionURLEvent } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
@@ -41,12 +41,6 @@ export const handler = awslambda.streamifyResponse(
       },
     );
 
-    const contentType = response.headers.get('content-type');
-    if (contentType) {
-      // Set the content type of the response stream
-      res.setContentType(contentType);
-    }
-
     // Create the metadata object for the response
     const metadata = {
       statusCode: response.status,
@@ -63,7 +57,5 @@ export const handler = awslambda.streamifyResponse(
 
     // End the response stream
     res.end();
-
-    await finished(res);
   },
 );
