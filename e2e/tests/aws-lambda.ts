@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
 import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
-import * as awsx from '@pulumi/awsx';
 import * as pulumi from '@pulumi/pulumi';
 import { Stack } from '@pulumi/pulumi/automation';
 import type { DeploymentConfiguration } from '../types';
@@ -121,15 +120,10 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       .filter<PromiseRejectedResult>(assertion => assertion.status === 'rejected')
       .map(assertion => assertion.reason);
     if (errors.length > 0) {
-      throw new Error(
-        `Failed to assert the AWS Lambda Function: ${errors
-          .map(error => error.message)
-          .join(', ')}`,
-      );
+      for (const error of errors) {
+        console.error(error);
+      }
+      throw new Error('Some assertions failed. Please check the logs for more details.');
     }
-    console.log('✅ AWS Lambda Function is working as expected');
-    console.log('✅ AWS Lambda Function GraphiQL is working as expected');
-    console.log('✅ AWS Lambda Function GraphQL query is working as expected');
-    console.log('✅ All tests passed!');
   },
 };
