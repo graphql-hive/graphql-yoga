@@ -29,10 +29,8 @@ export const handler = awslambda.streamifyResponse(
       {
         method: event.requestContext.http.method,
         headers: event.headers as HeadersInit,
-        // Parse the body
-        body: event.body
-          ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
-          : undefined,
+        // Parse the body if needed
+        body: event.body && event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
       },
       {
         event,
