@@ -1,9 +1,9 @@
 import { finished, pipeline } from 'stream/promises';
-import type { APIGatewayEvent, Context } from 'aws-lambda';
+import type { Context, LambdaFunctionURLEvent } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
 const yoga = createYoga<{
-  event: APIGatewayEvent;
+  event: LambdaFunctionURLEvent;
   lambdaContext: Context;
   res: awslambda.ResponseStream;
 }>({
@@ -25,13 +25,9 @@ export const handler = awslambda.streamifyResponse(
   async function handler(event, res, lambdaContext) {
     const response = await yoga.fetch(
       // Construct the URL
-      '/graphql?' +
-        // Parse query string parameters
-        new URLSearchParams(
-          (event.queryStringParameters as Record<string, string>) || {},
-        ).toString(),
+      `https://${event.requestContext.domainName}/${event.rawPath}?${event.rawQueryString}`,
       {
-        method: event.httpMethod,
+        method: event.requestContext.http.method,
         headers: event.headers as HeadersInit,
         // Parse the body
         body: event.body
