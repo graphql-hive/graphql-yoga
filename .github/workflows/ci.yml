@@ -232,11 +232,7 @@ jobs:
           debug: true
 
   e2e:
-    concurrency:
-      group: yoga-e2e
-      cancel-in-progress: false
     strategy:
-      max-parallel: 1
       fail-fast: false
       matrix:
         plan:
