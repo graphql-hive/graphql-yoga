@@ -21,36 +21,38 @@ const yoga = createYoga<{
   }),
 });
 
-export const handler = awslambda.streamifyResponse(
-  async function handler(event, res, lambdaContext) {
-    const response = await yoga.fetch(
-      // Construct the URL
-      `https://${event.requestContext.domainName}${event.requestContext.http.path}?${event.rawQueryString}`,
-      {
-        method: event.requestContext.http.method,
-        headers: event.headers as HeadersInit,
-        // Parse the body if needed
-        body: event.body && event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
-      },
-      {
-        event,
-        lambdaContext,
-        res,
-      },
-    );
+export const handler = awslambda.streamifyResponse(async function handler(
+  event: LambdaFunctionURLEvent,
+  res,
+  lambdaContext,
+) {
+  const response = await yoga.fetch(
+    // Construct the URL
+    `https://${event.requestContext.domainName}${event.requestContext.http.path}?${event.rawQueryString}`,
+    {
+      method: event.requestContext.http.method,
+      headers: event.headers as HeadersInit,
+      // Parse the body if needed
+      body: event.body && event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
+    },
+    {
+      event,
+      lambdaContext,
+      res,
+    },
+  );
 
-    // Attach the metadata to the response stream
-    res = awslambda.HttpResponseStream.from(res, {
-      statusCode: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
-    });
+  // Attach the metadata to the response stream
+  res = awslambda.HttpResponseStream.from(res, {
+    statusCode: response.status,
+    headers: Object.fromEntries(response.headers.entries()),
+  });
 
-    // Pipe the response body to the response stream
-    if (response.body) {
-      await pipeline(response.body, res);
-    }
+  // Pipe the response body to the response stream
+  if (response.body) {
+    await pipeline(response.body, res);
+  }
 
-    // End the response stream
-    res.end();
-  },
-);
+  // End the response stream
+  res.end();
+});

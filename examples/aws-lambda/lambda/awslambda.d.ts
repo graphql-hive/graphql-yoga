@@ -1,5 +1,5 @@
 import type { Writable } from 'node:stream';
-import type { Context, Handler, LambdaFunctionURLEvent } from 'aws-lambda';
+import type { Context, Handler } from 'aws-lambda';
 
 declare global {
   namespace awslambda {
@@ -17,12 +17,12 @@ declare global {
       setContentType(type: string): void;
     };
 
-    export type StreamifyHandler = (
-      event: LambdaFunctionURLEvent,
+    export type StreamifyHandler<Event> = (
+      event: Event,
       responseStream: ResponseStream,
       context: Context,
     ) => Promise<unknown>;
 
-    export function streamifyResponse(handler: StreamifyHandler): Handler<APIGatewayEvent>;
+    export function streamifyResponse<Event>(handler: StreamifyHandler<Event>): Handler<Event>;
   }
 }
