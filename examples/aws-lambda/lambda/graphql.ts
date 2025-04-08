@@ -23,9 +23,9 @@ const yoga = createYoga<{
 
 export const handler = awslambda.streamifyResponse(
   async function handler(event, res, lambdaContext) {
-    return {
-      body: JSON.stringify({ event }),
-    };
+    res.write(JSON.stringify({ event }));
+    res.end();
+    return;
     // const response = await yoga.fetch(
     //   // Construct the URL
     //   `https://${event.requestContext.domainName}/${event.rawPath}?${event.rawQueryString}`,
