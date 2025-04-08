@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
+import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
-import * as awsx from '@pulumi/awsx';
 import * as pulumi from '@pulumi/pulumi';
 import { Stack } from '@pulumi/pulumi/automation';
 import type { DeploymentConfiguration } from '../types';
@@ -51,25 +51,29 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       }),
     });
 
-    const lambdaRolePolicy = new aws.iam.RolePolicy('role-policy', {
-      role: lambdaRole.id,
-      policy: {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-            Resource: 'arn:aws:logs:*:*:*',
-          },
-        ],
+    const lambdaRolePolicy = new aws.iam.RolePolicy(
+      'role-policy',
+      {
+        role: lambdaRole.id,
+        policy: {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+              Resource: 'arn:aws:logs:*:*:*',
+            },
+          ],
+        },
       },
-    });
+      { dependsOn: lambdaRole },
+    );
 
     const func = new aws.lambda.Function(
       'func',
       {
         role: lambdaRole.arn,
-        runtime: 'nodejs18.x',
+        runtime: 'nodejs20.x',
         handler: 'index.handler',
         code: new pulumi.asset.AssetArchive({
           'index.js': new pulumi.asset.FileAsset(
@@ -80,28 +84,46 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       { dependsOn: lambdaRolePolicy },
     );
 
-    const lambdaGw = new awsx.classic.apigateway.API('api', {
-      routes: [
-        {
-          path: '/graphql',
-          method: 'GET',
-          eventHandler: func,
-        },
-        {
-          path: '/graphql',
-          method: 'POST',
-          eventHandler: func,
-        },
-      ],
-    });
+    const lambdaPermission = new aws.lambda.Permission(
+      'streaming-permission',
+      {
+        action: 'lambda:InvokeFunctionUrl',
+        function: func.arn,
+        principal: '*',
+        functionUrlAuthType: 'NONE',
+      },
+      { dependsOn: func },
+    );
+
+    const lambdaGw = new awsNative.lambda.Url(
+      'streaming-url',
+      {
+        authType: 'NONE',
+        targetFunctionArn: func.arn,
+        invokeMode: 'RESPONSE_STREAM',
+      },
+      { dependsOn: lambdaPermission },
+    );
 
     return {
-      functionUrl: lambdaGw.url,
+      functionUrl: lambdaGw.functionUrl,
     };
   },
   test: async ({ functionUrl }) => {
     console.log(`ℹ️ AWS Lambda Function deployed to URL: ${functionUrl.value}`);
-    await assertGraphiQL(functionUrl.value + '/graphql');
-    await assertQuery(functionUrl.value + '/graphql');
+    const graphqlUrl = new URL('/graphql', functionUrl.value).toString();
+    const assertions = await Promise.allSettled([
+      assertQuery(graphqlUrl),
+      assertGraphiQL(graphqlUrl),
+    ]);
+    const errors = assertions
+      .filter<PromiseRejectedResult>(assertion => assertion.status === 'rejected')
+      .map(assertion => assertion.reason);
+    if (errors.length > 0) {
+      for (const error of errors) {
+        console.error(error);
+      }
+      throw new Error('Some assertions failed. Please check the logs for more details.');
+    }
   },
 };

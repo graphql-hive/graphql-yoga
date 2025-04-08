@@ -76,7 +76,11 @@ export async function assertGraphiQL(endpoint: string) {
   }
 
   if (!html.includes('<title>Yoga GraphiQL</title>')) {
-    console.warn(`⚠️ Invalid GraphiQL body:`, html);
+    console.warn(`⚠️ Invalid GraphiQL body:`, {
+      html,
+      headers: Object.fromEntries(response.headers.entries()),
+      status: response.status,
+    });
 
     throw new Error(`Failed to locate GraphiQL: failed to find signs for GraphiQL HTML`);
   }
