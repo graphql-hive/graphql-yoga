@@ -39,14 +39,11 @@ export const handler = awslambda.streamifyResponse(
       },
     );
 
-    // Create the metadata object for the response
-    const metadata = {
+    // Attach the metadata to the response stream
+    res = awslambda.HttpResponseStream.from(res, {
       statusCode: response.status,
       headers: Object.fromEntries(response.headers.entries()),
-    };
-
-    // Attach the metadata to the response stream
-    res = awslambda.HttpResponseStream.from(res, metadata);
+    });
 
     // Pipe the response body to the response stream
     if (response.body) {
