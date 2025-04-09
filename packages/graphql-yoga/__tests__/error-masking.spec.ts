@@ -759,4 +759,47 @@ describe('error masking', () => {
       ['Processing GraphQL Parameters done.'],
     ]);
   });
+
+  // Execution engine wraps errors recursively so the only way to make sure it is an unexpected error is to check originalError recursively
+  it('respects wrapped original errors', async () => {
+    const error = new Error('I like turtles');
+    const wrappedError = createGraphQLError('I like tortoises', {
+      originalError: error,
+    });
+    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+      originalError: wrappedError,
+    });
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => wrappedOverWrappedError,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    const body = await response.json();
+    expect(body).toMatchObject({
+      errors: [
+        {
+          message: 'Unexpected error.',
+        },
+      ],
+    });
+  });
 });
