@@ -1,5 +1,18 @@
 # @graphql-yoga/apollo-managed-federation
 
+## 0.11.3
+
+### Patch Changes
+
+- [#3930](https://github.com/graphql-hive/graphql-yoga/pull/3930)
+  [`3a7ef74`](https://github.com/graphql-hive/graphql-yoga/commit/3a7ef74eae1f1926213f671b20521bed14496873)
+  Thanks [@ardatan](https://github.com/ardatan)! - Bump `@whatwg-node/server`
+
+- Updated dependencies
+  [[`1773c8c`](https://github.com/graphql-hive/graphql-yoga/commit/1773c8c193e7cf7dc34710da8422fb951c4f4a41),
+  [`3a7ef74`](https://github.com/graphql-hive/graphql-yoga/commit/3a7ef74eae1f1926213f671b20521bed14496873)]:
+  - graphql-yoga@5.13.3
+
 ## 0.11.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @graphql-yoga/subscription
 
+## 5.0.4
+
+### Patch Changes
+
+- [#3930](https://github.com/graphql-hive/graphql-yoga/pull/3930)
+  [`3a7ef74`](https://github.com/graphql-hive/graphql-yoga/commit/3a7ef74eae1f1926213f671b20521bed14496873)
+  Thanks [@ardatan](https://github.com/ardatan)! - Bump `@whatwg-node/server`
+
 ## 5.0.3
 
 ### Patch Changes
