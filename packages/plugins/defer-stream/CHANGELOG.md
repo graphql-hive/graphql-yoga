@@ -1,5 +1,19 @@
 # @graphql-yoga/plugin-defer-stream
 
+## 3.13.4
+
+### Patch Changes
+
+- [#3995](https://github.com/graphql-hive/graphql-yoga/pull/3995)
+  [`000c33d`](https://github.com/graphql-hive/graphql-yoga/commit/000c33dc043454f4b73d15f03c3e688cfb9d0901)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Update whatwg-node packages
+
+  In light of https://github.com/ardatan/whatwg-node/pull/2305. Please upgrade as soon as possible!
+
+- Updated dependencies
+  [[`000c33d`](https://github.com/graphql-hive/graphql-yoga/commit/000c33dc043454f4b73d15f03c3e688cfb9d0901)]:
+  - graphql-yoga@5.13.4
+
 ## 3.13.3
 
 ### Patch Changes
