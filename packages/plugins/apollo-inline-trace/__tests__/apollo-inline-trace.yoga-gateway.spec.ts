@@ -217,7 +217,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
 
     const expectedErrors: GraphQLFormattedError[] = [
       {
-        message: 'Cannot return null for non-nullable field TestNestedField.nonNullableFail.',
+        message: 'My original subgraph error!',
         path: ['testNestedField', 'nonNullableFail'],
       },
     ];
