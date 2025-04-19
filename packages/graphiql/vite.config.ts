@@ -1,7 +1,6 @@
 import { execSync } from 'node:child_process';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 
 const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
 
@@ -9,9 +8,11 @@ const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
 export default defineConfig({
   cacheDir: path.join(pnpmStoreDir, '.vite'),
   plugins: [
-    react({
-      // fastRefresh: false,
-    }),
+    import('@vitejs/plugin-react').then((m: any) =>
+      (m.default || m)({
+        // fastRefresh: false,
+      }),
+    ),
   ],
   server: {
     port: 4001,
