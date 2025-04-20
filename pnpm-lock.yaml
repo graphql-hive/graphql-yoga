@@ -1532,8 +1532,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.19(@apollo/client@3.13.8(@types/react@19.1.2)(graphql-ws@6.0.4(graphql@16.10.0)(ws@8.18.1))(graphql@16.10.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(subscriptions-transport-ws@0.11.0(graphql@16.10.0)))(graphql@16.10.0)
       '@graphql-tools/executor-http':
-        specifier: ^1.1.10
-        version: 1.3.3(@types/node@22.14.1)(graphql@16.10.0)
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@22.14.1)(graphql@16.10.0)
       graphql:
         specifier: 16.10.0
         version: 16.10.0
@@ -1552,8 +1552,8 @@ importers:
   packages/client/urql-exchange:
     dependencies:
       '@graphql-tools/executor-http':
-        specifier: ^1.1.9
-        version: 1.3.3(@types/node@22.14.1)(graphql@16.10.0)
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@22.14.1)(graphql@16.10.0)
       '@graphql-tools/executor-urql-exchange':
         specifier: ^1.0.4
         version: 1.0.19(@urql/core@5.1.1(graphql@16.10.0))(graphql@16.10.0)(wonka@6.3.5)
@@ -1998,8 +1998,8 @@ importers:
         version: 10.8.6(graphql@16.10.0)
     devDependencies:
       '@graphql-tools/executor-http':
-        specifier: ^1.1.9
-        version: 1.3.3(@types/node@22.14.1)(graphql@16.10.0)
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@22.14.1)(graphql@16.10.0)
       '@whatwg-node/fetch':
         specifier: ^0.10.6
         version: 0.10.6
@@ -4444,6 +4444,12 @@ packages:
 
   '@graphql-tools/executor-http@1.3.3':
     resolution: {integrity: sha512-LIy+l08/Ivl8f8sMiHW2ebyck59JzyzO/yF9SFS4NH6MJZUezA1xThUXCDIKhHiD56h/gPojbkpcFvM2CbNE7A==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      graphql: 16.10.0
+
+  '@graphql-tools/executor-http@2.0.0':
+    resolution: {integrity: sha512-g+BKap50eqVM3gRkgdnqfEathNmKHox7wgEeioM2FU0p0TvPQve6CFcXIlK6CPoBcPEXB01WbZ/sRL62WGYctg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       graphql: 16.10.0
@@ -19500,6 +19506,21 @@ snapshots:
       - utf-8-validate
 
   '@graphql-tools/executor-http@1.3.3(@types/node@22.14.1)(graphql@16.10.0)':
+    dependencies:
+      '@graphql-hive/signal': 1.0.0
+      '@graphql-tools/executor-common': 0.0.4(graphql@16.10.0)
+      '@graphql-tools/utils': 10.8.6(graphql@16.10.0)
+      '@repeaterjs/repeater': 3.0.6
+      '@whatwg-node/disposablestack': 0.0.6
+      '@whatwg-node/fetch': 0.10.6
+      '@whatwg-node/promise-helpers': 1.3.1
+      graphql: 16.10.0
+      meros: 1.3.0(@types/node@22.14.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - '@types/node'
+
+  '@graphql-tools/executor-http@2.0.0(@types/node@22.14.1)(graphql@16.10.0)':
     dependencies:
       '@graphql-hive/signal': 1.0.0
       '@graphql-tools/executor-common': 0.0.4(graphql@16.10.0)
