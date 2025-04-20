@@ -55,7 +55,6 @@ describe('nextjs 13 App Router', () => {
   "date": null,
   "keep-alive": null,
   "transfer-encoding": "chunked",
-  "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch",
 }
 `);
 
