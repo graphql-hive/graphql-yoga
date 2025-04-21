@@ -147,7 +147,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.12.0
-        version: 4.12.0(@cloudflare/workers-types@4.20250419.0)
+        version: 4.12.0(@cloudflare/workers-types@4.20250420.0)
 
   benchmark:
     dependencies:
@@ -427,8 +427,8 @@ importers:
         version: link:../../packages/graphql-yoga/dist
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: 4.20250419.0
-        version: 4.20250419.0
+        specifier: 4.20250420.0
+        version: 4.20250420.0
       '@whatwg-node/fetch':
         specifier: ^0.10.1
         version: 0.10.6
@@ -437,7 +437,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.12.0
-        version: 4.12.0(@cloudflare/workers-types@4.20250419.0)
+        version: 4.12.0(@cloudflare/workers-types@4.20250420.0)
 
   examples/cookies:
     dependencies:
@@ -1374,7 +1374,7 @@ importers:
         version: 5.8.3
       wrangler:
         specifier: 4.12.0
-        version: 4.12.0(@cloudflare/workers-types@4.20250419.0)
+        version: 4.12.0(@cloudflare/workers-types@4.20250420.0)
 
   examples/sofa:
     dependencies:
@@ -3790,6 +3790,9 @@ packages:
 
   '@cloudflare/workers-types@4.20250419.0':
     resolution: {integrity: sha512-uu8gZ8P6teFsyfJOIXBrNC4ZsjLWPUEMeDqbQCdJ8OA6Rs/8QoUYD7ZSLW2kxsO/6upcbZir1WGrWp8088aVWg==}
+
+  '@cloudflare/workers-types@4.20250420.0':
+    resolution: {integrity: sha512-TFpHBfr9b2nscTDNPCnIJQZWqkraeM6QQksFZz/ZCGO8Q72NpOEtUkkXBn4rVGzh5YB+b9tYkeOMELBUJbg1HA==}
 
   '@codemirror/language@6.0.0':
     resolution: {integrity: sha512-rtjk5ifyMzOna1c7PBu7J1VCt0PvA5wy3o8eMVnxMKb7z8KA7JFecvD04dSn14vj/bBaAbqRsGed5OjtofEnLA==}
@@ -18672,6 +18675,8 @@ snapshots:
 
   '@cloudflare/workers-types@4.20250419.0': {}
 
+  '@cloudflare/workers-types@4.20250420.0': {}
+
   '@codemirror/language@6.0.0':
     dependencies:
       '@codemirror/state': 6.5.2
@@ -26456,7 +26461,7 @@ snapshots:
       '@typescript-eslint/parser': 8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3)
       eslint: 9.25.0(jiti@2.4.2)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.0(eslint-plugin-import@2.31.0)(eslint@9.25.0(jiti@2.4.2))
+      eslint-import-resolver-typescript: 3.10.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2))
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.0)(eslint@9.25.0(jiti@2.4.2))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.25.0(jiti@2.4.2))
       eslint-plugin-react: 7.37.4(eslint@9.25.0(jiti@2.4.2))
@@ -26484,7 +26489,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.0(eslint-plugin-import@2.31.0)(eslint@9.25.0(jiti@2.4.2)):
+  eslint-import-resolver-typescript@3.10.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.0(supports-color@9.4.0)
@@ -26540,14 +26545,14 @@ snapshots:
       - bluebird
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.0)(eslint@9.25.0(jiti@2.4.2)):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3)
       eslint: 9.25.0(jiti@2.4.2)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.0(eslint-plugin-import@2.31.0)(eslint@9.25.0(jiti@2.4.2))
+      eslint-import-resolver-typescript: 3.10.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -26569,7 +26574,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.25.0(jiti@2.4.2)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.0)(eslint@9.25.0(jiti@2.4.2))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.30.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2)))(eslint@9.25.0(jiti@2.4.2))
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -34998,6 +35003,24 @@ snapshots:
       workerd: 1.20250416.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250419.0
+      fsevents: 2.3.3
+      sharp: 0.33.5
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  wrangler@4.12.0(@cloudflare/workers-types@4.20250420.0):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.4.0
+      '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250416.0)
+      blake3-wasm: 2.1.5
+      esbuild: 0.25.2
+      miniflare: 4.20250416.0
+      path-to-regexp: 6.3.0
+      unenv: 2.0.0-rc.15
+      workerd: 1.20250416.0
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20250420.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:
