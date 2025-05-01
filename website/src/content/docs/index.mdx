@@ -177,10 +177,10 @@ export const schema = new GraphQLSchema({
 
 After you have created a GraphQL schema, simply pass it in to Yoga and liftoff! 🚀
 
-```js
+```js filename="server.js"
 import { createServer } from 'node:http'
 import { createYoga } from 'graphql-yoga'
-import { schema } from './schema'
+import { schema } from './schema.js'
 
 // Create a Yoga instance with a GraphQL schema.
 const yoga = createYoga({ schema })
