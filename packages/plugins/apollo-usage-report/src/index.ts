@@ -216,14 +216,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             const tracesPerQuery = tracesPerSchema[schemaId]!;
             const agentVersion = options.agentVersion || `graphql-yoga@${yoga.version}`;
             serverContext.waitUntil(
-              sendTrace(
-                options,
-                logger,
-                yoga.fetchAPI.fetch,
-                schemaId,
-                tracesPerQuery,
-                agentVersion,
-              ),
+              sendTrace(options, logger, yoga.fetchAPI, schemaId, tracesPerQuery, agentVersion),
             );
           }
         },
@@ -259,7 +252,7 @@ export function hashSHA256(
 function sendTrace(
   options: ApolloUsageReportOptions,
   logger: YogaLogger,
-  fetch: FetchAPI['fetch'],
+  { fetch, CompressionStream }: FetchAPI,
   schemaId: string,
   tracesPerQuery: Report['tracesPerQuery'],
   agentVersion: string,
@@ -270,7 +263,7 @@ function sendTrace(
     endpoint = DEFAULT_REPORTING_ENDPOINT,
   } = options;
 
-  const body = Report.encode({
+  const report = Report.encode({
     header: {
       agentVersion,
       graphRef,
@@ -279,19 +272,26 @@ function sendTrace(
     operationCount: 1,
     tracesPerQuery,
   }).finish();
+
   return handleMaybePromise(
-    () =>
-      fetch(endpoint, {
+    () => {
+      return fetch(endpoint, {
         method: 'POST',
         headers: {
           'content-type': 'application/protobuf',
+          'content-encoding': 'gzip',
           // The presence of the api key is already checked at Yoga initialization time
-
           'x-api-key': apiKey!,
           accept: 'application/json',
         },
-        body,
-      }),
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(report);
+            controller.close();
+          },
+        }).pipeThrough(new CompressionStream('gzip')),
+      });
+    },
     response =>
       handleMaybePromise(
         () => response.text(),
