@@ -1,4 +1,4 @@
-import { DocumentNode, getOperationAST, Kind, printSchema, stripIgnoredCharacters } from 'graphql';
+import { DocumentNode, getOperationAST, GraphQLSchema, Kind, printSchema } from 'graphql';
 import {
   isAsyncIterable,
   YogaLogger,
@@ -10,6 +10,10 @@ import {
   type YogaInitialContext,
 } from 'graphql-yoga';
 import { Report } from '@apollo/usage-reporting-protobuf';
+import {
+  calculateReferencedFieldsByType,
+  usageReportingSignature,
+} from '@apollo/utils.usagereporting';
 import {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
@@ -62,6 +66,7 @@ export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTrac
 }
 
 export interface ApolloUsageReportGraphqlContext extends ApolloInlineGraphqlTraceContext {
+  referencedFieldsByType: ReturnType<typeof calculateReferencedFieldsByType>;
   operationKey?: string;
   schemaId?: string;
 }
@@ -82,7 +87,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   ];
 
   let schemaIdSet$: MaybePromise<void> | undefined;
-  let schemaId: string;
+  let schema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
   const logger = Object.fromEntries(
     (['error', 'warn', 'info', 'debug'] as const).map(level => [
@@ -126,7 +131,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             schemaIdSet$ = handleMaybePromise(
               () => hashSHA256(printSchema(schema), yoga.fetchAPI),
               id => {
-                schemaId = id;
+                schema = { id, schema };
                 schemaIdSet$ = undefined;
               },
             );
@@ -139,6 +144,9 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
         onParse() {
           return function onParseEnd({ result, context }) {
+            if (!schema) {
+              throw new Error("should not happen: schema doesn't exists");
+            }
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
             if (!ctx) {
               logger.debug(
@@ -150,12 +158,17 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             const operationName =
               context.params.operationName ??
               (isDocumentNode(result) ? getOperationAST(result)?.name?.value : undefined);
-            const signature = context.params.query
-              ? stripIgnoredCharacters(context.params.query)
-              : '';
+            const signature = operationName
+              ? usageReportingSignature(result, operationName)
+              : (context.params.query ?? '');
 
+            ctx.referencedFieldsByType = calculateReferencedFieldsByType({
+              document: result,
+              schema: schema.schema,
+              resolvedOperationName: operationName ?? null,
+            });
             ctx.operationKey = `# ${operationName || '-'}\n${signature}`;
-            ctx.schemaId = schemaId;
+            ctx.schemaId = schema!.id;
           };
         },
 
@@ -194,7 +207,9 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
             tracesPerSchema[trace.schemaId] ||= {};
             tracesPerSchema[trace.schemaId]![trace.operationKey] ||= { trace: [] };
-            tracesPerSchema[trace.schemaId]![trace.operationKey]!.trace?.push(trace.trace);
+            const stats = tracesPerSchema[trace.schemaId]![trace.operationKey]!;
+            stats.trace?.push(trace.trace);
+            stats.referencedFieldsByType = trace.referencedFieldsByType;
           }
 
           for (const schemaId in tracesPerSchema) {
