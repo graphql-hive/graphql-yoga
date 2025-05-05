@@ -1941,6 +1941,9 @@ importers:
       '@apollo/usage-reporting-protobuf':
         specifier: ^4.1.1
         version: 4.1.1
+      '@apollo/utils.usagereporting':
+        specifier: ^2.1.0
+        version: 2.1.0(graphql@16.11.0)
       '@graphql-yoga/plugin-apollo-inline-trace':
         specifier: workspace:^
         version: link:../apollo-inline-trace/dist
@@ -2440,6 +2443,12 @@ packages:
     resolution: {integrity: sha512-UkS3xqnVFLZ3JFpEmU/2cM2iKJotQXMoSTgxXsfQgXLC5gR1WaepoXagmYnPSA7Q/2cmnyTYK5OgAgoC4RULPg==}
     engines: {node: '>=14'}
 
+  '@apollo/utils.dropunuseddefinitions@2.0.1':
+    resolution: {integrity: sha512-EsPIBqsSt2BwDsv8Wu76LK5R1KtsVkNoO4b0M5aK0hx+dGg9xJXuqlr7Fo34Dl+y83jmzn+UvEW+t1/GP2melA==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
+
   '@apollo/utils.fetcher@2.0.1':
     resolution: {integrity: sha512-jvvon885hEyWXd4H6zpWeN3tl88QcWnHp5gWF5OPF34uhvoR+DFqcNxs9vrRaBBSY3qda3Qe0bdud7tz2zGx1A==}
     engines: {node: '>=14'}
@@ -2463,6 +2472,36 @@ packages:
   '@apollo/utils.logger@3.0.0':
     resolution: {integrity: sha512-M8V8JOTH0F2qEi+ktPfw4RL7MvUycDfKp7aEap2eWXfL5SqWHN6jTLbj5f5fj1cceHpyaUSOZlvlaaryaxZAmg==}
     engines: {node: '>=16'}
+
+  '@apollo/utils.printwithreducedwhitespace@2.0.1':
+    resolution: {integrity: sha512-9M4LUXV/fQBh8vZWlLvb/HyyhjJ77/I5ZKu+NBWV/BmYGyRmoEP9EVAy7LCVoY3t8BDcyCAGfxJaLFCSuQkPUg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.removealiases@2.0.1':
+    resolution: {integrity: sha512-0joRc2HBO4u594Op1nev+mUF6yRnxoUH64xw8x3bX7n8QBDYdeYgY4tF0vJReTy+zdn2xv6fMsquATSgC722FA==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.sortast@2.0.1':
+    resolution: {integrity: sha512-eciIavsWpJ09za1pn37wpsCGrQNXUhM0TktnZmHwO+Zy9O4fu/WdB4+5BvVhFiZYOXvfjzJUcc+hsIV8RUOtMw==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.stripsensitiveliterals@2.0.1':
+    resolution: {integrity: sha512-QJs7HtzXS/JIPMKWimFnUMK7VjkGQTzqD9bKD1h3iuPAqLsxd0mUNVbkYOPTsDhUKgcvUOfOqOJWYohAKMvcSA==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.usagereporting@2.1.0':
+    resolution: {integrity: sha512-LPSlBrn+S17oBy5eWkrRSGb98sWmnEzo3DPTZgp8IQc8sJe0prDgDuppGq4NeQlpoqEHz0hQeYHAOA0Z3aQsxQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      graphql: 16.11.0
 
   '@ardatan/relay-compiler@12.0.3':
     resolution: {integrity: sha512-mBDFOGvAoVlWaWqs3hm1AciGHSQE1rqFc/liZTyYz/Oek9yZdT5H26pH2zAFuEiTiBVPPyMuqf5VjOFPI2DGsQ==}
@@ -2538,7 +2577,6 @@ packages:
     deprecated: |-
       AWS CDK v1 has reached End-of-Support on 2023-06-01.
       This package is no longer being updated, and users should migrate to AWS CDK v2.
-
       For more information on how to migrate, see https://docs.aws.amazon.com/cdk/v2/guide/migrating-v2.html
     peerDependencies:
       '@aws-cdk/aws-certificatemanager': 1.204.0
@@ -2815,7 +2853,6 @@ packages:
     deprecated: |-
       AWS CDK v1 has reached End-of-Support on 2023-06-01.
       This package is no longer being updated, and users should migrate to AWS CDK v2.
-
       For more information on how to migrate, see https://docs.aws.amazon.com/cdk/v2/guide/migrating-v2.html
     peerDependencies:
       '@aws-cdk/aws-applicationautoscaling': 1.204.0
@@ -3003,7 +3040,6 @@ packages:
     deprecated: |-
       AWS CDK v1 has reached End-of-Support on 2023-06-01.
       This package is no longer being updated, and users should migrate to AWS CDK v2.
-
       For more information on how to migrate, see https://docs.aws.amazon.com/cdk/v2/guide/migrating-v2.html
     peerDependencies:
       '@aws-cdk/cloud-assembly-schema': 1.204.0
@@ -17447,6 +17483,10 @@ snapshots:
       '@apollo/utils.isnodelike': 2.0.1
       sha.js: 2.4.11
 
+  '@apollo/utils.dropunuseddefinitions@2.0.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
   '@apollo/utils.fetcher@2.0.1': {}
 
   '@apollo/utils.isnodelike@2.0.1': {}
@@ -17464,6 +17504,33 @@ snapshots:
   '@apollo/utils.logger@2.0.1': {}
 
   '@apollo/utils.logger@3.0.0': {}
+
+  '@apollo/utils.printwithreducedwhitespace@2.0.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.removealiases@2.0.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.sortast@2.0.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+      lodash.sortby: 4.7.0
+
+  '@apollo/utils.stripsensitiveliterals@2.0.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
+  '@apollo/utils.usagereporting@2.1.0(graphql@16.11.0)':
+    dependencies:
+      '@apollo/usage-reporting-protobuf': 4.1.1
+      '@apollo/utils.dropunuseddefinitions': 2.0.1(graphql@16.11.0)
+      '@apollo/utils.printwithreducedwhitespace': 2.0.1(graphql@16.11.0)
+      '@apollo/utils.removealiases': 2.0.1(graphql@16.11.0)
+      '@apollo/utils.sortast': 2.0.1(graphql@16.11.0)
+      '@apollo/utils.stripsensitiveliterals': 2.0.1(graphql@16.11.0)
+      graphql: 16.11.0
 
   '@ardatan/relay-compiler@12.0.3(encoding@0.1.13)(graphql@16.11.0)':
     dependencies:
