@@ -1,17 +1,23 @@
 import { Client, createClient } from 'graphql-ws';
-import { us_socket_local_port } from 'uWebSockets.js';
 import ws from 'ws';
 import { crypto, fetch } from '@whatwg-node/fetch';
-import { app } from '../src/app';
 
 describe('uWebSockets', () => {
+  let uws: typeof import('uWebSockets.js');
+  try {
+    uws = require('uWebSockets.js');
+  } catch (e) {
+    it.skip('uWebSockets.js is not installed', () => {});
+    return;
+  }
+  const { app } = require('../src/app');
   let port: number;
   let client: Client;
   beforeAll(async () => {
     port = await new Promise((resolve, reject) => {
       app.listen(0, listenSocket => {
         if (listenSocket) {
-          resolve(us_socket_local_port(listenSocket));
+          resolve(uws.us_socket_local_port(listenSocket));
           return;
         }
         reject('Failed to start the server');

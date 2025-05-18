@@ -1,1 +1,1 @@
-FROM node:23
+FROM node:24-slim
