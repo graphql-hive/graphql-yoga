@@ -188,7 +188,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
     expect(JSON.parse(nullableFail.error![0]!.json!)).toMatchObject(expectedErrors[0]!);
   });
 
-  it('nonNullableFail - multi federated query - should return result with expected data and errors', async () => {
+  it.skip('nonNullableFail - multi federated query - should return result with expected data and errors', async () => {
     const query = /* GraphQL */ `
       query {
         testNestedField {
@@ -251,7 +251,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
     expect(JSON.parse(nonNullableFail.error![0]!.json!)).toMatchObject(expectedErrors[0]!);
   });
 
-  it.skip('nonNullableFail - simple federated query - should return result with expected data and errors', async () => {
+  it('nonNullableFail - simple federated query - should return result with expected data and errors', async () => {
     const query = /* GraphQL */ `
       query {
         testNestedField {
