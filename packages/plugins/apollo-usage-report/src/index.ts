@@ -1,4 +1,4 @@
-import { DocumentNode, getOperationAST, GraphQLSchema, Kind, printSchema } from 'graphql';
+import { DocumentNode, getOperationAST, GraphQLSchema, Kind } from 'graphql';
 import {
   isAsyncIterable,
   YogaLogger,
@@ -12,6 +12,7 @@ import {
   calculateReferencedFieldsByType,
   usageReportingSignature,
 } from '@apollo/utils.usagereporting';
+import { printSchemaWithDirectives } from '@graphql-tools/utils';
 import {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
@@ -129,7 +130,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   ];
 
   let schemaIdSet$: MaybePromise<void> | undefined;
-  let schema: { id: string; schema: GraphQLSchema } | undefined;
+  let currentSchema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
   let reporter: Reporter;
 
@@ -174,9 +175,9 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
         onSchemaChange({ schema }) {
           if (schema) {
-            schemaIdSet$ = hashSHA256(printSchema(schema), yoga.fetchAPI)
+            schemaIdSet$ = hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI)
               .then(id => {
-                schema = { id, schema };
+                currentSchema = { id, schema };
                 schemaIdSet$ = undefined;
               })
               .catch(error => {
@@ -191,7 +192,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
         onParse() {
           return function onParseEnd({ result, context }) {
-            if (!schema) {
+            if (!currentSchema) {
               throw new Error("should not happen: schema doesn't exists");
             }
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
@@ -211,11 +212,11 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
             ctx.referencedFieldsByType = calculateReferencedFieldsByType({
               document: result,
-              schema: schema.schema,
+              schema: currentSchema.schema,
               resolvedOperationName: operationName ?? null,
             });
             ctx.operationKey = `# ${operationName || '-'}\n${signature}`;
-            ctx.schemaId = schema!.id;
+            ctx.schemaId = currentSchema!.id;
           };
         },
 
@@ -249,7 +250,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             }
 
             serverContext.waitUntil(
-              reporter.addTrace(schema!.id, {
+              reporter.addTrace(currentSchema!.id, {
                 statsReportKey: trace.operationKey,
                 trace: trace.trace,
                 referencedFieldsByType: trace.referencedFieldsByType,
