@@ -39,10 +39,10 @@ export class Reporter {
     this.#yoga = yoga;
     this.#options = {
       ...options,
-      maxBatchDelay: options.maxBatchDelay ?? 20 * 60 * 1000, // 20min
+      maxBatchDelay: options.maxBatchDelay ?? 20_000, // 20s
       maxBatchUncompressedSize: options.maxBatchUncompressedSize ?? 4 * 1024 * 1024, // 4mb
       maxTraceSize: options.maxTraceSize ?? 10 * 1024 * 1024, // 10mb
-      exportTimeout: options.exportTimeout ?? 30 * 1000, // 60s
+      exportTimeout: options.exportTimeout ?? 30_000, // 30s
     };
     this.#reportHeaders = {
       graphRef: getGraphRef(options),
@@ -94,6 +94,7 @@ export class Reporter {
 
     if (this.#nextSendAfterDelay != null) {
       clearTimeout(this.#nextSendAfterDelay);
+      this.#nextSendAfterDelay = undefined;
     }
 
     delete this.#reportsBySchema[schemaId];
@@ -101,26 +102,18 @@ export class Reporter {
     report.ensureCountsAreIntegers();
 
     const validationError = Report.verify(report);
-    if (!validationError) {
+    if (validationError) {
       throw new TypeError(`Invalid report: ${validationError}`);
     }
-
-    const encodedReport = Report.encode(report).finish();
-    const compressedReport = new ReadableStream({
-      start(controller) {
-        controller.enqueue(encodedReport);
-        controller.close();
-      },
-    }).pipeThrough(new CompressionStream('gzip'));
 
     const { apiKey = getEnvVar('APOLLO_KEY'), endpoint = DEFAULT_REPORTING_ENDPOINT } =
       this.#options;
 
+    const encodedReport = Report.encode(report).finish();
+
     for (let tries = 0; tries < 5; tries++) {
       try {
-        const abortCtl = new AbortController();
         this.#logger?.debug(`Sending report (try ${tries}/5)`);
-        const timeout = setTimeout(() => abortCtl.abort(), this.#options.exportTimeout);
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -130,10 +123,14 @@ export class Reporter {
             'x-api-key': apiKey!,
             accept: 'application/json',
           },
-          body: compressedReport,
-          signal: abortCtl.signal,
+          body: new ReadableStream({
+            start(controller) {
+              controller.enqueue(encodedReport);
+              controller.close();
+            },
+          }).pipeThrough(new CompressionStream('gzip')),
+          signal: AbortSignal.timeout(this.#options.exportTimeout),
         });
-        clearTimeout(timeout);
 
         const result = await response.text();
         if (response.ok) {
