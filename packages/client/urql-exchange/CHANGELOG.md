@@ -1,5 +1,16 @@
 # @graphql-yoga/urql-exchange
 
+## 4.0.0
+
+### Major Changes
+
+- [#3998](https://github.com/graphql-hive/graphql-yoga/pull/3998)
+  [`8b41a52`](https://github.com/graphql-hive/graphql-yoga/commit/8b41a522917826b7ea24eca97e421b5aaeda6337)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/executor-http@^2.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/2.0.0)
+    (from `^1.1.9`, in `dependencies`)
+
 ## 3.13.4
 
 ## 3.13.3

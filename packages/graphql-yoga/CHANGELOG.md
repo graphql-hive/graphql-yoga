@@ -1,5 +1,13 @@
 # graphql-yoga
 
+## 5.13.5
+
+### Patch Changes
+
+- [#3998](https://github.com/graphql-hive/graphql-yoga/pull/3998)
+  [`8b41a52`](https://github.com/graphql-hive/graphql-yoga/commit/8b41a522917826b7ea24eca97e421b5aaeda6337)
+  Thanks [@renovate](https://github.com/apps/renovate)! - Remove extra error handling plugin
+
 ## 5.13.4
 
 ### Patch Changes
