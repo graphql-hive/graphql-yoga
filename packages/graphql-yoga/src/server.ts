@@ -11,14 +11,16 @@ import {
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
-import { mapAsyncIterator } from '@graphql-tools/utils';
 import { createLogger, LogLevel, YogaLogger } from '@graphql-yoga/logger';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import {
+  fakePromise,
   handleMaybePromise,
   iterateAsync,
   iterateAsyncVoid,
+  mapAsyncIterator,
   MaybePromise,
+  unfakePromise,
 } from '@whatwg-node/promise-helpers';
 import {
   createServerAdapter,
@@ -28,7 +30,6 @@ import {
   ServerAdapterOptions,
   ServerAdapterRequestHandler,
   useCORS,
-  useErrorHandling,
 } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
@@ -361,23 +362,6 @@ export class YogaServer<
       }),
       // Middlewares after the GraphQL execution
       useResultProcessors(),
-      useErrorHandling(
-        (error, request, serverContext: TServerContext & ServerAdapterInitialContext) => {
-          const errors = handleError(error, this.maskedErrorsOpts, this.logger);
-
-          const result = {
-            errors,
-          };
-
-          return processResult({
-            request,
-            result,
-            fetchAPI: this.fetchAPI,
-            onResultProcessHooks: this.onResultProcessHooks,
-            serverContext,
-          });
-        },
-      ),
 
       ...(options?.plugins ?? []),
       // To make sure those are called at the end
@@ -682,61 +666,77 @@ export class YogaServer<
       ? instrumented!.asyncFn(this.instrumentation?.requestParse, this.parseRequest)
       : this.parseRequest;
 
-    return handleMaybePromise(
-      () => parseRequest(request, serverContext),
-      ({ response, requestParserResult }) => {
-        if (response) {
-          return response;
-        }
-        const getResultForParams = this.instrumentation?.operation
-          ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
-              const instrumented = getInstrumented({ context, request: payload.request });
-              const tracedHandler = instrumented.asyncFn(
-                this.instrumentation?.operation,
-                this.getResultForParams,
-              );
-              return tracedHandler(payload, context);
-            }
-          : this.getResultForParams;
-        return handleMaybePromise(
-          () =>
-            (Array.isArray(requestParserResult)
-              ? Promise.all(
-                  requestParserResult.map(params =>
-                    getResultForParams(
-                      {
-                        params,
-                        request,
-                      },
-                      Object.create(serverContext),
+    return unfakePromise(
+      fakePromise()
+        .then(() => parseRequest(request, serverContext))
+        .then(({ response, requestParserResult }) => {
+          if (response) {
+            return response;
+          }
+          const getResultForParams = this.instrumentation?.operation
+            ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
+                const instrumented = getInstrumented({ context, request: payload.request });
+                const tracedHandler = instrumented.asyncFn(
+                  this.instrumentation?.operation,
+                  this.getResultForParams,
+                );
+                return tracedHandler(payload, context);
+              }
+            : this.getResultForParams;
+          return handleMaybePromise(
+            () =>
+              (Array.isArray(requestParserResult)
+                ? Promise.all(
+                    requestParserResult.map(params =>
+                      getResultForParams(
+                        {
+                          params,
+                          request,
+                        },
+                        Object.create(serverContext),
+                      ),
                     ),
-                  ),
-                )
-              : getResultForParams(
-                  {
-                    params: requestParserResult,
-                    request,
-                  },
-                  serverContext,
-                )) as ResultProcessorInput,
-          result => {
-            const tracedProcessResult = this.instrumentation?.resultProcess
-              ? instrumented!.asyncFn(
-                  this.instrumentation.resultProcess,
-                  processResult<TServerContext>,
-                )
-              : processResult<TServerContext>;
+                  )
+                : getResultForParams(
+                    {
+                      params: requestParserResult,
+                      request,
+                    },
+                    serverContext,
+                  )) as ResultProcessorInput,
+            result => {
+              const tracedProcessResult = this.instrumentation?.resultProcess
+                ? instrumented!.asyncFn(
+                    this.instrumentation.resultProcess,
+                    processResult<TServerContext>,
+                  )
+                : processResult<TServerContext>;
 
-            return tracedProcessResult({
-              request,
-              result,
-              fetchAPI: this.fetchAPI,
-              onResultProcessHooks: this.onResultProcessHooks,
-              serverContext,
-            });
-          },
-        );
-      },
+              return tracedProcessResult({
+                request,
+                result,
+                fetchAPI: this.fetchAPI,
+                onResultProcessHooks: this.onResultProcessHooks,
+                serverContext,
+              });
+            },
+          );
+        })
+        .catch(error => {
+          const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+
+          const result = {
+            errors,
+          };
+
+          return processResult({
+            request,
+            result,
+            fetchAPI: this.fetchAPI,
+            onResultProcessHooks: this.onResultProcessHooks,
+            serverContext,
+          });
+        }),
     );
   };
 }
