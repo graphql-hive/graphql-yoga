@@ -323,3 +323,17 @@ jobs:
           ENSURE_DELETION: 1
           TEST_PLAN_NAME: ${{ matrix.plan }}
           COMMIT_ID: ${{ steps.vars.outputs.sha_short }}
+
+  dependencies:
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release
+      Changes'
+    name: Dependencies
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-dependencies
+      cancel-in-progress: true
+    uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
+    with:
+      node-version-file: .node-version
+    secrets:
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}

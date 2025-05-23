@@ -1,7 +1,7 @@
 import { getOperationAST } from 'graphql';
 import { GetEnvelopedFn } from '@envelop/core';
 import { ExecutionArgs } from '@graphql-tools/executor';
-import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, iterateAsync, MaybePromise } from '@whatwg-node/promise-helpers';
 import { ServerAdapterInitialContext } from '@whatwg-node/server';
 import { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import { FetchAPI, GraphQLParams } from './types.js';
@@ -21,7 +21,7 @@ export function processResult<TServerContext>({
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
   serverContext: TServerContext & ServerAdapterInitialContext;
-}) {
+}): MaybePromise<Response> {
   let resultProcessor: ResultProcessor | undefined;
 
   const acceptableMediaTypes: string[] = [];
