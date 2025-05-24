@@ -39,6 +39,29 @@ app.listen(4000, () => {
 > You can also check a full example on our GitHub repository
 > [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/express)
 
+## Offline Usage
+
+By default, GraphiQL code is served from a CDN because to decrease bundle size. If you want to use
+GraphiQL from a local version, you need to install it manually.
+
+You need to pass imported `renderGraphiQL` to `createGatewayRuntime` like below:
+
+```ts filename="Render GraphiQL offline"
+import express from 'express'
+import { createGatewayRuntime } from '@graphql-hive/gateway-runtime'
+
+const app = express()
+
+const serveRuntime = createGatewayRuntime({ renderGraphiQL })
+
+// Bind Hive Gateway to the graphql endpoint to avoid rendering the playground on any path
+app.use(serveRuntime.graphqlEndpoint, serveRuntime)
+
+app.listen(4000, () => {
+  console.log('Running a GraphQL API server at http://localhost:4000/graphql')
+})
+```
+
 ## Using Helmet
 
 If you are using [Helmet](https://helmetjs.github.io/) to set your
