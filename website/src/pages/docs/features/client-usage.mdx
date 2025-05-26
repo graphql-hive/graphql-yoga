@@ -1,0 +1,160 @@
+## Apollo Client
+
+### Installation
+
+```bash
+npm install @apollo/client graphql
+```
+
+### Setup
+
+```javascript
+import { ApolloClient, InMemoryCache } from '@apollo/client'
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+  cache: new InMemoryCache()
+})
+```
+
+### Query
+
+```javascript
+import { gql } from '@apollo/client'
+
+const GET_DATA = gql`
+  query GetData {
+    data {
+      id
+      value
+    }
+  }
+`
+
+client.query({ query: GET_DATA }).then((response) => console.log(response.data))
+```
+
+### Mutation
+
+```javascript
+const UPDATE_DATA = gql`
+  mutation UpdateData($id: ID!, $value: String!) {
+    updateData(id: $id, value: $value) {
+      id
+      value
+    }
+  }
+`
+
+client
+  .mutate({ mutation: UPDATE_DATA, variables: { id: '1', value: 'newValue' } })
+  .then((response) => console.log(response.data))
+```
+
+### Subscription
+
+The subscription part is still in progress.
+
+## Relay Client
+
+### Installation
+
+```bash
+npm install relay-runtime react-relay
+```
+
+### Setup
+
+```javascript
+import { Environment, Network, RecordSource, Store } from 'relay-runtime'
+
+function fetchQuery(operation, variables, cacheConfig, uploadables) {
+  return fetch('http://localhost:4000/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: operation.text,
+      variables
+    })
+  }).then((response) => {
+    return response.json()
+  })
+}
+
+const environment = new Environment({
+  network: Network.create(fetchQuery),
+  store: new Store(new RecordSource())
+})
+```
+
+### Query
+
+I am still gathering detailed information about Queries in Relay with Yoga.
+
+### Mutation
+
+The mutation part is still in progress.
+
+### Subscription
+
+The subscription part is still in progress.
+
+## Urql Client
+
+### Installation
+
+```bash
+npm install urql graphql
+```
+
+### Setup
+
+```javascript
+import { createClient } from 'urql'
+
+const client = createClient({
+  url: 'http://localhost:4000/graphql'
+})
+```
+
+### Query
+
+```javascript
+import { gql } from 'graphql-tag'
+
+const GET_DATA = gql`
+  query GetData {
+    data {
+      id
+      value
+    }
+  }
+`
+
+client
+  .query(GET_DATA)
+  .toPromise()
+  .then((response) => console.log(response.data))
+```
+
+### Mutation
+
+```javascript
+const UPDATE_DATA = gql`
+  mutation UpdateData($id: ID!, $value: String!) {
+    updateData(id: $id, value: $value) {
+      id
+      value
+    }
+  }
+`
+
+client
+  .mutation(UPDATE_DATA, { id: '1', value: 'newValue' })
+  .toPromise()
+  .then((response) => console.log(response.data))
+```
+
+### Subscription
