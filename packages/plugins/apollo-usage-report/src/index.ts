@@ -195,6 +195,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             if (!currentSchema) {
               throw new Error("should not happen: schema doesn't exists");
             }
+
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
             if (!ctx) {
               logger.debug(
@@ -203,20 +204,22 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               return;
             }
 
-            const operationName =
-              context.params.operationName ??
-              (isDocumentNode(result) ? getOperationAST(result)?.name?.value : undefined);
-            const signature = operationName
-              ? usageReportingSignature(result, operationName)
-              : (context.params.query ?? '');
-
-            ctx.referencedFieldsByType = calculateReferencedFieldsByType({
-              document: result,
-              schema: currentSchema.schema,
-              resolvedOperationName: operationName ?? null,
-            });
-            ctx.operationKey = `# ${operationName || '-'}\n${signature}`;
             ctx.schemaId = currentSchema!.id;
+
+            // It is possible that the result is not a document when the parsing fails
+            const document = isDocumentNode(result) ? result : null;
+
+            if (document) {
+              const opName = getOperationAST(document, context.params.operationName)?.name?.value;
+              ctx.referencedFieldsByType = calculateReferencedFieldsByType({
+                document,
+                schema: currentSchema.schema,
+                resolvedOperationName: opName ?? null,
+              });
+              ctx.operationKey = `# ${opName || '-'}\n${opName && usageReportingSignature(document, opName)}`;
+            } else {
+              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+            }
           };
         },
 
