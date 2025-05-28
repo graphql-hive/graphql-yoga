@@ -1,24 +1,28 @@
-import { DocumentNode, getOperationAST, Kind, printSchema, stripIgnoredCharacters } from 'graphql';
+import { DocumentNode, getOperationAST, GraphQLSchema, Kind } from 'graphql';
 import {
   isAsyncIterable,
   YogaLogger,
   YogaServer,
-  type FetchAPI,
   type Maybe,
   type Plugin,
   type PromiseOrValue,
   type YogaInitialContext,
 } from 'graphql-yoga';
-import { Report } from '@apollo/usage-reporting-protobuf';
+import {
+  calculateReferencedFieldsByType,
+  usageReportingSignature,
+} from '@apollo/utils.usagereporting';
+import { printSchemaWithDirectives } from '@graphql-tools/utils';
 import {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
   ApolloInlineTracePluginOptions,
   useApolloInstrumentation,
 } from '@graphql-yoga/plugin-apollo-inline-trace';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import { MaybePromise } from '@whatwg-node/promise-helpers';
+import { getEnvVar, Reporter } from './reporter.js';
 
-type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
+export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
   /**
    * The graph ref of the managed federation graph.
    * It is composed of the graph ID and the variant (`<YOUR_GRAPH_ID>@<VARIANT>`).
@@ -55,6 +59,56 @@ type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
    * Client version to report to the usage reporting API
    */
   clientVersion?: StringFromRequestFn;
+  /**
+   * The version of the runtime (like 'node v23.7.0')
+   * @default empty string.
+   */
+  runtimeVersion?: string;
+  /**
+   * The hostname of the machine running this server
+   * @default $HOSTNAME environment variable
+   */
+  hostname?: string;
+  /**
+   * The OS identification string.
+   * The format is `${os.platform()}, ${os.type()}, ${os.release()}, ${os.arch()})`
+   * @default empty string
+   */
+  uname?: string;
+  /**
+   * The maximum estimated size of each traces in bytes. If the estimated size is higher than this threshold,
+   * the complete trace will not be sent and will be reduced to aggregated stats.
+   *
+   * Note: GraphOS only allow for traces of 10mb maximum
+   * @default 10 * 1024 * 1024 (10mb)
+   */
+  maxTraceSize?: number;
+  /**
+   * The maximum uncompressed size of a report in bytes.
+   * The report will be sent once this threshold is reached, even if the delay between send is not
+   * yet expired.
+   *
+   * @default 4Mb
+   */
+  maxBatchUncompressedSize?: number;
+  /**
+   * The maximum time in ms between reports.
+   * @default 20s
+   */
+  maxBatchDelay?: number;
+  /**
+   * Control if traces should be always sent.
+   * If false, the traces will be batched until a delay or size is reached.
+   * Note: This is highly not recommended in a production environment
+   *
+   * @default false
+   */
+  alwaysSend?: boolean;
+  /**
+   * Timeout in ms of a trace export tentative
+   * @default 30s
+   */
+  exportTimeout?: number;
 };
 
 export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTraceContext {
@@ -62,16 +116,10 @@ export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTrac
 }
 
 export interface ApolloUsageReportGraphqlContext extends ApolloInlineGraphqlTraceContext {
+  referencedFieldsByType: ReturnType<typeof calculateReferencedFieldsByType>;
   operationKey?: string;
   schemaId?: string;
 }
-
-function getEnvVar<T>(name: string, defaultValue?: T) {
-  return globalThis.process?.env?.[name] || defaultValue || undefined;
-}
-
-const DEFAULT_REPORTING_ENDPOINT =
-  'https://usage-reporting.api.apollographql.com/api/ingress/traces';
 
 type StringFromRequestFn = (req: Request) => Maybe<string>;
 
@@ -82,8 +130,10 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   ];
 
   let schemaIdSet$: MaybePromise<void> | undefined;
-  let schemaId: string;
+  let currentSchema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
+  let reporter: Reporter;
+
   const logger = Object.fromEntries(
     (['error', 'warn', 'info', 'debug'] as const).map(level => [
       level,
@@ -108,6 +158,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
       addPlugin({
         onYogaInit(args) {
           yoga = args.yoga;
+          reporter = new Reporter(options, yoga, logger);
 
           if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
             throw new Error(
@@ -121,15 +172,17 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             );
           }
         },
+
         onSchemaChange({ schema }) {
           if (schema) {
-            schemaIdSet$ = handleMaybePromise(
-              () => hashSHA256(printSchema(schema), yoga.fetchAPI),
-              id => {
-                schemaId = id;
+            schemaIdSet$ = hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI)
+              .then(id => {
+                currentSchema = { id, schema };
                 schemaIdSet$ = undefined;
-              },
-            );
+              })
+              .catch(error => {
+                logger.error('Failed to calculate schema hash: ', error);
+              });
           }
         },
 
@@ -139,6 +192,10 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 
         onParse() {
           return function onParseEnd({ result, context }) {
+            if (!currentSchema) {
+              throw new Error("should not happen: schema doesn't exists");
+            }
+
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
             if (!ctx) {
               logger.debug(
@@ -147,15 +204,22 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               return;
             }
 
-            const operationName =
-              context.params.operationName ??
-              (isDocumentNode(result) ? getOperationAST(result)?.name?.value : undefined);
-            const signature = context.params.query
-              ? stripIgnoredCharacters(context.params.query)
-              : '';
+            ctx.schemaId = currentSchema!.id;
 
-            ctx.operationKey = `# ${operationName || '-'}\n${signature}`;
-            ctx.schemaId = schemaId;
+            // It is possible that the result is not a document when the parsing fails
+            const document = isDocumentNode(result) ? result : null;
+
+            if (document) {
+              const opName = getOperationAST(document, context.params.operationName)?.name?.value;
+              ctx.referencedFieldsByType = calculateReferencedFieldsByType({
+                document,
+                schema: currentSchema.schema,
+                resolvedOperationName: opName ?? null,
+              });
+              ctx.operationKey = `# ${opName || '-'}\n${opName && usageReportingSignature(document, opName)}`;
+            } else {
+              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+            }
           };
         },
 
@@ -171,10 +235,6 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             logger.debug('operation tracing context not found, this operation will not be traced.');
             return;
           }
-
-          // Each operation in a batched request can belongs to a different schema.
-          // Apollo doesn't allow to send batch queries for multiple schemas in the same batch
-          const tracesPerSchema: Record<string, Report['tracesPerQuery']> = {};
 
           for (const trace of reqCtx.traces.values()) {
             if (!trace.schemaId || !trace.operationKey) {
@@ -192,32 +252,27 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               trace.trace.clientVersion = clientVersion;
             }
 
-            tracesPerSchema[trace.schemaId] ||= {};
-            tracesPerSchema[trace.schemaId]![trace.operationKey] ||= { trace: [] };
-            tracesPerSchema[trace.schemaId]![trace.operationKey]!.trace?.push(trace.trace);
-          }
-
-          for (const schemaId in tracesPerSchema) {
-            const tracesPerQuery = tracesPerSchema[schemaId]!;
-            const agentVersion = options.agentVersion || `graphql-yoga@${yoga.version}`;
             serverContext.waitUntil(
-              sendTrace(
-                options,
-                logger,
-                yoga.fetchAPI.fetch,
-                schemaId,
-                tracesPerQuery,
-                agentVersion,
-              ),
+              reporter.addTrace(currentSchema!.id, {
+                statsReportKey: trace.operationKey,
+                trace: trace.trace,
+                referencedFieldsByType: trace.referencedFieldsByType,
+                asTrace: true, // TODO: allow to not always send traces
+                nonFtv1ErrorPaths: [],
+                maxTraceBytes: options.maxTraceSize,
+              }),
             );
           }
+        },
+        async onDispose() {
+          await reporter?.flush();
         },
       });
     },
   };
 }
 
-export function hashSHA256(
+export async function hashSHA256(
   text: string,
   api: {
     crypto: Crypto;
@@ -225,73 +280,16 @@ export function hashSHA256(
   } = globalThis,
 ) {
   const inputUint8Array = new api.TextEncoder().encode(text);
-  return handleMaybePromise(
-    () => api.crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array),
-    arrayBuf => {
-      const outputUint8Array = new Uint8Array(arrayBuf);
+  const arrayBuf = await api.crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array);
+  const outputUint8Array = new Uint8Array(arrayBuf);
 
-      let hash = '';
-      for (const byte of outputUint8Array) {
-        const hex = byte.toString(16);
-        hash += '00'.slice(0, Math.max(0, 2 - hex.length)) + hex;
-      }
+  let hash = '';
+  for (const byte of outputUint8Array) {
+    const hex = byte.toString(16);
+    hash += '00'.slice(0, Math.max(0, 2 - hex.length)) + hex;
+  }
 
-      return hash;
-    },
-  );
-}
-
-function sendTrace(
-  options: ApolloUsageReportOptions,
-  logger: YogaLogger,
-  fetch: FetchAPI['fetch'],
-  schemaId: string,
-  tracesPerQuery: Report['tracesPerQuery'],
-  agentVersion: string,
-) {
-  const {
-    graphRef = getEnvVar('APOLLO_GRAPH_REF'),
-    apiKey = getEnvVar('APOLLO_KEY'),
-    endpoint = DEFAULT_REPORTING_ENDPOINT,
-  } = options;
-
-  const body = Report.encode({
-    header: {
-      agentVersion,
-      graphRef,
-      executableSchemaId: schemaId,
-    },
-    operationCount: 1,
-    tracesPerQuery,
-  }).finish();
-  return handleMaybePromise(
-    () =>
-      fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/protobuf',
-          // The presence of the api key is already checked at Yoga initialization time
-
-          'x-api-key': apiKey!,
-          accept: 'application/json',
-        },
-        body,
-      }),
-    response =>
-      handleMaybePromise(
-        () => response.text(),
-        responseText => {
-          if (response.ok) {
-            logger.debug('Traces sent:', responseText);
-          } else {
-            logger.error('Failed to send trace:', responseText);
-          }
-        },
-      ),
-    err => {
-      logger.error('Failed to send trace:', err);
-    },
-  );
+  return hash;
 }
 
 function isDocumentNode(data: unknown): data is DocumentNode {
