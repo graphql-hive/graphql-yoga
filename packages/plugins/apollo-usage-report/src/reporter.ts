@@ -7,16 +7,14 @@ const DEFAULT_REPORTING_ENDPOINT =
   'https://usage-reporting.api.apollographql.com/api/ingress/traces';
 
 export class Reporter {
-  #yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
-  #logger: YogaLogger = console;
-  #reportHeaders: {
+  private reportHeaders: {
     graphRef: string;
     hostname: string;
     uname: string;
     runtimeVersion: string;
     agentVersion: string;
   };
-  #options: {
+  private options: {
     apiKey?: string;
     endpoint?: string;
     alwaysSend?: boolean;
@@ -24,27 +22,27 @@ export class Reporter {
     maxBatchUncompressedSize: number;
     maxTraceSize: number;
     exportTimeout: number;
+    onError: (err: Error) => void;
   };
 
-  #reportsBySchema: Record<string, OurReport> = {};
-  #nextSendAfterDelay?: ReturnType<typeof setTimeout>;
-  #sending: Promise<unknown>[] = [];
+  private reportsBySchema: Record<string, OurReport> = {};
+  private nextSendAfterDelay?: ReturnType<typeof setTimeout>;
+  private sending: Promise<unknown>[] = [];
 
   constructor(
     options: ApolloUsageReportOptions,
-    yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
-    logger: YogaLogger,
+    private yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
+    private logger: YogaLogger,
   ) {
-    this.#logger = logger;
-    this.#yoga = yoga;
-    this.#options = {
+    this.options = {
       ...options,
       maxBatchDelay: options.maxBatchDelay ?? 20_000, // 20s
       maxBatchUncompressedSize: options.maxBatchUncompressedSize ?? 4 * 1024 * 1024, // 4mb
       maxTraceSize: options.maxTraceSize ?? 10 * 1024 * 1024, // 10mb
       exportTimeout: options.exportTimeout ?? 30_000, // 30s
+      onError: options.onError ?? (err => this.logger.error('Failed to send report', err)),
     };
-    this.#reportHeaders = {
+    this.reportHeaders = {
       graphRef: getGraphRef(options),
       hostname: options.hostname ?? getEnvVar('HOSTNAME') ?? '',
       uname: options.uname ?? '', // TODO: find a cross-platform way to get the uname
@@ -54,50 +52,50 @@ export class Reporter {
   }
 
   addTrace(schemaId: string, options: Parameters<OurReport['addTrace']>[0]) {
-    const report = this.#getReport(schemaId);
+    const report = this.getReport(schemaId);
     report.addTrace(options);
 
     if (
-      this.#options.alwaysSend ||
-      report.sizeEstimator.bytes >= this.#options.maxBatchUncompressedSize!
+      this.options.alwaysSend ||
+      report.sizeEstimator.bytes >= this.options.maxBatchUncompressedSize!
     ) {
-      return this.sendReport(schemaId);
+      return this._sendReport(schemaId);
     }
 
-    this.#nextSendAfterDelay ||= setTimeout(() => this.flush(), this.#options.maxBatchDelay);
+    this.nextSendAfterDelay ||= setTimeout(() => this.flush(), this.options.maxBatchDelay);
 
     return;
   }
 
   async flush() {
     return Promise.allSettled([
-      ...this.#sending, // When flushing, we want to also wait for previous traces to be sent, because it's mostly used for clean up
-      ...Object.keys(this.#reportsBySchema).map(schemaId => this.sendReport(schemaId)),
+      ...this.sending, // When flushing, we want to also wait for previous traces to be sent, because it's mostly used for clean up
+      ...Object.keys(this.reportsBySchema).map(schemaId => this._sendReport(schemaId)),
     ]);
   }
 
   async sendReport(schemaId: string) {
-    const sending = this.#sendReport(schemaId);
-    this.#sending.push(sending);
-    sending.finally(() => this.#sending?.filter(p => p !== sending));
+    const sending = this._sendReport(schemaId);
+    this.sending.push(sending);
+    sending.finally(() => (this.sending = this.sending?.filter(p => p !== sending)));
     return sending;
   }
 
-  async #sendReport(schemaId: string) {
+  private async _sendReport(schemaId: string) {
     const {
       fetchAPI: { fetch, CompressionStream, ReadableStream },
-    } = this.#yoga;
-    const report = this.#reportsBySchema[schemaId];
+    } = this.yoga;
+    const report = this.reportsBySchema[schemaId];
     if (!report) {
       throw new Error(`No report to send for schema ${schemaId}`);
     }
 
-    if (this.#nextSendAfterDelay != null) {
-      clearTimeout(this.#nextSendAfterDelay);
-      this.#nextSendAfterDelay = undefined;
+    if (this.nextSendAfterDelay != null) {
+      clearTimeout(this.nextSendAfterDelay);
+      this.nextSendAfterDelay = undefined;
     }
 
-    delete this.#reportsBySchema[schemaId];
+    delete this.reportsBySchema[schemaId];
     report.endTime = dateToProtoTimestamp(new Date());
     report.ensureCountsAreIntegers();
 
@@ -107,13 +105,14 @@ export class Reporter {
     }
 
     const { apiKey = getEnvVar('APOLLO_KEY'), endpoint = DEFAULT_REPORTING_ENDPOINT } =
-      this.#options;
+      this.options;
 
     const encodedReport = Report.encode(report).finish();
 
+    let lastError: unknown;
     for (let tries = 0; tries < 5; tries++) {
       try {
-        this.#logger?.debug(`Sending report (try ${tries}/5)`);
+        this.logger.debug(`Sending report (try ${tries}/5)`);
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -129,32 +128,33 @@ export class Reporter {
               controller.close();
             },
           }).pipeThrough(new CompressionStream('gzip')),
-          signal: AbortSignal.timeout(this.#options.exportTimeout),
+          signal: AbortSignal.timeout(this.options.exportTimeout),
         });
 
         const result = await response.text();
         if (response.ok) {
-          this.#logger?.debug('Report sent:', result);
+          this.logger.debug('Report sent:', result);
           return;
         }
 
         throw result;
       } catch (err) {
-        this.#logger?.error('Failed to send report:', err);
+        lastError = err;
+        this.logger.error('Failed to send report:', err);
       }
     }
 
-    throw new Error('Failed to send traces after 5 tries');
+    this.options.onError(new Error('Failed to send traces after 5 tries', { cause: lastError }));
   }
 
-  #getReport(schemaId: string): OurReport {
-    const report = this.#reportsBySchema[schemaId];
+  private getReport(schemaId: string): OurReport {
+    const report = this.reportsBySchema[schemaId];
     if (report) {
       return report;
     }
-    return (this.#reportsBySchema[schemaId] = new OurReport(
+    return (this.reportsBySchema[schemaId] = new OurReport(
       new ReportHeader({
-        ...this.#reportHeaders,
+        ...this.reportHeaders,
         executableSchemaId: schemaId,
       }),
     ));

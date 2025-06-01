@@ -12,7 +12,7 @@ import {
   calculateReferencedFieldsByType,
   usageReportingSignature,
 } from '@apollo/utils.usagereporting';
-import { printSchemaWithDirectives } from '@graphql-tools/utils';
+import { printSchemaWithDirectives, withState } from '@graphql-tools/utils';
 import {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
@@ -109,6 +109,20 @@ export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
    * @default 30s
    */
   exportTimeout?: number;
+  /**
+   * The class to be used to keep track of traces and send them to the GraphOS endpoint
+   * Note: This option is aimed to be used for testing purposes
+   */
+  reporter?: (
+    options: ApolloUsageReportOptions,
+    yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
+    logger: YogaLogger,
+  ) => Reporter;
+  /**
+   * Called when all retry attempts to send a report to GraphOS endpoint failed.
+   * By default, the error is logged.
+   */
+  onError?: (err: Error) => void;
 };
 
 export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTraceContext {
@@ -116,7 +130,7 @@ export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTrac
 }
 
 export interface ApolloUsageReportGraphqlContext extends ApolloInlineGraphqlTraceContext {
-  referencedFieldsByType: ReturnType<typeof calculateReferencedFieldsByType>;
+  referencedFieldsByType?: ReturnType<typeof calculateReferencedFieldsByType>;
   operationKey?: string;
   schemaId?: string;
 }
@@ -129,10 +143,26 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
     WeakMap<Request, ApolloUsageReportRequestContext>,
   ];
 
+  const makeReporter = options.reporter ?? ((...args) => new Reporter(...args));
+
   let schemaIdSet$: MaybePromise<void> | undefined;
   let currentSchema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
   let reporter: Reporter;
+
+  const setCurrentSchema = async (schema: GraphQLSchema) => {
+    try {
+      currentSchema = {
+        id: await hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI),
+        schema,
+      };
+    } catch (error) {
+      logger.error('Failed to calculate schema hash: ', error);
+    }
+
+    // We don't want to block server start even if we failed to compute schema id
+    schemaIdSet$ = undefined;
+  };
 
   const logger = Object.fromEntries(
     (['error', 'warn', 'info', 'debug'] as const).map(level => [
@@ -155,119 +185,142 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   return {
     onPluginInit({ addPlugin }) {
       addPlugin(instrumentation);
-      addPlugin({
-        onYogaInit(args) {
-          yoga = args.yoga;
-          reporter = new Reporter(options, yoga, logger);
+      addPlugin(
+        withState<Plugin, never, { document?: DocumentNode }>(() => ({
+          onYogaInit(args) {
+            yoga = args.yoga;
+            reporter = makeReporter(options, yoga, logger);
 
-          if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
-            throw new Error(
-              `[ApolloUsageReport] Missing API key. Please provide one in plugin options or with 'APOLLO_KEY' environment variable.`,
-            );
-          }
-
-          if (!getEnvVar('APOLLO_GRAPH_REF', options.graphRef)) {
-            throw new Error(
-              `[ApolloUsageReport] Missing Graph Ref. Please provide one in plugin options or with 'APOLLO_GRAPH_REF' environment variable.`,
-            );
-          }
-        },
-
-        onSchemaChange({ schema }) {
-          if (schema) {
-            schemaIdSet$ = hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI)
-              .then(id => {
-                currentSchema = { id, schema };
-                schemaIdSet$ = undefined;
-              })
-              .catch(error => {
-                logger.error('Failed to calculate schema hash: ', error);
-              });
-          }
-        },
-
-        onRequestParse(): PromiseOrValue<void> {
-          return schemaIdSet$;
-        },
-
-        onParse() {
-          return function onParseEnd({ result, context }) {
-            if (!currentSchema) {
-              throw new Error("should not happen: schema doesn't exists");
+            if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
+              throw new Error(
+                `[ApolloUsageReport] Missing API key. Please provide one in plugin options or with 'APOLLO_KEY' environment variable.`,
+              );
             }
 
-            const ctx = ctxForReq.get(context.request)?.traces.get(context);
-            if (!ctx) {
+            if (!getEnvVar('APOLLO_GRAPH_REF', options.graphRef)) {
+              throw new Error(
+                `[ApolloUsageReport] Missing Graph Ref. Please provide one in plugin options or with 'APOLLO_GRAPH_REF' environment variable.`,
+              );
+            }
+
+            if (!schemaIdSet$ && !currentSchema) {
+              // When the schema is static, the `onSchemaChange` hook is called before initialization
+              // We have to handle schema loading here in this case.
+              const { schema } = yoga.getEnveloped();
+              if (schema) {
+                schemaIdSet$ = setCurrentSchema(schema);
+              }
+            }
+          },
+
+          onSchemaChange({ schema }) {
+            if (schema && // When the schema is static, this hook is called before yoga initialization
+              // Since we need yoga.fetchAPI for id calculation, we need to wait for Yoga init
+              yoga) {
+                schemaIdSet$ = setCurrentSchema(schema);
+              }
+          },
+
+          onRequestParse(): PromiseOrValue<void> {
+            return schemaIdSet$;
+          },
+
+          onParse({ state }) {
+            return function onParseEnd({ result, context }) {
+              const ctx = ctxForReq.get(context.request)?.traces.get(context);
+              if (!ctx) {
+                logger.debug(
+                  'operation tracing context not found, this operation will not be traced.',
+                );
+                return;
+              }
+
+              ctx.schemaId = currentSchema!.id;
+
+              if (isDocumentNode(result)) {
+                state.forOperation.document = result;
+              } else {
+                ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+              }
+            };
+          },
+
+          onValidate({ state }) {
+            return ({ valid, context }) => {
+              const ctx = ctxForReq.get(context.request)?.traces.get(context);
+              if (!ctx) {
+                logger.debug(
+                  'operation tracing context not found, this operation will not be traced.',
+                );
+                return;
+              }
+
+              if (valid) {
+                if (!currentSchema) {
+                  throw new Error("should not happen: schema doesn't exists");
+                }
+                const document = state.forOperation.document!;
+                const opName = getOperationAST(document, context.params.operationName)?.name?.value;
+                ctx.referencedFieldsByType = calculateReferencedFieldsByType({
+                  document,
+                  schema: currentSchema.schema,
+                  resolvedOperationName: opName ?? null,
+                });
+                ctx.operationKey = `# ${opName || '-'}\n${usageReportingSignature(document, opName ?? '')}`;
+              } else {
+                ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+              }
+            };
+          },
+
+          onResultProcess({ request, result, serverContext }) {
+            // TODO: Handle async iterables ?
+            if (isAsyncIterable(result)) {
+              logger.debug('async iterable results not implemented for now');
+              return;
+            }
+
+            const reqCtx = ctxForReq.get(request);
+            if (!reqCtx) {
               logger.debug(
                 'operation tracing context not found, this operation will not be traced.',
               );
               return;
             }
 
-            ctx.schemaId = currentSchema!.id;
+            for (const trace of reqCtx.traces.values()) {
+              if (!trace.schemaId || !trace.operationKey) {
+                logger.debug('Misformed trace, missing operation key or schema id');
+                continue;
+              }
 
-            // It is possible that the result is not a document when the parsing fails
-            const document = isDocumentNode(result) ? result : null;
+              const clientName = clientNameFactory(request);
+              if (clientName) {
+                trace.trace.clientName = clientName;
+              }
 
-            if (document) {
-              const opName = getOperationAST(document, context.params.operationName)?.name?.value;
-              ctx.referencedFieldsByType = calculateReferencedFieldsByType({
-                document,
-                schema: currentSchema.schema,
-                resolvedOperationName: opName ?? null,
-              });
-              ctx.operationKey = `# ${opName || '-'}\n${opName && usageReportingSignature(document, opName)}`;
-            } else {
-              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+              const clientVersion = clientVersionFactory(request);
+              if (clientVersion) {
+                trace.trace.clientVersion = clientVersion;
+              }
+
+              serverContext.waitUntil(
+                reporter.addTrace(currentSchema!.id, {
+                  statsReportKey: trace.operationKey,
+                  trace: trace.trace,
+                  referencedFieldsByType: trace.referencedFieldsByType ?? {},
+                  asTrace: true, // TODO: allow to not always send traces
+                  nonFtv1ErrorPaths: [],
+                  maxTraceBytes: options.maxTraceSize,
+                }),
+              );
             }
-          };
-        },
-
-        onResultProcess({ request, result, serverContext }) {
-          // TODO: Handle async iterables ?
-          if (isAsyncIterable(result)) {
-            logger.debug('async iterable results not implemented for now');
-            return;
-          }
-
-          const reqCtx = ctxForReq.get(request);
-          if (!reqCtx) {
-            logger.debug('operation tracing context not found, this operation will not be traced.');
-            return;
-          }
-
-          for (const trace of reqCtx.traces.values()) {
-            if (!trace.schemaId || !trace.operationKey) {
-              logger.debug('Misformed trace, missing operation key or schema id');
-              continue;
-            }
-
-            const clientName = clientNameFactory(request);
-            if (clientName) {
-              trace.trace.clientName = clientName;
-            }
-
-            const clientVersion = clientVersionFactory(request);
-            if (clientVersion) {
-              trace.trace.clientVersion = clientVersion;
-            }
-
-            serverContext.waitUntil(
-              reporter.addTrace(currentSchema!.id, {
-                statsReportKey: trace.operationKey,
-                trace: trace.trace,
-                referencedFieldsByType: trace.referencedFieldsByType,
-                asTrace: true, // TODO: allow to not always send traces
-                nonFtv1ErrorPaths: [],
-                maxTraceBytes: options.maxTraceSize,
-              }),
-            );
-          }
-        },
-        async onDispose() {
-          await reporter?.flush();
-        },
-      });
+          },
+          async onDispose() {
+            await reporter?.flush();
+          },
+        })),
+      );
     },
   };
 }
