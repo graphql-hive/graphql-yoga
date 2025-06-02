@@ -122,6 +122,8 @@ export class Reporter {
             'x-api-key': apiKey!,
             accept: 'application/json',
           },
+          //@ts-expect-error `duplex` option is not in type but required
+          duplex: 'half',
           body: new ReadableStream({
             start(controller) {
               controller.enqueue(encodedReport);
