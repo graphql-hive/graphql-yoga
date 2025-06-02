@@ -143,9 +143,11 @@ function createTestEnv(
       fetch: async (url, init) => {
         if (url.toString().includes('usage-reporting.api.apollographql.com')) {
           try {
-            const body = init?.body as ReadableStream;
-            const chunks = await Array.fromAsync(body.pipeThrough(new DecompressionStream('gzip')));
-            reportSent.resolve(Report.decode(concatArrayBuffers(chunks)));
+            const bodyStream = init?.body as ReadableStream;
+            const body = await streamToUint8Array(
+              bodyStream.pipeThrough(new DecompressionStream('gzip')),
+            );
+            reportSent.resolve(Report.decode(body));
 
             return options.graphosFetch
               ? options.graphosFetch(url, init)
@@ -216,12 +218,20 @@ const schema = createSchema({
   },
 });
 
-function concatArrayBuffers(chunks: Uint8Array[]): Uint8Array {
-  const result = new Uint8Array(chunks.reduce((a, c) => a + c.length, 0));
+async function streamToUint8Array(stream: ReadableStream): Promise<Uint8Array> {
+  const chunks = [];
+  let size = 0;
+  for await (let chunk of stream) {
+    size += chunk.length;
+    chunks.push(chunk);
+  }
+
+  const result = new Uint8Array(size);
   let offset = 0;
   for (const chunk of chunks) {
     result.set(chunk, offset);
     offset += chunk.length;
   }
+
   return result;
 }
