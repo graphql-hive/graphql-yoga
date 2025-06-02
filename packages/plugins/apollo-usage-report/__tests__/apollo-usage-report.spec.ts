@@ -221,7 +221,7 @@ const schema = createSchema({
 async function streamToUint8Array(stream: ReadableStream): Promise<Uint8Array> {
   const chunks = [];
   let size = 0;
-  for await (let chunk of stream) {
+  for await (const chunk of stream) {
     size += chunk.length;
     chunks.push(chunk);
   }
