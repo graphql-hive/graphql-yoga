@@ -12,7 +12,7 @@ import {
   calculateReferencedFieldsByType,
   usageReportingSignature,
 } from '@apollo/utils.usagereporting';
-import { printSchemaWithDirectives, withState } from '@graphql-tools/utils';
+import { printSchemaWithDirectives } from '@graphql-tools/utils';
 import {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
@@ -185,143 +185,136 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   return {
     onPluginInit({ addPlugin }) {
       addPlugin(instrumentation);
-      addPlugin(
-        withState<Plugin, never, { document?: DocumentNode }>(() => ({
-          onYogaInit(args) {
-            yoga = args.yoga;
-            reporter = makeReporter(options, yoga, logger);
+      addPlugin({
+        onYogaInit(args) {
+          yoga = args.yoga;
+          reporter = makeReporter(options, yoga, logger);
 
-            if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
-              throw new Error(
-                `[ApolloUsageReport] Missing API key. Please provide one in plugin options or with 'APOLLO_KEY' environment variable.`,
-              );
-            }
+          if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
+            throw new Error(
+              `[ApolloUsageReport] Missing API key. Please provide one in plugin options or with 'APOLLO_KEY' environment variable.`,
+            );
+          }
 
-            if (!getEnvVar('APOLLO_GRAPH_REF', options.graphRef)) {
-              throw new Error(
-                `[ApolloUsageReport] Missing Graph Ref. Please provide one in plugin options or with 'APOLLO_GRAPH_REF' environment variable.`,
-              );
-            }
+          if (!getEnvVar('APOLLO_GRAPH_REF', options.graphRef)) {
+            throw new Error(
+              `[ApolloUsageReport] Missing Graph Ref. Please provide one in plugin options or with 'APOLLO_GRAPH_REF' environment variable.`,
+            );
+          }
 
-            if (!schemaIdSet$ && !currentSchema) {
-              // When the schema is static, the `onSchemaChange` hook is called before initialization
-              // We have to handle schema loading here in this case.
-              const { schema } = yoga.getEnveloped();
-              if (schema) {
-                schemaIdSet$ = setCurrentSchema(schema);
-              }
-            }
-          },
-
-          onSchemaChange({ schema }) {
-            // When the schema is static, this hook is called before yoga initialization
-            // Since we need yoga.fetchAPI for id calculation, we need to wait for Yoga init
-
-            if (schema && yoga) {
+          if (!schemaIdSet$ && !currentSchema) {
+            // When the schema is static, the `onSchemaChange` hook is called before initialization
+            // We have to handle schema loading here in this case.
+            const { schema } = yoga.getEnveloped();
+            if (schema) {
               schemaIdSet$ = setCurrentSchema(schema);
             }
-          },
+          }
+        },
 
-          onRequestParse(): PromiseOrValue<void> {
-            return schemaIdSet$;
-          },
+        onSchemaChange({ schema }) {
+          // When the schema is static, this hook is called before yoga initialization
+          // Since we need yoga.fetchAPI for id calculation, we need to wait for Yoga init
 
-          onParse({ state }) {
-            return function onParseEnd({ result, context }) {
-              const ctx = ctxForReq.get(context.request)?.traces.get(context);
-              if (!ctx) {
-                logger.debug(
-                  'operation tracing context not found, this operation will not be traced.',
-                );
-                return;
-              }
+          if (schema && yoga) {
+            schemaIdSet$ = setCurrentSchema(schema);
+          }
+        },
 
-              ctx.schemaId = currentSchema!.id;
+        onRequestParse(): PromiseOrValue<void> {
+          return schemaIdSet$;
+        },
 
-              if (isDocumentNode(result)) {
-                state.forOperation.document = result;
-              } else {
-                ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
-              }
-            };
-          },
-
-          onValidate({ state }) {
-            return ({ valid, context }) => {
-              const ctx = ctxForReq.get(context.request)?.traces.get(context);
-              if (!ctx) {
-                logger.debug(
-                  'operation tracing context not found, this operation will not be traced.',
-                );
-                return;
-              }
-
-              if (valid) {
-                if (!currentSchema) {
-                  throw new Error("should not happen: schema doesn't exists");
-                }
-                const document = state.forOperation.document!;
-                const opName = getOperationAST(document, context.params.operationName)?.name?.value;
-                ctx.referencedFieldsByType = calculateReferencedFieldsByType({
-                  document,
-                  schema: currentSchema.schema,
-                  resolvedOperationName: opName ?? null,
-                });
-                ctx.operationKey = `# ${opName || '-'}\n${usageReportingSignature(document, opName ?? '')}`;
-              } else {
-                ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
-              }
-            };
-          },
-
-          onResultProcess({ request, result, serverContext }) {
-            // TODO: Handle async iterables ?
-            if (isAsyncIterable(result)) {
-              logger.debug('async iterable results not implemented for now');
-              return;
-            }
-
-            const reqCtx = ctxForReq.get(request);
-            if (!reqCtx) {
+        onParse() {
+          return function onParseEnd({ result, context }) {
+            const ctx = ctxForReq.get(context.request)?.traces.get(context);
+            if (!ctx) {
               logger.debug(
                 'operation tracing context not found, this operation will not be traced.',
               );
               return;
             }
 
-            for (const trace of reqCtx.traces.values()) {
-              if (!trace.schemaId || !trace.operationKey) {
-                logger.debug('Misformed trace, missing operation key or schema id');
-                continue;
-              }
+            ctx.schemaId = currentSchema!.id;
 
-              const clientName = clientNameFactory(request);
-              if (clientName) {
-                trace.trace.clientName = clientName;
-              }
-
-              const clientVersion = clientVersionFactory(request);
-              if (clientVersion) {
-                trace.trace.clientVersion = clientVersion;
-              }
-
-              serverContext.waitUntil(
-                reporter.addTrace(currentSchema!.id, {
-                  statsReportKey: trace.operationKey,
-                  trace: trace.trace,
-                  referencedFieldsByType: trace.referencedFieldsByType ?? {},
-                  asTrace: true, // TODO: allow to not always send traces
-                  nonFtv1ErrorPaths: [],
-                  maxTraceBytes: options.maxTraceSize,
-                }),
-              );
+            if (!isDocumentNode(result)) {
+              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
             }
-          },
-          async onDispose() {
-            await reporter?.flush();
-          },
-        })),
-      );
+          };
+        },
+
+        onValidate({ params: { documentAST: document } }) {
+          return ({ valid, context }) => {
+            const ctx = ctxForReq.get(context.request)?.traces.get(context);
+            if (!ctx) {
+              logger.debug(
+                'operation tracing context not found, this operation will not be traced.',
+              );
+              return;
+            }
+
+            if (valid) {
+              if (!currentSchema) {
+                throw new Error("should not happen: schema doesn't exists");
+              }
+              const opName = getOperationAST(document, context.params.operationName)?.name?.value;
+              ctx.referencedFieldsByType = calculateReferencedFieldsByType({
+                document,
+                schema: currentSchema.schema,
+                resolvedOperationName: opName ?? null,
+              });
+              ctx.operationKey = `# ${opName || '-'}\n${usageReportingSignature(document, opName ?? '')}`;
+            } else {
+              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+            }
+          };
+        },
+
+        onResultProcess({ request, result, serverContext }) {
+          // TODO: Handle async iterables ?
+          if (isAsyncIterable(result)) {
+            logger.debug('async iterable results not implemented for now');
+            return;
+          }
+
+          const reqCtx = ctxForReq.get(request);
+          if (!reqCtx) {
+            logger.debug('operation tracing context not found, this operation will not be traced.');
+            return;
+          }
+
+          for (const trace of reqCtx.traces.values()) {
+            if (!trace.schemaId || !trace.operationKey) {
+              logger.debug('Misformed trace, missing operation key or schema id');
+              continue;
+            }
+
+            const clientName = clientNameFactory(request);
+            if (clientName) {
+              trace.trace.clientName = clientName;
+            }
+
+            const clientVersion = clientVersionFactory(request);
+            if (clientVersion) {
+              trace.trace.clientVersion = clientVersion;
+            }
+
+            serverContext.waitUntil(
+              reporter.addTrace(currentSchema!.id, {
+                statsReportKey: trace.operationKey,
+                trace: trace.trace,
+                referencedFieldsByType: trace.referencedFieldsByType ?? {},
+                asTrace: true, // TODO: allow to not always send traces
+                nonFtv1ErrorPaths: [],
+                maxTraceBytes: options.maxTraceSize,
+              }),
+            );
+          }
+        },
+        async onDispose() {
+          await reporter?.flush();
+        },
+      });
     },
   };
 }
