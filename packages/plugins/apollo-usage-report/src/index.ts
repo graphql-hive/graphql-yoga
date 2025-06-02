@@ -214,11 +214,13 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
           },
 
           onSchemaChange({ schema }) {
-            if (schema && // When the schema is static, this hook is called before yoga initialization
+            if (
+              schema && // When the schema is static, this hook is called before yoga initialization
               // Since we need yoga.fetchAPI for id calculation, we need to wait for Yoga init
-              yoga) {
-                schemaIdSet$ = setCurrentSchema(schema);
-              }
+              yoga
+            ) {
+              schemaIdSet$ = setCurrentSchema(schema);
+            }
           },
 
           onRequestParse(): PromiseOrValue<void> {
