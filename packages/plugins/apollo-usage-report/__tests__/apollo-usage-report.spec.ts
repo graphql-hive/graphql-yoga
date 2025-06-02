@@ -118,7 +118,7 @@ describe('apollo-usage-report', () => {
 
     await testEnv.query();
     await testEnv.reportSent;
-    // @ts-ignore Accessing a private field
+    // @ts-expect-error Accessing a private field
     expect(reporter!.sending).toHaveLength(0);
 
     await testEnv[DisposableSymbols.asyncDispose]();
