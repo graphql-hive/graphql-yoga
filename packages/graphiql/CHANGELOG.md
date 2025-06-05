@@ -1,5 +1,16 @@
 # @graphql-yoga/graphiql
 
+## 4.3.6
+
+### Patch Changes
+
+- [#4063](https://github.com/graphql-hive/graphql-yoga/pull/4063)
+  [`823918a`](https://github.com/graphql-hive/graphql-yoga/commit/823918a8fb7a4ef9a0a9872d6404b0f0c665f1b4)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphiql/toolkit@0.11.3` ↗︎](https://www.npmjs.com/package/@graphiql/toolkit/v/0.11.3) (from
+    `0.11.1`, in `dependencies`)
+
 ## 4.3.5
 
 ### Patch Changes
