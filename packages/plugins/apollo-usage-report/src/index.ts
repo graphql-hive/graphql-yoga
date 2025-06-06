@@ -240,16 +240,26 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               return;
             }
 
-            if (!isDocumentNode(result)) {
-              if (options.sendUnexecutableOperationDocuments === false) {
-                // To make sure the trace will not be sent, remove request's tracing context
-                ctxForReq.delete(context.request);
+            ctx.schemaId = currentSchema!.id;
+
+            if (isDocumentNode(result)) {
+              if (getOperationAST(result, context.params.operationName)) {
                 return;
-              }
-              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+              } 
+                ctx.operationKey = `## GraphQLUnknownOperationName\n`;
+              
+            } else {
+              ctx.operationKey = '## GraphQLParseFailure\n';
             }
 
-            ctx.schemaId = currentSchema!.id;
+            if (options.sendUnexecutableOperationDocuments === false) {
+              // To make sure the trace will not be sent, remove request's tracing context
+              ctxForReq.delete(context.request);
+              return;
+            }
+
+            ctx.trace.unexecutedOperationName = context.params.operationName || '';
+            ctx.trace.unexecutedOperationBody = context.params.query || '';
           };
         },
 
@@ -278,7 +288,9 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               // To make sure the trace will not be sent, remove request's tracing context
               ctxForReq.delete(context.request);
             } else {
-              ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
+              ctx.operationKey = '## GraphQLValidationFailure\n';
+              ctx.trace.unexecutedOperationName = context.params.operationName ?? '';
+              ctx.trace.unexecutedOperationBody = context.params.query ?? '';
             }
           };
         },

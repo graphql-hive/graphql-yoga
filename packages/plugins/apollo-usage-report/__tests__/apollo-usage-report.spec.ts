@@ -34,20 +34,54 @@ describe('apollo-usage-report', () => {
 
   it('should trace unparsable requests', async () => {
     const testEnv = createTestEnv({ options: { alwaysSend: true } });
-    await testEnv.query('this is an invalid request');
+    await testEnv.query('this is an invalid request', 'test');
 
     const report = await testEnv.reportSent;
-    expect(Object.keys(report.tracesPerQuery)).toHaveLength(1);
+    expect(Object.keys(report.tracesPerQuery).length).toBe(1);
+    const [key, traces] = Object.entries(report.tracesPerQuery)[0]!;
+    expect(key).toBe('## GraphQLParseFailure\n');
+    expect(traces).toBeDefined();
+    expect(traces?.trace).toHaveLength(1);
+    expect(traces?.trace?.[0]).toMatchObject({
+      unexecutedOperationName: 'test',
+      unexecutedOperationBody: 'this is an invalid request',
+    });
 
     await testEnv[DisposableSymbols.asyncDispose]();
   });
 
   it('should trace invalid requests', async () => {
     const testEnv = createTestEnv({ options: { alwaysSend: true } });
-    await testEnv.query('{unknown_field}');
+    await testEnv.query('query test {unknown_field}', 'test');
 
     const report = await testEnv.reportSent;
-    expect(Object.keys(report.tracesPerQuery)).toHaveLength(1);
+    expect(Object.keys(report.tracesPerQuery).length).toBe(1);
+    const [key, traces] = Object.entries(report.tracesPerQuery)[0]!;
+    expect(key).toBe('## GraphQLValidationFailure\n');
+    expect(traces).toBeDefined();
+    expect(traces?.trace).toHaveLength(1);
+    expect(traces?.trace?.[0]).toMatchObject({
+      unexecutedOperationName: 'test',
+      unexecutedOperationBody: 'query test {unknown_field}',
+    });
+
+    await testEnv[DisposableSymbols.asyncDispose]();
+  });
+
+  it('should trace unknown operation requests', async () => {
+    const testEnv = createTestEnv({ options: { alwaysSend: true } });
+    await testEnv.query('query test { hello }', 'unknown');
+
+    const report = await testEnv.reportSent;
+    expect(Object.keys(report.tracesPerQuery).length).toBe(1);
+    const [key, traces] = Object.entries(report.tracesPerQuery)[0]!;
+    expect(key).toBe('## GraphQLUnknownOperationName\n');
+    expect(traces).toBeDefined();
+    expect(traces?.trace).toHaveLength(1);
+    expect(traces?.trace?.[0]).toMatchObject({
+      unexecutedOperationName: 'unknown',
+      unexecutedOperationBody: 'query test { hello }',
+    });
 
     await testEnv[DisposableSymbols.asyncDispose]();
   });
@@ -196,14 +230,14 @@ function createTestEnv(
   return {
     yoga,
     reportSent: reportSent.promise,
-    query: (query = '{ hello }') => {
+    query: (query = '{ hello }', operationName?: string) => {
       return yoga.fetch('http://yoga/graphql', {
         headers: {
           'Content-Type': 'application/json',
           'apollo-federation-include-trace': 'ftv1',
         },
         method: 'POST',
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, operationName }),
       });
     },
     [DisposableSymbols.asyncDispose]: () => yoga.dispose() as Promise<void>,
