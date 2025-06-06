@@ -123,6 +123,11 @@ export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
    * By default, the error is logged.
    */
   onError?: (err: Error) => void;
+  /**
+   * If false, unexecutable operation (with parsing or validation error) will not be sent
+   * @default true
+   */
+  sendUnexecutableOperationDocuments?: boolean;
 };
 
 export interface ApolloUsageReportRequestContext extends ApolloInlineRequestTraceContext {
@@ -235,11 +240,16 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               return;
             }
 
-            ctx.schemaId = currentSchema!.id;
-
             if (!isDocumentNode(result)) {
+              if (options.sendUnexecutableOperationDocuments === false) {
+                // To make sure the trace will not be sent, remove request's tracing context
+                ctxForReq.delete(context.request);
+                return;
+              }
               ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
             }
+
+            ctx.schemaId = currentSchema!.id;
           };
         },
 
@@ -264,6 +274,9 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
                 resolvedOperationName: opName ?? null,
               });
               ctx.operationKey = `# ${opName || '-'}\n${usageReportingSignature(document, opName ?? '')}`;
+            } else if (options.sendUnexecutableOperationDocuments === false) {
+              // To make sure the trace will not be sent, remove request's tracing context
+              ctxForReq.delete(context.request);
             } else {
               ctx.operationKey = `# ${context.params.operationName || '-'} \n${context.params.query ?? ''}`;
             }

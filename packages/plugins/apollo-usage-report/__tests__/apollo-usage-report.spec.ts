@@ -52,6 +52,38 @@ describe('apollo-usage-report', () => {
     await testEnv[DisposableSymbols.asyncDispose]();
   });
 
+  it('should not trace unparsable requests', async () => {
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true, sendUnexecutableOperationDocuments: false },
+    });
+    await testEnv.query('this is an invalid request');
+    await testEnv.query();
+
+    const report = await testEnv.reportSent;
+    const { ['# -\n{hello}']: traces } = report.tracesPerQuery;
+    expect(traces).toBeDefined();
+    expect(traces?.referencedFieldsByType?.['Query']?.fieldNames).toEqual(['hello']);
+    expect(traces?.trace).toHaveLength(1);
+
+    await testEnv[DisposableSymbols.asyncDispose]();
+  });
+
+  it('should trace invalid requests', async () => {
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true, sendUnexecutableOperationDocuments: false },
+    });
+    await testEnv.query('{unknown_field}');
+    await testEnv.query();
+
+    const report = await testEnv.reportSent;
+    const { ['# -\n{hello}']: traces } = report.tracesPerQuery;
+    expect(traces).toBeDefined();
+    expect(traces?.referencedFieldsByType?.['Query']?.fieldNames).toEqual(['hello']);
+    expect(traces?.trace).toHaveLength(1);
+
+    await testEnv[DisposableSymbols.asyncDispose]();
+  });
+
   it('should batch traces and send once maxBatchDelay is reached', async () => {
     const testEnv = createTestEnv({ options: { maxBatchDelay: 500 } });
 
