@@ -33,7 +33,9 @@ describe('apollo-usage-report', () => {
   });
 
   it('should trace unparsable requests', async () => {
-    const testEnv = createTestEnv({ options: { alwaysSend: true } });
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true, sendUnexecutableOperationDocuments: true },
+    });
     await testEnv.query('this is an invalid request', 'test');
 
     const report = await testEnv.reportSent;
@@ -51,7 +53,9 @@ describe('apollo-usage-report', () => {
   });
 
   it('should trace invalid requests', async () => {
-    const testEnv = createTestEnv({ options: { alwaysSend: true } });
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true, sendUnexecutableOperationDocuments: true },
+    });
     await testEnv.query('query test {unknown_field}', 'test');
 
     const report = await testEnv.reportSent;
@@ -69,7 +73,9 @@ describe('apollo-usage-report', () => {
   });
 
   it('should trace unknown operation requests', async () => {
-    const testEnv = createTestEnv({ options: { alwaysSend: true } });
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true, sendUnexecutableOperationDocuments: true },
+    });
     await testEnv.query('query test { hello }', 'unknown');
 
     const report = await testEnv.reportSent;
@@ -88,7 +94,7 @@ describe('apollo-usage-report', () => {
 
   it('should not trace unparsable requests', async () => {
     const testEnv = createTestEnv({
-      options: { alwaysSend: true, sendUnexecutableOperationDocuments: false },
+      options: { alwaysSend: true },
     });
     await testEnv.query('this is an invalid request');
     await testEnv.query();
@@ -96,15 +102,14 @@ describe('apollo-usage-report', () => {
     const report = await testEnv.reportSent;
     const { ['# -\n{hello}']: traces } = report.tracesPerQuery;
     expect(traces).toBeDefined();
-    expect(traces?.referencedFieldsByType?.['Query']?.fieldNames).toEqual(['hello']);
     expect(traces?.trace).toHaveLength(1);
 
     await testEnv[DisposableSymbols.asyncDispose]();
   });
 
-  it('should trace invalid requests', async () => {
+  it('should not trace invalid requests', async () => {
     const testEnv = createTestEnv({
-      options: { alwaysSend: true, sendUnexecutableOperationDocuments: false },
+      options: { alwaysSend: true },
     });
     await testEnv.query('{unknown_field}');
     await testEnv.query();
@@ -112,7 +117,21 @@ describe('apollo-usage-report', () => {
     const report = await testEnv.reportSent;
     const { ['# -\n{hello}']: traces } = report.tracesPerQuery;
     expect(traces).toBeDefined();
-    expect(traces?.referencedFieldsByType?.['Query']?.fieldNames).toEqual(['hello']);
+    expect(traces?.trace).toHaveLength(1);
+
+    await testEnv[DisposableSymbols.asyncDispose]();
+  });
+
+  it('should not trace unknown operation requests', async () => {
+    const testEnv = createTestEnv({
+      options: { alwaysSend: true },
+    });
+    await testEnv.query('query test { hello }', 'unknown');
+    await testEnv.query();
+
+    const report = await testEnv.reportSent;
+    const { ['# -\n{hello}']: traces } = report.tracesPerQuery;
+    expect(traces).toBeDefined();
     expect(traces?.trace).toHaveLength(1);
 
     await testEnv[DisposableSymbols.asyncDispose]();

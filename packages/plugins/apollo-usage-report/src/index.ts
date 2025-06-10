@@ -251,7 +251,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
               ctx.operationKey = '## GraphQLParseFailure\n';
             }
 
-            if (options.sendUnexecutableOperationDocuments) {
+            if (!options.sendUnexecutableOperationDocuments) {
               // To make sure the trace will not be sent, remove request's tracing context
               ctxForReq.delete(context.request);
               return;
@@ -283,13 +283,13 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
                 resolvedOperationName: opName ?? null,
               });
               ctx.operationKey = `# ${opName || '-'}\n${usageReportingSignature(document, opName ?? '')}`;
-            } else if (options.sendUnexecutableOperationDocuments === false) {
-              // To make sure the trace will not be sent, remove request's tracing context
-              ctxForReq.delete(context.request);
-            } else {
+            } else if (options.sendUnexecutableOperationDocuments) {
               ctx.operationKey = '## GraphQLValidationFailure\n';
               ctx.trace.unexecutedOperationName = context.params.operationName ?? '';
               ctx.trace.unexecutedOperationBody = context.params.query ?? '';
+            } else {
+              // To make sure the trace will not be sent, remove request's tracing context
+              ctxForReq.delete(context.request);
             }
           };
         },
