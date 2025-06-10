@@ -125,7 +125,7 @@ export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
   onError?: (err: Error) => void;
   /**
    * If false, unexecutable operation (with parsing or validation error) will not be sent
-   * @default true
+   * @default false
    */
   sendUnexecutableOperationDocuments?: boolean;
 };
@@ -245,14 +245,13 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
             if (isDocumentNode(result)) {
               if (getOperationAST(result, context.params.operationName)) {
                 return;
-              } 
-                ctx.operationKey = `## GraphQLUnknownOperationName\n`;
-              
+              }
+              ctx.operationKey = `## GraphQLUnknownOperationName\n`;
             } else {
               ctx.operationKey = '## GraphQLParseFailure\n';
             }
 
-            if (options.sendUnexecutableOperationDocuments === false) {
+            if (options.sendUnexecutableOperationDocuments) {
               // To make sure the trace will not be sent, remove request's tracing context
               ctxForReq.delete(context.request);
               return;
