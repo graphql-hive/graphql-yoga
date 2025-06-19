@@ -268,13 +268,14 @@ Please refer to the [`graphql-ws` client recipes](https://github.com/enisdenjo/g
 
 #### Advantages of WebSockets over SSE
 
-- Real time, two directional communication.
+- Real time, two directional communication
 - Lower latency
+- All operations multiplexed over the same connection, no browser limits
 
 #### SSE Gotchas
 
 - [Maximum open connections limit](https://developer.mozilla.org/en-US/docs/Web/HTTP/Connection_management_in_HTTP_1.x)
-  ([when not using http/2](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2)). In this case,
+  ([higher (~100) when using http/2](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2)). In this case,
   consider using the
   [`graphql-sse` integration](#graphql-over-server-sent-events-protocol-via-graphql-sse) with
   ["single connection mode"](https://github.com/enisdenjo/graphql-sse/blob/master/PROTOCOL.md#single-connection-mode).
