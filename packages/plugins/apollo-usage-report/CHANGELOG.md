@@ -1,5 +1,33 @@
 # @graphql-yoga/plugin-apollo-usage-report
 
+## 0.9.0
+
+### Minor Changes
+
+- [#4020](https://github.com/graphql-hive/graphql-yoga/pull/4020)
+  [`dcfd110`](https://github.com/graphql-hive/graphql-yoga/commit/dcfd1102cd3d117dfaddc9c66c8340a57b29c49a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - :construction: Improve report with per
+  field request count, trace batching and report compression
+
+- [#4020](https://github.com/graphql-hive/graphql-yoga/pull/4020)
+  [`dcfd110`](https://github.com/graphql-hive/graphql-yoga/commit/dcfd1102cd3d117dfaddc9c66c8340a57b29c49a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Report referenced field by types
+
+### Patch Changes
+
+- [#4020](https://github.com/graphql-hive/graphql-yoga/pull/4020)
+  [`dcfd110`](https://github.com/graphql-hive/graphql-yoga/commit/dcfd1102cd3d117dfaddc9c66c8340a57b29c49a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Added dependency
+    [`@apollo/server-gateway-interface@^1.1.1` ↗︎](https://www.npmjs.com/package/@apollo/server-gateway-interface/v/1.1.1)
+    (to `dependencies`)
+  - Added dependency
+    [`@apollo/utils.usagereporting@^2.1.0` ↗︎](https://www.npmjs.com/package/@apollo/utils.usagereporting/v/2.1.0)
+    (to `dependencies`)
+  - Added dependency
+    [`@graphql-tools/utils@10.9.0-alpha-20250601230319-2f5f24f393b56915c1c913d3f057531f79991587` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.9.0)
+    (to `dependencies`)
+
 ## 0.8.6
 
 ### Patch Changes
