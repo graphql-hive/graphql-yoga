@@ -35,6 +35,7 @@ export {
   useExtendContext,
   useLogger,
   usePayloadFormatter,
+  withState,
 } from '@envelop/core';
 export {
   getInstrumentationAndPlugin,
