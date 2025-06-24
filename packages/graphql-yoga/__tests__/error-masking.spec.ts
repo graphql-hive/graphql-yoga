@@ -802,4 +802,119 @@ describe('error masking', () => {
       ],
     });
   });
+
+  it('should unwrap NonErrorThrown errors', async () => {
+    const error = new NonErrorThrown(
+      createGraphQLError('I like turtles', { extensions: { foo: 1 } }),
+    );
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => error,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    await expect(response.json()).resolves.toMatchInlineSnapshot(`
+{
+  "data": null,
+  "errors": [
+    {
+      "extensions": {
+        "foo": 1,
+      },
+      "locations": [
+        {
+          "column": 3,
+          "line": 1,
+        },
+      ],
+      "message": "Unexpected error value: I like turtles",
+      "path": [
+        "a",
+      ],
+    },
+  ],
+}
+`);
+  });
+
+  it('respects wrapped NonErrorThrown errors', async () => {
+    const error = new NonErrorThrown(createGraphQLError('I like turtles'));
+    const wrappedError = createGraphQLError('I like tortoises', {
+      originalError: error,
+    });
+    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+      originalError: wrappedError,
+    });
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => wrappedOverWrappedError,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    await expect(response.json()).resolves.toMatchInlineSnapshot(`
+{
+  "data": null,
+  "errors": [
+    {
+      "locations": [
+        {
+          "column": 3,
+          "line": 1,
+        },
+      ],
+      "message": "I like animals",
+      "path": [
+        "a",
+      ],
+    },
+  ],
+}
+`);
+  });
 });
+
+// graphql does not re-export NonErrorThrown, so we need to redefine it similarily here
+class NonErrorThrown extends Error {
+  thrownValue: unknown;
+  constructor(thrownValue: unknown) {
+    super('Unexpected error value: ' + String(thrownValue));
+    this.name = 'NonErrorThrown';
+    this.thrownValue = thrownValue;
+  }
+}

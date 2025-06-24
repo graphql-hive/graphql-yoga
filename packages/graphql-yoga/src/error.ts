@@ -35,6 +35,35 @@ export function isOriginalGraphQLError(
   return false;
 }
 
+/**
+ * Will replace all graphql's `NonErrorThrown` wraps with their `thrownValue` property.
+ *
+ * It wont mutate the original error, but will return a new one with all `NonErrorThrown` removed.
+ *
+ * @see https://github.com/graphql/graphql-js/blob/ba4b411385507929b6c4c7905eb04b3e6bd1e93c/src/jsutils/toError.ts#L12-L20
+ */
+export function flattenNonErrorThrownValues(err: GraphQLError): GraphQLError;
+export function flattenNonErrorThrownValues(err: Error): Error;
+export function flattenNonErrorThrownValues(err: unknown): unknown;
+export function flattenNonErrorThrownValues(err: unknown): unknown {
+  // we create a new error to avoid mutating the original one
+  let flattenedErr = err;
+  if (isGraphQLError(err) && err.originalError) {
+    flattenedErr = createGraphQLError(err.message, {
+      extensions: err.extensions,
+      nodes: err.nodes,
+      source: err.source,
+      positions: err.positions,
+      path: err.path,
+      originalError: flattenNonErrorThrownValues(err.originalError),
+    });
+  }
+  if (err instanceof Error && err.name === 'NonErrorThrown' && 'thrownValue' in err) {
+    flattenedErr = flattenNonErrorThrownValues(err.thrownValue);
+  }
+  return flattenedErr;
+}
+
 export function isAbortError(error: unknown): error is DOMException {
   return (
     typeof error === 'object' &&
