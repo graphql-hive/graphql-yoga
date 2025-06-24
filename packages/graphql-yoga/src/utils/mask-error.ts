@@ -21,7 +21,6 @@ export const maskError: MaskError = (
   message: string,
   isDev = globalThis.process?.env?.['NODE_ENV'] === 'development',
 ) => {
-  error = flattenNonErrorThrownValues(error);
   if (isOriginalGraphQLError(error)) {
     return error;
   }

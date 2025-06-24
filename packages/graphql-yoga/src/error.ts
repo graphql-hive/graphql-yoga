@@ -89,6 +89,7 @@ export function handleError(
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
   } else if (maskedErrorsOpts) {
+    error = flattenNonErrorThrownValues(error);
     const maskedError = maskedErrorsOpts.maskError(
       error,
       maskedErrorsOpts.errorMessage,
@@ -164,7 +165,8 @@ export function getResponseInitByRespectingErrors(
   }
 
   if ('errors' in result && result.errors?.length) {
-    for (const error of result.errors) {
+    for (let error of result.errors) {
+      error = flattenNonErrorThrownValues(error);
       if (error.extensions?.['http']) {
         if (error.extensions['http'].headers) {
           Object.assign(headers, error.extensions['http'].headers);
