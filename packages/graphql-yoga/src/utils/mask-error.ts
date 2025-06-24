@@ -1,5 +1,5 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import { flattenNonErrorThrownValues, isGraphQLError, isOriginalGraphQLError } from '../error.js';
+import { isGraphQLError, isOriginalGraphQLError, replaceNonErrorThrownValues } from '../error.js';
 import { MaskError } from '../types.js';
 
 function serializeError(error: unknown) {
@@ -21,6 +21,7 @@ export const maskError: MaskError = (
   message: string,
   isDev = globalThis.process?.env?.['NODE_ENV'] === 'development',
 ) => {
+  replaceNonErrorThrownValues(error);
   if (isOriginalGraphQLError(error)) {
     return error;
   }

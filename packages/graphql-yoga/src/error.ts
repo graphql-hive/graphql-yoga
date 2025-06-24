@@ -38,30 +38,24 @@ export function isOriginalGraphQLError(
 /**
  * Will replace all graphql's `NonErrorThrown` wraps with their `thrownValue` property.
  *
- * It wont mutate the original error, but will return a new one with all `NonErrorThrown` removed.
+ * This function WILL mutate the {@link err original error}.
  *
  * @see https://github.com/graphql/graphql-js/blob/ba4b411385507929b6c4c7905eb04b3e6bd1e93c/src/jsutils/toError.ts#L12-L20
  */
-export function flattenNonErrorThrownValues(err: GraphQLError): GraphQLError;
-export function flattenNonErrorThrownValues(err: Error): Error;
-export function flattenNonErrorThrownValues(err: unknown): unknown;
-export function flattenNonErrorThrownValues(err: unknown): unknown {
+export function replaceNonErrorThrownValues(err: GraphQLError): GraphQLError;
+export function replaceNonErrorThrownValues(err: Error): Error;
+export function replaceNonErrorThrownValues(err: unknown): unknown;
+export function replaceNonErrorThrownValues(err: unknown): unknown {
   // we create a new error to avoid mutating the original one
-  let flattenedErr = err;
   if (isGraphQLError(err) && err.originalError) {
-    flattenedErr = createGraphQLError(err.message, {
-      extensions: err.extensions,
-      nodes: err.nodes,
-      source: err.source,
-      positions: err.positions,
-      path: err.path,
-      originalError: flattenNonErrorThrownValues(err.originalError),
-    });
+    // @ts-expect-error we're mutating knowing what we're doing
+    err.originalError = replaceNonErrorThrownValues(err.originalError);
+    return err;
   }
   if (err instanceof Error && err.name === 'NonErrorThrown' && 'thrownValue' in err) {
-    flattenedErr = flattenNonErrorThrownValues(err.thrownValue);
+    return replaceNonErrorThrownValues(err.thrownValue);
   }
-  return flattenedErr;
+  return err;
 }
 
 export function isAbortError(error: unknown): error is DOMException {
@@ -78,6 +72,7 @@ export function handleError(
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
   logger: YogaLogger,
 ): GraphQLError[] {
+  error = replaceNonErrorThrownValues(error);
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
     for (const singleError of error.errors) {
@@ -89,7 +84,6 @@ export function handleError(
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
   } else if (maskedErrorsOpts) {
-    error = flattenNonErrorThrownValues(error);
     const maskedError = maskedErrorsOpts.maskError(
       error,
       maskedErrorsOpts.errorMessage,
@@ -166,7 +160,6 @@ export function getResponseInitByRespectingErrors(
 
   if ('errors' in result && result.errors?.length) {
     for (let error of result.errors) {
-      error = flattenNonErrorThrownValues(error);
       if (error.extensions?.['http']) {
         if (error.extensions['http'].headers) {
           Object.assign(headers, error.extensions['http'].headers);
