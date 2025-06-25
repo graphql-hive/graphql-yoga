@@ -1,0 +1,5 @@
+---
+'graphql-yoga': patch
+---
+
+Test
