@@ -42,6 +42,10 @@ export const maskError: MaskError = (
     if (error.extensions?.['http']) {
       errorExtensions['http'] = error.extensions['http'];
     }
+    for (const key in error.extensions) {
+      // this will be overwriting our extensions, this should be expected
+      errorExtensions[key] = error.extensions[key];
+    }
   } else if (isDev) {
     errorExtensions['originalError'] = serializeError(error);
   }
