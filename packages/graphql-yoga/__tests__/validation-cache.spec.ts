@@ -243,7 +243,7 @@ describe('validation cache', () => {
         ],
       }
     `);
-    expect(validateFn).toBeCalledTimes(1);
+    expect(validateFn).toHaveBeenCalledTimes(1);
 
     // third request, valid, cache miss
     res = await query('John');
@@ -256,6 +256,6 @@ describe('validation cache', () => {
     `);
 
     // validation function doesnt validate args
-    expect(validateFn).toBeCalledTimes(1);
+    expect(validateFn).toHaveBeenCalledTimes(1);
   });
 });

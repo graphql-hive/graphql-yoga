@@ -91,7 +91,7 @@ describe('incremental delivery', () => {
         }
       }
       await onIteratorDone$.promise;
-      expect(fakeIterator.return).toBeCalled();
+      expect(fakeIterator.return).toHaveBeenCalled();
     } finally {
       server.closeAllConnections();
       await new Promise(resolve => server.close(resolve));

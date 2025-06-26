@@ -291,7 +291,7 @@ data:
 "
 `);
 
-    expect(logging.error).toBeCalledTimes(1);
+    expect(logging.error).toHaveBeenCalledTimes(1);
     expect(logging.error.mock.calls[0]).toMatchInlineSnapshot(`
       [
         [GraphQLError: hi],
@@ -360,7 +360,7 @@ data:
 "
 `);
     // errors are only logged when error masking is enabled
-    expect(logging.error).toBeCalledTimes(0);
+    expect(logging.error).toHaveBeenCalledTimes(0);
   });
 
   test('erroring event stream should be handled (GraphQL error)', async () => {
@@ -424,7 +424,7 @@ data:
 "
 `);
 
-    expect(logging.error).toBeCalledTimes(0);
+    expect(logging.error).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -595,6 +595,6 @@ describe('subscription plugin hooks', () => {
     expect(onNextCallCounter).toEqual(1);
     expect(didInvokeOnEnd).toBe(true);
     expect(didInvokeOnSubscribeError).toBe(true);
-    expect(maskErrorFn).toBeCalledTimes(1);
+    expect(maskErrorFn).toHaveBeenCalledTimes(1);
   });
 });

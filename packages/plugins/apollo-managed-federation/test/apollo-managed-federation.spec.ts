@@ -140,14 +140,14 @@ describe('Apollo Managed Federation', () => {
       errors: [{ message: 'Supergraph failed to load' }],
     });
 
-    expect(mockFetchError).toBeCalledTimes(3);
-    expect(failure).toBeCalledTimes(1);
+    expect(mockFetchError).toHaveBeenCalledTimes(3);
+    expect(failure).toHaveBeenCalledTimes(1);
 
     // It should respect the backoff returned by the GraphOS API before restarting the polling
     await setTimeout$(0.35 * 1000);
 
-    expect(mockFetchError).toBeCalledTimes(6);
-    expect(failure).toBeCalledTimes(2);
+    expect(mockFetchError).toHaveBeenCalledTimes(6);
+    expect(failure).toHaveBeenCalledTimes(2);
   });
 
   const mockSDL = () =>
