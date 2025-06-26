@@ -21,7 +21,7 @@ The new `withState` utility solves this DX issue by providing an easy and straig
 data sharing between hooks.
 
 ```ts
-import { withState } from '@envelop/core'
+import { withState } from 'graphql-yoga'
 
 type State = { foo: string }
 
