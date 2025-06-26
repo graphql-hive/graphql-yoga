@@ -69,7 +69,7 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledWith({ data: { dontChange: 'didntChange' } });
+    expect(onNext).toHaveBeenCalledWith({ data: { dontChange: 'didntChange' } });
   });
 
   it('should subscribe', async () => {
@@ -92,8 +92,8 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledTimes(5);
-    expect(onNext).toBeCalledWith({ data: { greetings: 'Hi' } });
+    expect(onNext).toHaveBeenCalledTimes(5);
+    expect(onNext).toHaveBeenCalledWith({ data: { greetings: 'Hi' } });
   });
 
   it('should not fail if context is not as per the documentation', async () => {
