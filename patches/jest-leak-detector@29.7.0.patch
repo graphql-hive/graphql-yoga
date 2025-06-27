@@ -1,0 +1,33 @@
+diff --git a/build/index.js b/build/index.js
+index a8ccb1e..70699fd 100644
+--- a/build/index.js
++++ b/build/index.js
+@@ -74,26 +74,14 @@ class LeakDetector {
+     value = null;
+   }
+   async isLeaking() {
+-    this._runGarbageCollector();
++    (0, _v().setFlagsFromString)('--allow-natives-syntax');
+ 
+     // wait some ticks to allow GC to run properly, see https://github.com/nodejs/node/issues/34636#issuecomment-669366235
+     for (let i = 0; i < 10; i++) {
++      eval('%CollectGarbage(true)');
+       await tick();
+     }
+     return this._isReferenceBeingHeld;
+   }
+-  _runGarbageCollector() {
+-    // @ts-expect-error: not a function on `globalThis`
+-    const isGarbageCollectorHidden = globalThis.gc == null;
+-
+-    // GC is usually hidden, so we have to expose it before running.
+-    (0, _v().setFlagsFromString)('--expose-gc');
+-    (0, _vm().runInNewContext)('gc')();
+-
+-    // The GC was not initially exposed, so let's hide it again.
+-    if (isGarbageCollectorHidden) {
+-      (0, _v().setFlagsFromString)('--no-expose-gc');
+-    }
+-  }
+ }
+ exports.default = LeakDetector;
