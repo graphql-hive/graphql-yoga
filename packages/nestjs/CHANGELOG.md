@@ -1,5 +1,15 @@
 # @graphql-yoga/nestjs
 
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 3.13.5
 
 ### Patch Changes
@@ -432,7 +442,6 @@
 - [#2864](https://github.com/dotansimha/graphql-yoga/pull/2864)
   [`9feb88f6`](https://github.com/dotansimha/graphql-yoga/commit/9feb88f6804ce05c28deb4c442fc21c0f23b8db8)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@nestjs/common@^10.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/common/v/10.0.0) (from
     `^8.4.7 || ^9.0.0`, in `peerDependencies`)
@@ -517,7 +526,6 @@
   Thanks [@enisdenjo](https://github.com/enisdenjo)! - GraphQL Yoga driver for NestJS GraphQL.
 
   ### BREAKING CHANGES
-
   - No more `subscriptionWithFilter` in YogaBaseDriver.
   - `YogaBaseDriver.yogaInstance` has been renamed to `YogaBaseDriver.yoga`
   - `YogaBaseDriver` has been renamed to `AbstractYogaDriver`
