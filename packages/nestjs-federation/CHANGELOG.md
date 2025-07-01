@@ -1,5 +1,27 @@
 # @graphql-yoga/nestjs-federation
 
+## 3.14.0
+
+### Patch Changes
+
+- [#4087](https://github.com/graphql-hive/graphql-yoga/pull/4087)
+  [`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/apollo-federation@^7.0.0` ↗︎](https://www.npmjs.com/package/@envelop/apollo-federation/v/7.0.0)
+    (from `^6.1.3`, in `dependencies`)
+
+- [#4088](https://github.com/graphql-hive/graphql-yoga/pull/4088)
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/core@^5.3.0` ↗︎](https://www.npmjs.com/package/@envelop/core/v/5.3.0) (from
+    `^5.2.3`, in `dependencies`)
+- Updated dependencies
+  [[`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e)]:
+  - @graphql-yoga/plugin-apollo-inline-trace@3.14.0
+  - @graphql-yoga/nestjs@3.14.0
+
 ## 3.13.5
 
 ### Patch Changes
@@ -391,7 +413,6 @@
 - [#3070](https://github.com/dotansimha/graphql-yoga/pull/3070)
   [`5b615478`](https://github.com/dotansimha/graphql-yoga/commit/5b6154783957874281bdf180575cdf57fadb75bf)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/apollo-federation@^5.0.0` ↗︎](https://www.npmjs.com/package/@envelop/apollo-federation/v/5.0.0)
     (from `^4.0.0`, in `dependencies`)
@@ -461,7 +482,6 @@
 - [#2864](https://github.com/dotansimha/graphql-yoga/pull/2864)
   [`9feb88f6`](https://github.com/dotansimha/graphql-yoga/commit/9feb88f6804ce05c28deb4c442fc21c0f23b8db8)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@nestjs/common@^10.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/common/v/10.0.0) (from
     `^8.4.7 || ^9.0.0`, in `peerDependencies`)

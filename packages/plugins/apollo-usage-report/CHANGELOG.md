@@ -1,5 +1,55 @@
 # @graphql-yoga/plugin-apollo-usage-report
 
+## 0.9.0
+
+### Minor Changes
+
+- [#4020](https://github.com/graphql-hive/graphql-yoga/pull/4020)
+  [`dcfd110`](https://github.com/graphql-hive/graphql-yoga/commit/dcfd1102cd3d117dfaddc9c66c8340a57b29c49a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Various improvements of Apollo Usage
+  Report plugin. It is now production ready !
+  - Report referenced field by types
+  - Batched traces
+  - Report gzip compression
+  - Nonexecutable operations handling to match Apollo's behavior
+  - Fix schema ID generation to match Apollo's algorithm
+
+### Patch Changes
+
+- [#4020](https://github.com/graphql-hive/graphql-yoga/pull/4020)
+  [`dcfd110`](https://github.com/graphql-hive/graphql-yoga/commit/dcfd1102cd3d117dfaddc9c66c8340a57b29c49a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Added dependency
+    [`@apollo/server-gateway-interface@^1.1.1` ↗︎](https://www.npmjs.com/package/@apollo/server-gateway-interface/v/1.1.1)
+    (to `dependencies`)
+  - Added dependency
+    [`@apollo/utils.usagereporting@^2.1.0` ↗︎](https://www.npmjs.com/package/@apollo/utils.usagereporting/v/2.1.0)
+    (to `dependencies`)
+  - Added dependency
+    [`@graphql-tools/utils@10.9.0-alpha-20250601230319-2f5f24f393b56915c1c913d3f057531f79991587` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.9.0)
+    (to `dependencies`)
+
+- [#4078](https://github.com/graphql-hive/graphql-yoga/pull/4078)
+  [`eec82d9`](https://github.com/graphql-hive/graphql-yoga/commit/eec82d91941bdd39a98427330014c89272443c31)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@10.9.0-alpha-20250602135508-a77e43b8ef641aa0bd366dfbddc68b4c774f2882` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.9.0)
+    (from `10.9.0-alpha-20250601230319-2f5f24f393b56915c1c913d3f057531f79991587`, in `dependencies`)
+
+- [#4088](https://github.com/graphql-hive/graphql-yoga/pull/4088)
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@10.8.6` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.8.6)
+    (from `10.9.0-alpha-20250602135508-a77e43b8ef641aa0bd366dfbddc68b4c774f2882`, in `dependencies`)
+- Updated dependencies
+  [[`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e),
+  [`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - @graphql-yoga/plugin-apollo-inline-trace@3.14.0
+  - graphql-yoga@5.14.0
+
 ## 0.8.6
 
 ### Patch Changes
@@ -332,7 +382,6 @@
 - [#3445](https://github.com/dotansimha/graphql-yoga/pull/3445)
   [`6bb19ed`](https://github.com/dotansimha/graphql-yoga/commit/6bb19edf5b103d6d9b6088e2e22cfa71a85f26f7)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.9.22` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.9.22)
     (from `^0.9.17`, in `peerDependencies`)

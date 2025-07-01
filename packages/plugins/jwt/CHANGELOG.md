@@ -1,5 +1,15 @@
 # @graphql-yoga/plugin-jwt
 
+## 3.8.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 3.7.6
 
 ### Patch Changes
@@ -143,7 +153,6 @@
   [`840c6ae`](https://github.com/dotansimha/graphql-yoga/commit/840c6ae0b8e52fd8ecdc4cca86e1ee30fa99a8c4)
   Thanks [@ardatan](https://github.com/ardatan)! - - Do not throw when \`request\` is not available
   in the context, it can be a WebSockets connection
-
   - Export helper `extractFromConnectionParams` to get the token from WebSocket `connectionParams`
     when GraphQL WS is used like
     [here](https://the-guild.dev/graphql/yoga-server/docs/features/subscriptions#graphql-over-websocket-protocol-via-graphql-ws)
@@ -663,7 +672,6 @@
 - [#2933](https://github.com/dotansimha/graphql-yoga/pull/2933)
   [`cb47a72c`](https://github.com/dotansimha/graphql-yoga/commit/cb47a72ced15878495da03d11fa587a391a25ae1)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`jsonwebtoken@^9.0.0` ↗︎](https://www.npmjs.com/package/jsonwebtoken/v/9.0.0) (from `^8.5.1`,
     in `dependencies`)

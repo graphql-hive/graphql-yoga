@@ -1,5 +1,7 @@
 # @graphql-yoga/apollo-link
 
+## 4.1.0
+
 ## 4.0.0
 
 ### Major Changes
@@ -72,7 +74,6 @@
 - [#3501](https://github.com/dotansimha/graphql-yoga/pull/3501)
   [`c93366d`](https://github.com/dotansimha/graphql-yoga/commit/c93366df8b4a2edd209d1eb94d989eaba3b7031b)
   Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-apollo-link@^1.0.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-apollo-link/v/1.0.3)
     (from `^1.0.0`, in `dependencies`)
@@ -130,7 +131,6 @@
 - [#3118](https://github.com/dotansimha/graphql-yoga/pull/3118)
   [`694e78b9`](https://github.com/dotansimha/graphql-yoga/commit/694e78b9e12c6d6275b67e746dce1499046595cb)
   Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@^1.0.4` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/1.0.4)
     (from `^1.0.0`, in `dependencies`)
@@ -175,7 +175,6 @@
 - [#2682](https://github.com/dotansimha/graphql-yoga/pull/2682)
   [`e1a60e21`](https://github.com/dotansimha/graphql-yoga/commit/e1a60e21f10813aa6d0f4673e4eb13979720c2c8)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-apollo-link@^0.0.9` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-apollo-link/v/0.0.9)
     (from `^0.0.8`, in `dependencies`)
@@ -210,7 +209,6 @@
 - [#2375](https://github.com/dotansimha/graphql-yoga/pull/2375)
   [`ddb2607d`](https://github.com/dotansimha/graphql-yoga/commit/ddb2607d5495245b360e29e38b826609ff93f2ce)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@0.1.4` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/0.1.4)
     (from `0.1.3`, in `dependencies`)
@@ -221,7 +219,6 @@
 - [#2379](https://github.com/dotansimha/graphql-yoga/pull/2379)
   [`afd58b74`](https://github.com/dotansimha/graphql-yoga/commit/afd58b746e3bcbe8a619c33316a84108f3ec758e)
   Thanks [@n1ru4l](https://github.com/n1ru4l)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@^0.1.4` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/0.1.4)
     (from `0.1.4`, in `dependencies`)
@@ -243,7 +240,6 @@
 - [#2353](https://github.com/dotansimha/graphql-yoga/pull/2353)
   [`a8979090`](https://github.com/dotansimha/graphql-yoga/commit/a8979090098444223cd185a9b1fc0570f67974bd)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@0.1.2` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/0.1.2)
     (from `0.1.1`, in `dependencies`)
@@ -266,7 +262,6 @@
 - [#2316](https://github.com/dotansimha/graphql-yoga/pull/2316)
   [`6ee252db`](https://github.com/dotansimha/graphql-yoga/commit/6ee252dbed6f38840284bbe47c72c453ac8e648b)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@0.1.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/0.1.0)
     (from `0.0.8`, in `dependencies`)
@@ -290,7 +285,6 @@
 - [#2262](https://github.com/dotansimha/graphql-yoga/pull/2262)
   [`2ca0f332`](https://github.com/dotansimha/graphql-yoga/commit/2ca0f3328764d4a156514e0bee3cae9ae1099283)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/executor-http@0.0.8` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/0.0.8)
     (from `0.0.7`, in `dependencies`)

@@ -1,5 +1,28 @@
 # @graphql-yoga/plugin-response-cache
 
+## 3.16.0
+
+### Patch Changes
+
+- [#4087](https://github.com/graphql-hive/graphql-yoga/pull/4087)
+  [`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/response-cache@^8.0.0` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/8.0.0)
+    (from `^7.1.3`, in `dependencies`)
+
+- [#4088](https://github.com/graphql-hive/graphql-yoga/pull/4088)
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/core@^5.3.0` ↗︎](https://www.npmjs.com/package/@envelop/core/v/5.3.0) (from
+    `^5.2.3`, in `dependencies`)
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 3.15.6
 
 ### Patch Changes
@@ -199,7 +222,6 @@
 - [#3520](https://github.com/dotansimha/graphql-yoga/pull/3520)
   [`944ecd5`](https://github.com/dotansimha/graphql-yoga/commit/944ecd55abb1b77e88950eb3396919939915feb7)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Added dependency
     [`@envelop/core@^5.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/5.0.2) (to
     `dependencies`)
@@ -440,7 +462,6 @@
 - [#3092](https://github.com/dotansimha/graphql-yoga/pull/3092)
   [`befaf3ce`](https://github.com/dotansimha/graphql-yoga/commit/befaf3cea171abcc963a062da8298f1b4f534e1d)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/response-cache@^6.1.0` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/6.1.0)
     (from `^6.0.0`, in `dependencies`)
@@ -457,7 +478,6 @@
 - [#3070](https://github.com/dotansimha/graphql-yoga/pull/3070)
   [`5b615478`](https://github.com/dotansimha/graphql-yoga/commit/5b6154783957874281bdf180575cdf57fadb75bf)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/response-cache@^6.0.0` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/6.0.0)
     (from `^5.3.2`, in `dependencies`)
@@ -494,7 +514,6 @@
 - [#2993](https://github.com/dotansimha/graphql-yoga/pull/2993)
   [`0c6625ad`](https://github.com/dotansimha/graphql-yoga/commit/0c6625ad362db284e26b526e508d8506e1aa3a10)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/response-cache@^5.3.0` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/5.3.0)
     (from `^5.1.0`, in `dependencies`)
@@ -502,7 +521,6 @@
 - [#3006](https://github.com/dotansimha/graphql-yoga/pull/3006)
   [`2a122360`](https://github.com/dotansimha/graphql-yoga/commit/2a1223601d24d8f5589a0a7be639a5ff2929d7f0)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/response-cache@^5.3.2` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/5.3.2)
     (from `^5.3.0`, in `dependencies`)
@@ -666,7 +684,6 @@
 - [#2452](https://github.com/dotansimha/graphql-yoga/pull/2452)
   [`64f769ec`](https://github.com/dotansimha/graphql-yoga/commit/64f769ec41f41a0c625bc7d4c749435f573e690c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/response-cache@^4.0.6` ↗︎](https://www.npmjs.com/package/@envelop/response-cache/v/4.0.6)
     (from `4.0.5`, in `dependencies`)
@@ -867,10 +884,8 @@
   the execution to generate the cache key.
 
   All the features of the same except for the following:
-
   - `session` factory function takes `GraphQLParams` and `Request` objects instead of GraphQL
     context as arguments.
-
     - `type SessionIdFactory = (params: GraphQLParams, request: Request) => Maybe<string>`
 
   - `enabled` function takes `GraphQLParams` and `Request` objects instead of GraphQL context as
@@ -1024,10 +1039,8 @@
   the execution to generate the cache key.
 
   All the features of the same except for the following:
-
   - `session` factory function takes `GraphQLParams` and `Request` objects instead of GraphQL
     context as arguments.
-
     - `type SessionIdFactory = (params: GraphQLParams, request: Request) => Maybe<string>`
 
   - `enabled` function takes `GraphQLParams` and `Request` objects instead of GraphQL context as
