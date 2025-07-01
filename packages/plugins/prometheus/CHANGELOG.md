@@ -1,5 +1,21 @@
 # @graphql-yoga/plugin-prometheus
 
+## 6.9.0
+
+### Patch Changes
+
+- [#4087](https://github.com/graphql-hive/graphql-yoga/pull/4087)
+  [`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^13.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/13.0.0)
+    (from `^12.1.3`, in `dependencies`)
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 6.8.5
 
 ### Patch Changes
@@ -298,7 +314,6 @@
 - [#3489](https://github.com/dotansimha/graphql-yoga/pull/3489)
   [`131dfa3`](https://github.com/dotansimha/graphql-yoga/commit/131dfa3f1b2e644501de4cfbc261d4b384bd20b1)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@11.1.0-alpha-20241122091727-adade563355e3d213f27427a9a1d86adf9431d41` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/11.1.0)
     (from `11.0.0`, in `dependencies`)
@@ -433,7 +448,6 @@
   [`88393b3`](https://github.com/dotansimha/graphql-yoga/commit/88393b3fae602c969ce99a0075439e1322c896d3)
   Thanks [@dotansimha](https://github.com/dotansimha)! - By default, the following metrics are now
   enabled:
-
   - `graphql_envelop_deprecated_field`
   - `graphql_envelop_request`
   - `graphql_envelop_request_duration`
@@ -514,7 +528,6 @@
 - [#3300](https://github.com/dotansimha/graphql-yoga/pull/3300)
   [`fdd902c`](https://github.com/dotansimha/graphql-yoga/commit/fdd902c2a713c6bd951e1b1e6570164b6ff2d546)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
-
   - Updated dependency
     [`graphql-yoga@workspace:^` ↗︎](https://www.npmjs.com/package/graphql-yoga/v/workspace:^) (from
     `^5.3.1`, in `peerDependencies`)
@@ -555,7 +568,6 @@
 
   If you need to be sure metrics configuration is up to date after a plugin re-initialization, you
   can either:
-
   - restart the whole node process instead of just recreating a graphql server at runtime
   - clear the registry using `registry.clear()` before plugin re-initialization:
     ```ts
@@ -716,7 +728,6 @@
 - [#3050](https://github.com/dotansimha/graphql-yoga/pull/3050)
   [`17343a1e`](https://github.com/dotansimha/graphql-yoga/commit/17343a1e6b6ed9f4879d49e0d73b32b3eea31ce9)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`prom-client@^15.0.0` ↗︎](https://www.npmjs.com/package/prom-client/v/15.0.0) (from
     `^13 || ^14.0.0`, in `peerDependencies`)
@@ -724,7 +735,6 @@
 - [#3070](https://github.com/dotansimha/graphql-yoga/pull/3070)
   [`5b615478`](https://github.com/dotansimha/graphql-yoga/commit/5b6154783957874281bdf180575cdf57fadb75bf)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@9.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/9.0.0)
     (from `8.0.3`, in `dependencies`)
@@ -749,7 +759,6 @@
 - [#2985](https://github.com/dotansimha/graphql-yoga/pull/2985)
   [`75ee8523`](https://github.com/dotansimha/graphql-yoga/commit/75ee8523b5507ab44947abfd6e8fe612baee1ada)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@8.0.1` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/8.0.1)
     (from `8.0.0`, in `dependencies`)
@@ -907,7 +916,6 @@
 - [#2452](https://github.com/dotansimha/graphql-yoga/pull/2452)
   [`64f769ec`](https://github.com/dotansimha/graphql-yoga/commit/64f769ec41f41a0c625bc7d4c749435f573e690c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@7.0.5` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/7.0.5)
     (from `7.0.4`, in `dependencies`)
@@ -939,7 +947,6 @@
 - [#2411](https://github.com/dotansimha/graphql-yoga/pull/2411)
   [`a747d249`](https://github.com/dotansimha/graphql-yoga/commit/a747d24976de5ed6bd05013ba451bffea05f4e8c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Added dependency
     [`graphql@^15.2.0 || ^16.0.0` ↗︎](https://www.npmjs.com/package/graphql/v/15.2.0) (to
     `peerDependencies`)

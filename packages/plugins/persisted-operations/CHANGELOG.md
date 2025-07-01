@@ -1,5 +1,15 @@
 # @graphql-yoga/plugin-persisted-operations
 
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 3.13.6
 
 ### Patch Changes
@@ -534,13 +544,11 @@
 - [#2489](https://github.com/dotansimha/graphql-yoga/pull/2489)
   [`9dcc7000`](https://github.com/dotansimha/graphql-yoga/commit/9dcc70007b4652fc05d2941c48aba80996fed0dc)
   Thanks [@enri90](https://github.com/enri90)! - dependencies updates:
-
   - Updated dependency
     [`@graphql-tools/utils@^9.2.1` ↗︎](https://www.npmjs.com/package/@graphql-yoga/plugin-persisted-operations)
     (from `^9.0.1`, in `dependencies`)
 
   motivation:
-
   - conflicting peer dependency: @graphql-tools/utils@9.2.1 node_modules/@graphql-tools/utils peer
     @graphql-tools/utils@"^9.0.1" from @graphql-yoga/plugin-persisted-operations@1.7.0
 

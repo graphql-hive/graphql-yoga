@@ -1,5 +1,15 @@
 # @graphql-yoga/plugin-apq
 
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
 ## 3.13.6
 
 ### Patch Changes
@@ -489,7 +499,6 @@
 - [#2670](https://github.com/dotansimha/graphql-yoga/pull/2670)
   [`df49d60d`](https://github.com/dotansimha/graphql-yoga/commit/df49d60da769b1b05d41586227070acb624aee79)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Added dependency [`lru-cache@^7.14.1` ↗︎](https://www.npmjs.com/package/lru-cache/v/7.14.1) (to
     `dependencies`)
   - Removed dependency
@@ -570,7 +579,6 @@
 - [#2405](https://github.com/dotansimha/graphql-yoga/pull/2405)
   [`cc0d3899`](https://github.com/dotansimha/graphql-yoga/commit/cc0d389912538f2dd290976a738f1b09f1d87b8d)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.7.0` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.7.0)
     (from `^0.6.5`, in `dependencies`)
@@ -578,7 +586,6 @@
 - [#2411](https://github.com/dotansimha/graphql-yoga/pull/2411)
   [`a747d249`](https://github.com/dotansimha/graphql-yoga/commit/a747d24976de5ed6bd05013ba451bffea05f4e8c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.8.1` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.8.1)
     (from `^0.7.0`, in `dependencies`)
@@ -586,7 +593,6 @@
 - [#2417](https://github.com/dotansimha/graphql-yoga/pull/2417)
   [`2933fc89`](https://github.com/dotansimha/graphql-yoga/commit/2933fc895702a26d13a466035e0d613629f569ec)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.7.1` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.7.1)
     (from `^0.7.0`, in `dependencies`)
@@ -634,7 +640,6 @@
 - [#2254](https://github.com/dotansimha/graphql-yoga/pull/2254)
   [`00843174`](https://github.com/dotansimha/graphql-yoga/commit/008431747787dd6c6b26f4cb44c7c6f3053f162e)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.6.5` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.6.5)
     (from `^0.6.1`, in `dependencies`)
@@ -678,7 +683,6 @@
 - [#2266](https://github.com/dotansimha/graphql-yoga/pull/2266)
   [`3e5f688f`](https://github.com/dotansimha/graphql-yoga/commit/3e5f688f2cbe02dd2fb4be69831d268aee52c5b5)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@^0.6.1` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.6.1)
     (from `0.5.4`, in `dependencies`)
@@ -910,7 +914,6 @@
 - [#1794](https://github.com/dotansimha/graphql-yoga/pull/1794)
   [`8c674c36`](https://github.com/dotansimha/graphql-yoga/commit/8c674c365e0bac176ca296e8d531fcd28d228d5b)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@whatwg-node/fetch@0.4.6` ↗︎](https://www.npmjs.com/package/@whatwg-node/fetch/v/0.4.6) (from
     `0.4.5`, in `dependencies`)
