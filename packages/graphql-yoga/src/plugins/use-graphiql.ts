@@ -44,9 +44,17 @@ export type GraphiQLOptions = {
    */
   credentials?: RequestCredentials;
   /**
+   * The favicon URL to display for the page. Defaults to Yoga logo.
+   */
+  favicon?: string;
+  /**
    * The title to display at the top of the page. Defaults to `"Yoga GraphiQL"`.
    */
   title?: string;
+  /**
+   * Logo to be displayed in the top right corner of GraphiQL.
+   */
+  logo?: string;
   /**
    * Protocol for subscriptions
    */
