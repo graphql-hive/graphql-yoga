@@ -1,5 +1,9 @@
 export * from '@graphql-yoga/logger';
-export { type GraphiQLOptions } from './plugins/use-graphiql.js';
+export type {
+  GraphiQLOptions,
+  GraphiQLPluginConfig,
+  GraphiQLOptionsOrFactory,
+} from './plugins/use-graphiql.js';
 export { renderGraphiQL, shouldRenderGraphiQL } from './plugins/use-graphiql.js';
 export { useReadinessCheck } from './plugins/use-readiness-check.js';
 export { type YogaSchemaDefinition, useSchema } from './plugins/use-schema.js';

@@ -7,7 +7,7 @@ export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `
     <head>
       <meta charset="utf-8" />
       <title>${opts?.title || 'Yoga GraphiQL'}</title>
-      <link rel="icon" href="${favicon}" />
+      <link rel="icon" href="${opts?.favicon || favicon}" />
       <style>
         ${css}
       </style>

@@ -34,11 +34,11 @@ const getOperationWithFragments = (
 
 export type YogaGraphiQLProps = Partial<GraphiQLProps> &
   Partial<Omit<LoadFromUrlOptions, 'headers'>> & {
-    title?: string;
+    title?: string | React.ReactNode;
     /**
      * Logo to be displayed in the top right corner
      */
-    logo?: React.ReactNode;
+    logo?: string | React.ReactNode;
     /**
      * Extra headers you always want to pass with users' headers input
      */
@@ -172,16 +172,31 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
         >
           <GraphiQL.Logo>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: 40, display: 'flex' }}>{props?.logo || <YogaLogo />}</div>
-              <span>
-                {props?.title || (
-                  <>
-                    Yoga Graph
-                    <em>i</em>
-                    QL
-                  </>
-                )}
-              </span>
+              {typeof props?.logo === 'string' ? (
+                // if the logo is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
+                <div
+                  style={{ width: 40, display: 'flex' }}
+                  dangerouslySetInnerHTML={{ __html: props.logo }}
+                />
+              ) : (
+                // otherwise, it's used inside react and we can render it as a component
+                <div style={{ width: 40, display: 'flex' }}>{props?.logo || <YogaLogo />}</div>
+              )}
+              {typeof props?.title === 'string' ? (
+                // if the title is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
+                <span dangerouslySetInnerHTML={{ __html: props.title }} />
+              ) : (
+                // otherwise, it's used inside react and we can render it as a component
+                <span>
+                  {props?.title || (
+                    <>
+                      Yoga Graph
+                      <em>i</em>
+                      QL
+                    </>
+                  )}
+                </span>
+              )}
             </div>
           </GraphiQL.Logo>
         </GraphiQLInterface>
