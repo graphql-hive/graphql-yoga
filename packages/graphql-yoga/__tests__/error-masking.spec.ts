@@ -802,4 +802,60 @@ describe('error masking', () => {
       ],
     });
   });
+
+  it('should not inherit the extensions of a graphql error with original error', async () => {
+    const wrappedError = createGraphQLError('I like tortoises', {
+      extensions: {
+        code: 'SOME_ERROR', // should not overwrite the INTERNAL_SERVER_ERROR code
+        'x-hi': 'there',
+      },
+      originalError: new Error('I like turtles'),
+    });
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => wrappedError,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    await expect(response.json()).resolves.toMatchInlineSnapshot(`
+{
+  "data": null,
+  "errors": [
+    {
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+      },
+      "locations": [
+        {
+          "column": 3,
+          "line": 1,
+        },
+      ],
+      "message": "Unexpected error.",
+      "path": [
+        "a",
+      ],
+    },
+  ],
+}
+`);
+  });
 });
