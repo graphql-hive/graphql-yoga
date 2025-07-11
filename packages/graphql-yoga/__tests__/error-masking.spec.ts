@@ -803,10 +803,11 @@ describe('error masking', () => {
     });
   });
 
-  it('should inherit the extensions of a graphql error with original error', async () => {
+  // extensions may contain internal data and we dont want to leak it
+  it('should not inherit the extensions of a graphql error with original error', async () => {
     const wrappedError = createGraphQLError('I like tortoises', {
       extensions: {
-        code: 'SOME_ERROR', // overwriting the INTERNAL_SERVER_ERROR code
+        code: 'SOME_ERROR', // should not overwrite the INTERNAL_SERVER_ERROR code
         'x-hi': 'there',
       },
       originalError: new Error('I like turtles'),
@@ -841,8 +842,7 @@ describe('error masking', () => {
   "errors": [
     {
       "extensions": {
-        "code": "SOME_ERROR",
-        "x-hi": "there",
+        "code": "INTERNAL_SERVER_ERROR",
       },
       "locations": [
         {
