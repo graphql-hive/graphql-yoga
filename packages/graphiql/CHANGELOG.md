@@ -1,5 +1,13 @@
 # @graphql-yoga/graphiql
 
+## 4.4.0
+
+### Minor Changes
+
+- [#4114](https://github.com/graphql-hive/graphql-yoga/pull/4114)
+  [`ccb5c53`](https://github.com/graphql-hive/graphql-yoga/commit/ccb5c536a81165a8581e63341c5a80109fe15cf5)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Configurable GraphiQL logo and favicon
+
 ## 4.3.6
 
 ### Patch Changes
