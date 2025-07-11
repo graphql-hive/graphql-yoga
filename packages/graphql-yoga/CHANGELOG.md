@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.15.1
+
+### Patch Changes
+
+- [#4116](https://github.com/graphql-hive/graphql-yoga/pull/4116)
+  [`ecd605b`](https://github.com/graphql-hive/graphql-yoga/commit/ecd605bc3d8ae3989dd09be31b89c1f5ae94c8be)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Does not GraphQL error extensions when it's
+  wrapping an internal server error
+
 ## 5.15.0
 
 ### Minor Changes

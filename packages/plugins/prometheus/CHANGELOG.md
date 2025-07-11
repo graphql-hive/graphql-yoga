@@ -1,5 +1,13 @@
 # @graphql-yoga/plugin-prometheus
 
+## 6.10.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ecd605b`](https://github.com/graphql-hive/graphql-yoga/commit/ecd605bc3d8ae3989dd09be31b89c1f5ae94c8be)]:
+  - graphql-yoga@5.15.1
+
 ## 6.10.0
 
 ### Patch Changes
