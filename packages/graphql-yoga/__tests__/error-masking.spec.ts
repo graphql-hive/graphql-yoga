@@ -803,6 +803,7 @@ describe('error masking', () => {
     });
   });
 
+  // extensions may contain internal data and we dont want to leak it
   it('should not inherit the extensions of a graphql error with original error', async () => {
     const wrappedError = createGraphQLError('I like tortoises', {
       extensions: {
