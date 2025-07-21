@@ -720,8 +720,8 @@ importers:
         specifier: 22.16.2
         version: 22.16.2
       '@whatwg-node/fetch':
-        specifier: 0.10.8
-        version: 0.10.8
+        specifier: 0.10.9
+        version: 0.10.9
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
@@ -1455,8 +1455,8 @@ importers:
         specifier: 8.36.0
         version: 8.36.0(eslint@9.30.1(jiti@2.4.2))(typescript@5.8.3)
       '@whatwg-node/fetch':
-        specifier: 0.10.8
-        version: 0.10.8
+        specifier: 0.10.9
+        version: 0.10.9
       eslint:
         specifier: 9.30.1
         version: 9.30.1(jiti@2.4.2)
@@ -8180,6 +8180,10 @@ packages:
 
   '@whatwg-node/fetch@0.10.8':
     resolution: {integrity: sha512-Rw9z3ctmeEj8QIB9MavkNJqekiu9usBCSMZa+uuAvM0lF3v70oQVCXNppMIqaV6OTZbdaHF1M2HLow58DEw+wg==}
+    engines: {node: '>=18.0.0'}
+
+  '@whatwg-node/fetch@0.10.9':
+    resolution: {integrity: sha512-2TaXKmjy53cybNtaAtzbPOzwIPkjXbzvZcimnaJxQwYXKSC8iYnWoZOyT4+CFt8w0KDieg5J5dIMNzUrW/UZ5g==}
     engines: {node: '>=18.0.0'}
 
   '@whatwg-node/node-fetch@0.7.22':
@@ -19029,7 +19033,7 @@ snapshots:
     dependencies:
       '@envelop/core': 5.3.0
       '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       fast-json-stable-stringify: 2.1.0
       graphql: 16.11.0
@@ -19584,7 +19588,7 @@ snapshots:
   '@graphql-tools/apollo-engine-loader@8.0.22(graphql@16.11.0)':
     dependencies:
       '@graphql-tools/utils': 10.9.1(graphql@16.11.0)
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       graphql: 16.11.0
       sync-fetch: 0.6.0-2
       tslib: 2.8.1
@@ -19673,7 +19677,7 @@ snapshots:
       '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
       '@repeaterjs/repeater': 3.0.6
       '@whatwg-node/disposablestack': 0.0.6
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.11.0
       meros: 1.3.1(@types/node@22.16.2)
@@ -19688,7 +19692,7 @@ snapshots:
       '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
       '@repeaterjs/repeater': 3.0.6
       '@whatwg-node/disposablestack': 0.0.6
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.11.0
       meros: 1.3.1(@types/node@22.16.2)
@@ -19740,7 +19744,7 @@ snapshots:
       '@graphql-yoga/typed-event-target': 3.0.2
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/events': 0.1.2
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.11.0
       tslib: 2.8.1
@@ -19764,7 +19768,7 @@ snapshots:
       '@graphql-tools/executor-http': 1.3.3(@types/node@22.16.2)(graphql@16.11.0)
       '@graphql-tools/graphql-tag-pluck': 8.3.21(graphql@16.11.0)
       '@graphql-tools/utils': 10.9.1(graphql@16.11.0)
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.11.0
       sync-fetch: 0.6.0-2
@@ -19852,7 +19856,7 @@ snapshots:
       '@graphql-tools/url-loader': 8.0.33(@types/node@22.16.2)(crossws@0.3.5)(graphql@16.11.0)
       '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
       '@types/js-yaml': 4.0.9
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       chalk: 4.1.2
       debug: 4.4.1(supports-color@10.0.0)
       dotenv: 16.6.1
@@ -19920,7 +19924,7 @@ snapshots:
       '@graphql-tools/utils': 10.9.1(graphql@16.11.0)
       '@graphql-tools/wrap': 10.1.2(graphql@16.11.0)
       '@types/ws': 8.18.1
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.11.0
       isomorphic-ws: 5.0.0(ws@8.18.3)
@@ -24132,6 +24136,11 @@ snapshots:
       '@whatwg-node/node-fetch': 0.7.22
       urlpattern-polyfill: 10.1.0
 
+  '@whatwg-node/fetch@0.10.9':
+    dependencies:
+      '@whatwg-node/node-fetch': 0.7.22
+      urlpattern-polyfill: 10.1.0
+
   '@whatwg-node/node-fetch@0.7.22':
     dependencies:
       '@fastify/busboy': 3.1.1
@@ -24153,7 +24162,7 @@ snapshots:
     dependencies:
       '@envelop/instrumentation': 1.0.0
       '@whatwg-node/disposablestack': 0.0.6
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
@@ -27504,7 +27513,7 @@ snapshots:
     dependencies:
       '@sinclair/typebox': 0.34.38
       '@whatwg-node/cookie-store': 0.2.3
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       '@whatwg-node/server': 0.10.10
       hotscript: 1.0.13
       json-schema-to-ts: 3.1.1
@@ -33410,7 +33419,7 @@ snapshots:
   sofa-api@0.18.8(graphql@16.11.0):
     dependencies:
       '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
-      '@whatwg-node/fetch': 0.10.8
+      '@whatwg-node/fetch': 0.10.9
       ansi-colors: 4.1.3
       fets: 0.8.5
       graphql: 16.11.0
