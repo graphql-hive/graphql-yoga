@@ -1,9 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>the-guild-org/shared-config:renovate",
-    ":preserveSemverRanges"
-  ],
+  "extends": ["github>the-guild-org/shared-config:renovate",":preserveSemverRanges"],
   "automerge": true,
   "major": {
     "automerge": false
@@ -44,11 +41,6 @@
     }
   ],
   "ignoreDeps": ["@sveltejs/kit", "graphiql", "graphql-yoga"],
-  "ignorePaths": [
-    "**/__tests__/**",
-    "**/test/**",
-    "**/tests/**",
-    "**/__fixtures__/**"
-  ],
+  "ignorePaths": ["**/__tests__/**", "**/test/**", "**/tests/**", "**/__fixtures__/**"],
   "baseBranchPatterns": ["main"]
 }
