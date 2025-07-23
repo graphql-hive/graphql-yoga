@@ -1941,8 +1941,8 @@ importers:
   packages/plugins/apollo-usage-report:
     dependencies:
       '@apollo/server-gateway-interface':
-        specifier: ^1.1.1
-        version: 1.1.1(graphql@16.11.0)
+        specifier: ^2.0.0
+        version: 2.0.0(graphql@16.11.0)
       '@apollo/usage-reporting-protobuf':
         specifier: ^4.1.1
         version: 4.1.1
@@ -2409,6 +2409,11 @@ packages:
     peerDependencies:
       graphql: 16.11.0
 
+  '@apollo/server-gateway-interface@2.0.0':
+    resolution: {integrity: sha512-3HEMD6fSantG2My3jWkb9dvfkF9vJ4BDLRjMgsnD790VINtuPaEp+h3Hg9HOHiWkML6QsOhnaRqZ+gvhp3y8Nw==}
+    peerDependencies:
+      graphql: 16.11.0
+
   '@apollo/subgraph@2.11.2':
     resolution: {integrity: sha512-S14osF5Zc8pd6lzeNtX1QHboMcQK5PXcN9EumZyRYBF0TRbnEFLF8Me9zMcfR3QP7GCiggjd6PA2IAaPC9uCSQ==}
     engines: {node: '>=14.15.0'}
@@ -2432,6 +2437,10 @@ packages:
     resolution: {integrity: sha512-jvvon885hEyWXd4H6zpWeN3tl88QcWnHp5gWF5OPF34uhvoR+DFqcNxs9vrRaBBSY3qda3Qe0bdud7tz2zGx1A==}
     engines: {node: '>=14'}
 
+  '@apollo/utils.fetcher@3.1.0':
+    resolution: {integrity: sha512-Z3QAyrsQkvrdTuHAFwWDNd+0l50guwoQUoaDQssLOjkmnmVuvXlJykqlEJolio+4rFwBnWdoY1ByFdKaQEcm7A==}
+    engines: {node: '>=16'}
+
   '@apollo/utils.isnodelike@2.0.1':
     resolution: {integrity: sha512-w41XyepR+jBEuVpoRM715N2ZD0xMD413UiJx8w5xnAZD2ZkSJnMJBoIzauK83kJpSgNuR6ywbV29jG9NmxjK0Q==}
     engines: {node: '>=14'}
@@ -2443,6 +2452,10 @@ packages:
   '@apollo/utils.keyvaluecache@3.1.0':
     resolution: {integrity: sha512-MM/DKIqpQQbuNG1gNPAlGc45THdWkroTmN8o/J09merFwf/LlZ7+lAfcHFDXIYIknwKmUjJrOMS3OxYbjrz2hA==}
     engines: {node: '>=16.14'}
+
+  '@apollo/utils.keyvaluecache@4.0.0':
+    resolution: {integrity: sha512-mKw1myRUkQsGPNB+9bglAuhviodJ2L2MRYLTafCMw5BIo7nbvCPNCkLnIHjZ1NOzH7SnMAr5c9LmXiqsgYqLZw==}
+    engines: {node: '>=20'}
 
   '@apollo/utils.logger@2.0.1':
     resolution: {integrity: sha512-YuplwLHaHf1oviidB7MxnCXAdHp3IqYV8n0momZ3JfLniae92eYqMIx+j5qJFX6WKJPs6q7bczmV4lXIsTu5Pg==}
@@ -17405,6 +17418,14 @@ snapshots:
       '@apollo/utils.logger': 2.0.1
       graphql: 16.11.0
 
+  '@apollo/server-gateway-interface@2.0.0(graphql@16.11.0)':
+    dependencies:
+      '@apollo/usage-reporting-protobuf': 4.1.1
+      '@apollo/utils.fetcher': 3.1.0
+      '@apollo/utils.keyvaluecache': 4.0.0
+      '@apollo/utils.logger': 3.0.0
+      graphql: 16.11.0
+
   '@apollo/subgraph@2.11.2(graphql@16.11.0)':
     dependencies:
       '@apollo/cache-control-types': 1.0.3(graphql@16.11.0)
@@ -17426,6 +17447,8 @@ snapshots:
 
   '@apollo/utils.fetcher@2.0.1': {}
 
+  '@apollo/utils.fetcher@3.1.0': {}
+
   '@apollo/utils.isnodelike@2.0.1': {}
 
   '@apollo/utils.keyvaluecache@2.1.1':
@@ -17437,6 +17460,11 @@ snapshots:
     dependencies:
       '@apollo/utils.logger': 3.0.0
       lru-cache: 10.4.3
+
+  '@apollo/utils.keyvaluecache@4.0.0':
+    dependencies:
+      '@apollo/utils.logger': 3.0.0
+      lru-cache: 11.1.0
 
   '@apollo/utils.logger@2.0.1': {}
 
