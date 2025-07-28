@@ -327,13 +327,17 @@ describe('browser', () => {
   const waitForResult = async (): Promise<object> => {
     await page.waitForSelector('[data-uri*="response"] textarea');
     await page.waitForFunction(
-      () => !!window.document.querySelector('[data-uri*="response"] textarea')?.textContent?.trim(),
+      // @ts-expect-error - value is not null
+      () => !!window.document.querySelector('[data-uri*="response"] textarea')?.value?.trim(),
     );
     const resultContents = await page.evaluate(() => {
-      return window.document
-        .querySelector('[data-uri*="response"] textarea')
-        ?.textContent?.trim()
-        .replaceAll('\u00A0', ' ');
+      return (
+        window.document
+          .querySelector('[data-uri*="response"] textarea')
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
+          .replaceAll('\u00A0', ' ')
+      );
     });
 
     return JSON.parse(resultContents!);
@@ -502,7 +506,8 @@ describe('browser', () => {
       await page.waitForFunction(() => {
         const value = window.document
           .querySelector('[data-uri*="response"] textarea')
-          ?.textContent?.trim()
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
           .replaceAll('\u00A0', ' ');
 
         return value?.includes('2');
@@ -582,7 +587,8 @@ describe('browser', () => {
       await expect(headerContentEl$).resolves.not.toBeNull();
 
       await expect(
-        headerContentEl$.then(headerContentEl => getElementText(headerContentEl!)),
+        // @ts-expect-error - value is not null
+        headerContentEl$.then(headerContentEl => headerContentEl!.evaluate(el => el.value)),
       ).resolves.toBe(defaultHeader);
     });
 
