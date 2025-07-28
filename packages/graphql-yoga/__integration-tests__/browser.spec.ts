@@ -309,27 +309,27 @@ describe('browser', () => {
   });
 
   const typeOperationText = async (text: string) => {
-    await page.type('.graphiql-editor textarea', text, { delay: 300 });
+    await page.type('[data-uri*="operation"] textarea', text, { delay: 300 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(300);
   };
 
   const typeVariablesText = async (text: string) => {
-    await page.type('[data-uri="file:///ro-variables.json"] textarea', text, { delay: 100 });
+    await page.type('[data-uri*="variables"] textarea', text, { delay: 100 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(100);
   };
 
   const waitForResult = async (): Promise<object> => {
-    await page.waitForSelector('.result-window textarea');
+    await page.waitForSelector('[data-uri*="response"] textarea');
     await page.waitForFunction(
-      () => !!window.document.querySelector('.result-window textarea')?.textContent?.trim(),
+      () => !!window.document.querySelector('[data-uri*="response"] textarea')?.textContent?.trim(),
     );
     const resultContents = await page.evaluate(() => {
       return window.document
-        .querySelector('.result-window textarea')
+        .querySelector('[data-uri*="response"] textarea')
         ?.textContent?.trim()
         .replaceAll('\u00A0', ' ');
     });
