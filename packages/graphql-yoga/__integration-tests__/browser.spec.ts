@@ -271,20 +271,22 @@ describe('browser', () => {
     browser = await chromium.launch({
       headless: process.env['PLAYWRIGHT_HEADLESS'] !== 'false',
       args: ['--incognito', '--no-sandbox', '--disable-setuid-sandbox'],
-      logger: {
-        isEnabled(_name: string) {
-          return true;
-        },
-        log(name, severity, message, args, hints) {
-          if (severity === 'error') {
-            // eslint-disable-next-line no-console
-            console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
-          } else {
-            // eslint-disable-next-line no-console
-            console.log(wrapColor(`[${name}] ${message}`), ...args);
+      logger: !!process.env['DEBUG']
+        ? {
+            isEnabled(_name: string) {
+              return true;
+            },
+            log(name, severity, message, args, hints) {
+              if (severity === 'error') {
+                // eslint-disable-next-line no-console
+                console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
+              } else {
+                // eslint-disable-next-line no-console
+                console.log(wrapColor(`[${name}] ${message}`), ...args);
+              }
+            },
           }
-        },
-      },
+        : undefined,
     });
   });
   beforeEach(async () => {
@@ -339,7 +341,7 @@ describe('browser', () => {
 
   const showGraphiQLSidebar = async () => {
     // Click to show sidebar
-    await page.click('.graphiql-sidebar [aria-label="Show Documentation Explorer"]');
+    await page.click('[aria-label="Show Documentation Explorer"]');
   };
 
   const getElementText = async (element: ElementHandle<Element>) =>
@@ -499,7 +501,7 @@ describe('browser', () => {
 
       await page.waitForFunction(() => {
         const value = window.document
-          .querySelector('.graphiql-response .CodeMirror-code')
+          .querySelector('[data-uri*="response"] textarea')
           ?.textContent?.trim()
           .replaceAll('\u00A0', ' ');
 
@@ -575,9 +577,7 @@ describe('browser', () => {
         tabs.find(tab => tab.textContent === 'Headers')!.click();
       });
 
-      const headerContentEl$ = page.waitForSelector(
-        'section.graphiql-editor-tool .graphiql-editor:not(.hidden) pre.CodeMirror-line',
-      );
+      const headerContentEl$ = page.waitForSelector('[data-uri*="headers"] textarea');
 
       await expect(headerContentEl$).resolves.not.toBeNull();
 
@@ -791,7 +791,6 @@ describe('browser', () => {
       endpoint: anotherEndpoint,
     };
     await page.goto(`http://localhost:${port}${endpoint}`);
-    await page.waitForSelector('.graphiql-query-editor .CodeMirror textarea');
     await typeOperationText('{ greetings }');
     await page.click(playButtonSelector);
     await expect(waitForResult()).resolves.toEqual({
