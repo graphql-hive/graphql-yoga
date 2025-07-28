@@ -271,6 +271,7 @@ describe('browser', () => {
     browser = await chromium.launch({
       headless: process.env['PLAYWRIGHT_HEADLESS'] !== 'false',
       args: ['--incognito', '--no-sandbox', '--disable-setuid-sandbox'],
+      // eslint-disable-next-line unicorn/no-negated-condition, no-extra-boolean-cast
       logger: !!process.env['DEBUG']
         ? {
             isEnabled(_name: string) {
