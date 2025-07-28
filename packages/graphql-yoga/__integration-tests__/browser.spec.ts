@@ -574,26 +574,14 @@ describe('browser', () => {
 
     it('should include default header', async () => {
       await page.goto(customGraphQLEndpoint);
-
-      await page.evaluate(() => {
-        const tabs = Array.from(
-          document.querySelectorAll('.graphiql-editor-tools button'),
-        ) as HTMLButtonElement[];
-        tabs.find(tab => tab.textContent === 'Headers')!.click();
-      });
-
-      const headerContentEl$ = page.waitForSelector('[data-uri*="headers"] textarea');
-
-      await expect(headerContentEl$).resolves.not.toBeNull();
-
-      await expect(
-        // @ts-expect-error - value is not null
-        headerContentEl$.then(headerContentEl => headerContentEl!.evaluate(el => el.value)),
-      ).resolves.toBe(defaultHeader);
+      await page.click('[data-name="headers"]');
+      await page.click('[data-uri*="headers"]');
+      const headerValue = await page.inputValue('[data-uri*="headers"] textarea');
+      expect(headerValue).toBe(defaultHeader);
     });
 
     it('supports input value deprecations', async () => {
-      await page.goto(`http://localhost:${port}${endpoint}`);
+      await page.goto(customGraphQLEndpoint);
       await page.click('.graphiql-un-styled[data-index="0"]');
       await page.click('a.graphiql-doc-explorer-type-name');
       await page.getByText('Show Deprecated Fields').click();

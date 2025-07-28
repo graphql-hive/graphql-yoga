@@ -42,6 +42,19 @@ export type YogaGraphiQLProps = Partial<GraphiQLProps> &
      * Extra headers you always want to pass with users' headers input
      */
     additionalHeaders?: LoadFromUrlOptions['headers'];
+
+    /**
+     * @deprecated Use `initialQuery` instead.
+     */
+    query?: GraphiQLProps['initialQuery'];
+    /**
+     * @deprecated Use `initialHeaders` instead.
+     */
+    headers?: GraphiQLProps['initialHeaders'];
+    /**
+     * @deprecated Use `initialVariables` instead.
+     */
+    variables?: GraphiQLProps['initialVariables'];
   };
 
 export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
@@ -125,6 +138,13 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
     showAttribution: true,
   });
 
+  const {
+    query: deprecatedInitialQuery = initialQuery,
+    headers: deprecatedInitialHeaders,
+    variables: deprecatedInitialVariables,
+    ...otherProps
+  } = props;
+
   return (
     <div className="graphiql-container">
       <GraphiQL
@@ -135,8 +155,10 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
         inputValueDeprecation={true}
         isHeadersEditorEnabled
         defaultEditorToolsVisibility
-        initialQuery={initialQuery}
-        {...props}
+        initialQuery={deprecatedInitialQuery}
+        defaultHeaders={deprecatedInitialHeaders}
+        initialVariables={deprecatedInitialVariables}
+        {...otherProps}
         fetcher={fetcher}
       >
         <GraphiQL.Logo>
