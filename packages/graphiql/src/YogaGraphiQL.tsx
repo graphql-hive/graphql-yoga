@@ -7,7 +7,6 @@ import { Fetcher, FetcherOpts, FetcherParams } from '@graphiql/toolkit';
 import { LoadFromUrlOptions, SubscriptionProtocol, UrlLoader } from '@graphql-tools/url-loader';
 import 'json-bigint-patch';
 import React, { useMemo } from 'react';
-import { useUrlSearchParams } from 'use-url-search-params';
 import { YogaLogo } from './YogaLogo';
 import './styles.css';
 
@@ -81,10 +80,6 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
 
   const endpoint = new URL(props.endpoint ?? location.pathname, location.href).toString();
 
-  const type = {
-    query: String,
-  };
-
   const urlLoader = useMemo(() => new UrlLoader(), []);
 
   const fetcher = useMemo(() => {
@@ -126,14 +121,6 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
     };
   }, [urlLoader, endpoint, props.fetcher]) as Fetcher;
 
-  const [params, setParams] = useUrlSearchParams(
-    {
-      query: props.defaultQuery || initialQuery,
-    },
-    type,
-    false,
-  );
-
   const explorer = explorerPlugin({
     showAttribution: true,
   });
@@ -148,13 +135,7 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
         inputValueDeprecation={true}
         isHeadersEditorEnabled
         defaultEditorToolsVisibility
-        initialQuery={params['query']?.toString()}
-        onEditQuery={(query, ast) => {
-          setParams({
-            query,
-          });
-          props.onEditQuery?.(query, ast);
-        }}
+        initialQuery={initialQuery}
         {...props}
         fetcher={fetcher}
       >

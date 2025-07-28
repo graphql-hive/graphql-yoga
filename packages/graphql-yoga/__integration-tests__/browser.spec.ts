@@ -277,8 +277,10 @@ describe('browser', () => {
         },
         log(name, severity, message, args, hints) {
           if (severity === 'error') {
+            // eslint-disable-next-line no-console
             console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
           } else {
+            // eslint-disable-next-line no-console
             console.log(wrapColor(`[${name}] ${message}`), ...args);
           }
         },
@@ -307,28 +309,27 @@ describe('browser', () => {
   });
 
   const typeOperationText = async (text: string) => {
-    await page.type('.graphiql-query-editor .CodeMirror textarea', text, { delay: 300 });
+    await page.type('.graphiql-editor textarea', text, { delay: 300 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(300);
   };
 
   const typeVariablesText = async (text: string) => {
-    await page.type('[aria-label="Variables"] .CodeMirror textarea', text, { delay: 100 });
+    await page.type('[data-uri="file:///ro-variables.json"] textarea', text, { delay: 100 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(100);
   };
 
   const waitForResult = async (): Promise<object> => {
-    await page.waitForSelector('.graphiql-response .CodeMirror-code');
+    await page.waitForSelector('.result-window textarea');
     await page.waitForFunction(
-      () =>
-        !!window.document.querySelector('.graphiql-response .CodeMirror-code')?.textContent?.trim(),
+      () => !!window.document.querySelector('.result-window textarea')?.textContent?.trim(),
     );
     const resultContents = await page.evaluate(() => {
       return window.document
-        .querySelector('.graphiql-response .CodeMirror-code')
+        .querySelector('.result-window textarea')
         ?.textContent?.trim()
         .replaceAll('\u00A0', ' ');
     });
