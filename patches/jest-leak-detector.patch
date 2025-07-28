@@ -1,8 +1,8 @@
 diff --git a/build/index.js b/build/index.js
-index a8ccb1e..70699fd 100644
+index 5598580f37f909901fc77871395ffd24514561a1..d968de4a0f3b1ee39141ed47011d8011d5d9fa74 100644
 --- a/build/index.js
 +++ b/build/index.js
-@@ -74,26 +74,14 @@ class LeakDetector {
+@@ -81,35 +81,15 @@ class LeakDetector {
      value = null;
    }
    async isLeaking() {
@@ -14,10 +14,18 @@ index a8ccb1e..70699fd 100644
 +      eval('%CollectGarbage(true)');
        await tick();
      }
+-    if (this._isReferenceBeingHeld) {
+-      // triggering a heap snapshot is more aggressive than just `global.gc()`,
+-      // but it's also quite slow, so only do it if we still think we're leaking.
+-      // https://github.com/nodejs/node/pull/48510#issuecomment-1719289759
+-      (0, _v().getHeapSnapshot)();
+-      for (let i = 0; i < 10; i++) {
+-        await tick();
+-      }
+-    }
      return this._isReferenceBeingHeld;
    }
 -  _runGarbageCollector() {
--    // @ts-expect-error: not a function on `globalThis`
 -    const isGarbageCollectorHidden = globalThis.gc == null;
 -
 -    // GC is usually hidden, so we have to expose it before running.
@@ -30,4 +38,5 @@ index a8ccb1e..70699fd 100644
 -    }
 -  }
  }
- exports.default = LeakDetector;
+ exports["default"] = LeakDetector;
+ })();
