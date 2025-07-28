@@ -138,8 +138,11 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
     showAttribution: true,
   });
 
+  const currentUrl = new URL(location.href);
+  const initialQueryFromUrl = currentUrl.searchParams.get('query') || props.query || initialQuery;
+
   const {
-    query: deprecatedInitialQuery = initialQuery,
+    query: deprecatedInitialQuery = initialQueryFromUrl,
     headers: deprecatedInitialHeaders,
     variables: deprecatedInitialVariables,
     ...otherProps
@@ -158,6 +161,11 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
         initialQuery={deprecatedInitialQuery}
         defaultHeaders={deprecatedInitialHeaders}
         initialVariables={deprecatedInitialVariables}
+        onEditQuery={(query, ast) => {
+          currentUrl.searchParams.set('query', query);
+          history.replaceState({}, '', currentUrl);
+          props.onEditQuery?.(query, ast);
+        }}
         {...otherProps}
         fetcher={fetcher}
       >
