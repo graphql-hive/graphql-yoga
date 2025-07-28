@@ -22,7 +22,14 @@ import { setTimeout as setTimeout$ } from 'node:timers/promises';
 // eslint-disable-next-line
 import { Browser, chromium, ElementHandle, Page } from 'playwright';
 import { fakePromise } from '@whatwg-node/server';
-import { CORSOptions, createSchema, createYoga, GraphiQLOptions, Repeater } from '../src/index.js';
+import {
+  ansiCodes,
+  CORSOptions,
+  createSchema,
+  createYoga,
+  GraphiQLOptions,
+  Repeater,
+} from '../src/index.js';
 
 let resolveOnReturn: VoidFunction;
 const timeoutsSignal = new AbortController();
@@ -251,12 +258,31 @@ describe('browser', () => {
   let port: number;
   const server = createServer(yogaApp);
 
+  function wrapColor(msg: string, color?: string) {
+    if (color != null && color in ansiCodes) {
+      return `${ansiCodes[color as keyof typeof ansiCodes]}${msg}${ansiCodes.reset}`;
+    }
+    return msg;
+  }
+
   beforeAll(async () => {
     await new Promise<void>(resolve => server.listen(0, resolve));
     port = (server.address() as AddressInfo).port;
     browser = await chromium.launch({
       headless: process.env['PLAYWRIGHT_HEADLESS'] !== 'false',
       args: ['--incognito', '--no-sandbox', '--disable-setuid-sandbox'],
+      logger: {
+        isEnabled(_name: string) {
+          return true;
+        },
+        log(name, severity, message, args, hints) {
+          if (severity === 'error') {
+            console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
+          } else {
+            console.log(wrapColor(`[${name}] ${message}`), ...args);
+          }
+        },
+      },
     });
   });
   beforeEach(async () => {
