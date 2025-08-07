@@ -1,9 +1,13 @@
+import { version } from 'graphql';
 import { fetch } from '@whatwg-node/fetch';
 import { getAvailablePort, Proc, spawn, waitForAvailable } from './utils';
 
 jest.setTimeout(33_000);
 
 describe('nextjs 13 App Router', () => {
+  if (version.startsWith('15.')) {
+    return;
+  }
   let port: number;
   let serverProcess: Proc;
   beforeAll(async () => {

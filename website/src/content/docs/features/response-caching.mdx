@@ -294,9 +294,9 @@ npm i @envelop/response-cache-redis
 ```
 
 ```ts filename="Create a custom Redis Cache"
-import { useResponseCache } from '@graphql-yoga/plugin-response-cache'
-import { createRedisCache } from '@envelop/response-cache-redis'
 import { Redis } from 'ioredis'
+import { createRedisCache } from '@envelop/response-cache-redis'
+import { useResponseCache } from '@graphql-yoga/plugin-response-cache'
 
 const redis = new Redis({
   host: 'my-redis-db.example.com',
