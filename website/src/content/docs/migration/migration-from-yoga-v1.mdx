@@ -187,8 +187,8 @@ You can learn more about the context within the [`context documentation`](/docs/
 
 ```ts
 import { GraphQLServer } from 'graphql-yoga'
-import { typeDefs, resolvers } from './schema'
 import { db } from './db'
+import { resolvers, typeDefs } from './schema'
 
 const server = new GraphQLServer({
   typeDefs,
