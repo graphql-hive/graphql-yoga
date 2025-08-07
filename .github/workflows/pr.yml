@@ -38,10 +38,10 @@ jobs:
       npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
 
   dependencies:
-    uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yaml@main
+    uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
     if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
     secrets:
-      githubToken: ${{ secrets.GUILD_BOT_TOKEN }}
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
     with:
       installDependencies: true
       node-version-file: .node-version
