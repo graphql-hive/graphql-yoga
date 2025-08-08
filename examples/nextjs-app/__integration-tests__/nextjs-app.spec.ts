@@ -6,6 +6,7 @@ jest.setTimeout(33_000);
 
 describe('nextjs 13 App Router', () => {
   if (version.startsWith('15.')) {
+    it.skip('skips for v15', () => {});
     return;
   }
   let port: number;
