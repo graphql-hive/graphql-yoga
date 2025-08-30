@@ -182,4 +182,66 @@ describe('Automatic Persisted Queries', () => {
       ],
     });
   });
+  it('issue #3204', async () => {
+    const store = {
+      get() {
+        try {
+          throw new Error('Error');
+        } catch (e) {
+          return null;
+        }
+      },
+      set() {
+        try {
+          throw new Error('Error');
+        } catch (e) {
+          return null;
+        }
+      },
+    };
+    const yoga = createYoga({
+      plugins: [
+        useAPQ({
+          store,
+        }),
+      ],
+      schema,
+    });
+    const response1 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        extensions: {
+          persistedQuery: {
+            version: 1,
+            sha256Hash: 'ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38',
+          },
+        },
+      }),
+    });
+    const body1 = await response1.json();
+    expect(body1.errors).toBeDefined();
+    expect(body1.errors[0].message).toBe('PersistedQueryNotFound');
+    const response2 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `{__typename}`,
+        extensions: {
+          persistedQuery: {
+            version: 1,
+            sha256Hash: 'ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38',
+          },
+        },
+      }),
+    });
+    const body2 = await response2.json();
+    expect(body2.errors).toBeUndefined();
+    expect(body2.data.__typename).toBe('Query');
+  });
 });
