@@ -84,7 +84,7 @@ describe('file uploads', () => {
           0: ['variables.file'],
         }),
       );
-      const file = new File([sourceFile], 'logo.png', {
+      const file = new File([sourceFile as any], 'logo.png', {
         type: 'image/png',
       });
       formData.append('0', file);
