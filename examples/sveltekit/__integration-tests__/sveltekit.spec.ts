@@ -15,8 +15,8 @@ const timings = {
 	waitForSelector: 999,
 	waitForResponse: 1999
 };
-
-describe('SvelteKit integration', () => {
+const describeIf = (condition: boolean) => (condition ? describe : describe.skip);
+describeIf(process.versions.node.startsWith('2'))('SvelteKit integration', () => {
 	beforeAll(async () => {
 		// Kill the port if it's used!
 		try {
