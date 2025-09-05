@@ -94,6 +94,7 @@ describeIf(versionInfo.major >= 16)('Yoga Apollo Link', () => {
     const collectedValues: string[] = [];
     let i = 0;
     await new Promise<void>(resolve => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const subscription = observable.subscribe((result: any) => {
         collectedValues.push(result.data?.['time']);
         i++;
