@@ -45,9 +45,13 @@ describe('file-upload-nextjs-pothos example integration', () => {
     formData.set('map', JSON.stringify({ 0: ['variables.file'] }));
     formData.set(
       '0',
-      new File([await fs.promises.readFile(sourceFilePath)], path.basename(sourceFilePath), {
-        type: 'image/png',
-      }),
+      new File(
+        [(await fs.promises.readFile(sourceFilePath)) as any],
+        path.basename(sourceFilePath),
+        {
+          type: 'image/png',
+        },
+      ),
     );
 
     const response = await fetch(`http://localhost:${port}/api/graphql`, {
