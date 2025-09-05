@@ -46,6 +46,7 @@ describe('file-upload-nexus example integration', () => {
     const buffer = await fs.promises.readFile(sourceFilePath);
     formData.set(
       '0',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new File([buffer as any], path.basename(sourceFilePath), {
         type: 'image/png',
       }),

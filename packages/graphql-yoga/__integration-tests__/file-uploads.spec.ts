@@ -84,6 +84,7 @@ describe('file uploads', () => {
           0: ['variables.file'],
         }),
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const file = new File([sourceFile as any], 'logo.png', {
         type: 'image/png',
       });

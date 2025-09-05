@@ -3,7 +3,7 @@ import { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { parse } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
-import { ApolloClient, FetchResult, InMemoryCache } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 import { YogaLink } from '@graphql-yoga/apollo-link';
 
 describe('Yoga Apollo Link', () => {
