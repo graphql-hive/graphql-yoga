@@ -1,12 +1,13 @@
 import { createServer, Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
-import { parse } from 'graphql';
+import { parse, versionInfo } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 import { YogaLink } from '@graphql-yoga/apollo-link';
 
-describe('Yoga Apollo Link', () => {
+const describeIf = (condition: boolean) => (condition ? describe : describe.skip);
+describeIf(versionInfo.major >= 16)('Yoga Apollo Link', () => {
   const endpoint = '/graphql';
   const hostname = '127.0.0.1';
   const yoga = createYoga({
