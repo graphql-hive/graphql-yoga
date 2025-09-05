@@ -50,7 +50,7 @@ describe('Yoga Apollo Link', () => {
 
   let server: Server;
   let url: string;
-  let client: ApolloClient<unknown>;
+  let client: ApolloClient;
 
   beforeAll(async () => {
     server = createServer(yoga);
@@ -76,8 +76,7 @@ describe('Yoga Apollo Link', () => {
         }
       `),
     });
-    expect(result.error).toBeUndefined();
-    expect(result.errors?.length).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toEqual({
       hello: 'Hello Apollo Client!',
     });
@@ -94,7 +93,7 @@ describe('Yoga Apollo Link', () => {
     const collectedValues: string[] = [];
     let i = 0;
     await new Promise<void>(resolve => {
-      const subscription = observable.subscribe((result: FetchResult) => {
+      const subscription = observable.subscribe((result: any) => {
         collectedValues.push(result.data?.['time']);
         i++;
         if (i > 2) {
@@ -123,7 +122,7 @@ describe('Yoga Apollo Link', () => {
         }),
       },
     });
-    expect(result.errors?.length).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toEqual({
       readFile: 'Hello World',
     });
