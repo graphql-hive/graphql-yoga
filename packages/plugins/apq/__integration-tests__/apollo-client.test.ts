@@ -65,6 +65,7 @@ describe('Automatic Persisted Queries', () => {
         extensions: {
           clientLibrary: {
             name: '@apollo/client',
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             version: require('@apollo/client/package.json').version,
           },
           persistedQuery: {
@@ -85,6 +86,7 @@ describe('Automatic Persisted Queries', () => {
         extensions: {
           clientLibrary: {
             name: '@apollo/client',
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             version: require('@apollo/client/package.json').version,
           },
           persistedQuery: {
