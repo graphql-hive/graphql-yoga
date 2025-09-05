@@ -43,9 +43,10 @@ describe('file-upload-nexus example integration', () => {
       }),
     );
     formData.set('map', JSON.stringify({ 0: ['variables.file'] }));
+    const buffer = await fs.promises.readFile(sourceFilePath);
     formData.set(
       '0',
-      new File([await fs.promises.readFile(sourceFilePath)], path.basename(sourceFilePath), {
+      new File([buffer as any], path.basename(sourceFilePath), {
         type: 'image/png',
       }),
     );
