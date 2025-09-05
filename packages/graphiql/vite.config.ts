@@ -8,8 +8,8 @@ const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
 export default defineConfig({
   cacheDir: path.join(pnpmStoreDir, '.vite'),
   plugins: [
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    import('@vitejs/plugin-react').then((m: any) =>
+    // @ts-ignore - no types
+    import('@vitejs/plugin-react').then(m =>
       (m.default || m)({
         // fastRefresh: false,
       }),
