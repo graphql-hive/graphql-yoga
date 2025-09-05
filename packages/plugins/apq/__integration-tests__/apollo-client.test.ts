@@ -63,6 +63,10 @@ describe('Automatic Persisted Queries', () => {
       body: JSON.stringify({
         variables: {},
         extensions: {
+          clientLibrary: {
+            name: '@apollo/client',
+            version: require('@apollo/client/package.json').version,
+          },
           persistedQuery: {
             version: 1,
             sha256Hash: sha256(query),
@@ -71,7 +75,7 @@ describe('Automatic Persisted Queries', () => {
       }),
       headers: {
         'content-type': 'application/json',
-        accept: '*/*',
+        accept: 'application/graphql-response+json,application/json;q=0.9',
       },
       method: 'POST',
     });
@@ -79,6 +83,10 @@ describe('Automatic Persisted Queries', () => {
       body: JSON.stringify({
         variables: {},
         extensions: {
+          clientLibrary: {
+            name: '@apollo/client',
+            version: require('@apollo/client/package.json').version,
+          },
           persistedQuery: {
             version: 1,
             sha256Hash: sha256(query),
@@ -88,7 +96,7 @@ describe('Automatic Persisted Queries', () => {
       }),
       headers: {
         'content-type': 'application/json',
-        accept: '*/*',
+        accept: 'application/graphql-response+json,application/json;q=0.9',
       },
       method: 'POST',
     });
