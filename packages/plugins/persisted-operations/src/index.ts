@@ -94,6 +94,19 @@ export type CustomPersistedQueryErrors = {
   keyNotFound?: CustomErrorFactory;
 };
 
+const isPersistedOperationContextSymbolReferenceMap = new WeakMap<object, boolean>();
+
+/**
+ * Helper function for determining whether the execution is using a persisted document.
+ */
+export function isPersistedOperationContext<TContext extends object>(context: TContext): boolean {
+  return isPersistedOperationContextSymbolReferenceMap.get(context) ?? false;
+}
+
+function markContextAsPersistedOperationContext<TContext extends object>(context: TContext): void {
+  isPersistedOperationContextSymbolReferenceMap.set(context, true);
+}
+
 export function usePersistedOperations<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TPluginContext extends Record<string, any>,
@@ -119,7 +132,7 @@ export function usePersistedOperations<
 
   return {
     onParams(payload) {
-      const { request, params, setParams } = payload;
+      const { request, params, setParams, context } = payload;
 
       if (params.query) {
         if (allowArbitraryOperations === false) {
@@ -151,6 +164,8 @@ export function usePersistedOperations<
           if (persistedQuery == null) {
             throw notFoundErrorFactory(payload);
           }
+
+          markContextAsPersistedOperationContext(context);
 
           if (typeof persistedQuery === 'object') {
             setParams({
