@@ -16,7 +16,38 @@
   <body id="body" class="no-focus-outline">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-
+    <script>
+      self['MonacoEnvironment'] = (function (paths) {
+        return {
+          globalAPI: false,
+          getWorkerUrl: function (moduleId, label) {
+            var result = paths[label];
+            if (result.includes('://')) {
+              var currentUrl = String(window.location);
+              var currentOrigin = currentUrl.substr(
+                0,
+                currentUrl.length -
+                  window.location.hash.length -
+                  window.location.search.length -
+                  window.location.pathname.length,
+              );
+              if (result.substring(0, currentOrigin.length) !== currentOrigin) {
+                var js = '/*' + label + '*/importScripts("' + result + '");';
+                var blob = new Blob([js], { type: 'application/javascript' });
+                return URL.createObjectURL(blob);
+              }
+            }
+            return result;
+          },
+        };
+      })({
+        editorWorkerService:
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/editor.worker.bundle.js',
+        json: 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/json.worker.bundle.js',
+        graphql:
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/graphql.worker..bundle.js',
+      });
+    </script>
     <script type="module">
       import { renderYogaGraphiQL } from 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/yoga-graphiql.es.js';
 
