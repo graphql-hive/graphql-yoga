@@ -5,8 +5,8 @@ import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
 
-// @ts-expect-error - We need to do this because the plugin is a CJS module
 const monacoEditorPlugin: typeof $monacoEditorPlugin =
+  // @ts-expect-error - We need to do this because the plugin is a CJS module
   $monacoEditorPlugin.default ?? $monacoEditorPlugin;
 
 // https://vitejs.dev/config/
