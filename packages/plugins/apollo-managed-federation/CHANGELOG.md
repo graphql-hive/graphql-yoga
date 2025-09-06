@@ -1,5 +1,24 @@
 # @graphql-yoga/apollo-managed-federation
 
+## 0.14.0
+
+### Minor Changes
+
+- [`6a4abaf`](https://github.com/graphql-hive/graphql-yoga/commit/6a4abaf99274bc70b1dbb95dfffd99caa0732f7c)
+  Thanks [@ardatan](https://github.com/ardatan)! - Drop Node 18 support
+
+### Patch Changes
+
+- [#4171](https://github.com/graphql-hive/graphql-yoga/pull/4171)
+  [`17e574a`](https://github.com/graphql-hive/graphql-yoga/commit/17e574a940b9094717e0f860e0f9d16dcf48926b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/federation@^4.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/federation/v/4.0.0)
+    (from `^3.0.0`, in `dependencies`)
+- Updated dependencies
+  [[`e7b8906`](https://github.com/graphql-hive/graphql-yoga/commit/e7b8906d2259c643b61a4fc1d8345df533a64eb9)]:
+  - graphql-yoga@5.15.2
+
 ## 0.13.1
 
 ### Patch Changes

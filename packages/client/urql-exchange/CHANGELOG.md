@@ -1,5 +1,31 @@
 # @graphql-yoga/urql-exchange
 
+## 5.0.0
+
+### Major Changes
+
+- [#4151](https://github.com/graphql-hive/graphql-yoga/pull/4151)
+  [`614dc44`](https://github.com/graphql-hive/graphql-yoga/commit/614dc44ffc4821a51145fd4f666ca36b4e77a029)
+  Thanks [@renovate](https://github.com/apps/renovate)! - Support at least @urql/core v6 or later
+
+- [`6a4abaf`](https://github.com/graphql-hive/graphql-yoga/commit/6a4abaf99274bc70b1dbb95dfffd99caa0732f7c)
+  Thanks [@ardatan](https://github.com/ardatan)! - Drop Node 18 support
+
+### Patch Changes
+
+- [#4151](https://github.com/graphql-hive/graphql-yoga/pull/4151)
+  [`614dc44`](https://github.com/graphql-hive/graphql-yoga/commit/614dc44ffc4821a51145fd4f666ca36b4e77a029)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`@urql/core@^6.0.0` ↗︎](https://www.npmjs.com/package/@urql/core/v/6.0.0)
+    (from `^5.0.0`, in `peerDependencies`)
+
+- [#4171](https://github.com/graphql-hive/graphql-yoga/pull/4171)
+  [`17e574a`](https://github.com/graphql-hive/graphql-yoga/commit/17e574a940b9094717e0f860e0f9d16dcf48926b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/executor-http@^3.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor-http/v/3.0.0)
+    (from `^2.0.0`, in `dependencies`)
+
 ## 4.2.1
 
 ## 4.2.0
