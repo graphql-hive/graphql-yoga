@@ -1,5 +1,13 @@
 # graphql-yoga
 
+## 5.15.2
+
+### Patch Changes
+
+- [`e7b8906`](https://github.com/graphql-hive/graphql-yoga/commit/e7b8906d2259c643b61a4fc1d8345df533a64eb9)
+  Thanks [@ardatan](https://github.com/ardatan)! - Bump URL Loader in GraphiQL to the latest to
+  remove extra DOWNSTREAM_SERVICE_ERROR code in the errors
+
 ## 5.15.1
 
 ### Patch Changes

@@ -1,5 +1,33 @@
 # @graphql-yoga/graphiql
 
+## 4.4.1
+
+### Patch Changes
+
+- [#4033](https://github.com/graphql-hive/graphql-yoga/pull/4033)
+  [`7f26c64`](https://github.com/graphql-hive/graphql-yoga/commit/7f26c642f69cd6b02b9b3c8f51aac5524edd921b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphiql/plugin-explorer@5.1.1` ↗︎](https://www.npmjs.com/package/@graphiql/plugin-explorer/v/5.1.1)
+    (from `3.2.6`, in `dependencies`)
+  - Updated dependency [`graphiql@5.2.0` ↗︎](https://www.npmjs.com/package/graphiql/v/5.2.0) (from
+    `3.1.1`, in `dependencies`)
+  - Removed dependency
+    [`use-url-search-params@2.5.1` ↗︎](https://www.npmjs.com/package/use-url-search-params/v/2.5.1)
+    (from `dependencies`)
+
+- [#4136](https://github.com/graphql-hive/graphql-yoga/pull/4136)
+  [`2040302`](https://github.com/graphql-hive/graphql-yoga/commit/204030246450b66fd4828254aa2ae68f923cd7bb)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`react@19.1.1` ↗︎](https://www.npmjs.com/package/react/v/19.1.1) (from
+    `19.1.0`, in `dependencies`)
+  - Updated dependency [`react-dom@19.1.1` ↗︎](https://www.npmjs.com/package/react-dom/v/19.1.1)
+    (from `19.1.0`, in `dependencies`)
+
+- [`e7b8906`](https://github.com/graphql-hive/graphql-yoga/commit/e7b8906d2259c643b61a4fc1d8345df533a64eb9)
+  Thanks [@ardatan](https://github.com/ardatan)! - Bump URL Loader in GraphiQL to the latest to
+  remove extra DOWNSTREAM_SERVICE_ERROR code in the errors
+
 ## 4.4.0
 
 ### Minor Changes

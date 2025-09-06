@@ -1,5 +1,27 @@
 # @graphql-yoga/plugin-apollo-usage-report
 
+## 0.10.2
+
+### Patch Changes
+
+- [#4113](https://github.com/graphql-hive/graphql-yoga/pull/4113)
+  [`9236d45`](https://github.com/graphql-hive/graphql-yoga/commit/9236d4510f3514c6a3e549bc85e48e268e1591dc)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@^10.9.1` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.9.1)
+    (from `10.8.6`, in `dependencies`)
+
+- [#4123](https://github.com/graphql-hive/graphql-yoga/pull/4123)
+  [`2b09faa`](https://github.com/graphql-hive/graphql-yoga/commit/2b09faa95bee2896db4208eb71540b43a790061a)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@apollo/server-gateway-interface@^2.0.0` ↗︎](https://www.npmjs.com/package/@apollo/server-gateway-interface/v/2.0.0)
+    (from `^1.1.1`, in `dependencies`)
+- Updated dependencies
+  [[`e7b8906`](https://github.com/graphql-hive/graphql-yoga/commit/e7b8906d2259c643b61a4fc1d8345df533a64eb9)]:
+  - graphql-yoga@5.15.2
+  - @graphql-yoga/plugin-apollo-inline-trace@3.15.2
+
 ## 0.10.1
 
 ### Patch Changes

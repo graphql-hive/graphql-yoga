@@ -1,5 +1,23 @@
 # @graphql-yoga/apollo-link
 
+## 5.0.0
+
+### Major Changes
+
+- [#4157](https://github.com/graphql-hive/graphql-yoga/pull/4157)
+  [`8509a81`](https://github.com/graphql-hive/graphql-yoga/commit/8509a81f1fab91a724f8e5db567c6f1e16e5da3d)
+  Thanks [@renovate](https://github.com/apps/renovate)! - Drop Node 18 and Apollo Client v3, not it
+  supports Node 20 and Apollo Client v4 or later versions
+
+### Patch Changes
+
+- [#4157](https://github.com/graphql-hive/graphql-yoga/pull/4157)
+  [`8509a81`](https://github.com/graphql-hive/graphql-yoga/commit/8509a81f1fab91a724f8e5db567c6f1e16e5da3d)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@apollo/client@^4.0.0` ↗︎](https://www.npmjs.com/package/@apollo/client/v/4.0.0) (from
+    `^3.5.9`, in `peerDependencies`)
+
 ## 4.2.1
 
 ## 4.2.0
