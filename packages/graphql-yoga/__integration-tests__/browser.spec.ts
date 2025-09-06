@@ -22,7 +22,14 @@ import { setTimeout as setTimeout$ } from 'node:timers/promises';
 // eslint-disable-next-line
 import { Browser, chromium, ElementHandle, Page } from 'playwright';
 import { fakePromise } from '@whatwg-node/server';
-import { CORSOptions, createSchema, createYoga, GraphiQLOptions, Repeater } from '../src/index.js';
+import {
+  ansiCodes,
+  CORSOptions,
+  createSchema,
+  createYoga,
+  GraphiQLOptions,
+  Repeater,
+} from '../src/index.js';
 
 let resolveOnReturn: VoidFunction;
 const timeoutsSignal = new AbortController();
@@ -251,12 +258,36 @@ describe('browser', () => {
   let port: number;
   const server = createServer(yogaApp);
 
+  function wrapColor(msg: string, color?: string) {
+    if (color != null && color in ansiCodes) {
+      return `${ansiCodes[color as keyof typeof ansiCodes]}${msg}${ansiCodes.reset}`;
+    }
+    return msg;
+  }
+
   beforeAll(async () => {
     await new Promise<void>(resolve => server.listen(0, resolve));
     port = (server.address() as AddressInfo).port;
     browser = await chromium.launch({
       headless: process.env['PLAYWRIGHT_HEADLESS'] !== 'false',
       args: ['--incognito', '--no-sandbox', '--disable-setuid-sandbox'],
+      // eslint-disable-next-line unicorn/no-negated-condition, no-extra-boolean-cast
+      logger: !!process.env['DEBUG']
+        ? {
+            isEnabled(_name: string) {
+              return true;
+            },
+            log(name, severity, message, args, hints) {
+              if (severity === 'error') {
+                // eslint-disable-next-line no-console
+                console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
+              } else {
+                // eslint-disable-next-line no-console
+                console.log(wrapColor(`[${name}] ${message}`), ...args);
+              }
+            },
+          }
+        : undefined,
     });
   });
   beforeEach(async () => {
@@ -281,30 +312,33 @@ describe('browser', () => {
   });
 
   const typeOperationText = async (text: string) => {
-    await page.type('.graphiql-query-editor .CodeMirror textarea', text, { delay: 300 });
+    await page.type('[data-uri*="operation"] textarea', text, { delay: 300 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(300);
   };
 
   const typeVariablesText = async (text: string) => {
-    await page.type('[aria-label="Variables"] .CodeMirror textarea', text, { delay: 100 });
+    await page.type('[data-uri*="variables"] textarea', text, { delay: 100 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
     await setTimeout$(100);
   };
 
   const waitForResult = async (): Promise<object> => {
-    await page.waitForSelector('.graphiql-response .CodeMirror-code');
+    await page.waitForSelector('[data-uri*="response"] textarea');
     await page.waitForFunction(
-      () =>
-        !!window.document.querySelector('.graphiql-response .CodeMirror-code')?.textContent?.trim(),
+      // @ts-expect-error - value is not null
+      () => !!window.document.querySelector('[data-uri*="response"] textarea')?.value?.trim(),
     );
     const resultContents = await page.evaluate(() => {
-      return window.document
-        .querySelector('.graphiql-response .CodeMirror-code')
-        ?.textContent?.trim()
-        .replaceAll('\u00A0', ' ');
+      return (
+        window.document
+          .querySelector('[data-uri*="response"] textarea')
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
+          .replaceAll('\u00A0', ' ')
+      );
     });
 
     return JSON.parse(resultContents!);
@@ -312,7 +346,7 @@ describe('browser', () => {
 
   const showGraphiQLSidebar = async () => {
     // Click to show sidebar
-    await page.click('.graphiql-sidebar [aria-label="Show Documentation Explorer"]');
+    await page.click('[aria-label="Show Documentation Explorer"]');
   };
 
   const getElementText = async (element: ElementHandle<Element>) =>
@@ -472,8 +506,9 @@ describe('browser', () => {
 
       await page.waitForFunction(() => {
         const value = window.document
-          .querySelector('.graphiql-response .CodeMirror-code')
-          ?.textContent?.trim()
+          .querySelector('[data-uri*="response"] textarea')
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
           .replaceAll('\u00A0', ' ');
 
         return value?.includes('2');
@@ -540,27 +575,14 @@ describe('browser', () => {
 
     it('should include default header', async () => {
       await page.goto(customGraphQLEndpoint);
-
-      await page.evaluate(() => {
-        const tabs = Array.from(
-          document.querySelectorAll('.graphiql-editor-tools button'),
-        ) as HTMLButtonElement[];
-        tabs.find(tab => tab.textContent === 'Headers')!.click();
-      });
-
-      const headerContentEl$ = page.waitForSelector(
-        'section.graphiql-editor-tool .graphiql-editor:not(.hidden) pre.CodeMirror-line',
-      );
-
-      await expect(headerContentEl$).resolves.not.toBeNull();
-
-      await expect(
-        headerContentEl$.then(headerContentEl => getElementText(headerContentEl!)),
-      ).resolves.toBe(defaultHeader);
+      await page.click('[data-name="headers"]');
+      await page.click('[data-uri*="headers"]');
+      const headerValue = await page.inputValue('[data-uri*="headers"] textarea');
+      expect(headerValue).toBe(defaultHeader);
     });
 
     it('supports input value deprecations', async () => {
-      await page.goto(`http://localhost:${port}${endpoint}`);
+      await page.goto(customGraphQLEndpoint);
       await page.click('.graphiql-un-styled[data-index="0"]');
       await page.click('a.graphiql-doc-explorer-type-name');
       await page.getByText('Show Deprecated Fields').click();
@@ -764,7 +786,6 @@ describe('browser', () => {
       endpoint: anotherEndpoint,
     };
     await page.goto(`http://localhost:${port}${endpoint}`);
-    await page.waitForSelector('.graphiql-query-editor .CodeMirror textarea');
     await typeOperationText('{ greetings }');
     await page.click(playButtonSelector);
     await expect(waitForResult()).resolves.toEqual({

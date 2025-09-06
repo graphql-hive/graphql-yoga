@@ -1,13 +1,12 @@
+import 'graphiql/style.css';
+import '@graphiql/plugin-explorer/style.css';
+import { GraphiQL, GraphiQLProps } from 'graphiql';
+import { DocumentNode, Kind, parse } from 'graphql';
 import { explorerPlugin } from '@graphiql/plugin-explorer';
-import '@graphiql/plugin-explorer/dist/style.css';
-import { GraphiQL, GraphiQLInterface, GraphiQLProps, GraphiQLProvider } from 'graphiql';
 import { Fetcher, FetcherOpts, FetcherParams } from '@graphiql/toolkit';
 import { LoadFromUrlOptions, SubscriptionProtocol, UrlLoader } from '@graphql-tools/url-loader';
-import 'graphiql/graphiql.css';
-import { DocumentNode, Kind, parse } from 'graphql';
 import 'json-bigint-patch';
-import React, { useMemo, useState } from 'react';
-import { useUrlSearchParams } from 'use-url-search-params';
+import React, { useMemo } from 'react';
 import { YogaLogo } from './YogaLogo';
 import './styles.css';
 
@@ -43,6 +42,19 @@ export type YogaGraphiQLProps = Partial<GraphiQLProps> &
      * Extra headers you always want to pass with users' headers input
      */
     additionalHeaders?: LoadFromUrlOptions['headers'];
+
+    /**
+     * @deprecated Use `initialQuery` instead.
+     */
+    query?: GraphiQLProps['initialQuery'];
+    /**
+     * @deprecated Use `initialHeaders` instead.
+     */
+    headers?: GraphiQLProps['initialHeaders'];
+    /**
+     * @deprecated Use `initialVariables` instead.
+     */
+    variables?: GraphiQLProps['initialVariables'];
   };
 
 export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
@@ -80,10 +92,6 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
 `;
 
   const endpoint = new URL(props.endpoint ?? location.pathname, location.href).toString();
-
-  const type = {
-    query: String,
-  };
 
   const urlLoader = useMemo(() => new UrlLoader(), []);
 
@@ -126,81 +134,71 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
     };
   }, [urlLoader, endpoint, props.fetcher]) as Fetcher;
 
-  const [params, setParams] = useUrlSearchParams(
-    {
-      query: props.defaultQuery || initialQuery,
-    },
-    type,
-    false,
-  );
-
-  const [query, setQuery] = useState(params['query']?.toString());
   const explorer = explorerPlugin({
     showAttribution: true,
   });
 
-  if (props.query && !props.onEditQuery) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'If you provide `query` prop, you should also provide `onEditQuery` prop to handle query changes.',
-    );
-  }
+  const currentUrl = new URL(location.href);
+  const initialQueryFromUrl = currentUrl.searchParams.get('query') || props.query || initialQuery;
+
+  const {
+    query: deprecatedInitialQuery = initialQueryFromUrl,
+    headers: deprecatedInitialHeaders,
+    variables: deprecatedInitialVariables,
+    ...otherProps
+  } = props;
 
   return (
     <div className="graphiql-container">
-      <GraphiQLProvider
+      <GraphiQL
         // default values that can be override by props
         shouldPersistHeaders
         plugins={[explorer]}
         schemaDescription={true}
         inputValueDeprecation={true}
-        query={query}
-        {...props}
+        isHeadersEditorEnabled
+        defaultEditorToolsVisibility
+        initialQuery={deprecatedInitialQuery}
+        defaultHeaders={deprecatedInitialHeaders}
+        initialVariables={deprecatedInitialVariables}
+        onEditQuery={(query, ast) => {
+          currentUrl.searchParams.set('query', query);
+          history.replaceState({}, '', currentUrl);
+          props.onEditQuery?.(query, ast);
+        }}
+        {...otherProps}
         fetcher={fetcher}
       >
-        <GraphiQLInterface
-          isHeadersEditorEnabled
-          defaultEditorToolsVisibility
-          {...props}
-          onEditQuery={(query, ast) => {
-            setParams({
-              query,
-            });
-            setQuery(query);
-            props.onEditQuery?.(query, ast);
-          }}
-        >
-          <GraphiQL.Logo>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              {typeof props?.logo === 'string' ? (
-                // if the logo is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
-                <div
-                  style={{ width: 40, display: 'flex' }}
-                  dangerouslySetInnerHTML={{ __html: props.logo }}
-                />
-              ) : (
-                // otherwise, it's used inside react and we can render it as a component
-                <div style={{ width: 40, display: 'flex' }}>{props?.logo || <YogaLogo />}</div>
-              )}
-              {typeof props?.title === 'string' ? (
-                // if the title is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
-                <span dangerouslySetInnerHTML={{ __html: props.title }} />
-              ) : (
-                // otherwise, it's used inside react and we can render it as a component
-                <span>
-                  {props?.title || (
-                    <>
-                      Yoga Graph
-                      <em>i</em>
-                      QL
-                    </>
-                  )}
-                </span>
-              )}
-            </div>
-          </GraphiQL.Logo>
-        </GraphiQLInterface>
-      </GraphiQLProvider>
+        <GraphiQL.Logo>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {typeof props?.logo === 'string' ? (
+              // if the logo is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
+              <div
+                style={{ width: 40, display: 'flex' }}
+                dangerouslySetInnerHTML={{ __html: props.logo }}
+              />
+            ) : (
+              // otherwise, it's used inside react and we can render it as a component
+              <div style={{ width: 40, display: 'flex' }}>{props?.logo || <YogaLogo />}</div>
+            )}
+            {typeof props?.title === 'string' ? (
+              // if the title is a string, then it's coming when rendering graphiql as a static page (see render-graphiql)
+              <span dangerouslySetInnerHTML={{ __html: props.title }} />
+            ) : (
+              // otherwise, it's used inside react and we can render it as a component
+              <span>
+                {props?.title || (
+                  <>
+                    Yoga Graph
+                    <em>i</em>
+                    QL
+                  </>
+                )}
+              </span>
+            )}
+          </div>
+        </GraphiQL.Logo>
+      </GraphiQL>
     </div>
   );
 }

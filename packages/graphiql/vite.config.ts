@@ -1,8 +1,13 @@
 import { execSync } from 'node:child_process';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
+import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
+
+const monacoEditorPlugin: typeof $monacoEditorPlugin =
+  // @ts-expect-error - We need to do this because the plugin is a CJS module
+  $monacoEditorPlugin.default ?? $monacoEditorPlugin;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +20,15 @@ export default defineConfig({
         // fastRefresh: false,
       }),
     ),
+    monacoEditorPlugin({
+      languageWorkers: ['editorWorkerService', 'json'],
+      customWorkers: [
+        {
+          label: 'graphql',
+          entry: 'monaco-graphql/esm/graphql.worker.js',
+        },
+      ],
+    }),
   ],
   server: {
     port: 4001,

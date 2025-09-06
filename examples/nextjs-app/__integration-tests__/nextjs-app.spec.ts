@@ -30,7 +30,7 @@ describe('nextjs 13 App Router', () => {
     });
 
     expect(response.ok).toBe(true);
-    expect(await response.text()).toContain('<title>Yoga GraphiQL</title>');
+    expect(await response.text()).toContain('Yoga GraphiQL');
   });
 
   it('should run basic query', async () => {
