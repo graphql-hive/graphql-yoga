@@ -100,7 +100,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * If you throw `EnvelopError`/`GraphQLError` within your GraphQL resolvers then that error will be sent back to the client.
    *
    * You can lean more about this here:
-   * @see https://graphql-yoga.vercel.app/docs/features/error-masking
+   * @see https://the-guild.dev/graphql/yoga-server/docs/features/error-masking
    *
    * @default true
    */
