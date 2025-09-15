@@ -1,4 +1,4 @@
-<div align="center"><img src="https://raw.githubusercontent.com/graphql-hive/graphql-yoga/refs/heads/main/website/public/cover.png" width="720" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/graphql-hive/graphql-yoga/d33ee902f93478921483e5cd10bd5c0bd2b9159e/website/public/cover.png" width="720" /></div>
 
 <div align="center">
   <h3>GraphQL Yoga</h3>
