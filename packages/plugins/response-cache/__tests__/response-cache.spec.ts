@@ -4,6 +4,8 @@ import {
   defaultBuildResponseCacheKey,
   ShouldCacheResultFunction,
 } from '@envelop/response-cache';
+import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
+import { createRedisCache } from '@envelop/response-cache-redis';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createInMemoryCache, useResponseCache } from '@graphql-yoga/plugin-response-cache';
 
@@ -1468,3 +1470,8 @@ it('should work correctly with batching and async race conditions', async () => 
 ]
 `);
 });
+
+// Cache types compatibility tests
+useResponseCache({ cache: createInMemoryCache(), session: () => null });
+useResponseCache({ cache: createRedisCache({} as any), session: () => null });
+useResponseCache({ cache: createKvCache({} as any)({} as any), session: () => null });
