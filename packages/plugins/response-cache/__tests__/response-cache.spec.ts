@@ -1472,6 +1472,7 @@ it('should work correctly with batching and async race conditions', async () => 
 });
 
 // Cache types compatibility tests
+/* eslint-disable @typescript-eslint/no-explicit-any */
 useResponseCache({ cache: createInMemoryCache(), session: () => null });
 useResponseCache({ cache: createRedisCache({} as any), session: () => null });
 useResponseCache({ cache: createKvCache({} as any)({} as any), session: () => null });
