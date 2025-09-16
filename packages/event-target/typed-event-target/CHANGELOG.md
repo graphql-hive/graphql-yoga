@@ -1,5 +1,25 @@
 # @graphql-yoga/typed-event-target
 
+## 3.0.2
+
+### Patch Changes
+
+- [#3660](https://github.com/dotansimha/graphql-yoga/pull/3660)
+  [`d4cbae1`](https://github.com/dotansimha/graphql-yoga/commit/d4cbae12348a39a2f64d7048dc582ebbaac93a5b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`tslib@^2.8.1` ↗︎](https://www.npmjs.com/package/tslib/v/2.8.1) (from
+    `^2.5.2`, in `dependencies`)
+
+## 3.0.1
+
+### Patch Changes
+
+- [#3532](https://github.com/dotansimha/graphql-yoga/pull/3532)
+  [`57e7701`](https://github.com/dotansimha/graphql-yoga/commit/57e7701dd62495cee224d71ad55f726740a38cdd)
+  Thanks [@ardatan](https://github.com/ardatan)! - Improve typings for `TypedEventTarget<TEvent>`,
+  so `addEventListener` and `removeEventListener` methods now expect `type` to be the `type`
+  property of `TEvent`, and `dispatchEvent` expects to get `TEvent`.
+
 ## 3.0.0
 
 ### Major Changes

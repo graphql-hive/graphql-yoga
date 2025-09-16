@@ -1,11 +1,11 @@
 {
   "name": "@graphql-yoga/plugin-jwt",
-  "version": "2.3.1",
+  "version": "3.9.2",
   "type": "module",
   "description": "jwt plugin for GraphQL Yoga.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dotansimha/graphql-yoga.git",
+    "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/jwt"
   },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
@@ -14,6 +14,7 @@
     "node": ">=18.0.0"
   },
   "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
   "module": "dist/esm/index.js",
   "exports": {
     ".": {
@@ -32,23 +33,28 @@
     },
     "./package.json": "./package.json"
   },
-  "typings": "dist/typings/index.d.ts",
   "scripts": {
     "check": "tsc --pretty --noEmit"
   },
   "peerDependencies": {
-    "graphql": "^16.5.0",
-    "graphql-yoga": "^5.3.1"
+    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql-yoga": "workspace:^"
   },
   "dependencies": {
+    "@whatwg-node/promise-helpers": "^1.2.4",
+    "@whatwg-node/server-plugin-cookies": "^1.0.3",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.0",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.0",
-    "graphql": "^16.5.0",
-    "graphql-scalars": "^1.22.2"
+    "@types/ws": "^8.5.13",
+    "graphql": "16.11.0",
+    "graphql-scalars": "^1.22.2",
+    "graphql-ws": "6.0.6",
+    "graphql-yoga": "workspace:*",
+    "ws": "^8.18.0"
   },
   "publishConfig": {
     "directory": "dist",

@@ -56,5 +56,5 @@ Feel free to open issues, pull requests and create discussions. Community suppor
 ## Code of Conduct
 
 Help us keep Yoga open and inclusive. Please read and follow our
-[ of Conduct](https://github.com/the-guild-org/Stack/blob/master/CODE_OF_CONDUCT.md) as adopted from
-[Contributor Covenant](https://www.contributor-covenant.org/).
+[Code of Conduct](https://github.com/the-guild-org/Stack/blob/master/CODE_OF_CONDUCT.md) as adopted
+from [Contributor Covenant](https://www.contributor-covenant.org/).

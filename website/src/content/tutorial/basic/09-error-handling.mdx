@@ -1,0 +1,428 @@
+---
+description: Learn the origin of this error and learn how to properly handle it.
+---
+
+# Error Handling
+
+In the previous chapter, you encountered an error while executing a `Mutation.postCommentOnLink`
+operation. In this chapter, you will learn the origin of this error and learn how to properly handle
+it.
+
+## Recap of the Encountered Error
+
+This is the resolver implementation that caused the issue when using a `linkId` that has no
+counter-part within the database.
+
+```ts filename="src/schema.ts"
+const resolvers = {
+  // ... other resolver maps ...
+  Mutation: {
+    // ... other Mutation object type field resolver functions ...
+    async postCommentOnLink(
+      parent: unknown,
+      args: { linkId: string; body: string },
+      context: GraphQLContext
+    ) {
+      const newComment = await context.prisma.comment.create({
+        data: {
+          linkId: parseInt(args.linkId)
+          body: args.body,
+        }
+      })
+
+      return newComment
+    }
+  }
+}
+```
+
+Execute the following GraphQL operation on GraphiQL:
+
+```graphql
+mutation postCommentOnLink {
+  postCommentOnLink(linkId: "99999999999", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+Again, this should yield the following error response:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Unexpected error.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"],
+      "extensions": {
+        "originalError": {
+          "message": "\nInvalid `context.prisma.comment.create()` invocation in\nhackernews/src/schema.ts:69:52\n\n   66   args: { linkId: string; body: string },\n   67   context: GraphQLContext,\n   68 ) => {\n→  69   const comment = await context.prisma.comment.create(\n  Foreign key constraint failed on the field: `foreign key`",
+          "stack": "Error: \nInvalid `context.prisma.comment.create()` invocation in\nhackernews/src/schema.ts:69:52\n\n   66   args: { linkId: string; body: string },\n   67   context: GraphQLContext,\n   68 ) => {\n→  69   const comment = await context.prisma.comment.create(\n  Foreign key constraint failed on the field: `foreign key`\n    at cb (hackernews/node_modules/@prisma/client/runtime/index.js:38703:17)\n    at PrismaClient._request (hackernews/node_modules/@prisma/client/runtime/index.js:40859:18)"
+        }
+      }
+    }
+  ],
+  "data": null
+}
+```
+
+As you can see the error includes an `extensions` `originalError` field. It includes a full
+stacktrace of the original error for finding the cause easily.
+
+## Yoga Error Masking
+
+In a production environment, a stacktrace that leaks to the outside world are a potential security
+threat as that information could be misused by malicious actors.
+
+The `extensions` `originalError` field is only present within an error if the server has been
+started with the `NODE_ENV` environment variable being set to `development`.
+
+As you might remember this is only the case when you are starting the server using `npm run dev`.
+
+Start the GraphQL server using the `npm run start` script.
+
+```sh
+npm run start
+```
+
+Then execute the same operation again.
+
+```graphql
+mutation postCommentOnLink {
+  postCommentOnLink(linkId: "99999999999", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+Now you can see that there is no `originalError` within the errors array of the first object.
+
+```json
+{
+  "errors": [
+    {
+      "message": "Unexpected error.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"]
+    }
+  ],
+  "data": null
+}
+```
+
+This is great, but now we never know why our request failed 🤔 and the error message
+`Unexpected error.` is also not helpful to anyone not aware of the exact resolver function
+implementation.
+
+## Exposing Safe Error Messages
+
+Let's change the implementation to expose the much more helpful message
+`Cannot post comment on non-existing link with id 'X'.` instead of `Unexpected error.`.
+
+For doing so you will use the `GraphQLError` class that is exported from the `graphql` package.
+
+Add the following catch handler for mapping a foreign key error into a `GraphQLError`:
+
+```ts filename="src/schema.ts"  {2-3,23-30}
+// ... other imports ...
+import { GraphQLError } from 'graphql'
+import { Prisma } from '@prisma/client'
+
+// ... other imports ...
+
+const resolvers = {
+  // ... other resolver maps ...
+  Mutation: {
+    // ... other Mutation object type field resolver functions ...
+    async postCommentOnLink(
+      parent: unknown,
+      args: { linkId: string; body: string },
+      context: GraphQLContext
+    ) {
+      const newComment = await context.prisma.comment
+        .create({
+          data: {
+            body: args.body,
+            linkId: parseInt(args.linkId)
+          }
+        })
+        .catch((err: unknown) => {
+          if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+            return Promise.reject(
+              new GraphQLError(`Cannot post comment on non-existing link with id '${args.linkId}'.`)
+            )
+          }
+          return Promise.reject(err)
+        })
+
+      return newComment
+    }
+  }
+}
+```
+
+The error code `P2003` indicates a foreign key constraint error. You can learn more about it in
+[the Prisma documentation](https://prisma.io/docs/reference/api-reference/error-reference#p2003).
+You use that code for identifying this edge case of a missing link and then throw a `GraphQLError`
+with a useful error message instead.
+
+Restart the server using `npm run dev` and again execute the mutation operation using GraphiQL.
+
+```graphql
+mutation postCommentOnLink {
+  postCommentOnLink(linkId: "99999999999", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+You will receive a response with the
+`Cannot post comment on non-existing link with id '99999999999'.` message:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Cannot post comment on non-existing link with id '99999999999'.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"]
+    }
+  ],
+  "data": null
+}
+```
+
+As you might have noticed, GraphQL Yoga will exclude wrapped errors thrown within the resolvers from
+masking the error masking.
+
+That means every time you want to expose an error to the outside world you should throw such an
+error.
+
+At the same time, any other unexpected error will automatically be masked from the outside world,
+bringing you sensible and safe defaults for a GraphQL Yoga production deployment!
+
+## Field Argument Sanitizing
+
+There is one more issue within The `Mutation.postCommentOnLink` field resolver.
+
+So far you only executed the mutation operation while using a string encoded integer value for the
+`linkId` argument.
+
+Execute that operation again using this non-integer value:
+
+```graphql
+mutation postCommentOnLink {
+  postCommentOnLink(linkId: "11a", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+All seems good, right?
+
+```json
+{
+  "errors": [
+    {
+      "message": "Cannot post comment on non-existing link with id '11a'.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"]
+    }
+  ],
+  "data": null
+}
+```
+
+Let's also try another non-integer string value.
+
+Execute that operation again using this non-integer value:
+
+```graphql
+mutation {
+  postCommentOnLink(linkId: "uuuuuu", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+What the heck is happening now?
+
+```json
+{
+  "errors": [
+    {
+      "message": "Unexpected error.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"],
+      "extensions": {
+        "originalError": {
+          "message": "\nInvalid `.create()` invocation in\nhackernews/src/schema.ts:93:10\n\n   90   context: GraphQLContext,\n   91 ) => {\n   92   const comment = await context.prisma.comment\n→  93     .create({\n            data: {\n              body: 'This is my second comment!',\n              linkId: NaN\n              ~~~~~~\n            }\n          })\n\nUnknown arg `linkId` in data.linkId for type CommentCreateInput. Did you mean `link`? Available args:\ntype CommentCreateInput {\n  createdAt?: DateTime\n  body: String\n  link?: LinkCreateNestedOneWithoutCommentsInput\n}\n\n",
+          "stack": "Error: \nInvalid `.create()` invocation in\nhackernews/src/schema.ts:93:10\n\n   90   context: GraphQLContext,\n   91 ) => {\n   92   const comment = await context.prisma.comment\n→  93     .create({\n            data: {\n              body: 'This is my second comment!',\n              linkId: NaN\n              ~~~~~~\n            }\n          })\n\nUnknown arg `linkId` in data.linkId for type CommentCreateInput. Did you mean `link`? Available args:\ntype CommentCreateInput {\n  createdAt?: DateTime\n  body: String\n  link?: LinkCreateNestedOneWithoutCommentsInput\n}\n\n\n    at Object.validate (hackernews/node_modules/@prisma/client/runtime/index.js:34786:20)\n    at PrismaClient._executeRequest (hackernews/node_modules/@prisma/client/runtime/index.js:40911:17)\n    at consumer (hackernews/node_modules/@prisma/client/runtime/index.js:40856:23)\n    at hackernews/node_modules/@prisma/client/runtime/index.js:40860:76\n    at runInChildSpan (hackernews/node_modules/@prisma/client/runtime/index.js:39945:12)\n    at hackernews/node_modules/@prisma/client/runtime/index.js:40860:20\n    at AsyncResource.runInAsyncScope (async_hooks.js:197:9)\n    at PrismaClient._request (hackernews/node_modules/@prisma/client/runtime/index.js:40859:86)\n    at hackernews/node_modules/@prisma/client/runtime/index.js:40190:25\n    at _callback (hackernews/node_modules/@prisma/client/runtime/index.js:39960:52)"
+        }
+      }
+    }
+  ],
+  "data": null
+}
+```
+
+You just encountered another unexpected error that got masked.
+
+Let's analyze the error message:
+
+```
+Invalid `.create()` invocation in hackernews/src/schema.ts:93:10
+
+Unknown arg `linkId` in data.linkId for type CommentCreateInput.
+
+linkId: NaN
+```
+
+These are the three parts within the error message that should make it click.
+
+It seems like the `linkId` passed to the prisma `create` function is `NaN`, which is a special value
+for "not a number" in JavaScript. The underlying database, however, expects an `integer` value. The
+error is raised and thrown, as you did not add logic for handling this edge case, yet.
+
+But why did the previous value `"11a"`, not result in such an error?
+
+To clarify that question we need to have a small excursion on how the
+[`parseInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt)
+function works.
+
+There are multiple mathematical numeral systems. The implementation tries to be a bit smart and
+fault-tolerant. So, let's build a quick custom function, `parseIntSafe`, that first validates the
+string contents using a regex.
+
+Add the following code to the `src/schema.ts` file.
+
+```ts filename="src/schema.ts" {5-10,21-26}
+// ... other code ...
+import { GraphQLError } from 'graphql'
+import { Prisma } from '@prisma/client'
+
+const parseIntSafe = (value: string): number | null => {
+  if (/^(\d+)$/.test(value)) {
+    return parseInt(value, 10)
+  }
+  return null
+}
+
+const resolvers = {
+  // ... other resolver maps ...
+  Mutation: {
+    // ... other field resolver functions
+    async postCommentOnLink(
+      parent: unknown,
+      args: { linkId: string; body: string },
+      context: GraphQLContext
+    ) {
+      const linkId = parseIntSafe(args.linkId)
+      if (linkId === null) {
+        return Promise.reject(
+          new GraphQLError(`Cannot post comment on non-existing link with id '${args.linkId}'.`)
+        )
+      }
+
+      const newComment = await context.prisma.comment
+        .create({
+          data: {
+            linkId,
+            body: args.body
+          }
+        })
+        .catch((err: unknown) => {
+          if (err instanceof Prisma.PrismaClientKnownRequestError) {
+            if (err.code === 'P2003') {
+              return Promise.reject(
+                new GraphQLError(
+                  `Cannot post comment on non-existing link with id '${args.linkId}'.`
+                )
+              )
+            }
+          }
+          return Promise.reject(err)
+        })
+      return newComment
+    }
+  }
+}
+```
+
+The regex `/^(\d+)$/` simply verifies that every character within the `value` is a digit. In case
+the value includes a non-digit character, you simply return `null` and then reject the resolver with
+a `GraphQLYogaError` error.
+
+Returning `null` instead of returning `NaN` is the better choice here, as it allows nice TypeScript
+checks (`linkId === null`).
+
+Execute that operation again using this non-integer value:
+
+```graphql
+mutation postCommentOnLink {
+  postCommentOnLink(linkId: "uuuuuu", body: "This is my second comment!") {
+    id
+    body
+  }
+}
+```
+
+All is good now. 🎉
+
+```json
+{
+  "errors": [
+    {
+      "message": "Cannot post comment on non-existing link with id 'uuuuuu'.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["postCommentOnLink"]
+    }
+  ],
+  "data": null
+}
+```
+
+Remember, when implementing your GraphQL resolver functions, the input arguments should always be
+sanitized and validated!
+
+## Optional Exercise
+
+As an optional exercise for interiorizing the knowledge, you can now also implement validation of
+the `body` argument of `Mutation.postCommentOnLink` and argument sanitization for the
+`Mutation.postLink` field. You wouldn't want anyone to post an empty comment or invalid link, right?

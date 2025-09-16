@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "verbatimModuleSyntax": false,
+    "moduleResolution": "node"
+  },
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/bundle",
+    "**/scripts",
+    "**/test/*.ts",
+    "**/tests/*.ts",
+    "**/__tests__",
+    "**/__integration-tests__",
+    "*.spec.ts",
+    "*.test.ts"
+  ]
+}

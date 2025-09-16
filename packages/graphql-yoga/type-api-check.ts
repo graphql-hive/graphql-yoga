@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { ClientRequest } from 'node:http';
 import type { GraphQLSchema } from 'graphql';
 import { IResolvers } from '@graphql-tools/utils';
@@ -15,6 +14,7 @@ const request: Request = null as any;
 
 // none results in optional context
 {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   const server = createYoga<{}>({
     schema,
   });
@@ -112,6 +112,7 @@ const request: Request = null as any;
 
 // context can be accessed from within resolvers
 {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   createYoga<{}>({
     schema: createSchema({
       typeDefs: ``,
@@ -154,6 +155,7 @@ const request: Request = null as any;
 
 // fetch usage optional serverContext
 {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   const server = createYoga<{}>({
     schema,
   });

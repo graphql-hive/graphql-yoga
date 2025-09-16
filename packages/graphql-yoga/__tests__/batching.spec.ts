@@ -100,6 +100,9 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is limited to 10 operations per request.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -132,6 +135,9 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is not supported.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -169,6 +175,9 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is limited to 2 operations per request.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -202,6 +211,9 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is not supported.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -237,6 +249,9 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is not supported.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -283,8 +298,58 @@ describe('Batching', () => {
       errors: [
         {
           message: 'Batching is limited to 10 operations per request.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
+  });
+
+  it('batching context have different identity and properties are assignments are not shared', async () => {
+    let i = 0;
+    type Context = {
+      i?: number;
+    };
+    const contexts = [] as Array<Context>;
+    const yoga = createYoga({
+      schema: createSchema({ typeDefs: `type Query { _: ID }` }),
+      batching: true,
+      plugins: [
+        {
+          onParams(ctx) {
+            contexts.push(ctx.context);
+          },
+        },
+      ],
+      context() {
+        i = i + 1;
+        return { i };
+      },
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{ query: `query A {__typename}` }, { query: `query B {__typename}` }]),
+    });
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    expect(result).toEqual([
+      {
+        data: { __typename: 'Query' },
+      },
+      {
+        data: { __typename: 'Query' },
+      },
+    ]);
+
+    expect(contexts.length).toEqual(2);
+    expect(contexts[0]).not.toBe(contexts[1]);
+    expect(contexts[0]!.i).toEqual(1);
+    expect(contexts[1]!.i).toEqual(2);
   });
 });

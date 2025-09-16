@@ -1,5 +1,7 @@
 import { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import { FetchAPI, MaybeArray } from '../../types.js';
 import { ResultProcessorInput } from '../types.js';
@@ -27,47 +29,56 @@ export function processMultipartResult(result: ResultProcessorInput, fetchAPI: F
         iterator = {
           next: () => {
             if (finished) {
-              return Promise.resolve({ done: true, value: null });
+              return fakePromise({ done: true, value: null });
             }
             finished = true;
-            return Promise.resolve({ done: false, value: result });
+            return fakePromise({ done: false, value: result });
           },
         };
       }
+      controller.enqueue(textEncoder.encode('\r\n'));
       controller.enqueue(textEncoder.encode(`---`));
     },
-    async pull(controller) {
-      try {
-        const { done, value } = await iterator.next();
-        if (value != null) {
-          controller.enqueue(textEncoder.encode('\r\n'));
+    pull(controller) {
+      return handleMaybePromise(
+        () => iterator.next(),
+        ({ done, value }) => {
+          if (value != null) {
+            controller.enqueue(textEncoder.encode('\r\n'));
 
-          controller.enqueue(textEncoder.encode('Content-Type: application/json; charset=utf-8'));
-          controller.enqueue(textEncoder.encode('\r\n'));
+            controller.enqueue(textEncoder.encode('Content-Type: application/json; charset=utf-8'));
+            controller.enqueue(textEncoder.encode('\r\n'));
 
-          const chunk = jsonStringifyResultWithoutInternals(value);
-          const encodedChunk = textEncoder.encode(chunk);
+            const chunk = jsonStringifyResultWithoutInternals(value);
+            const encodedChunk = textEncoder.encode(chunk);
 
-          controller.enqueue(textEncoder.encode('Content-Length: ' + encodedChunk.byteLength));
-          controller.enqueue(textEncoder.encode('\r\n'));
+            controller.enqueue(textEncoder.encode('Content-Length: ' + encodedChunk.byteLength));
+            controller.enqueue(textEncoder.encode('\r\n'));
 
-          controller.enqueue(textEncoder.encode('\r\n'));
-          controller.enqueue(encodedChunk);
-          controller.enqueue(textEncoder.encode('\r\n'));
+            controller.enqueue(textEncoder.encode('\r\n'));
+            controller.enqueue(encodedChunk);
+            controller.enqueue(textEncoder.encode('\r\n'));
 
-          controller.enqueue(textEncoder.encode('---'));
-        }
+            controller.enqueue(textEncoder.encode('---'));
+          }
 
-        if (done) {
-          controller.enqueue(textEncoder.encode('--\r\n'));
-          controller.close();
-        }
-      } catch (err) {
-        controller.error(err);
-      }
+          if (done) {
+            controller.enqueue(textEncoder.encode('--\r\n'));
+            controller.close();
+          }
+        },
+        err => {
+          controller.error(err);
+        },
+      );
     },
-    async cancel(e) {
-      await iterator.return?.(e);
+    cancel(e) {
+      if (iterator.return) {
+        return handleMaybePromise(
+          () => iterator.return?.(e),
+          () => {},
+        );
+      }
     },
   });
 

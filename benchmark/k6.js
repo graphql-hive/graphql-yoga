@@ -54,6 +54,7 @@ const scenarioNames = [
   'graphql-jit',
   'graphql-response-cache',
   'graphql-no-parse-validate-cache',
+  'uws',
 ];
 
 scenarioNames.forEach((name, index) => {
@@ -102,7 +103,13 @@ export function handleSummary(data) {
 }
 
 export function run() {
-  const res = http.post(`http://localhost:4000/${__ENV.MODE}`, {
+  let url = 'http://localhost:4000/graphql';
+  if (__ENV.MODE.startsWith('uws')) {
+    url = 'http://localhost:4001/graphql';
+  } else {
+    url = `http://localhost:4000/${__ENV.MODE}`;
+  }
+  const res = http.post(url, {
     query: /* GraphQL */ `
       query authors {
         authors {

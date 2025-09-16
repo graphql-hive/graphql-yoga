@@ -1,47 +1,27 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
+import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createLogger, createSchema, createYoga, FetchAPI } from '../src/index';
 import { useExecutionCancellation } from '../src/plugins/use-execution-cancellation';
 
 const variants: Array<[name: string, fetchAPI: undefined | FetchAPI]> = [
-  ['Ponyfilled WhatWG Fetch', undefined],
+  ['Ponyfill', undefined],
+  [
+    'Native',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - URLPattern is not available in types
+    globalThis,
+  ],
 ];
 
-const [major] = globalThis?.process?.versions?.node.split('.') ?? [];
-
-if (major === '21' && process.env.LEAKS_TEST !== 'true') {
-  variants.push([
-    'Node.js 21',
-    {
-      fetch: globalThis.fetch,
-      Blob: globalThis.Blob,
-      btoa: globalThis.btoa,
-      FormData: globalThis.FormData,
-      Headers: globalThis.Headers,
-      Request: globalThis.Request,
-      crypto: globalThis.crypto,
-      File: globalThis.File,
-      ReadableStream: globalThis.ReadableStream,
-      // @ts-expect-error json function signature
-      Response: globalThis.Response,
-      TextDecoder: globalThis.TextDecoder,
-      TextEncoder: globalThis.TextEncoder,
-      URL: globalThis.URL,
-      TransformStream: globalThis.TransformStream,
-      // URLPattern: globalThis.URLPattern,
-      URLSearchParams: globalThis.URLSearchParams,
-      WritableStream: globalThis.WritableStream,
-    },
-  ]);
-}
-
 function waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground() {
-  return new Promise(res => setTimeout(res, 5));
+  return setTimeout$(5);
 }
 
 describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
   it('request cancellation stops invocation of subsequent resolvers (GraphQL over HTTP)', async () => {
-    const rootResolverGotInvokedD = createDeferred();
-    const requestGotCancelledD = createDeferred();
+    const rootResolverGotInvokedD = createDeferredPromise();
+    const requestGotCancelledD = createDeferredPromise();
     let aResolverGotInvoked = false;
     const schema = createSchema({
       typeDefs: /* GraphQL */ `
@@ -78,7 +58,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
       plugins: [useExecutionCancellation()],
     });
     const abortController = new AbortController();
-    const promise = Promise.resolve(
+    const promise = fakePromise(
       yoga.fetch('http://yoga/graphql', {
         method: 'POST',
         body: JSON.stringify({ query: '{ root { a } }' }),
@@ -102,8 +82,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
   });
 
   it('request cancellation stops invocation of subsequent resolvers (GraphQL over SSE with Subscription)', async () => {
-    const rootResolverGotInvokedD = createDeferred();
-    const requestGotCancelledD = createDeferred();
+    const rootResolverGotInvokedD = createDeferredPromise();
+    const requestGotCancelledD = createDeferredPromise();
     let aResolverGotInvoked = false;
     const schema = createSchema({
       typeDefs: /* GraphQL */ `
@@ -189,8 +169,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
   });
 
   it('request cancellation stops invocation of subsequent resolvers (GraphQL over Multipart with defer/stream)', async () => {
-    const aResolverGotInvokedD = createDeferred();
-    const requestGotCancelledD = createDeferred();
+    const aResolverGotInvokedD = createDeferredPromise();
+    const requestGotCancelledD = createDeferredPromise();
     let bResolverGotInvoked = false;
     const schema = createSchema({
       typeDefs: /* GraphQL */ `
@@ -286,18 +266,3 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     ]);
   });
 });
-
-type Deferred<T = void> = {
-  resolve: (value: T) => void;
-  reject: (value: unknown) => void;
-  promise: Promise<T>;
-};
-
-function createDeferred<T = void>(): Deferred<T> {
-  const d = {} as Deferred<T>;
-  d.promise = new Promise<T>((resolve, reject) => {
-    d.resolve = resolve;
-    d.reject = reject;
-  });
-  return d;
-}

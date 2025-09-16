@@ -1,0 +1,77 @@
+---
+description:
+  Learn how to build a GraphQL HTTP server entirely from scratch using Node.js, TypeScript, GraphQL
+  Yoga, Prisma and SQLite.
+---
+
+import { Callout } from '@theguild/components'
+
+# Introduction
+
+## Overview
+
+GraphQL is the rising star of backend technologies. It's a popular alternative for REST as an API
+design paradigm and is becoming the new standard for exposing the data and functionality of a web
+server.
+
+In this tutorial, you'll learn how to build a GraphQL HTTP server entirely from scratch.
+
+You are going to use the following technologies:
+
+- [Node.js](https://nodejs.org) - as an engine and runtime for our server
+- [TypeScript](https://typescriptlang.org) - a strongly typed programming language that builds on
+  JavaScript giving you better tooling at any scale
+- `graphql-yoga`- the easiest way to build an HTTP GraphQL server
+- [`graphql-js`](https://github.com/graphql/graphql-js) - we will use the core `graphql` library as
+  execution engine for our server
+- [GraphiQL](https://github.com/graphql/graphiql): A graphical interface that allows you to
+  interactively explore the functionality of a GraphQL API by sending query, mutation and
+  subscription operations. It's somewhat similar to [Postman](https://getpostman.com) which offers
+  comparable functionality for REST APIs. Among other things, GraphiQL:
+  - Auto-generates comprehensive documentation for all available API operations
+  - Provides an editor where you can write queries, mutations & subscriptions with auto-complete and
+    syntax highlighting
+- [SQLite](https://sqlite.org): A lightweight and easy-to-use relational database management system
+  for persisting data on the file system
+- [Prisma](https://prisma.io): The glue between your code and SQLite database. Use Prisma Client to
+  access your database inside GraphQL resolvers
+
+<Callout>
+  You can find the [code of the tutorial in this
+  repository](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/hackernews) or a step
+  by step solution, with a commit for each step, on [this
+  repository](https://github.com/Urigo/hackernews-node-ts)
+</Callout>
+
+## What to Expect
+
+The goal of this tutorial is to build an API for a [HackerNews](https://news.ycombinator.com) clone.
+
+Hackernews is a platform where people can share links to websites and people can comment on them.
+
+Here is a quick rundown of what to expect from this tutorial.
+
+You'll start by learning the basics of how a GraphQL server works, simply by defining a
+[GraphQL schema](https://prisma.io/blog/graphql-server-basics-the-schema-ac5e2950214e) for the
+server and implementing your first GraphQL resolvers for posting links and retrieving a feed of
+links.
+
+In the beginning, these resolvers will only work with data that are stored in memory - so nothing
+will persist beyond the runtime of the server.
+
+Nobody wants a server that's not able to store and persist data, right?
+
+No worries! Next, you're going to add a [SQLite](http://sqlite.org) database to the project which
+will be accessed using the [Prisma ORM](https://prisma.io).
+
+Once you have the database connected, you are going to add more features to the API.
+
+You will implement comments on the links and introduce graph relations.
+
+Afterward, you will learn all about the proper error and sanitizing invalid user input.
+
+Finally, you'll implement pagination and filtering capabilities to the API!
+
+Let's get started 🚀
+
+> If you wish to add a reaction a comment below, scroll down and make sure to sign into GitHub

@@ -1,5 +1,11 @@
-import { createSchema, createYoga, YogaServerInstance } from 'graphql-yoga';
-import { cacheControlDirective, ShouldCacheResultFunction } from '@envelop/response-cache';
+import { createSchema, createYoga, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
+import {
+  cacheControlDirective,
+  defaultBuildResponseCacheKey,
+  ShouldCacheResultFunction,
+} from '@envelop/response-cache';
+import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
+import { createRedisCache } from '@envelop/response-cache-redis';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createInMemoryCache, useResponseCache } from '@graphql-yoga/plugin-response-cache';
 
@@ -897,7 +903,7 @@ it('should allow to create the cache outside of the plugin', async () => {
 });
 
 describe('shouldCacheResult', () => {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   let yoga: YogaServerInstance<{}, {}>;
   let shouldCacheResultFn: ShouldCacheResultFunction | undefined;
   const logging = {
@@ -1216,3 +1222,257 @@ it('response has "servedFromResponseCache" symbol', async () => {
   expect(Symbol.for('servedFromResponseCache') in result2).toEqual(true);
   expect(result2[Symbol.for('servedFromResponseCache')]).toEqual(true);
 });
+
+it('gets the context in "session" and "buildResponseCacheKey"', async () => {
+  const session = jest.fn(() => null);
+  const buildResponseCacheKey = jest.fn(defaultBuildResponseCacheKey);
+  let context: YogaInitialContext | undefined;
+  let request: Request | undefined;
+  const yoga = createYoga({
+    plugins: [
+      useResponseCache({
+        session,
+        buildResponseCacheKey,
+      }),
+    ],
+    schema,
+    context(initialContext) {
+      request = initialContext.request;
+      context = initialContext;
+      return initialContext;
+    },
+  });
+  const res = await yoga.fetch('http://localhost:3000/graphql', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ query: '{__typename}' }),
+  });
+
+  expect(res.status).toEqual(200);
+  expect(session).toHaveBeenCalledTimes(1);
+  expect(buildResponseCacheKey).toHaveBeenCalledTimes(1);
+  expect(context).toBeDefined();
+  expect(session).toHaveBeenCalledWith(request, context);
+  expect(buildResponseCacheKey.mock.calls[0]?.[0]).toMatchObject({
+    documentString: '{__typename}',
+    variableValues: {},
+    sessionId: null,
+    request,
+    context,
+  });
+});
+
+it('should work correctly with batching and async race conditions', async () => {
+  const store = new Map<
+    string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  >();
+  const yoga = createYoga({
+    maskedErrors: false,
+    schema: createSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          a: String!
+          c: String!
+          e: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          a: () => 'b',
+          c: () => 'd',
+          e: () => 'f',
+        },
+      },
+    }),
+    batching: true,
+    plugins: [
+      useResponseCache({
+        session: () => null,
+        includeExtensionMetadata: true,
+        cache: {
+          get(key) {
+            return new Promise(resolve => {
+              setTimeout(() => {
+                // resolve hit in the next tick creating an async race condition
+                resolve(store.get(key));
+              });
+            });
+          },
+          set(key, value) {
+            store.set(key, value);
+            return Promise.resolve();
+          },
+          invalidate() {
+            throw new Error('Unexpected cache invalidate');
+          },
+        },
+      }),
+    ],
+  });
+
+  async function execute() {
+    const res = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify([
+        {
+          query: /* GraphQL */ `
+            {
+              a
+              e
+            }
+          `,
+        },
+        {
+          query: /* GraphQL */ `
+            {
+              a
+              c
+            }
+          `,
+        },
+        {
+          query: /* GraphQL */ `
+            {
+              e
+              c
+            }
+          `,
+        },
+      ]),
+    });
+    return res.json();
+  }
+
+  await expect(execute()).resolves.toMatchInlineSnapshot(`
+[
+  {
+    "data": {
+      "a": "b",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "didCache": true,
+        "hit": false,
+        "ttl": null,
+      },
+    },
+  },
+  {
+    "data": {
+      "a": "b",
+      "c": "d",
+    },
+    "extensions": {
+      "responseCache": {
+        "didCache": true,
+        "hit": false,
+        "ttl": null,
+      },
+    },
+  },
+  {
+    "data": {
+      "c": "d",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "didCache": true,
+        "hit": false,
+        "ttl": null,
+      },
+    },
+  },
+]
+`);
+
+  await expect(execute()).resolves.toMatchInlineSnapshot(`
+[
+  {
+    "data": {
+      "a": "b",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+  {
+    "data": {
+      "a": "b",
+      "c": "d",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+  {
+    "data": {
+      "c": "d",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+]
+`);
+
+  await expect(execute()).resolves.toMatchInlineSnapshot(`
+[
+  {
+    "data": {
+      "a": "b",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+  {
+    "data": {
+      "a": "b",
+      "c": "d",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+  {
+    "data": {
+      "c": "d",
+      "e": "f",
+    },
+    "extensions": {
+      "responseCache": {
+        "hit": true,
+      },
+    },
+  },
+]
+`);
+});
+
+// Cache types compatibility tests
+/* eslint-disable @typescript-eslint/no-explicit-any */
+useResponseCache({ cache: createInMemoryCache(), session: () => null });
+useResponseCache({ cache: createRedisCache({} as any), session: () => null });
+useResponseCache({ cache: createKvCache({} as any)({} as any), session: () => null });

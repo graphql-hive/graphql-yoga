@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-env node */
-const { createServer } = require('node:http');
-const { WebSocketServer } = require('ws');
-const { createYoga, createSchema } = require('graphql-yoga');
-const { useServer } = require('graphql-ws/lib/use/ws');
-const { parse } = require('node:url');
-const next = require('next');
+import { createServer } from 'node:http';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
+import { parse } from 'node:url';
+import next from 'next';
+import { useServer } from 'graphql-ws/use/ws';
+import { createSchema, createYoga } from 'graphql-yoga';
+import { WebSocketServer } from 'ws';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -44,7 +45,7 @@ const yoga = createYoga({
           async *subscribe() {
             for (let i = 0; i < 5; i++) {
               yield { clock: new Date().toString() };
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await setTimeout$(1000);
             }
           },
         },
@@ -105,20 +106,20 @@ async function start(port, handle) {
       execute: args => args.rootValue.execute(args),
       /** @param {EnvelopedExecutionArgs} args */
       subscribe: args => args.rootValue.subscribe(args),
-      onSubscribe: async (ctx, msg) => {
+      onSubscribe: async (ctx, _id, params) => {
         const { schema, execute, subscribe, contextFactory, parse, validate } = yoga.getEnveloped({
           ...ctx,
           req: ctx.extra.request,
           socket: ctx.extra.socket,
-          params: msg.payload,
+          params,
         });
 
         /** @type EnvelopedExecutionArgs */
         const args = {
           schema,
-          operationName: msg.payload.operationName,
-          document: parse(msg.payload.query),
-          variableValues: msg.payload.variables,
+          operationName: params.operationName,
+          document: parse(params.query),
+          variableValues: params.variables,
           contextValue: await contextFactory(),
           rootValue: {
             execute,
@@ -131,15 +132,31 @@ async function start(port, handle) {
         return args;
       },
     },
+    // @ts-ignore - Typings are incorrect
     wsServer,
   );
+
+  const sockets = new Set();
+
+  server.on('connection', socket => {
+    sockets.add(socket);
+    socket.on('close', () => {
+      sockets.delete(socket);
+    });
+  });
 
   await new Promise((resolve, reject) =>
     server.listen(port, err => (err ? reject(err) : resolve())),
   );
 
   return () =>
-    new Promise((resolve, reject) => server.close(err => (err ? reject(err) : resolve())));
+    new Promise(resolve => {
+      for (const socket of sockets) {
+        socket.destroy();
+      }
+      server.closeAllConnections();
+      server.close(() => resolve());
+    });
 }
 
 // dont start the next.js app when testing the server
@@ -155,4 +172,4 @@ if (process.env.NODE_ENV !== 'test') {
   })();
 }
 
-module.exports = { start };
+export default { start };

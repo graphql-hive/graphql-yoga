@@ -1,5 +1,5 @@
-import { Trace } from 'apollo-reporting-protobuf';
 import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
+import { Trace } from '@apollo/usage-reporting-protobuf';
 import { useApolloInlineTrace } from '../src/index.js';
 
 describe('Inline Trace', () => {
@@ -138,7 +138,6 @@ describe('Inline Trace', () => {
 
     const ftv1 = result?.extensions?.ftv1;
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
-
     expectTrace(trace);
     expect(trace.root?.error?.length).toBe(0);
 
@@ -221,8 +220,8 @@ describe('Inline Trace', () => {
     for (let i = 0; i < arr.length; i++) {
       const person = arr[i];
       expect(person?.error?.length).toBe(0);
-      expect(person.index).toBe(i);
-      expectTraceNode(person.child?.[0], 'name', 'String!', 'Person');
+      expect(person!.index).toBe(i);
+      expectTraceNode(person!.child?.[0], 'name', 'String!', 'Person');
     }
   });
 
@@ -272,12 +271,12 @@ describe('Inline Trace', () => {
     const error = node!.error!;
     expect(error).toBeInstanceOf(Array);
     expect(error.length).toBeGreaterThan(0);
-    expect(typeof error[0].message).toBe('string');
-    expect(typeof error[0].location).toBeDefined();
-    expect(typeof error[0].location?.[0].line).toBe('number');
-    expect(typeof error[0].location?.[0].column).toBe('number');
+    expect(typeof error[0]!.message).toBe('string');
+    expect(typeof error[0]!.location).toBeDefined();
+    expect(typeof error[0]!.location?.[0]?.line).toBe('number');
+    expect(typeof error[0]!.location?.[0]?.column).toBe('number');
     expect(() => {
-      JSON.parse(error[0].json!);
+      JSON.parse(error[0]!.json!);
     }).not.toThrow();
   }
 
@@ -300,8 +299,8 @@ describe('Inline Trace', () => {
     //
 
     const ftv1 = result?.extensions?.ftv1;
+    expect(ftv1).toBeDefined();
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
-
     expectTrace(trace);
     expectTraceNodeError(trace.root);
   });
@@ -329,6 +328,7 @@ describe('Inline Trace', () => {
     //
 
     const ftv1 = result?.extensions?.ftv1;
+    expect(ftv1).toBeDefined();
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
 
     expectTrace(trace);
@@ -358,6 +358,7 @@ describe('Inline Trace', () => {
     //
 
     const ftv1 = result?.extensions?.ftv1;
+    expect(ftv1).toBeDefined();
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
 
     expectTrace(trace);
@@ -396,6 +397,7 @@ describe('Inline Trace', () => {
     //
 
     const ftv1 = result?.extensions?.ftv1;
+    expect(ftv1).toBeDefined();
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
 
     expectTrace(trace);
@@ -435,6 +437,7 @@ describe('Inline Trace', () => {
     //
 
     const ftv1 = result?.extensions?.ftv1;
+    expect(ftv1).toBeDefined();
     const trace = Trace.decode(Buffer.from(ftv1, 'base64'));
 
     expectTrace(trace);
@@ -445,9 +448,9 @@ describe('Inline Trace', () => {
     expectTraceNodeError(boom); // will check for location
 
     const error = boom!.error!;
-    expect(error[0].message).toBe('bim'); // not 'bam'
+    expect(error[0]?.message).toBe('bim'); // not 'bam'
 
-    const errObj = JSON.parse(error[0].json!);
+    const errObj = JSON.parse(error[0]!.json!);
     expect(errObj.extensions).toEqual({ str: 'ing' });
   });
 

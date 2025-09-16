@@ -165,7 +165,7 @@ describe('validation cache', () => {
     });
     expect(response.status).toEqual(200);
     expect(await response.text()).toMatchInlineSnapshot(
-      `"{"errors":[{"message":"Cannot query field \\"foo\\" on type \\"Query\\".","locations":[{"line":4,"column":9}]}]}"`,
+      `"{"errors":[{"message":"Cannot query field \\"foo\\" on type \\"Query\\".","locations":[{"line":4,"column":9}],"extensions":{"code":"GRAPHQL_VALIDATION_FAILED"}}]}"`,
     );
 
     expect(validateFn).toHaveBeenCalledTimes(2);
@@ -243,7 +243,7 @@ describe('validation cache', () => {
         ],
       }
     `);
-    expect(validateFn).toBeCalledTimes(1);
+    expect(validateFn).toHaveBeenCalledTimes(1);
 
     // third request, valid, cache miss
     res = await query('John');
@@ -256,6 +256,6 @@ describe('validation cache', () => {
     `);
 
     // validation function doesnt validate args
-    expect(validateFn).toBeCalledTimes(1);
+    expect(validateFn).toHaveBeenCalledTimes(1);
   });
 });

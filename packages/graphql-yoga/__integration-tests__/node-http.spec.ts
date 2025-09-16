@@ -1,6 +1,9 @@
 import { createServer, IncomingMessage, ServerResponse, STATUS_CODES } from 'node:http';
 import { AddressInfo } from 'node:net';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
+import { ExecutionResult } from 'graphql';
 import { fetch } from '@whatwg-node/fetch';
+import { createDeferredPromise } from '@whatwg-node/server';
 import {
   createGraphQLError,
   createSchema,
@@ -99,8 +102,8 @@ describe('node-http', () => {
   });
 
   it('request cancellation causes signal passed to executor to be aborted', async () => {
-    const d = createDeferred();
-    const didAbortD = createDeferred();
+    const d = createDeferredPromise();
+    const didAbortD = createDeferredPromise();
 
     const plugin: Plugin = {
       onExecute(ctx) {
@@ -156,8 +159,8 @@ describe('node-http', () => {
   });
 
   it('request cancellation causes no more resolvers being invoked', async () => {
-    const didInvokeSlowResolverD = createDeferred();
-    const didCancelD = createDeferred();
+    const didInvokeSlowResolverD = createDeferredPromise();
+    const didCancelD = createDeferredPromise();
 
     let didInvokedNestedField = false;
     const yoga = createYoga({
@@ -215,28 +218,59 @@ describe('node-http', () => {
       controller.abort();
       await expect(response$).rejects.toThrow('The operation was aborted');
       // wait a few milliseconds to ensure server-side cancellation logic runs
-      await new Promise<void>(resolve => setTimeout(resolve, 10));
+      await setTimeout$(10);
       didCancelD.resolve();
       // wait a few milliseconds to allow the nested field resolver to run (if cancellation logic is incorrect)
-      await new Promise<void>(resolve => setTimeout(resolve, 10));
+      await setTimeout$(10);
       expect(didInvokedNestedField).toBe(false);
     } finally {
       await new Promise<void>(resolve => server.close(() => resolve()));
     }
   });
-});
 
-type Deferred<T = void> = {
-  resolve: (value: T) => void;
-  reject: (value: unknown) => void;
-  promise: Promise<T>;
-};
+  it('`req: IncomingMessage` is available in batched requests', async () => {
+    expect.assertions(8);
+    const yoga = createYoga<{
+      req: IncomingMessage;
+    }>({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            isNode: Boolean!
+          }
+        `,
+        resolvers: {
+          Query: {
+            isNode: (_, __, { req }) => req instanceof IncomingMessage,
+          },
+        },
+      }),
+      context: ({ req }) => ({ req }),
+      batching: {
+        limit: 3,
+      },
+    });
+    const server = createServer(yoga);
+    await new Promise<void>(resolve => server.listen(0, resolve));
+    const port = (server.address() as AddressInfo).port;
 
-function createDeferred<T = void>(): Deferred<T> {
-  const d = {} as Deferred<T>;
-  d.promise = new Promise<T>((resolve, reject) => {
-    d.resolve = resolve;
-    d.reject = reject;
+    try {
+      const response = await fetch(`http://localhost:${port}/graphql`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify([{ query: '{isNode}' }, { query: '{isNode}' }, { query: '{isNode}' }]),
+      });
+      expect(response.status).toBe(200);
+      const body: ExecutionResult[] = await response.json();
+      expect(body).toHaveLength(3);
+      for (const result of body) {
+        expect(result.errors).toBeUndefined();
+        expect(result.data?.['isNode']).toBe(true);
+      }
+    } finally {
+      await new Promise<void>(resolve => server.close(() => resolve()));
+    }
   });
-  return d;
-}
+});

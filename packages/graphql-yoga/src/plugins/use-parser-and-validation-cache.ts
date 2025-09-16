@@ -1,6 +1,6 @@
 import type { DocumentNode, GraphQLError, GraphQLSchema, validate, ValidationRule } from 'graphql';
 import type { AfterValidateHook } from '@envelop/core';
-import { createLRUCache } from '../utils/create-lru-cache.js';
+import { _createLRUCache } from '../utils/create-lru-cache.js';
 import type { Plugin } from './types.js';
 
 interface Cache<T> {
@@ -15,13 +15,13 @@ export interface ParserAndValidationCacheOptions {
 }
 
 export function useParserAndValidationCache({
-  documentCache = createLRUCache(),
-  errorCache = createLRUCache(),
+  documentCache = _createLRUCache(),
+  errorCache = _createLRUCache(),
   validationCache = true,
-}: // eslint-disable-next-line @typescript-eslint/ban-types
+}: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 ParserAndValidationCacheOptions): Plugin<{}> {
   const validationCacheByRules =
-    createLRUCache<WeakMap<GraphQLSchema, WeakMap<DocumentNode, GraphQLError[]>>>();
+    _createLRUCache<WeakMap<GraphQLSchema, WeakMap<DocumentNode, GraphQLError[]>>>();
   return {
     onParse({ params, setParsedDocument }) {
       const strDocument = params.source.toString();
@@ -47,7 +47,7 @@ ParserAndValidationCacheOptions): Plugin<{}> {
     onValidate({
       params: { schema, documentAST, rules },
       setResult,
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     }): void | AfterValidateHook<{}> {
       /** No schema no cache */
       if (schema == null) {

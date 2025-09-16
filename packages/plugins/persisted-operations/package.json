@@ -1,11 +1,11 @@
 {
   "name": "@graphql-yoga/plugin-persisted-operations",
-  "version": "3.3.1",
+  "version": "3.15.2",
   "type": "module",
   "description": "Persisted Operations plugin for GraphQL Yoga.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dotansimha/graphql-yoga.git",
+    "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/persisted-operations"
   },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
@@ -14,6 +14,7 @@
     "node": ">=18.0.0"
   },
   "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
   "module": "dist/esm/index.js",
   "exports": {
     ".": {
@@ -32,18 +33,19 @@
     },
     "./package.json": "./package.json"
   },
-  "typings": "dist/typings/index.d.ts",
   "scripts": {
     "check": "tsc --pretty --noEmit"
   },
   "peerDependencies": {
-    "@graphql-tools/utils": "^10.0.0",
     "graphql": "^15.2.0 || ^16.0.0",
-    "graphql-yoga": "^5.3.1"
+    "graphql-yoga": "workspace:^"
+  },
+  "dependencies": {
+    "@whatwg-node/promise-helpers": "^1.2.4"
   },
   "devDependencies": {
-    "graphql": "^16.6.0",
-    "graphql-yoga": "^5.3.1"
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*"
   },
   "publishConfig": {
     "directory": "dist",

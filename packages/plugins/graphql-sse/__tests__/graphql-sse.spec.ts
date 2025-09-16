@@ -241,11 +241,11 @@ describe('graphql-sse', () => {
     const headersObj = Object.fromEntries(res.headers.entries());
     expect(headersObj).toMatchInlineSnapshot(`
       {
+        "Content-Length": "0",
         "access-control-allow-credentials": "true",
         "access-control-allow-headers": "x-some-header",
         "access-control-allow-methods": "GET, POST, DELETE, PUT",
         "access-control-allow-origin": "http://yoga",
-        "content-length": "0",
       }
     `);
   });

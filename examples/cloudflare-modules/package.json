@@ -1,22 +1,22 @@
 {
   "name": "cloudflare",
-  "version": "3.3.1",
+  "version": "3.15.2",
   "type": "module",
   "private": true,
   "module": "./dist/index.mjs",
   "scripts": {
-    "build": "wrangler publish --dry-run --outdir=dist",
+    "build": "wrangler deploy --dry-run --outdir=dist",
     "check": "tsc --pretty --noEmit",
     "start": "wrangler dev"
   },
   "dependencies": {
-    "graphql": "16.6.0",
-    "graphql-yoga": "5.3.1"
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20230518.0",
-    "@whatwg-node/fetch": "^0.9.17",
-    "typescript": "5.1.6",
-    "wrangler": "3.1.0"
+    "@cloudflare/workers-types": "4.20250913.0",
+    "@whatwg-node/fetch": "^0.10.1",
+    "typescript": "5.9.2",
+    "wrangler": "4.37.1"
   }
 }

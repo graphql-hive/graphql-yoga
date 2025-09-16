@@ -1,0 +1,69 @@
+---
+description: Learn more about landing page customization in GraphQL Yoga
+---
+
+import { Callout } from '@theguild/components'
+
+# Landing Page
+
+When GraphQL Yoga hits 404, it returns a default landing page like below;
+
+![image](https://github.com/graphql-hive/graphql-yoga/assets/20847995/7bc058db-1823-4316-86ff-cf1847522da5)
+
+If you don't expect to hit 404 in that path, you can configure `graphqlEndpoint` to avoid this page.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+
+const yoga = createYoga({
+  graphqlEndpoint: '/my-graphql-endpoint'
+})
+```
+
+How ever you can disable the landing page, and just get 404 error directly by setting `landingPage`
+to `false`.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+
+const yoga = createYoga({
+  landingPage: false
+})
+```
+
+You can also customize the landing page by passing a custom renderer that returns `Response` to the
+`landingPage` option.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+
+const yoga = createYoga({
+  landingPage: ({ url, fetchAPI }) => {
+    return new fetchAPI.Response(
+      /* HTML */ `
+        <!doctype html>
+        <html>
+          <head>
+            <title>404 Not Found</title>
+          </head>
+          <body>
+            <h1>404 Not Found</h1>
+            <p>Sorry, the page (${url.pathname}) you are looking for could not be found.</p>
+          </body>
+        </html>
+      `,
+      {
+        status: 404,
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }
+    )
+  }
+})
+```
+
+<Callout>
+  `Response` is part of the Fetch API, so if you want to learn more about it, you can check the [MDN
+  documentation](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+</Callout>

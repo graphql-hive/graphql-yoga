@@ -12,7 +12,7 @@ describe('recipe', () => {
         resolvers: {
           Query: {
             id: (_, __, context: YogaInitialContext) => {
-              return context.params.extensions?.id;
+              return context.params.extensions?.['id'];
             },
           },
         },

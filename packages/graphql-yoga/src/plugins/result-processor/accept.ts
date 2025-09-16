@@ -6,6 +6,8 @@ export function getMediaTypesForRequestInOrder(request: Request): string[] {
   const mediaTypes: string[] = [];
   for (const accept of accepts) {
     const [mediaType, ...params] = accept.split(';');
+    if (mediaType === undefined) continue; // If true, malformed header.
+
     const charset = params?.find(param => param.includes('charset=')) || 'charset=utf-8'; // utf-8 is assumed when not specified;
 
     if (charset !== 'charset=utf-8') {

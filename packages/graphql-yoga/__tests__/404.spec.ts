@@ -17,10 +17,9 @@ describe('404', () => {
       logging: false,
     });
     const url = `http://localhost:4000/notgraphql`;
-    const response = await yoga.fetch(
-      url.replace('mypath', 'yourpath') + '?query=' + encodeURIComponent('{ __typename }'),
-      { method: 'GET' },
-    );
+    const response = await yoga.fetch(url + '?query=' + encodeURIComponent('{ __typename }'), {
+      method: 'GET',
+    });
 
     expect(response.status).toEqual(404);
     expect(await response.text()).toEqual('');
@@ -76,5 +75,23 @@ describe('404', () => {
     expect(response.status).toEqual(566);
     const body = await response.text();
     expect(body).toEqual('Do you really like em?');
+  });
+  it('supports custom landing page', async () => {
+    const customLandingPageContent = 'My Custom Landing Page';
+    const yoga = createYoga({
+      logging: false,
+      landingPage({ fetchAPI }) {
+        return new fetchAPI.Response(customLandingPageContent, {
+          status: 200,
+        });
+      },
+    });
+    const response = await yoga.fetch(`http://localhost:4000/notgraphql`, {
+      method: 'GET',
+      headers: { Accept: 'text/html' },
+    });
+    expect(response.status).toEqual(200);
+    const body = await response.text();
+    expect(body).toEqual(customLandingPageContent);
   });
 });

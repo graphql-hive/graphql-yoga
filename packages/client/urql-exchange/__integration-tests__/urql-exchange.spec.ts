@@ -1,5 +1,4 @@
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { ExecutionResult } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { pipe, toObservable } from 'wonka';
@@ -8,7 +7,6 @@ import { Client, createClient } from '@urql/core';
 
 describe('URQL Yoga Exchange', () => {
   const endpoint = '/graphql';
-  const hostname = '127.0.0.1';
   const yoga = createYoga({
     graphqlEndpoint: endpoint,
     logging: false,
@@ -28,46 +26,37 @@ describe('URQL Yoga Exchange', () => {
       `,
       resolvers: {
         Query: {
-          hello: () => 'Hello Urql Client!',
+          hello: async () => 'Hello Urql Client!',
         },
         Mutation: {
-          readFile: (_, args: { file: File }) => args.file.text(),
+          readFile: async (_, args: { file: File }) => args.file.text(),
         },
         Subscription: {
           time: {
             async *subscribe() {
               while (true) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await setTimeout$(1000);
                 yield new Date().toISOString();
               }
             },
-            resolve: str => str,
+            resolve: async str => str,
           },
         },
       },
     }),
   });
 
-  let server: Server;
-  let url: string;
   let client: Client;
 
   beforeAll(async () => {
-    server = createServer(yoga);
-    await new Promise<void>(resolve => server.listen(0, hostname, resolve));
-    const port = (server.address() as AddressInfo).port;
-    url = `http://${hostname}:${port}${endpoint}`;
     client = createClient({
-      url,
+      url: 'http://localhost:4000/graphql',
       exchanges: [
         yogaExchange({
           fetch: yoga.fetch as WindowOrWorkerGlobalScope['fetch'],
         }),
       ],
     });
-  });
-  afterAll(done => {
-    server.close(done);
   });
   it('should handle queries correctly', async () => {
     const result = await client
@@ -126,7 +115,7 @@ describe('URQL Yoga Exchange', () => {
       expect(new Date(value!).getFullYear()).toBe(now.getFullYear());
     }
   });
-  it.skip('should handle file uploads correctly', async () => {
+  it('should handle file uploads correctly', async () => {
     const query = /* GraphQL */ `
       mutation readFile($file: File!) {
         readFile(file: $file)

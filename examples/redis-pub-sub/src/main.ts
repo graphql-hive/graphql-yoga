@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { createPubSub, createSchema, createYoga } from 'graphql-yoga';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { createRedisEventTarget } from '@graphql-yoga/redis-event-target';
 
 const publishClient = new Redis();

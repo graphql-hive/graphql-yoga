@@ -1,0 +1,283 @@
+---
+description: Learn how to implement a GraphQL API with Node.js and TypeScript using Prisma Client.
+---
+
+import { Callout } from '@theguild/components'
+
+# Filtering and Pagination
+
+This is an exciting section of the tutorial where you'll implement some key features of many robust
+APIs! The goal is to allow clients to constrain the list of `Link` elements returned by the
+`Query.feed` field by providing filtering and pagination parameters.
+
+Let's jump in! 🚀
+
+## Filtering
+
+By using `PrismaClient`, you'll be able to implement filtering capabilities to your API without too
+much effort. Similar to the previous chapters, the heavy-lifting of query resolution will be
+performed by Prisma. All you need to do is pass the correct parameters within the field resolver
+functions.
+
+The first step is to think about the filters you want to expose through your API. In your case, the
+`Query.feed` field in your API will accept a _filter string_. The query then should only return the
+`Link` elements where the `url` _or_ the `description` _contain_ that filter string.
+
+Go ahead and add the `filter` argument definition of the type `String` to the `Query.feed` field
+definition within your application schema (under `src/schema.ts`):
+
+```graphql filename="src/schema.ts"
+type Query {
+  info: String!
+  feed(filterNeedle: String): [Link!]!
+}
+```
+
+Next, you need to update the implementation of the `Query.feed` resolver function to account for the
+new arguments clients can send when executing a GraphQL query operation.
+
+Now, update the `Query.feed` resolver function to look as follows:
+
+```ts filename="src/schema.ts"
+const resolvers = {
+  // ... other resolver maps ...
+  Query: {
+    // ... other Query object type field resolver functions ...
+    async feed(parent: unknown, args: { filterNeedle?: string }, context: GraphQLContext) {
+      const where = args.filterNeedle
+        ? {
+            OR: [
+              { description: { contains: args.filterNeedle } },
+              { url: { contains: args.filterNeedle } }
+            ]
+          }
+        : {}
+
+      return context.prisma.link.findMany({ where })
+    }
+  }
+}
+```
+
+If no `filterNeedle` argument value is provided, then the `where` object will be just an empty
+object and no filtering conditions will be applied by Prisma Client when it resolves the data for
+the `Query.links` field.
+
+In cases where there is a `filterNeedle` argument provided when executing the `Query.links` field
+resolver, you're constructing a `where` object that expresses our two filter conditions from above.
+This `where` argument is used by Prisma to filter out those `Link` elements that don't adhere to the
+specified conditions.
+
+That's it for the filtering functionality! Go ahead and test your filter API - here's a sample query
+operation you can use:
+
+```graphql
+query {
+  feed(filterNeedle: "QL") {
+    id
+    description
+    url
+  }
+}
+```
+
+![sample query](https://i.imgur.com/qODhFPW.png)
+
+## Pagination
+
+Pagination is a tricky topic in API design. On a high level, there are two major approaches for
+tackling it:
+
+- **Limit-Offset**: Request a specific _chunk_ of the list by providing the indices of the items to
+  be retrieved. In fact, you're mostly providing the start index `offset` as well as a count of
+  items to be retrieved `limit`.
+- **Cursor-Based**: This pagination model is a bit more advanced. Every element in the list is
+  associated with a unique ID (the _cursor_). Clients paginating through the list then provide the
+  cursor of the starting element as well as a count of items to be retrieved.
+
+Prisma supports both pagination approaches (read more in the
+[docs](https://prisma.io/docs/reference/tools-and-interfaces/prisma-client/pagination)). In this
+tutorial, you're going to implement limit-offset pagination.
+
+<Callout>
+  Note: You can read more about the ideas behind both pagination approaches
+  [here](https://dev-blog.apollodata.com/understanding-pagination-rest-graphql-and-relay-b10f835549e7).
+</Callout>
+
+Limit and offset have different names in the Prisma API:
+
+- The _limit_ is called `take`, meaning you're "taking" `x` elements after a provided start index.
+- The _start index_ is called `skip`, since you're skipping that many elements in the list before
+  collecting the items to be returned. If `skip` is not provided, it's `0` by default. The
+  pagination then always starts from the beginning of the list.
+
+So, go ahead and add the `skip` and `take` arguments to the `Query.field` field definition.
+
+Open your schema definitions and adjust the `Query.field` field to have a `skip` and `take` argument
+of the `Int` type defined:
+
+```graphql
+type Query {
+  info: String!
+  feed(filterNeedle: String, skip: Int, take: Int): [Link!]!
+}
+```
+
+Now, adjust the field resolver function implementation:
+
+And now adjust the implementation of the `Query.feed` resolver function:
+
+```ts filename="src/schema.ts" {7,20-21}
+const resolvers = {
+  // ... other resolvers maps ...
+  Query: {
+    // ... other Query object type resolver functions ...
+    async feed(
+      parent: unknown,
+      args: { filterNeedle?: string; skip?: number; take?: number },
+      context: GraphQLContext
+    ) {
+      const where = args.filterNeedle
+        ? {
+            OR: [
+              { description: { contains: args.filterNeedle } },
+              { url: { contains: args.filterNeedle } }
+            ]
+          }
+        : {}
+
+      return context.prisma.link.findMany({
+        where,
+        skip: args.skip,
+        take: args.take
+      })
+    }
+  }
+}
+```
+
+All that's changing here is that the invocation of the `links` query now receives two additional
+arguments which might be carried by the incoming `args` object. Again, Prisma will take care of the
+rest.
+
+You can test the pagination API with the following query operation which returns the second `Link`
+from the list:
+
+```graphql
+query {
+  feed(take: 1, skip: 1) {
+    id
+    description
+    url
+  }
+}
+```
+
+![test the pagination API ](https://i.imgur.com/VZzIeyJ.png)
+
+## Pagination Field Argument Sanitization
+
+In the last chapter, you already sanitized the arguments within the `Mutation.postCommentOnLink`
+field resolver function.
+
+Up next, let's also take into consideration that the `Query.feed` arguments should also have some
+sanitizing.
+
+As more links are posted onto the feed, the size of the feed increases. At some point, there could
+be thousands of feed items. When deploying the GraphQL API to production you would not want to allow
+querying ALL the links at once. That means you have to introduce a default value for the `take`
+argument.
+
+Furthermore, you should limit the `take` argument to be within a range that makes sense for the
+feed. The original Hackernews shows 30 links per page.
+
+Let's use the value 30 as the default value and 50 as the upper limit and 1 as the lower limit.
+Fetching 0 records does not make sense.
+
+Adjust the current schema resolver implementation according to the following.
+
+```ts filename="src/schema.ts" {4-11,31-35,40}
+// ... other code ...
+import { GraphQLError } from 'graphql'
+
+const applyTakeConstraints = (params: { min: number; max: number; value: number }) => {
+  if (params.value < params.min || params.value > params.max) {
+    throw new GraphQLError(
+      `'take' argument value '${params.value}' is outside the valid range of '${params.min}' to '${params.max}'.`
+    )
+  }
+  return params.value
+}
+
+const resolvers = {
+  // ... other resolvers maps ...
+  Query: {
+    // ... other Query object type resolver functions ...
+    async feed(
+      parent: unknown,
+      args: { filterNeedle?: string; skip?: number; take?: number },
+      context: GraphQLContext
+    ) {
+      const where = args.filterNeedle
+        ? {
+            OR: [
+              { description: { contains: args.filterNeedle } },
+              { url: { contains: args.filterNeedle } }
+            ]
+          }
+        : {}
+
+      const take = applyTakeConstraints({
+        min: 1,
+        max: 50,
+        value: args.take ?? 30
+      })
+
+      return context.prisma.link.findMany({
+        where,
+        skip: args.skip,
+        take
+      })
+    }
+  }
+}
+```
+
+Cool! Now we can try executing an operation with a `take` argument value outside the range!
+
+Execute the following query operation via GraphiQL:
+
+```graphql
+query {
+  feed(take: -1) {
+    id
+    description
+    url
+  }
+}
+```
+
+As expected, you receive an error:
+
+```json
+{
+  "errors": [
+    {
+      "message": "'take' argument value '-1' is outside the valid range of '1' to '50'.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["feed"]
+    }
+  ],
+  "data": null
+}
+```
+
+## Optional Exercise
+
+As an optional exercise for interiorizing the knowledge, you can now also implement validation of
+the `skip` argument of `Query.feed` field and prohibit using negative numbers.

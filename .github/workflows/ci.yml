@@ -1,4 +1,4 @@
-name: test
+name: Tests and Checks
 env:
   NODE_NO_WARNINGS: true
 on:
@@ -9,194 +9,54 @@ on:
     paths-ignore:
       - 'website/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  unit:
-    name: unit / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
+  check:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18, 20, 21]
-        graphql-version: ['15.8.0', '16.6.0']
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
-
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.4
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.pnpm-store.outputs.PATH }}
-          key:
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
-            hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-
-      - name: Set GraphQL Version
-        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
-
-      - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
-
-      - name: Build Packages
-        run: pnpm build
-
-      - name: Run Tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm run test --ci
-
-  integration:
-    name: integration / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18, 20, 21]
-        graphql-version: ['15.8.0', '16.6.0']
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.4
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.pnpm-store.outputs.PATH }}
-          key:
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
-            hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-
-      - name: Set GraphQL Version
-        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
-
-      - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
-
-      - name: Build Packages
-        run: pnpm build
-
-      - name: Run Tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm test:integration --ci
-
-  leaks:
-    name: leaks / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18, 21]
-        graphql-version: ['15.8.0', '16.6.0']
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
-
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.4
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.pnpm-store.outputs.PATH }}
-          key:
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
-            hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-
-      - name: Set GraphQL Version
-        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
-
-      - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
-
-      - name: Build Packages
-        run: pnpm build
-
-      - name: Run Tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm test:leaks --ci
-
-  esm:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
-
-      - name: Setup env
-        uses: the-guild-org/shared-config/setup@main
-        with:
-          nodeVersion: 20
-          packageManager: pnpm
-
-      - name: Build Packages
-        run: pnpm build
-
-      - name: Run Tests
-        run: pnpm --filter example-node-esm run test
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
-
-      - name: Setup env
-        uses: the-guild-org/shared-config/setup@main
-        with:
-          nodeVersion: 20
-          packageManager: pnpm
-
-      - name: Setup Bun Runtime
-        uses: antongolub/action-setup-bun@v1
+          node-version-file: '.node-version'
 
       - name: Setup Deno Runtime
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.PATH }}
+          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-graphql-v16-
+
+      - name: Install Dependencies
+        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+
+      - name: Prettier
+        run: pnpm prettier:check
+
+      - name: Lint
+        run: pnpm lint
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+          NODE_NO_WARNINGS: true
 
       - name: Build Packages
         run: pnpm build
@@ -207,35 +67,148 @@ jobs:
       - name: Test ESM & CJS exports integrity
         run: pnpm bob check
 
-      - name: Prettier
-        run: pnpm prettier:check
+      - name: ESM Integration test
+        run: pnpm --filter example-node-esm run test
 
-      - name: eslint
-        run: pnpm lint
-
-  apollo-federation-compatibility:
+  unit:
+    name: unit / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 24]
+        graphql-version: ['15.10.1', '16.10.0']
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.4
+
       - name: Get pnpm store path
         id: pnpm-store
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
       - name: Cache pnpm
-        uses: actions/cache@v3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
-          path: ${{ steps.pnpm-store.outputs.PATH }}
+          path: |
+            ${{ steps.pnpm-store.outputs.PATH }}
           key:
             ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
             hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
+
+      - name: Set GraphQL Version
+        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
+
+      - name: Install Dependencies
+        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Run Unit Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm run test:unit --ci
+
+      - name: Run Leak Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 120
+          max_attempts: 3
+          command: pnpm run test:unit:leaks --ci
+
+  integration:
+    name: integration / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 24]
+        graphql-version: ['15.10.1', '16.10.0']
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
+      - name: Install Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.PATH }}
+          key:
+            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
+            hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
+
+      - name: Set GraphQL Version
+        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
+
+      - name: Install Dependencies
+        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+
+      - name: Install Playwright Binaries
+        uses: ./.github/actions/install-playwright-binaries
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Run Integration Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test:integration --ci
+
+      - name: Run Leak Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test:integration:leaks --ci
+
+  apollo-federation-compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - name: Install Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: '.node-version'
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - name: Cache pnpm
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.PATH }}
+          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-graphql-v16-
       - name: Install Dependencies
         run: pnpm i --no-frozen-lockfile
       - name: Build Packages
@@ -247,7 +220,7 @@ jobs:
       - name: Add Rover to PATH
         run: echo "$HOME/.rover/bin" >> $GITHUB_PATH
       - name: Apollo Federation Subgraph Compatibility
-        uses: apollographql/federation-subgraph-compatibility@v2
+        uses: apollographql/federation-subgraph-compatibility@b6981fd83d24450a7cbd2d7727196e0ba57614e0 # v2
         with:
           workingDirectory: examples/apollo-federation-compatibility
           compose: docker-compose.yaml
@@ -258,48 +231,109 @@ jobs:
           failOnRequired: true
           debug: true
 
-  # TODO: have the example and packages use singleton nestjs dependencies
-  #       but without using .pnpmfile.cjs because it causes issues with renovate: https://github.com/dotansimha/graphql-yoga/pull/2622
-  # nestjs-apollo-federation-compatibility:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v3
-  #     - name: Install Node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #     - name: Install pnpm
-  #       uses: pnpm/action-setup@v2.2.4
-  #     - name: Get pnpm store path
-  #       id: pnpm-store
-  #       run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-  #     - name: Cache pnpm
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ${{ steps.pnpm-store.outputs.PATH }}
-  #         key: ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-  #     - name: Install Dependencies
-  #       run: pnpm i
-  #     - name: Build Packages
-  #       run: pnpm build
-  #     - name: Bundle NestJS Apollo Federation Subgraph Example
-  #       run: pnpm --filter=example-nestjs-apollo-federation-compatibility build
-  #     - name: Install Rover
-  #       run: curl -sSL https://rover.apollo.dev/nix/v0.11.1 | sh
-  #     - name: Add Rover to PATH
-  #       run: echo "$HOME/.rover/bin" >> $GITHUB_PATH
-  #     - name: Apollo Federation Subgraph Compatibility
-  #       uses: apollographql/federation-subgraph-compatibility@v1
-  #       with:
-  #         workingDirectory: examples/nestjs-apollo-federation-compatibility
-  #         compose: docker-compose.yaml
-  #         schema: schema.graphql
-  #         path: /graphql
-  #         # no token = no comment
-  #         # token: ${{ secrets.GITHUB_TOKEN }}
-  #         failOnWarning: true
-  #         failOnRequired: true
-  #         debug: true
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        plan:
+          - 'aws-lambda'
+          # - 'azure-function'
+          - 'cf-worker'
+          # - 'vercel-function' # Disabled because vercel API is not actually documented
+          - 'docker-node'
+          - 'cf-modules'
+    name: e2e / ${{ matrix.plan }}
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      # CloudFlare
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      # Azure
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      # AWS
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      # Vercel
+      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
+      - name: Install Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: '.node-version'
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.PATH }}
+          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-graphql-v16-
+
+      - name: Install Dependencies
+        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Install pulumi
+        uses: pulumi/setup-pulumi@b374ceb6168550de27c6eba92e01c1a774040e11 # v2
+
+      - name: Set outputs
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "docker_host=$(docker context inspect --format '{{.Endpoints.docker.Host}}')" >> $GITHUB_OUTPUT
+
+      - name: Provision & Test
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        env:
+          TEST_PLAN_NAME: ${{ matrix.plan }}
+          COMMIT_ID: ${{ steps.vars.outputs.sha_short }}
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          command: cd e2e && pnpm start
+          retry_wait_seconds: 30
+
+      - name: Ensure Deletion
+        working-directory: e2e
+        if: ${{ always() }}
+        run: pnpm start
+        env:
+          ENSURE_DELETION: 1
+          TEST_PLAN_NAME: ${{ matrix.plan }}
+          COMMIT_ID: ${{ steps.vars.outputs.sha_short }}
+
+  dependencies:
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release
+      Changes'
+    name: Dependencies
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-dependencies
+      cancel-in-progress: true
+    uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
+    with:
+      node-version-file: .node-version
+    secrets:
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}

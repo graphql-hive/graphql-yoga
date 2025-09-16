@@ -1,21 +1,28 @@
 import { createGraphQLError, createLRUCache, Plugin, PromiseOrValue } from 'graphql-yoga';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
-export async function hashSHA256(
-  str: string,
+export function hashSHA256(
+  text: string,
   api: {
     crypto: Crypto;
     TextEncoder: (typeof globalThis)['TextEncoder'];
   } = globalThis,
 ) {
-  const { crypto, TextEncoder } = api;
-  const textEncoder = new TextEncoder();
-  const utf8 = textEncoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-  let hashHex = '';
-  for (const bytes of new Uint8Array(hashBuffer)) {
-    hashHex += bytes.toString(16).padStart(2, '0');
-  }
-  return hashHex;
+  const inputUint8Array = new api.TextEncoder().encode(text);
+  return handleMaybePromise(
+    () => api.crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array),
+    arrayBuf => {
+      const outputUint8Array = new Uint8Array(arrayBuf);
+
+      let hash = '';
+      for (const byte of outputUint8Array) {
+        const hex = byte.toString(16);
+        hash += '00'.slice(0, Math.max(0, 2 - hex.length)) + hex;
+      }
+
+      return hash;
+    },
+  );
 }
 
 export interface APQStoreOptions {
@@ -80,43 +87,50 @@ export function useAPQ(options: APQOptions = {}): Plugin {
   const { store = createInMemoryAPQStore(), hash = hashSHA256, responseConfig = {} } = options;
 
   return {
-    async onParams({ params, setParams, fetchAPI }) {
-      const persistedQueryData = decodeAPQExtension(params.extensions?.persistedQuery);
+    onParams({ params, setParams, fetchAPI }) {
+      const persistedQueryData = decodeAPQExtension(params.extensions?.['persistedQuery']);
 
       if (persistedQueryData === null) {
         return;
       }
 
       if (params.query == null) {
-        const persistedQuery = await store.get(persistedQueryData.sha256Hash);
-        if (persistedQuery == null) {
-          throw createGraphQLError('PersistedQueryNotFound', {
-            extensions: {
-              http: {
-                status: responseConfig.forceStatusCodeOk ? 200 : 404,
-              },
-              code: 'PERSISTED_QUERY_NOT_FOUND',
-            },
-          });
-        }
-        setParams({
-          ...params,
-          query: persistedQuery,
-        });
-      } else {
-        const expectedHash = await hash(params.query, fetchAPI);
-        if (persistedQueryData.sha256Hash !== expectedHash) {
-          throw createGraphQLError('PersistedQueryMismatch', {
-            extensions: {
-              http: {
-                status: responseConfig.forceStatusCodeOk ? 200 : 400,
-              },
-              code: 'PERSISTED_QUERY_MISMATCH',
-            },
-          });
-        }
-        await store.set(persistedQueryData.sha256Hash, params.query);
+        return handleMaybePromise(
+          () => store.get(persistedQueryData.sha256Hash),
+          persistedQuery => {
+            if (persistedQuery == null) {
+              throw createGraphQLError('PersistedQueryNotFound', {
+                extensions: {
+                  http: {
+                    status: responseConfig.forceStatusCodeOk ? 200 : 404,
+                  },
+                  code: 'PERSISTED_QUERY_NOT_FOUND',
+                },
+              });
+            }
+            setParams({
+              ...params,
+              query: persistedQuery,
+            });
+          },
+        );
       }
+      return handleMaybePromise(
+        () => hash(params.query!, fetchAPI),
+        expectedHash => {
+          if (persistedQueryData.sha256Hash !== expectedHash) {
+            throw createGraphQLError('PersistedQueryMismatch', {
+              extensions: {
+                http: {
+                  status: responseConfig.forceStatusCodeOk ? 200 : 400,
+                },
+                code: 'PERSISTED_QUERY_MISMATCH',
+              },
+            });
+          }
+          return store.set(persistedQueryData.sha256Hash, params.query!);
+        },
+      );
     },
   };
 }

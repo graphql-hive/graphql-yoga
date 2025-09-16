@@ -18,6 +18,7 @@ export function createCFDeployment(
 ): DeploymentConfiguration<{
   workerUrl: string;
 }> {
+  const accountId = env('CLOUDFLARE_ACCOUNT_ID');
   return {
     prerequisites: async (stack: Stack) => {
       console.info('\t\tℹ️ Installing Pulumi CF plugin...');
@@ -37,13 +38,10 @@ export function createCFDeployment(
       await stack.setConfig('cloudflare:apiToken', {
         value: env('CLOUDFLARE_API_TOKEN'),
       });
-      await stack.setConfig('cloudflare:accountId', {
-        value: env('CLOUDFLARE_ACCOUNT_ID'),
-      });
     },
     program: async () => {
       const stackName = pulumi.getStack();
-      const workerUrl = `e2e.graphql-yoga.com/${stackName}`;
+      const workerUrl = `e2e.graphql.yoga/${stackName}`;
 
       // Deploy CF script as Worker
       const workerScript = new cf.WorkerScript('worker', {
@@ -60,6 +58,7 @@ export function createCFDeployment(
           },
         ],
         name: stackName,
+        accountId,
       });
 
       // Create a nice route for easy testing

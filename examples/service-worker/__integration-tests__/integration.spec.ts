@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { getIntrospectionQuery } from 'graphql';
 import { createSchema, createYoga, Repeater } from 'graphql-yoga';
 import { Request } from '@whatwg-node/fetch';
@@ -56,7 +57,7 @@ describe('Service worker', () => {
                     return end();
                   }
                   if (i) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await setTimeout$(300);
                     await push(new Date().toISOString());
                     i--;
                     return pushTime();

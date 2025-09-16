@@ -12,11 +12,11 @@ describe('file uploads', () => {
     schema: createSchema({
       resolvers: {
         Mutation: {
-          arrayBuffer: async (root, args) => {
+          arrayBuffer: async (_, args) => {
             const buf = Buffer.from(await args.file.arrayBuffer());
             return sourceFile.equals(buf);
           },
-          stream: async (root, args) => {
+          stream: async (_, args) => {
             const chunks = [];
             for await (const chunk of args.file.stream()) {
               chunks.push(chunk);
@@ -84,7 +84,8 @@ describe('file uploads', () => {
           0: ['variables.file'],
         }),
       );
-      const file = new File([sourceFile], 'logo.png', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const file = new File([sourceFile as any], 'logo.png', {
         type: 'image/png',
       });
       formData.append('0', file);

@@ -1,0 +1,327 @@
+---
+description:
+  Learn how to use GraphQL Yoga with Apollo Federation to build a gateway server and a federated
+  service.
+---
+
+import { Callout } from '@theguild/components'
+
+# Apollo Federation
+
+[Apollo Federation](https://apollographql.com/docs/federation) is a specification that applies
+microservice architecture through GraphQL APIs.
+
+> If you're new to GraphQL Federation,
+> [learn how it combines your GraphQL APIs into a unified supergraph](https://the-guild.dev/graphql/hive/federation).
+
+## Gateway
+
+You can use GraphQL Yoga to implement a Gateway exposing an
+[Apollo Federation](https://the-guild.dev/graphql/hive/federation) supergraph. For this, the gateway
+needs to have access to the supergraph SDL.
+
+You have the choice between loading it from a schema registry (like Hive or Apollo GraphOS) or
+locally from the file system.
+
+> Instead of using GraphQL Yoga to implement the gateway, we recommend to use
+> [Hive Gateway](https://the-guild.dev/graphql/hive/docs/gateway), our open-source MIT-licensed
+> GraphQL gateway for Apollo Federation.
+
+### Using Hive
+
+Hive is a schema registry and usage reporting plateform for GraphQL. You can use it to manage an
+Apollo Federation supergraph.
+
+For a full step by step setup getting started, please follow this
+[Apollo Federation usage guide](https://the-guild.dev/graphql/hive/docs/get-started/apollo-federation).
+
+#### Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql @graphql-hive/yoga
+```
+
+#### Example
+
+```js filename="src/index.mjs"
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { createSupergraphSDLFetcher } from '@graphql-hive/yoga'
+import { getStitchedSchemaFromSupergraphSdl } from '@graphql-tools/federation'
+
+const supergraphFetcher = createSupergraphSDLFetcher({
+  key: env.HIVE_CDN_KEY,
+  endpoint: env.HIVE_CDN_URL
+})
+const { supergraphSdl } = await supergraphFetcher()
+
+const yoga = createYoga({
+  schema: getStitchedSchemaFromSupergraphSdl({ supergraphSdl })
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+> You can also check the
+> [Hive plugin documentation](https://the-guild.dev/graphql/hive/docs/other-integrations/graphql-yoga)
+> for more information
+
+#### Configuration
+
+A full configuration guide can be found in
+[Hive's “Configuration”](https://the-guild.dev/graphql/hive/docs/api-reference/client#configuration)
+page.
+
+### Using Apollo Managed Federation
+
+Apollo GraphOS can be used as a schema registry when using Managed Federation.
+
+You can use GraphQL Yoga to implement a Gateway exposing the Managed Federation supergraph stored in
+GraphOS by using `@graphql-yoga/apollo-managed-federation`. This plugin will automatically fetch the
+supergraph SDL from GraphOS, sticth it into an executable schema and serve it.
+
+It also starts a polling mechanism to keep the schema up to date in the background and handle retry
+on failure.
+
+#### Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql @graphql-yoga/apollo-managed-federation
+```
+
+#### Example
+
+```js filename="src/index.mjs"
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { useManagedFederation } from '@graphql-yoga/apollo-managed-federation'
+
+const yoga = createYoga({
+  plugins: [useManagedFederation()]
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.log('Server is running on http://localhost:4000')
+})
+
+process.on('SIGINT', () => {
+  server.close()
+})
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/apollo-managed-federation)
+
+#### Configuration
+
+By default, the plugin will use standard Apollo GraphOS environment variables.
+
+```bash
+APOLLO_KEY='<YOU_APOLLO_API_KEY>' APOLLO_GRAPH_REF='<YOUR_GRAPH_ID>[@<VARIANT>]' node src/index.mjs
+```
+
+If you don't know where to find these values, please refer to the
+[Apollo GraphOS documentation](https://www.apollographql.com/docs/federation/managed-federation/setup#4-connect-your-router-to-graphos).
+
+You can also provide this configuration programaitically by providing a configurtion object to the
+plugin, along with other options to customize the polling/retry behavior.
+
+```js
+const yoga = createYoga({
+  plugins: [
+    useManagedFederation({
+      apiKey: '<YOU_APOLLO_API_KEY>',
+      graphRef: '<YOUR_GRAPH_ID>[@<VARIANT>]',
+      maxRetries: 5, // max retries in case of loading failure
+      retryDelaySeconds: 0, // delay between retries
+      minDelaySeconds: 1 // minimum delay between polling requests
+    })
+  ]
+})
+```
+
+Other more advanced options are available, please refer to the type definitions for more
+information.
+
+### Using the file system
+
+To create a gateway server without using Apollo GraphOS, you can use the `@graphql-tools/federation`
+which can generate an executable schema from a supergraph SDL.
+
+#### Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql @graphql-tools/federation
+```
+
+#### Example
+
+To generate the schema, we first need the supergraph SDL. This can be generated by the Apollo Rover
+CLI or fetched from a schema registry (like Hive or Apollo GraphOS).
+
+To generate the supergraph SDL locally, you first have to define a supergraph configuration by
+creating a `supergraph.yaml` file.
+
+```yaml filename="supergraph.yaml"
+subgraphs:
+  accounts:
+    routing_url: http://localhost:4001/graphql
+    schema:
+      file: ./services/accounts.graphql
+  inventory:
+    routing_url: http://localhost:4002/graphql
+    schema:
+      file: ./services/inventory.graphql
+```
+
+You can then use the Apollo Rover CLI to generate the supergraph SDL.
+
+```bash
+rover supergraph compose --config ./supergraph.yaml > supergraph.graphql
+```
+
+You can now serve the gateway using GraphQL Yoga.
+
+```ts filename="src/index.mjs"
+import { readFileSync } from 'fs'
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { getStitchedSchemaFromSupergraphSdl } from '@graphql-tools/federation'
+
+const yoga = createYoga({
+  schema: getStitchedSchemaFromSupergraphSdl({
+    // This doesn't have to be from a file system, it can be fetched via HTTP from a schema registry
+    supergraphSdl: readFileSync('./supergraph.graphql', 'utf-8')
+  })
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.log(`🚀 Server ready at http://localhost:4000/graphql`)
+})
+```
+
+### Handling Subgraph Errors
+
+By default, GraphQL Yoga masks any unexpected GraphQL Errors. This is done to prevent leaking
+internal errors to the client. If you know that your subgraph is safe and you want to expose the
+errors to the client, you can customize the error masking bahviour.
+
+[Learn more about error masking](/docs/features/error-masking)
+
+```ts filename="Expose subgraph errors to the client"
+import { createYoga, maskError } from 'graphql-yoga'
+import { schema } from './schema.js'
+
+const yoga = createYoga({
+  schema,
+  maskedErrors: {
+    maskError(error, message, isDev) {
+      if (error?.extensions?.code === 'DOWNSTREAM_SERVICE_ERROR') {
+        return error
+      }
+
+      return maskError(error, message, isDev)
+    }
+  }
+})
+```
+
+## Federation Service
+
+You don't need any extra plugins for Yoga for Federation Service.
+
+### Installation
+
+```sh npm2yarn
+npm i graphql-yoga @apollo/subgraph graphql
+```
+
+### Example User Service
+
+```ts
+const { parse } = require('graphql')
+const { buildSubgraphSchema } = require('@apollo/subgraph')
+const { createYoga } = require('graphql-yoga')
+const { createServer } = require('http')
+
+const typeDefs = parse(/* GraphQL */ `
+  type Query {
+    me: User
+  }
+
+  type User @key(fields: "id") {
+    id: ID!
+    username: String
+  }
+`)
+
+const resolvers = {
+  Query: {
+    me() {
+      return { id: '1', username: '@ava' }
+    }
+  },
+  User: {
+    __resolveReference(user, { fetchUserById }) {
+      return fetchUserById(user.id)
+    }
+  }
+}
+const yoga = createYoga({
+  schema: buildSubgraphSchema([{ typeDefs, resolvers }])
+})
+
+const server = createServer(yoga)
+
+server.listen(4001, () => {
+  console.log(`🚀 Server ready at http://localhost:4001`)
+})
+```
+
+## Federated tracing
+
+Inject additional metrics for
+[Apollo's federated tracing](https://www.apollographql.com/docs/federation/metrics/).
+
+You'll need the `@graphql-yoga/plugin-apollo-inline-trace` Yoga plugin for this.
+
+### Installation
+
+```sh npm2yarn
+npm i graphql-yoga @graphql-yoga/plugin-apollo-inline-trace graphql
+```
+
+### Example Federated tracing
+
+```ts
+import { createServer } from 'http'
+import { createYoga } from 'graphql-yoga'
+import { useApolloInlineTrace } from '@graphql-yoga/plugin-apollo-inline-trace'
+
+const yoga = createYoga({
+  plugins: [
+    useApolloInlineTrace()
+    // ...rest of your Apollo federation plugins
+  ]
+})
+
+// Start the server and explore http://localhost:4000/graphql
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Working Example
+
+Check our
+[working example](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/apollo-federation)
+to try it out.

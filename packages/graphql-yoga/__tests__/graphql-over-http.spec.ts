@@ -37,7 +37,7 @@ describe('GraphQL over HTTP', () => {
 
         const text = await result.text();
         expect(text).toMatchInlineSnapshot(
-          `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":3}],"path":["hi"]}],"data":{"hi":null,"foo":"hi"}}"`,
+          `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":3}],"path":["hi"],"extensions":{"code":"INTERNAL_SERVER_ERROR"}}],"data":{"hi":null,"foo":"hi"}}"`,
         );
 
         expect(result.headers.get('content-type')).toEqual(
@@ -77,7 +77,7 @@ describe('GraphQL over HTTP', () => {
 
         const text = await result.text();
         expect(text).toMatchInlineSnapshot(
-          `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":3}],"path":["hi"]}],"data":null}"`,
+          `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":3}],"path":["hi"],"extensions":{"code":"INTERNAL_SERVER_ERROR"}}],"data":null}"`,
         );
 
         expect(result.headers.get('content-type')).toEqual(

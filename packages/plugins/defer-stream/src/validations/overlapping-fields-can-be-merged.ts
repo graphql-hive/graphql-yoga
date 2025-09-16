@@ -21,7 +21,8 @@ import {
   ValidationContext,
   ValueNode,
 } from 'graphql';
-import { createGraphQLError, inspect, Maybe } from '@graphql-tools/utils';
+import { createGraphQLError } from 'graphql-yoga';
+import { inspect, Maybe } from '@graphql-tools/utils';
 
 /**
  * Returns a number indicating whether a reference string comes before, or after,
@@ -275,7 +276,7 @@ function findConflictsWithinSelectionSet(
         comparedFragmentPairs,
         false,
         fieldMap,
-        fragmentNames[i],
+        fragmentNames[i]!,
       );
       // (C) Then compare this fragment with all other fragments found in this
       // selection set to collect conflicts between fragments spread together.
@@ -288,8 +289,8 @@ function findConflictsWithinSelectionSet(
           cachedFieldsAndFragmentNames,
           comparedFragmentPairs,
           false,
-          fragmentNames[i],
-          fragmentNames[j],
+          fragmentNames[i]!,
+          fragmentNames[j]!,
         );
       }
     }
@@ -548,8 +549,8 @@ function collectConflictsWithin(
             comparedFragmentPairs,
             false, // within one collection is never mutually exclusive
             responseName,
-            fields[i],
-            fields[j],
+            fields[i]!,
+            fields[j]!,
           );
           if (conflict) {
             conflicts.push(conflict);

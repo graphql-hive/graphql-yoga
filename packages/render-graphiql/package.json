@@ -1,11 +1,11 @@
 {
   "name": "@graphql-yoga/render-graphiql",
-  "version": "5.3.1",
+  "version": "5.15.2",
   "type": "module",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dotansimha/graphql-yoga.git",
+    "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/render-graphiql"
   },
   "author": "Laurin Quast <laurinquast@googlemail.com>",
@@ -14,6 +14,7 @@
     "node": ">=18.0.0"
   },
   "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
   "module": "dist/esm/index.js",
   "exports": {
     ".": {
@@ -46,7 +47,6 @@
     },
     "./package.json": "./package.json"
   },
-  "typings": "dist/typings/index.d.ts",
   "keywords": [
     "graphql",
     "server",
@@ -58,7 +58,7 @@
     "check": "tsc --pretty --noEmit"
   },
   "peerDependencies": {
-    "graphql-yoga": "^5.3.1"
+    "graphql-yoga": "workspace:^"
   },
   "publishConfig": {
     "directory": "dist",

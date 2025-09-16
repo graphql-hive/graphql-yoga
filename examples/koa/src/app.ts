@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { createSchema, createYoga } from 'graphql-yoga';
 import Koa from 'koa';
 
@@ -24,7 +25,7 @@ export function buildApp() {
           countdown: {
             async *subscribe(_, { from }) {
               for (let i = from; i >= 0; i--) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await setTimeout$(1000);
                 yield { countdown: i };
               }
             },
@@ -36,7 +37,7 @@ export function buildApp() {
   });
 
   app.use(async ctx => {
-    const response = await yoga.handleNodeRequestAndResponse(ctx.req, ctx.res, ctx);
+    const response = await yoga.handleNodeRequestAndResponse(ctx.request, ctx.res, ctx);
 
     // Set status code
     ctx.status = response.status;

@@ -1,5 +1,55 @@
 # @graphql-yoga/subscription
 
+## 5.0.5
+
+### Patch Changes
+
+- [#3995](https://github.com/graphql-hive/graphql-yoga/pull/3995)
+  [`000c33d`](https://github.com/graphql-hive/graphql-yoga/commit/000c33dc043454f4b73d15f03c3e688cfb9d0901)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Update whatwg-node packages
+
+  In light of https://github.com/ardatan/whatwg-node/pull/2305. Please upgrade as soon as possible!
+
+## 5.0.4
+
+### Patch Changes
+
+- [#3930](https://github.com/graphql-hive/graphql-yoga/pull/3930)
+  [`3a7ef74`](https://github.com/graphql-hive/graphql-yoga/commit/3a7ef74eae1f1926213f671b20521bed14496873)
+  Thanks [@ardatan](https://github.com/ardatan)! - Bump `@whatwg-node/server`
+
+## 5.0.3
+
+### Patch Changes
+
+- [#3660](https://github.com/dotansimha/graphql-yoga/pull/3660)
+  [`d4cbae1`](https://github.com/dotansimha/graphql-yoga/commit/d4cbae12348a39a2f64d7048dc582ebbaac93a5b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`tslib@^2.8.1` ↗︎](https://www.npmjs.com/package/tslib/v/2.8.1) (from
+    `^2.5.2`, in `dependencies`)
+- Updated dependencies
+  [[`d4cbae1`](https://github.com/dotansimha/graphql-yoga/commit/d4cbae12348a39a2f64d7048dc582ebbaac93a5b)]:
+  - @graphql-yoga/typed-event-target@3.0.2
+
+## 5.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`57e7701`](https://github.com/dotansimha/graphql-yoga/commit/57e7701dd62495cee224d71ad55f726740a38cdd)]:
+  - @graphql-yoga/typed-event-target@3.0.1
+
+## 5.0.1
+
+### Patch Changes
+
+- [#3300](https://github.com/dotansimha/graphql-yoga/pull/3300)
+  [`fdd902c`](https://github.com/dotansimha/graphql-yoga/commit/fdd902c2a713c6bd951e1b1e6570164b6ff2d546)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-yoga/typed-event-target@workspace:^` ↗︎](https://www.npmjs.com/package/@graphql-yoga/typed-event-target/v/workspace:^)
+    (from `^3.0.0`, in `dependencies`)
+
 ## 5.0.0
 
 ### Major Changes

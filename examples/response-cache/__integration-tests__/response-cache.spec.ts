@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { fetch } from '@whatwg-node/fetch';
 import { create } from '../src/main.js';
 
@@ -95,7 +96,7 @@ describe('example-response-cache', () => {
       );
       const lastModified = new Date(response.headers.get('last-modified')!).getTime();
 
-      await new Promise(res => setTimeout(res, 1000));
+      await setTimeout$(1000);
 
       response = await fetch(`http://localhost:${port}/graphql`, {
         method: 'POST',
@@ -122,7 +123,7 @@ describe('example-response-cache', () => {
       let diff = new Date(response.headers.get('last-modified')!).getTime() - lastModified;
       expect(diff).toEqual(0);
 
-      await new Promise(res => setTimeout(res, 1000));
+      await setTimeout$(1000);
 
       response = await fetch(`http://localhost:${port}/graphql`, {
         method: 'POST',

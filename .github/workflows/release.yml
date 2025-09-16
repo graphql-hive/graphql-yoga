@@ -1,17 +1,25 @@
-name: release
+name: Stable Release
 on:
   push:
     branches:
       - 'main'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   stable:
-    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@main
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+      issues: write
+    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
     if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
     with:
       releaseScript: release
-      nodeVersion: 20
-      packageManager: pnpm
+      node-version-file: .node-version
     secrets:
-      githubToken: ${{ secrets.GUILD_BOT_TOKEN }}
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
       npmToken: ${{ secrets.NODE_AUTH_TOKEN }}

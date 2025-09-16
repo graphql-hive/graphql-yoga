@@ -1,4 +1,5 @@
 import { GraphQLError } from 'graphql';
+import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga, maskError, Plugin } from '../src/index.js';
 import { eventStream } from './utilities.js';
 
@@ -66,7 +67,7 @@ describe('Subscription', () => {
   });
 
   test('should issue pings while connected', async () => {
-    const d = createDeferred();
+    const d = createDeferredPromise();
 
     const schema = createSchema({
       typeDefs: /* GraphQL */ `
@@ -145,12 +146,12 @@ data:
   });
 
   test('should issue pings event if event source never publishes anything', async () => {
-    const d = createDeferred();
+    const d = createDeferredPromise();
     const source: AsyncIterableIterator<unknown> = {
       next: () => d.promise.then(() => ({ done: true, value: undefined })),
       return: () => {
         d.resolve();
-        return Promise.resolve({ done: true, value: undefined });
+        return fakePromise({ done: true, value: undefined });
       },
       throw: () => {
         throw new Error('Method not implemented. (throw)');
@@ -282,7 +283,7 @@ event: next
 data: {"data":{"hi":"hi"}}
 
 event: next
-data: {"errors":[{"message":"Unexpected error.","locations":[{"line":2,"column":11}]}]}
+data: {"errors":[{"message":"Unexpected error.","locations":[{"line":2,"column":11}],"extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
 
 event: complete
 data:
@@ -290,7 +291,7 @@ data:
 "
 `);
 
-    expect(logging.error).toBeCalledTimes(1);
+    expect(logging.error).toHaveBeenCalledTimes(1);
     expect(logging.error.mock.calls[0]).toMatchInlineSnapshot(`
       [
         [GraphQLError: hi],
@@ -359,7 +360,7 @@ data:
 "
 `);
     // errors are only logged when error masking is enabled
-    expect(logging.error).toBeCalledTimes(0);
+    expect(logging.error).toHaveBeenCalledTimes(0);
   });
 
   test('erroring event stream should be handled (GraphQL error)', async () => {
@@ -423,7 +424,7 @@ data:
 "
 `);
 
-    expect(logging.error).toBeCalledTimes(0);
+    expect(logging.error).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -594,21 +595,6 @@ describe('subscription plugin hooks', () => {
     expect(onNextCallCounter).toEqual(1);
     expect(didInvokeOnEnd).toBe(true);
     expect(didInvokeOnSubscribeError).toBe(true);
-    expect(maskErrorFn).toBeCalledTimes(1);
+    expect(maskErrorFn).toHaveBeenCalledTimes(1);
   });
 });
-
-type Deferred<T = void> = {
-  resolve: (value: T) => void;
-  reject: (value: unknown) => void;
-  promise: Promise<T>;
-};
-
-function createDeferred<T = void>(): Deferred<T> {
-  const d = {} as Deferred<T>;
-  d.promise = new Promise<T>((resolve, reject) => {
-    d.resolve = resolve;
-    d.reject = reject;
-  });
-  return d;
-}

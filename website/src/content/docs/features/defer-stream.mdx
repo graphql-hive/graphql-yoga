@@ -1,0 +1,222 @@
+---
+description:
+  Stream and defer are directives that allow you to improve latency for clients by sending the most
+  important data as soon as it's ready.
+---
+
+import { Callout } from '@theguild/components'
+
+# Defer and Stream
+
+Stream and defer are directives that allow you to improve latency for clients by sending the most
+important data as soon as it's ready.
+
+As applications grow, the GraphQL operation documents can get bigger. The server will only send the
+response back once all the data requested in the query is ready. However, not all requested data is
+of equal importance, and the client may not need all of the data at once. To remedy this, GraphQL
+specification working group is working on
+[introducing new `@defer` and `@stream` directives](https://github.com/graphql/graphql-wg/blob/main/rfcs/DeferStream.md)
+which allows applications to request a subset of data which is critical and get the rest of the data
+in subsequent responses from the server. This
+[proposal](https://github.com/graphql/graphql-spec/pull/742) is in
+[Stage 2](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md#stage-2-draft), meaning
+GraphQL libraries can start implementing this as experimental feature to provide feedback to the
+working group.
+
+<Callout>
+  Stream and Defer are **experimental** features and not yet stable. The implementation can and will
+  change. Furthermore, there is no yet a stable specification for the incremental delivery protocol.
+</Callout>
+
+## Installation
+
+Enabling support for the `@defer` and `@stream` directive requires installing a plugin.
+
+```sh npm2yarn
+npm i @graphql-yoga/plugin-defer-stream
+```
+
+## Quick Start
+
+The following schema shows a schema whose field resolvers are slow
+
+```ts filename="Slow Schema" {29,33, 37}
+import { createServer } from 'node:http'
+import { setTimeout as setTimeout$ } from 'node:timers/promises'
+import { createSchema, createYoga } from 'graphql-yoga'
+import { useDeferStream } from '@graphql-yoga/plugin-defer-stream'
+
+const typeDefs = /* GraphQL */ `
+  type Query {
+    alphabet: [String!]!
+    """
+    A field that resolves fast.
+    """
+    fastField: String!
+
+    """
+    A field that resolves slowly.
+    Maybe you want to @defer this field ;)
+    """
+    slowField(waitFor: Int! = 5000): String
+  }
+`
+
+const resolvers = {
+  Query: {
+    async *alphabet() {
+      for (const character of ['a', 'b', 'c', 'd', 'e', 'f', 'g']) {
+        yield character
+        await setTimeout$(1000)
+      }
+    },
+    fastField: async () => {
+      await setTimeout$(100)
+      return 'I am speed'
+    },
+    slowField: async (_, { waitFor }) => {
+      await setTimeout$(waitFor)
+      return 'I am slow'
+    }
+  }
+}
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs,
+    resolvers
+  }),
+  plugins: [useDeferStream()]
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+Create this file and start the GraphQL server.
+
+### Using Defer
+
+The `@defer` directive allows you to post-pone the delivery of one or more (slow) fields grouped in
+an inlined or spread fragment.
+
+Visit http://localhost:4000/graphql and paste the following operation into the left panel.
+
+```graphql filename="GraphQL Operation using @defer" {2}
+query SlowAndFastFieldWithDefer {
+  ... on Query @defer {
+    slowField
+  }
+  fastField
+}
+```
+
+Then press the Play (Execute Query) button.
+
+Alternatively, you can also send the defer operation via curl.
+
+```sh filename="curl command for executing @defer operation"
+curl -g -X POST \
+  -H "accept:multipart/mixed" \
+  -H "content-type: application/json" \
+  -d '{"query":"query SlowAndFastFieldWithDefer { ... on Query @defer { slowField } fastField }"}' \
+  http://localhost:4000/graphql
+```
+
+### Using Stream
+
+The `@stream` directive allows you to stream the individual items of a field of the list type as the
+items are available.
+
+Visit http://localhost:4000/graphql and paste the following operation into the left panel.
+
+```graphql filename="GraphQL Operation using @stream" {2}
+query StreamAlphabet {
+  alphabet @stream
+}
+```
+
+Then press the Play (Execute Query) button.
+
+Alternatively, you can also send the stream operation via curl.
+
+```sh
+curl -g -X POST \
+  -H "accept:multipart/mixed" \
+  -H "content-type: application/json" \
+  -d '{"query":"query StreamAlphabet { alphabet @stream }"}' \
+  http://localhost:4000/graphql
+```
+
+## Writing safe stream resolvers
+
+[`AsyncGenerators`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncGenerator)
+as declared via the `async *` keywords are prone to memory leaks and leaking timers. In the previous
+examples they are used for simplicity.
+
+For real-world usage we recommend using `Repeater` as a safe alternative.
+
+```ts {1}
+import { createServer } from 'node:http'
+import { createSchema, createYoga, Repeater } from 'graphql-yoga'
+import { useDeferStream } from '@graphql-yoga/plugin-defer-stream'
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        alphabet: [String!]!
+      }
+    `,
+    resolvers: {
+      Query: {
+        alphabet: () =>
+          new Repeater<string>(async (push, stop) => {
+            const values = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+            const publish = () => {
+              const value = values.shift()
+              console.log('publish', value)
+
+              if (value) {
+                push(value)
+              }
+
+              if (values.length === 0) {
+                stop()
+              }
+            }
+
+            let interval = setInterval(publish, 1000)
+            publish()
+
+            await stop.then(() => {
+              console.log('cancel')
+              clearInterval(interval)
+            })
+          })
+      }
+    }
+  }),
+  plugins: [useDeferStream()]
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+If you execute the following GraphQL operation via GraphiQL and click the stop button before the
+last value has been sent to the client, no further values will be published as the underlying source
+(Repeater) has been stopped and disposed. In contrast, just using a `AsyncGenerator` would continue
+to run timers even after the client has stopped listening.
+
+```graphql filename="GraphQL Operation using @stream" {2}
+query StreamAlphabet {
+  alphabet @stream
+}
+```

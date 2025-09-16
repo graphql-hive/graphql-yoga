@@ -5,9 +5,6 @@ export function isPOSTGraphQLStringRequest(request: Request) {
   return request.method === 'POST' && isContentTypeMatch(request, 'application/graphql');
 }
 
-export async function parsePOSTGraphQLStringRequest(request: Request): Promise<GraphQLParams> {
-  const requestBody = await request.text();
-  return {
-    query: requestBody,
-  };
+export function parsePOSTGraphQLStringRequest(request: Request): Promise<GraphQLParams> {
+  return request.text().then(query => ({ query }));
 }

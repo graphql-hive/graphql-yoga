@@ -1,0 +1,25 @@
+{
+  "name": "example-egg",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check": "tsc --pretty --noEmit",
+    "start": "egg-bin dev",
+    "transpile": "tsc"
+  },
+  "dependencies": {
+    "@graphql-tools/utils": "10.9.1",
+    "egg": "3.31.0",
+    "egg-cors": "3.0.1",
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*"
+  },
+  "devDependencies": {
+    "@eggjs/tsconfig": "3.0.0",
+    "egg-bin": "6.13.0",
+    "egg-mock": "5.15.2"
+  },
+  "egg": {
+    "typescript": true
+  }
+}

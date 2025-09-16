@@ -1,11 +1,11 @@
 {
   "name": "@graphql-yoga/plugin-response-cache",
-  "version": "3.5.1",
+  "version": "3.17.2",
   "type": "module",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dotansimha/graphql-yoga.git",
+    "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/response-cache"
   },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
@@ -14,6 +14,7 @@
     "node": ">=18.0.0"
   },
   "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
   "module": "dist/esm/index.js",
   "exports": {
     ".": {
@@ -32,7 +33,6 @@
     },
     "./package.json": "./package.json"
   },
-  "typings": "dist/typings/index.d.ts",
   "keywords": [
     "graphql",
     "server",
@@ -44,13 +44,18 @@
   },
   "peerDependencies": {
     "graphql": "^15.2.0 || ^16.0.0",
-    "graphql-yoga": "^5.3.1"
+    "graphql-yoga": "workspace:^"
   },
   "dependencies": {
-    "@envelop/response-cache": "^6.1.2"
+    "@envelop/core": "^5.3.0",
+    "@envelop/response-cache": "^8.0.0",
+    "@whatwg-node/promise-helpers": "^1.2.4"
   },
   "devDependencies": {
-    "graphql": "^16.6.0",
+    "@envelop/response-cache-cloudflare-kv": "^4.0.0",
+    "@envelop/response-cache-redis": "^4.2.4",
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*",
     "tslib": "^2.6.2"
   },
   "publishConfig": {

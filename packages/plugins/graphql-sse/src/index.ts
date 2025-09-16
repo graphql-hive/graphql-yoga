@@ -2,6 +2,7 @@ import { getOperationAST } from 'graphql';
 import { HandlerOptions } from 'graphql-sse';
 import { createHandler, RequestContext } from 'graphql-sse/lib/use/fetch';
 import { Plugin, YogaInitialContext } from 'graphql-yoga';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface GraphQLSSEPluginOptions
   extends Omit<
@@ -32,7 +33,7 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
       handler = createHandler(
         {
           ...handlerOptions,
-          async onSubscribe(req, params) {
+          onSubscribe(req, params) {
             const enveloped = yoga.getEnveloped({
               ...ctxForReq.get(req.raw),
               request: req.raw,
@@ -47,32 +48,35 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
               return { errors };
             }
 
-            const contextValue = await enveloped.contextFactory();
+            return handleMaybePromise(
+              () => enveloped.contextFactory(),
+              contextValue => {
+                const executionArgs = {
+                  schema: enveloped.schema,
+                  document,
+                  contextValue,
+                  variableValues: params.variables,
+                  operationName: params.operationName,
+                };
 
-            const executionArgs = {
-              schema: enveloped.schema,
-              document,
-              contextValue,
-              variableValues: params.variables,
-              operationName: params.operationName,
-            };
+                const operation = getOperationAST(document, params.operationName);
 
-            const operation = getOperationAST(document, params.operationName);
+                const executeFn =
+                  operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
 
-            const executeFn =
-              operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
-
-            return executeFn(executionArgs);
+                return executeFn(executionArgs);
+              },
+            );
           },
         },
         yoga.fetchAPI,
       );
     },
-    async onRequest({ request, endResponse, serverContext }) {
+    onRequest({ request, endResponse, serverContext }) {
       const [path, _search] = request.url.split('?');
-      if (path.endsWith(endpoint)) {
+      if (path?.endsWith(endpoint)) {
         ctxForReq.set(request, serverContext);
-        endResponse(await handler(request));
+        return handleMaybePromise(() => handler(request), endResponse);
       }
     },
   };

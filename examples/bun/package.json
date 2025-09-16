@@ -3,15 +3,18 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "check": "bun test",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "test": "bun test"
   },
   "dependencies": {
-    "bun-types": "^1.0.0",
-    "graphql": "^16.6.0",
+    "bun": "^1.1.42",
+    "bun-types": "^1.1.42",
+    "graphql": "16.11.0",
     "graphql-yoga": "5.3.1"
   },
   "devDependencies": {
-    "@whatwg-node/fetch": "^0.9.17"
+    "@types/bun": "^1.1.14",
+    "@whatwg-node/fetch": "^0.10.1",
+    "typescript": "^5.4.5"
   }
 }

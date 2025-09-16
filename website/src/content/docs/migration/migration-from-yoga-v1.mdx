@@ -1,0 +1,588 @@
+---
+description: Migrate from Yoga V1 to Yoga V2. Learn about the new features and how to upgrade.
+---
+
+# Migration from Yoga V1
+
+## Installation
+
+You can start with updating `graphql-yoga` package.
+
+```sh npm2yarn
+npm i graphql-yoga
+```
+
+## Server setup
+
+Yoga v1 no longer uses a class for constructing the server, the `createYoga` function is now used.
+Also the `typeDefs` and `resolvers` config options must now be passed to a `schema` property with
+`createSchema`.
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer } from 'graphql-yoga'
+import { resolvers, typeDefs } from './schema'
+
+const server = new GraphQLServer({ typeDefs, resolvers })
+
+server.start()
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { createSchema, createYoga } from 'graphql-yoga'
+import { resolvers, typeDefs } from './schema'
+
+const yoga = createYoga({
+  schema: createSchema({ typeDefs, resolvers })
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+### Load type definitions from a file
+
+In Yoga v1 it was possible to provide a file path for the `typeDefs`.
+
+**Yoga v1**
+
+```ts
+import * as path from 'path'
+import { GraphQLServer } from 'graphql-yoga'
+import { resolvers } from './schema'
+
+const server = new GraphQLServer({
+  typeDefs: path.join(__dirname, 'type-definitions.graphql'),
+  resolvers
+})
+
+server.start()
+```
+
+In Yoga v3 you now need to use the `fs` module for Node.js.
+
+**Yoga v3**
+
+```ts
+import * as fs from 'fs'
+import { createServer } from 'http'
+import * as path from 'path'
+import { createSchema, createYoga } from 'graphql-yoga'
+import { resolvers } from './schema'
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: fs.readFileSync(path.join(__dirname, 'type-definitions.graphql'), 'utf-8'),
+    resolvers
+  })
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+For more complex loading of type-definitions please refer to
+[`graphql-tools/load-files` ](https://www.graphql-tools.com/docs/schema-loading#load-typedefsdocumentnode-and-resolvers-from-files).
+
+### Schema directives (previously `directiveResolvers`)
+
+In Yoga v1 you could pass a
+[legacy graphql-tools `directiveResolver` implementation](https://www.graphql-tools.com/docs/schema-directives#what-about-directiveresolvers)
+to the constructor.
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer } from 'graphql-yoga'
+import { resolvers } from './schema'
+import { uppercaseDirectiveResolverImplementation } from './uppercase-directive-resolver-implementation'
+
+const server = new GraphQLServer({
+  typeDefs: /* GraphQL */ `
+    type Query {
+      hi: String
+    }
+  `,
+  directiveResolvers: uppercaseDirectiveResolverImplementation
+})
+
+server.start()
+```
+
+Before deciding upon using schema directives, you should consider whether your custom directive
+could be instead implemented via a field argument (abstraction).
+
+In Yoga v3 you have to leverage the `mapSchema` API from graphql-tools.
+
+```sh npm2yarn
+npm i @graphql-tools/utils @graphql-tools/schema
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { defaultFieldResolver } from 'graphql'
+import { createYoga, Plugin } from 'graphql-yoga'
+import { makeExecutableSchema } from '@graphql-tools/schema'
+import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
+import { resolvers, typeDefs } from './schema'
+
+let schema = makeExecutableSchema({
+  typeDefs: [
+    typeDefs,
+    /* GraphQL */ `
+      directive @uppercase on FIELD_DEFINITION
+    `
+  ],
+  resolvers
+})
+
+schema = mapSchema(schema, {
+  [MapperKind.OBJECT_FIELD]: fieldConfig => {
+    const upperDirective = getDirective(schema, fieldConfig, 'uppercase')?.[0]
+    if (upperDirective) {
+      const { resolve = defaultFieldResolver } = fieldConfig
+      return {
+        ...fieldConfig,
+        resolve: async function (source, args, context, info) {
+          const result = await resolve(source, args, context, info)
+          if (typeof result === 'string') {
+            return result.toUpperCase()
+          }
+          return result
+        }
+      }
+    }
+  }
+})
+
+const yoga = createYoga({ schema })
+```
+
+You can learn more about this practice within the
+[`graphql-tools` schema directives documentation](https://www.graphql-tools.com/docs/schema-directives#using-schema-directives).
+
+## Context
+
+In GraphQL Yoga v2 you can use the `context` property in the same way as GraphQL Yoga v1. The value
+returned from the `context` factory will be merged with the initial context.
+
+The `request` property within the initial context is now a
+[Fetch API Request](https://developer.mozilla.org/en-US/docs/Web/API/Request). It can be used for
+accessing all the HTTP request parameters, such as headers or
+[the method (POST, GET)](https://developer.mozilla.org/de/docs/Web/HTTP/Methods).
+
+You can learn more about the context within the [`context documentation`](/docs/features/context).
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer } from 'graphql-yoga'
+import { db } from './db'
+import { resolvers, typeDefs } from './schema'
+
+const server = new GraphQLServer({
+  typeDefs,
+  resolvers,
+  context(initialContext) {
+    const authHeader = initialContext.request.headers['authorization'] ?? null
+    return { ...initialContext, db, authHeader }
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { createSchema, createYoga } from 'graphql-yoga'
+import { db } from './db'
+import { resolvers, typeDefs } from './schema'
+
+const yoga = createYoga({
+  schema: createSchema({ typeDefs, resolvers }),
+  context(initialContext) {
+    const authHeader = initialContext.request.headers.get('authorization') ?? null
+
+    return { db, authHeader }
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Middlewares
+
+GraphQL Yoga v1 included [`graphql-middleware`](https://github.com/maticzav/graphql-middleware) for
+wrapping resolver functions with common logic. GraphQL Yoga v2 no longer includes
+`graphql-middleware` by default as using it can result in bad performance as it wraps all field
+resolvers within the schema.
+
+If you cannot migrate your `graphql-middleware` code to something like `graphql-tools`'
+[`mapSchema`](https://github.com/ardatan/graphql-tools/blob/master/packages/utils/src/mapSchema.ts),
+we recommend using the
+[`@envelop/graphql-middleware`](https://npmjs.com/package/@envelop/graphql-middleware) plugin.
+
+```sh npm2yarn
+npm i @envelop/graphql-middleware
+```
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer } from 'graphql-yoga'
+import { resolvers, typeDefs } from './schema'
+
+// Middleware - Permissions
+
+const code = 'supersecret'
+const isLoggedIn = async (resolve, parent, args, ctx, info) => {
+  // Include your agent code as Authorization: <token> header.
+  const permit = ctx.request.get('Authorization') === code
+
+  if (!permit) {
+    throw new Error(`Not authorized!`)
+  }
+
+  return resolve()
+}
+
+const permissions = {
+  Query: {
+    secured: isLoggedIn
+  },
+  Me: isLoggedIn
+}
+
+const server = new GraphQLServer({
+  typeDefs,
+  resolvers,
+  middleware: [permissions]
+})
+
+server.start()
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { createSchema, createYoga } from 'graphql-yoga'
+import { useGraphQLMiddleware } from '@envelop/graphql-middleware'
+import { resolvers, typeDefs } from './schema'
+
+// Middleware - Permissions
+
+const code = 'supersecret'
+const isLoggedIn = async (resolve, parent, args, ctx, info) => {
+  // Include your agent code as Authorization: <token> header.
+  const permit = ctx.request.get('Authorization') === code
+
+  if (!permit) {
+    throw new Error(`Not authorized!`)
+  }
+
+  return resolve()
+}
+
+const permissions = {
+  Query: {
+    secured: isLoggedIn
+  },
+  Me: isLoggedIn
+}
+
+const yoga = createYoga({
+  schema: createSchema({ typeDefs, resolvers }),
+  plugins: [useGraphQLMiddleware([permissions])]
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+For more details please refer to the
+
+### Replacing GraphQL Shield
+
+If you are using `graphql-shield` you might wanna have a look and see whether the following plugins
+might replace it:
+
+- **[`@envelop/generic-auth`](https://www.envelop.dev/plugins/use-generic-auth)**: authentication
+  and simple (directive-based) authorization on field level
+- **[`@envelop/operation-field-permissions`](https://www.envelop.dev/plugins/use-operation-field-permissions)**:
+  granular field permission access based on
+  [schema coordinates](https://github.com/graphql/graphql-wg/blob/main/rfcs/SchemaCoordinates.md)
+- **[GraphQL AuthZ](https://www.the-guild.dev/blog/graphql-authz)**: a modern and flexible GraphQL
+  authorization layer
+
+## Subscriptions
+
+GraphQL Yoga v1 uses the
+[old and deprecated `subscriptions-transport-ws` protocol](https://github.com/apollographql/subscriptions-transport-ws).
+GraphQL Yoga v2+ comes with built in subscription support over
+[SSE (Server Sent Events)](https://en.wikipedia.org/wiki/Server-sent_events). One benefit of this is
+that you no longer need an additional library on your frontend as the SSE protocol is just simple
+HTTP.
+
+Because of the protocol change you must migrate your GraphQL clients that execute GraphQL
+subscription operations to use the new protocol. Please use the code snippets for your GraphQL
+client as listed on the
+[handle subscription on the client documentation](/docs/features/subscriptions#handling-subscriptions-on-the-client).
+
+### Advantages of SSE over Websockets
+
+- Transported over simple HTTP instead of a custom protocol
+- Built in support for re-connection and event-id Simpler protocol
+- No trouble with corporate firewalls doing packet inspection
+
+### Advantages of Websockets over SSE
+
+- Real time, two directional communication.
+
+### SSE gotchas
+
+- [Maximum open connections limit](https://developer.mozilla.org/en-US/docs/Web/HTTP/Connection_management_in_HTTP_1.x)
+  ([when not using http/2](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2))
+
+## PubSub
+
+With GraphQL Yoga v1 used the unmaintained package `graphql-subscriptions` for the `PubSub`
+implementation. In GraphQL Yoga v2+, a new maintained PubSub implementation is built-in.
+
+**Yoga v1**
+
+```ts
+import { PubSub } from 'graphql-yoga'
+
+const pubSub = new PubSub()
+```
+
+**Yoga v2**
+
+```ts
+import { createPubSub } from 'graphql-yoga'
+
+const pubSub = createPubSub()
+```
+
+### Type-safe PubSub Usage
+
+The old PubSub implementation was not type-safe. Now it is possible to define all the events and
+payloads. For a full reference please check out the
+[Subscription PubSub documentation](/docs/features/subscriptions#pubsub).
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer, PubSub } from 'graphql-yoga'
+
+const pubSub = new PubSub()
+
+const server = new GraphQLServer({
+  context: { pubSub },
+  typeDefs: /* GraphQL */ `
+    type Query {
+      _: Boolean
+    }
+
+    type Subscription {
+      randomNumber: Int!
+    }
+
+    type Mutation {
+      publishRandomNumber(randomNumber: Int!): Boolean
+    }
+  `,
+  resolvers: {
+    Subscription: {
+      randomNumber: {
+        subscribe: (_, _2, context) => {
+          return context.asyncIterator('randomNumber')
+        },
+        resolve: value => value
+      }
+    },
+    Mutation: {
+      publishRandomNumber: (_, args, context) => {
+        context.pubSub.publish('randomNumber', args.randomNumber)
+      }
+    }
+  }
+})
+
+server.start()
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { createPubSub, createSchema, createYoga } from 'graphql-yoga'
+
+const pubSub = new PubSub<{
+  randomNumber: [randomNumber: number]
+}>()
+
+const yoga = createYoga({
+  context: { pubSub },
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        _: Boolean
+      }
+
+      type Subscription {
+        randomNumber: Int!
+      }
+
+      type Mutation {
+        publishRandomNumber(randomNumber: Int!): Boolean
+      }
+    `,
+    resolvers: {
+      Subscription: {
+        randomNumber: {
+          subscribe: (_, _2, context) => {
+            return context.subscribe('randomNumber')
+          },
+          resolve: value => value
+        }
+      },
+      Mutation: {
+        publishRandomNumber: (_, args, context) => {
+          context.pubSub.publish('randomNumber', args.randomNumber)
+        }
+      }
+    }
+  })
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+### Filtering events
+
+Instead of the `withFilter` function you can now use the more modular `pipe` and `filter` functions
+exported from `graphql-yoga`. You can learn more about filtering and mapping values in the
+[subscription filter and map values documentation](/docs/features/subscriptions#filter-and-map-values).
+
+**Yoga v1**
+
+```ts
+import { GraphQLServer, PubSub, withFilter } from 'graphql-yoga'
+
+const pubSub = new PubSub()
+
+const server = new GraphQLServer({
+  context: { pubSub },
+  typeDefs: /* GraphQL */ `
+    type Query {
+      _: Boolean
+    }
+
+    type Subscription {
+      randomNumber(greaterThan: Int!): Int!
+    }
+
+    type Mutation {
+      publishRandomNumber(randomNumber: Int!): Boolean
+    }
+  `,
+  resolvers: {
+    Subscription: {
+      randomNumber: {
+        subscribe: withFilter(
+          (_, _2, context) => {
+            return context.asyncIterator('randomNumber')
+          },
+          (payload, args) => payload > args
+        ),
+        resolve: value => value
+      }
+    },
+    Mutation: {
+      publishRandomNumber: (_, args, context) => {
+        context.pubSub.publish('randomNumber', args.randomNumber)
+      }
+    }
+  }
+})
+
+server.start()
+```
+
+**Yoga v3**
+
+```ts
+import { createServer } from 'http'
+import { createPubSub, createYoga, filter, pipe } from 'graphql-yoga'
+
+const pubSub = new PubSub<{
+  randomNumber: [randomNumber: number]
+}>()
+
+const yoga = createYoga({
+  context: { pubSub },
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        _: Boolean
+      }
+
+      type Subscription {
+        randomNumber(greaterThan: Int!): Int!
+      }
+
+      type Mutation {
+        publishRandomNumber(randomNumber: Int!): Boolean
+      }
+    `,
+    resolvers: {
+      Subscription: {
+        randomNumber: {
+          subscribe: (_, args, context) => {
+            return pipe(
+              context.subscribe('randomNumber'),
+              filter(value => value > args.greaterThan)
+            )
+          },
+          resolve: value => value
+        }
+      },
+      Mutation: {
+        publishRandomNumber: (_, args, context) => {
+          context.pubSub.publish('randomNumber', args.randomNumber)
+        }
+      }
+    }
+  })
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```

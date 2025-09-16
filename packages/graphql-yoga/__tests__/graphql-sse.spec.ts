@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { createClient } from 'graphql-sse';
 import { createSchema, createYoga, Repeater } from '../src/index.js';
 
@@ -30,7 +31,7 @@ describe('GraphQL over SSE', () => {
           // eslint-disable-next-line require-yield
           async *subscribe() {
             // a ping is issued every 300ms, wait for a few and just return
-            await new Promise(resolve => setTimeout(resolve, 300 * 3 + 100));
+            await setTimeout$(300 * 3 + 100);
             return;
           },
         },
@@ -176,7 +177,7 @@ data:
 ":
 
 event: next
-data: {"errors":[{"message":"Cannot query field \\"nope\\" on type \\"Query\\".","locations":[{"line":1,"column":2}]}]}
+data: {"errors":[{"message":"Cannot query field \\"nope\\" on type \\"Query\\".","locations":[{"line":1,"column":2}],"extensions":{"code":"GRAPHQL_VALIDATION_FAILED"}}]}
 
 event: complete
 data:

@@ -8,7 +8,7 @@ function multipartStream<TType = unknown>(source: ReadableStream<Uint8Array>) {
   return new Repeater<TType>(async (push, end) => {
     const cancel: Promise<{ done: true }> = end.then(() => ({ done: true }));
     const iterable = source[Symbol.asyncIterator]();
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       const result = await Promise.race([cancel, iterable.next()]);
       if (result.done) {
@@ -105,19 +105,20 @@ describe('Defer/Stream', () => {
     const finalText = await response.text();
 
     expect(finalText).toMatchInlineSnapshot(`
-      "---
-      Content-Type: application/json; charset=utf-8
-      Content-Length: 26
+"
+---
+Content-Type: application/json; charset=utf-8
+Content-Length: 26
 
-      {"data":{},"hasNext":true}
-      ---
-      Content-Type: application/json; charset=utf-8
-      Content-Length: 74
+{"data":{},"hasNext":true}
+---
+Content-Type: application/json; charset=utf-8
+Content-Length: 74
 
-      {"incremental":[{"data":{"goodbye":"goodbye"},"path":[]}],"hasNext":false}
-      -----
-      "
-    `);
+{"incremental":[{"data":{"goodbye":"goodbye"},"path":[]}],"hasNext":false}
+-----
+"
+`);
   });
 
   it('should execute on stream directive', async () => {
@@ -140,16 +141,22 @@ describe('Defer/Stream', () => {
     const finalText = await response.text();
 
     expect(finalText).toMatchInlineSnapshot(`
-"---
+"
+---
 Content-Type: application/json; charset=utf-8
 Content-Length: 44
 
 {"data":{"stream":["A","B"]},"hasNext":true}
 ---
 Content-Type: application/json; charset=utf-8
-Content-Length: 69
+Content-Length: 68
 
-{"incremental":[{"items":["C"],"path":["stream",2]}],"hasNext":false}
+{"incremental":[{"items":["C"],"path":["stream",2]}],"hasNext":true}
+---
+Content-Type: application/json; charset=utf-8
+Content-Length: 17
+
+{"hasNext":false}
 -----
 "
 `);

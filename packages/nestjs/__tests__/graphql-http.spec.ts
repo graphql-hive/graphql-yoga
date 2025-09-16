@@ -30,7 +30,6 @@ describe('GraphQL over HTTP', () => {
   })) {
     if (
       // we dont control the JSON parsing
-      audit.id === 'D477' ||
       audit.id === 'A5BF'
     ) {
       it.todo(audit.name);

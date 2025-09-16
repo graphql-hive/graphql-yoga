@@ -10,16 +10,20 @@ import {
 } from 'graphql';
 import { Push } from '@repeaterjs/repeater';
 import { createFetch, fetch, File, FormData } from '@whatwg-node/fetch';
+import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga, Plugin, Repeater } from '../src';
 
 describe('incremental delivery', () => {
   it('incremental delivery source is closed properly', async () => {
     let counter = 0;
 
+    const onIteratorDone$ = createDeferredPromise<void>();
+
     const fakeIterator: AsyncIterableIterator<ExecutionResult> = {
       [Symbol.asyncIterator]: () => fakeIterator,
       async next() {
         counter++;
+        await new Promise(resolve => setImmediate(resolve));
         return {
           done: false,
           value: {
@@ -29,11 +33,14 @@ describe('incremental delivery', () => {
           },
         };
       },
-      return: jest.fn(() => Promise.resolve({ done: true, value: undefined })),
+      return: jest.fn(() => {
+        onIteratorDone$.resolve();
+        return fakePromise({ done: true, value: undefined });
+      }),
     };
     const plugin: Plugin = {
       onExecute(ctx) {
-        ctx.setExecuteFn(() => Promise.resolve(fakeIterator) as unknown);
+        ctx.setExecuteFn(() => fakePromise(fakeIterator));
       },
       /* skip validation :) */
       onValidate(ctx) {
@@ -83,9 +90,10 @@ describe('incremental delivery', () => {
           break;
         }
       }
-      await new Promise(res => setTimeout(res, 300));
-      expect(fakeIterator.return).toBeCalled();
+      await onIteratorDone$.promise;
+      expect(fakeIterator.return).toHaveBeenCalled();
     } finally {
+      server.closeAllConnections();
       await new Promise(resolve => server.close(resolve));
     }
   });
@@ -206,6 +214,7 @@ describe('incremental delivery: node-fetch', () => {
     url = `http://localhost:${port}/graphql`;
   });
   afterEach(async () => {
+    server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));
     stop?.();
     stop = undefined;

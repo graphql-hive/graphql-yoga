@@ -1,5 +1,5 @@
 import type { GraphiQLOptions } from 'graphql-yoga';
-import { css, favicon, js } from './graphiql.js';
+import { css, editorWorkerService, favicon, graphqlWorker, js, jsonWorker } from './graphiql.js';
 
 export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `
   <!doctype html>
@@ -7,7 +7,7 @@ export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `
     <head>
       <meta charset="utf-8" />
       <title>${opts?.title || 'Yoga GraphiQL'}</title>
-      <link rel="icon" href="${favicon}" />
+      <link rel="icon" href="${opts?.favicon || favicon}" />
       <style>
         ${css}
       </style>
@@ -17,6 +17,21 @@ export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `
       <div id="root"></div>
 
       <script>
+        function prepareBlob(workerContent) {
+          const blob = new Blob([workerContent], { type: 'application/javascript' });
+          return URL.createObjectURL(blob);
+        }
+        const workers = {
+          editorWorkerService: prepareBlob(${JSON.stringify(editorWorkerService)}),
+          json: prepareBlob(${JSON.stringify(jsonWorker)}),
+          graphql: prepareBlob(${JSON.stringify(graphqlWorker)}),
+        };
+        self['MonacoEnvironment'] = {
+          globalAPI: false,
+          getWorkerUrl: function (moduleId, label) {
+            return workers[label];
+          },
+        };
         ${js};
         YogaGraphiQL.renderYogaGraphiQL(
           window.document.querySelector('#root'),

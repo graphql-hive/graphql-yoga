@@ -5,15 +5,32 @@ import { fileURLToPath } from 'node:url';
 const directoryName = path.dirname(fileURLToPath(import.meta.url));
 const inputPath = path.resolve(directoryName, '..', '..', 'graphiql', 'dist');
 const jsFile = path.resolve(inputPath, 'yoga-graphiql.umd.js');
-const cssFile = path.resolve(inputPath, 'style.css');
-const faviconFile = path.resolve(directoryName, '../../../website/public/favicon.ico');
+const cssFile = path.resolve(inputPath, 'graphiql.css');
+const faviconFile = path.resolve(directoryName, '../../../website/src/app/favicon.ico');
+const editorWorkerServiceFile = path.resolve(
+  inputPath,
+  'monacoeditorwork',
+  'editor.worker.bundle.js',
+);
+const jsonWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'json.worker.bundle.js');
+const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker..bundle.js');
 
 const outFile = path.resolve(directoryName, '..', 'src', 'graphiql.ts');
 
-const [jsContents, cssContents, faviconContents] = await Promise.all([
+const [
+  jsContents,
+  cssContents,
+  faviconContents,
+  editorWorkerServiceContents,
+  jsonWorkerContents,
+  graphqlWorkerContents,
+] = await Promise.all([
   fs.promises.readFile(jsFile, 'utf-8'),
   fs.promises.readFile(cssFile, 'utf-8'),
   fs.promises.readFile(faviconFile, 'base64'),
+  fs.promises.readFile(editorWorkerServiceFile, 'utf-8'),
+  fs.promises.readFile(jsonWorkerFile, 'utf-8'),
+  fs.promises.readFile(graphqlWorkerFile, 'utf-8'),
 ]);
 
 await fs.promises.writeFile(
@@ -24,5 +41,8 @@ await fs.promises.writeFile(
     `export const favicon: string = ${JSON.stringify(
       `data:image/x-icon;base64,${faviconContents}`,
     )}`,
+    `export const editorWorkerService: string = ${JSON.stringify(editorWorkerServiceContents)}`,
+    `export const jsonWorker: string = ${JSON.stringify(jsonWorkerContents)}`,
+    `export const graphqlWorker: string = ${JSON.stringify(graphqlWorkerContents)}`,
   ].join('\n'),
 );

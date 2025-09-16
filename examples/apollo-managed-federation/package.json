@@ -1,0 +1,20 @@
+{
+  "name": "example-apollo-managed-federation",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit --pretty",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@graphql-yoga/apollo-managed-federation": "workspace:^",
+    "@graphql-yoga/plugin-apollo-usage-report": "workspace:^",
+    "graphql-yoga": "workspace:^",
+    "tsx": "4.20.5"
+  },
+  "devDependencies": {
+    "@graphql-yoga/apollo-managed-federation": "workspace:*",
+    "graphql-yoga": "workspace:*",
+    "typescript": "5.9.2"
+  }
+}

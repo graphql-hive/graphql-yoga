@@ -8,20 +8,18 @@
   "keywords": [],
   "scripts": {
     "check": "tsc --pretty --noEmit",
-    "dev": "cross-env NODE_ENV=development ts-node-dev --exit-child --respawn src/main.ts",
-    "start": "ts-node src/main.ts"
+    "start": "tsx src/main.ts"
   },
   "dependencies": {
-    "@envelop/generic-auth": "7.0.0",
-    "graphql": "16.6.0",
-    "graphql-yoga": "5.3.1"
+    "@envelop/generic-auth": "10.0.0",
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "18.16.16",
-    "@whatwg-node/fetch": "^0.9.17",
-    "cross-env": "7.0.3",
-    "ts-node": "10.9.1",
-    "ts-node-dev": "2.0.0",
-    "typescript": "5.1.6"
+    "@types/node": "24.5.0",
+    "@whatwg-node/fetch": "0.10.10",
+    "cross-env": "10.0.0",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2"
   }
 }

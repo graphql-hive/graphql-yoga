@@ -1,9 +1,7 @@
-import 'json-bigint-patch';
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
 import {
   GraphQLBoolean,
   GraphQLFloat,
+  GraphQLInputObjectType,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
@@ -12,15 +10,29 @@ import {
   GraphQLString,
 } from 'graphql';
 import { GraphQLBigInt } from 'graphql-scalars';
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer';
 import { GraphQLLiveDirective, useLiveQuery } from '@envelop/live-query';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import { InMemoryLiveQueryStore } from '@n1ru4l/in-memory-live-query-store';
-import { CORSOptions, createYoga, Repeater } from '../src/index.js';
+import 'json-bigint-patch';
+import { createServer, Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
+// @see https://github.com/graphql-hive/graphql-yoga/pull/3543#issuecomment-2537035739
+// eslint-disable-next-line
+import { Browser, chromium, ElementHandle, Page } from 'playwright';
+import { fakePromise } from '@whatwg-node/server';
+import {
+  ansiCodes,
+  CORSOptions,
+  createSchema,
+  createYoga,
+  GraphiQLOptions,
+  Repeater,
+} from '../src/index.js';
 
 let resolveOnReturn: VoidFunction;
-const timeouts = new Set<NodeJS.Timeout>();
+const timeoutsSignal = new AbortController();
 
 let charCode = 'A'.charCodeAt(0);
 const fakeAsyncIterable = {
@@ -28,17 +40,26 @@ const fakeAsyncIterable = {
     return this;
   },
   next: () =>
-    sleep(300, timeout => timeouts.add(timeout)).then(() => ({
-      value: String.fromCharCode(charCode++),
-      done: false,
-    })),
+    setTimeout$(
+      300,
+      {
+        value: String.fromCharCode(charCode++),
+        done: false,
+      },
+      {
+        signal: timeoutsSignal.signal,
+      },
+    ),
   return: () => {
     resolveOnReturn();
-    // eslint-disable-next-line unicorn/no-array-for-each -- is Set
-    timeouts.forEach(clearTimeout);
-    return Promise.resolve({ done: true });
+    timeoutsSignal.abort();
+    return fakePromise({ done: true });
   },
 };
+
+// will be registered inside `emitter` resolver
+let emitToEmitter: ((val: string) => Promise<unknown>) | null;
+let stopEmitter: (() => void) | null;
 
 export function createTestSchema() {
   let liveQueryCounter = 0;
@@ -62,7 +83,7 @@ export function createTestSchema() {
             },
           },
           type: GraphQLString,
-          resolve: (_root, args) => args.text,
+          resolve: (_root, args) => args['text'],
         },
         hello: {
           type: GraphQLString,
@@ -70,7 +91,7 @@ export function createTestSchema() {
         },
         goodbye: {
           type: GraphQLString,
-          resolve: () => new Promise(resolve => setTimeout(() => resolve('goodbye'), 1000)),
+          resolve: () => setTimeout$(1000, 'goodbye'),
         },
         stream: {
           type: new GraphQLList(GraphQLString),
@@ -87,6 +108,25 @@ export function createTestSchema() {
             return liveQueryCounter;
           },
         },
+        deprecatedField: {
+          type: GraphQLString,
+          deprecationReason: 'This is deprecated',
+          args: {
+            deprecatedArg: {
+              type: new GraphQLInputObjectType({
+                name: 'DeprecatedInput',
+                fields: {
+                  deprecatedInputField: {
+                    type: GraphQLString,
+                    deprecationReason: 'This is deprecated',
+                  },
+                },
+              }),
+              deprecationReason: 'This is deprecated',
+            },
+          },
+          resolve: (_root, args) => args['deprecatedArg']['deprecatedInputField'],
+        },
       }),
     }),
     mutation: new GraphQLObjectType({
@@ -100,7 +140,7 @@ export function createTestSchema() {
           },
           type: GraphQLInt,
           resolve: (_root, args) => {
-            return args.number;
+            return args['number'];
           },
         },
       }),
@@ -155,6 +195,18 @@ export function createTestSchema() {
             yield { eventEmitted: Date.now() };
           },
         },
+        emitter: {
+          type: new GraphQLNonNull(GraphQLString),
+          subscribe() {
+            return new Repeater(async (push, stop) => {
+              emitToEmitter = val => push({ emitter: val });
+              stopEmitter = stop;
+              await stop;
+              emitToEmitter = null;
+              stopEmitter = null;
+            });
+          },
+        },
         count: {
           type: GraphQLInt,
           args: {
@@ -163,9 +215,9 @@ export function createTestSchema() {
             },
           },
           async *subscribe(_root, args) {
-            for (let count = 1; count <= args.to; count++) {
+            for (let count = 1; count <= args['to']; count++) {
               yield { count };
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await setTimeout$(200);
             }
           },
         },
@@ -175,13 +227,17 @@ export function createTestSchema() {
   });
 }
 
+jest.setTimeout(60_000);
+
 describe('browser', () => {
   const liveQueryStore = new InMemoryLiveQueryStore();
   const endpoint = '/test-graphql';
   let cors: CORSOptions = {};
+  let graphiqlOptions: GraphiQLOptions | undefined;
   const yogaApp = createYoga({
     schema: createTestSchema(),
     cors: () => cors,
+    graphiql: () => graphiqlOptions || true,
     logging: false,
     graphqlEndpoint: endpoint,
     plugins: [
@@ -202,60 +258,95 @@ describe('browser', () => {
   let port: number;
   const server = createServer(yogaApp);
 
+  function wrapColor(msg: string, color?: string) {
+    if (color != null && color in ansiCodes) {
+      return `${ansiCodes[color as keyof typeof ansiCodes]}${msg}${ansiCodes.reset}`;
+    }
+    return msg;
+  }
+
   beforeAll(async () => {
     await new Promise<void>(resolve => server.listen(0, resolve));
     port = (server.address() as AddressInfo).port;
-    browser = await puppeteer.launch({
-      // If you wanna run tests with open browser
-      // set your PUPPETEER_HEADLESS env to "false"
-      headless: process.env.PUPPETEER_HEADLESS !== 'false',
-      args: ['--incognito'],
+    browser = await chromium.launch({
+      headless: process.env['PLAYWRIGHT_HEADLESS'] !== 'false',
+      args: ['--incognito', '--no-sandbox', '--disable-setuid-sandbox'],
+      // eslint-disable-next-line unicorn/no-negated-condition, no-extra-boolean-cast
+      logger: !!process.env['DEBUG']
+        ? {
+            isEnabled(_name: string) {
+              return true;
+            },
+            log(name, severity, message, args, hints) {
+              if (severity === 'error') {
+                // eslint-disable-next-line no-console
+                console.error(wrapColor(`[${name}] ${message}`, hints.color), ...args);
+              } else {
+                // eslint-disable-next-line no-console
+                console.log(wrapColor(`[${name}] ${message}`), ...args);
+              }
+            },
+          }
+        : undefined,
     });
   });
   beforeEach(async () => {
     if (page !== undefined) {
       await page.close();
     }
-    const context = await browser.createIncognitoBrowserContext();
-    page = await context.newPage();
+    const context = await browser.newContext();
+    const pages = await context.pages();
+    page = pages[0] || (await context.newPage());
   });
   afterAll(async () => {
     await browser.close();
-    await new Promise(resolve => server.close(resolve));
+    await new Promise<void>((resolve, reject) =>
+      server.close(err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }),
+    );
   });
 
   const typeOperationText = async (text: string) => {
-    await page.type('.graphiql-query-editor .CodeMirror textarea', text);
+    await page.type('[data-uri*="operation"] textarea', text, { delay: 300 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
-    await new Promise(res => setTimeout(res, 100));
+    await setTimeout$(300);
   };
 
   const typeVariablesText = async (text: string) => {
-    await page.type('[aria-label="Variables"] .CodeMirror textarea', text);
+    await page.type('[data-uri*="variables"] textarea', text, { delay: 100 });
     // TODO: figure out how we can avoid this wait
     // it is very likely that there is a delay from textarea -> react state update
-    await new Promise(res => setTimeout(res, 100));
+    await setTimeout$(100);
   };
 
-  const waitForResult = async () => {
+  const waitForResult = async (): Promise<object> => {
+    await page.waitForSelector('[data-uri*="response"] textarea');
     await page.waitForFunction(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      () => !!window.g.resultComponent.viewer.getValue(),
+      // @ts-expect-error - value is not null
+      () => !!window.document.querySelector('[data-uri*="response"] textarea')?.value?.trim(),
     );
     const resultContents = await page.evaluate(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return window.g.resultComponent.viewer.getValue();
+      return (
+        window.document
+          .querySelector('[data-uri*="response"] textarea')
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
+          .replaceAll('\u00A0', ' ')
+      );
     });
 
-    return resultContents;
+    return JSON.parse(resultContents!);
   };
 
   const showGraphiQLSidebar = async () => {
     // Click to show sidebar
-    await page.click('.graphiql-sidebar [aria-label="Show Documentation Explorer"]');
+    await page.click('[aria-label="Show Documentation Explorer"]');
   };
 
   const getElementText = async (element: ElementHandle<Element>) =>
@@ -276,12 +367,12 @@ describe('browser', () => {
       // Click to show sidebar
       await showGraphiQLSidebar();
 
-      const docsElement = await page.waitForSelector('.graphiql-markdown-description');
+      const docsElement$ = page.waitForSelector('.graphiql-markdown-description');
 
-      expect(docsElement).not.toBeNull();
-      const docs = await getElementText(docsElement!);
-
-      expect(docs).toBe('A GraphQL schema provides a root type for each kind of operation.');
+      await expect(docsElement$).resolves.not.toBeNull();
+      await expect(docsElement$.then(docsElement => getElementText(docsElement!))).resolves.toBe(
+        'A GraphQL schema provides a root type for each kind of operation.',
+      );
     });
 
     it('should show editor tools by default', async () => {
@@ -291,54 +382,36 @@ describe('browser', () => {
       const buttonHideEditor = await page.$('button[aria-label="Hide editor tools"]');
 
       const editorTabs = await page.evaluate(() =>
-        Array.from(
-          document.querySelectorAll('.graphiql-editor-tools-tabs button'),
-          e => e.textContent,
-        ),
+        Array.from(document.querySelectorAll('.graphiql-editor-tools button'), e => e.textContent),
       );
 
       expect(buttonHideEditor).not.toBeNull();
-      expect(editorTabs).toEqual(['Variables', 'Headers']);
+      expect(editorTabs).toContain('Variables');
+      expect(editorTabs).toContain('Headers');
     });
 
     it('execute simple query operation', async () => {
       await page.goto(`http://localhost:${port}${endpoint}`);
       await typeOperationText('{ alwaysTrue }');
 
-      await page.click('.graphiql-execute-button');
-      const resultContents = await waitForResult();
-
-      expect(resultContents).toEqual(
-        JSON.stringify(
-          {
-            data: {
-              alwaysTrue: true,
-            },
-          },
-          null,
-          2,
-        ),
-      );
+      await page.click(playButtonSelector);
+      await expect(waitForResult()).resolves.toEqual({
+        data: {
+          alwaysTrue: true,
+        },
+      });
     });
 
     it('execute mutation operation', async () => {
       await page.goto(`http://localhost:${port}${endpoint}`);
-      await typeOperationText(`mutation ($number: Int!) {  setFavoriteNumber(number: $number) }`);
+      await typeOperationText(`mutation ($number: Int!) { setFavoriteNumber(number: $number) }`);
       await typeVariablesText(`{ "number": 3 }`);
       await page.click('.graphiql-execute-button');
-      const resultContents = await waitForResult();
-
-      expect(resultContents).toEqual(
-        JSON.stringify(
-          {
-            data: {
-              setFavoriteNumber: 3,
-            },
-          },
-          null,
-          2,
-        ),
-      );
+      await expect(waitForResult()).resolves.toEqual({
+        data: {
+          setFavoriteNumber: 3,
+        },
+      });
     });
 
     test('execute @stream operation', async () => {
@@ -347,113 +420,83 @@ describe('browser', () => {
         resolveOnReturn = resolve;
       });
       await page.click('.graphiql-execute-button');
-      await sleep(900);
-      const [resultContents1, isShowingStopButton] = await page.evaluate(stopButtonSelector => {
-        return [
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          window.g.resultComponent.viewer.getValue(),
-          !!window.document.querySelector(stopButtonSelector),
-        ];
-      }, stopButtonSelector);
-      expect(isShowingStopButton).toEqual(true);
-      expect(JSON.parse(resultContents1)).toEqual({
+      await setTimeout$(900);
+      function isShowingStopButton() {
+        return page.evaluate(stopButtonSelector => {
+          return !!window.document.querySelector(stopButtonSelector);
+        }, stopButtonSelector);
+      }
+      await expect(isShowingStopButton()).resolves.toBe(true);
+      await expect(waitForResult()).resolves.toEqual({
         data: {
           stream: ['A', 'B', 'C'],
         },
       });
       await page.click(stopButtonSelector);
       await returnPromise$;
-      expect(isShowingStopButton).toEqual(true);
+      await expect(isShowingStopButton()).resolves.toEqual(false);
     });
 
     test('execute SSE (subscription) operation', async () => {
       await page.goto(`http://localhost:${port}${endpoint}`);
-      await typeOperationText(`subscription { count(to: 2) }`);
+      await typeOperationText(`subscription { emitter }`);
       await page.click('.graphiql-execute-button');
 
-      await new Promise(res => setTimeout(res, 50));
+      // showing stop selector means subscription has started
+      await page.waitForSelector(stopButtonSelector);
 
-      const [resultContents, isShowingStopButton] = await page.evaluate(stopButtonSelector => {
-        return [
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          window.g.resultComponent.viewer.getValue(),
-          !!window.document.querySelector(stopButtonSelector),
-        ];
-      }, stopButtonSelector);
-      expect(JSON.parse(resultContents)).toEqual({
+      await emitToEmitter!('one');
+
+      await expect(waitForResult()).resolves.toEqual({
         data: {
-          count: 1,
+          emitter: 'one',
         },
       });
-      expect(isShowingStopButton).toEqual(true);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const [resultContents1, isShowingPlayButton] = await page.evaluate(playButtonSelector => {
-        return [
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          window.g.resultComponent.viewer.getValue(),
-          !!window.document.querySelector(playButtonSelector),
-        ];
-      }, playButtonSelector);
-      expect(JSON.parse(resultContents1)).toEqual({
+
+      await emitToEmitter!('two');
+
+      await expect(waitForResult()).resolves.toEqual({
         data: {
-          count: 2,
+          emitter: 'two',
         },
       });
-      expect(isShowingPlayButton).toEqual(true);
+
+      stopEmitter!();
+
+      // wait for subscription to end
+      await page.waitForSelector(playButtonSelector);
     });
 
     test('show the query provided in the search param', async () => {
       const query = '{ alwaysTrue }';
       await page.goto(`http://localhost:${port}${endpoint}?query=${encodeURIComponent(query)}`);
       await page.click('.graphiql-execute-button');
-      const resultContents = await waitForResult();
-
-      expect(resultContents).toEqual(
-        JSON.stringify(
-          {
-            data: {
-              alwaysTrue: true,
-            },
-          },
-          null,
-          2,
-        ),
-      );
+      await expect(waitForResult()).resolves.toEqual({
+        data: {
+          alwaysTrue: true,
+        },
+      });
     });
 
     test('should show BigInt correctly', async () => {
       await page.goto(`http://localhost:${port}${endpoint}`);
       await typeOperationText(`{ bigint }`);
       await page.click('.graphiql-execute-button');
-      const resultContents = await waitForResult();
 
-      expect(resultContents).toEqual(`{
-  "data": {
-    "bigint": ${BigInt('112345667891012345').toString()}
-  }
-}`);
+      await expect(waitForResult()).resolves.toMatchObject({
+        data: {
+          bigint: BigInt('112345667891012345'),
+        },
+      });
     });
     test('should show live queries correctly', async () => {
       await page.goto(`http://localhost:${port}${endpoint}`);
       await typeOperationText(`query @live { liveCounter }`);
       await page.click('.graphiql-execute-button');
 
-      await new Promise(res => setTimeout(res, 50));
+      await setTimeout$(50);
 
-      const [resultContents] = await page.evaluate(stopButtonSelector => {
-        return [
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          window.g.resultComponent.viewer.getValue(),
-          !!window.document.querySelector(stopButtonSelector),
-        ];
-      }, stopButtonSelector);
-      const resultJson = JSON.parse(resultContents);
-
-      expect(resultJson).toEqual({
+      await expect(waitForResult()).resolves.toEqual({
         data: {
           liveCounter: 1,
         },
@@ -461,26 +504,17 @@ describe('browser', () => {
       });
       liveQueryStore.invalidate('Query.liveCounter');
 
-      const watchDog = await page.waitForFunction(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const value = window.g.resultComponent.viewer.getValue();
+      await page.waitForFunction(() => {
+        const value = window.document
+          .querySelector('[data-uri*="response"] textarea')
+          // @ts-expect-error - value is not null
+          ?.value?.trim()
+          .replaceAll('\u00A0', ' ');
 
-        return value.includes('2');
+        return value?.includes('2');
       });
 
-      await watchDog;
-
-      const [resultContents1] = await page.evaluate(playButtonSelector => {
-        return [
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          window.g.resultComponent.viewer.getValue(),
-          !!window.document.querySelector(playButtonSelector),
-        ];
-      }, playButtonSelector);
-      const resultJson1 = JSON.parse(resultContents1);
-      expect(resultJson1).toEqual({
+      await expect(waitForResult()).resolves.toEqual({
         data: {
           liveCounter: 2,
         },
@@ -522,41 +556,43 @@ describe('browser', () => {
     it('should show custom title', async () => {
       await page.goto(customGraphQLEndpoint);
 
-      const title = await page.evaluate(() => document.title);
-
-      expect(title).toBe('GraphiQL Custom title here');
+      return expect(page.evaluate(() => document.title)).resolves.toBe(
+        'GraphiQL Custom title here',
+      );
     });
 
     it('should show custom schema docs', async () => {
       await page.goto(customGraphQLEndpoint);
 
       await showGraphiQLSidebar();
-      const docsElement = await page.waitForSelector('.graphiql-markdown-description');
+      const docsElement$ = page.waitForSelector('.graphiql-markdown-description');
 
-      expect(docsElement).not.toBeNull();
-      const docs = await getElementText(docsElement!);
-
-      expect(docs).toBe(schemaWithDescription.description);
+      await expect(docsElement$).resolves.not.toBeNull();
+      await expect(docsElement$.then(docsElement => getElementText(docsElement!))).resolves.toBe(
+        schemaWithDescription.description,
+      );
     });
 
     it('should include default header', async () => {
       await page.goto(customGraphQLEndpoint);
+      await page.click('[data-name="headers"]');
+      await page.click('[data-uri*="headers"]');
+      const headerValue = await page.inputValue('[data-uri*="headers"] textarea');
+      expect(headerValue).toBe(defaultHeader);
+    });
 
-      await page.evaluate(() => {
-        const tabs = Array.from(
-          document.querySelectorAll('.graphiql-editor-tools-tabs button'),
-        ) as HTMLButtonElement[];
-        tabs.find(tab => tab.textContent === 'Headers')!.click();
-      });
-
-      const headerContentEl = await page.waitForSelector(
-        'section.graphiql-editor-tool .graphiql-editor:not(.hidden) pre.CodeMirror-line',
-      );
-
-      expect(headerContentEl).not.toBeNull();
-      const headerContent = await getElementText(headerContentEl!);
-
-      expect(headerContent).toBe(defaultHeader);
+    it('supports input value deprecations', async () => {
+      await page.goto(customGraphQLEndpoint);
+      await page.click('.graphiql-un-styled[data-index="0"]');
+      await page.click('a.graphiql-doc-explorer-type-name');
+      await page.getByText('Show Deprecated Fields').click();
+      const deprecatedField = page.getByText('deprecatedField');
+      expect(await deprecatedField.count()).toBe(1);
+      await deprecatedField.click();
+      expect(await page.getByText('deprecatedArg').count()).toBe(1);
+      expect(await page.getByText('DeprecatedInput').count()).toBe(1);
+      await page.getByText('DeprecatedInput').click();
+      expect(await page.getByText('deprecatedInputField').count()).toBe(1);
     });
   });
 
@@ -621,11 +657,12 @@ describe('browser', () => {
         origin: [`http://localhost:${anotherOriginPort}`],
       };
       await page.goto(`http://localhost:${anotherOriginPort}`);
-      const result = await page.evaluate(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return document.getElementById('result')?.innerHTML;
-      });
-      expect(result).toEqual(
+      await expect(
+        page.evaluate(async () => {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          return document.getElementById('result')?.innerHTML;
+        }),
+      ).resolves.toEqual(
         JSON.stringify({
           data: {
             alwaysTrue: true,
@@ -638,11 +675,12 @@ describe('browser', () => {
         origin: ['http://localhost:${port}'],
       };
       await page.goto(`http://localhost:${anotherOriginPort}`);
-      const result = await page.evaluate(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return document.getElementById('result')?.innerHTML;
-      });
-      expect(result).toContain('Failed to fetch');
+      await expect(
+        page.evaluate(async () => {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          return document.getElementById('result')?.innerHTML;
+        }),
+      ).resolves.toContain('Failed to fetch');
     });
     test('send specific origin back to user if credentials are set true', async () => {
       cors = {
@@ -650,11 +688,12 @@ describe('browser', () => {
         credentials: true,
       };
       await page.goto(`http://localhost:${anotherOriginPort}`);
-      const result = await page.evaluate(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return document.getElementById('result')?.innerHTML;
-      });
-      expect(result).toEqual(
+      await expect(
+        page.evaluate(async () => {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          return document.getElementById('result')?.innerHTML;
+        }),
+      ).resolves.toEqual(
         JSON.stringify({
           data: {
             alwaysTrue: true,
@@ -709,13 +748,50 @@ describe('browser', () => {
       `);
     });
   });
-});
 
-function sleep<T = void>(
-  ms: number,
-  onTimeout: (timeout: NodeJS.Timeout) => T = () => {
-    return undefined as T;
-  },
-) {
-  return new Promise(resolve => onTimeout(setTimeout(resolve, ms)));
-}
+  let anotherServer: Server;
+  afterAll(async () => {
+    if (anotherServer) {
+      await new Promise<void>((resolve, reject) =>
+        anotherServer.close(err => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        }),
+      );
+    }
+  });
+  test('`endpoint` configures GraphiQL to point another server', async () => {
+    const anotherYoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            greetings: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            greetings: () => 'Hello from another server',
+          },
+        },
+      }),
+    });
+    anotherServer = createServer(anotherYoga);
+    await new Promise<void>(resolve => anotherServer.listen(0, resolve));
+    const anotherPort = (anotherServer.address() as AddressInfo).port;
+    const anotherEndpoint = `http://localhost:${anotherPort}/graphql`;
+    graphiqlOptions = {
+      endpoint: anotherEndpoint,
+    };
+    await page.goto(`http://localhost:${port}${endpoint}`);
+    await typeOperationText('{ greetings }');
+    await page.click(playButtonSelector);
+    await expect(waitForResult()).resolves.toEqual({
+      data: {
+        greetings: 'Hello from another server',
+      },
+    });
+  });
+});

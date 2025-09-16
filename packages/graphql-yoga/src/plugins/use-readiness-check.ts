@@ -1,3 +1,4 @@
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { FetchAPI } from '../types.js';
 import { Plugin } from './types.js';
 
@@ -39,26 +40,30 @@ export function useReadinessCheck({
     onYogaInit({ yoga }) {
       urlPattern = new yoga.fetchAPI.URLPattern({ pathname: endpoint });
     },
-    async onRequest({ request, endResponse, fetchAPI, url }) {
+    onRequest({ request, endResponse, fetchAPI, url }) {
       if (request.url.endsWith(endpoint) || url.pathname === endpoint || urlPattern.test(url)) {
-        let response: Response;
-        try {
-          const readyOrResponse = await check({ request, fetchAPI });
-          if (typeof readyOrResponse === 'object') {
-            response = readyOrResponse;
-          } else {
-            response = new fetchAPI.Response(null, {
-              status: readyOrResponse === false ? 503 : 200,
+        return handleMaybePromise(
+          () => check({ request, fetchAPI }),
+          readyOrResponse => {
+            let response: Response;
+            if (typeof readyOrResponse === 'object') {
+              response = readyOrResponse;
+            } else {
+              response = new fetchAPI.Response(null, {
+                status: readyOrResponse === false ? 503 : 200,
+              });
+            }
+            endResponse(response);
+          },
+          err => {
+            const isError = err instanceof Error;
+            const response = new fetchAPI.Response(isError ? err.message : null, {
+              status: 503,
+              headers: isError ? { 'content-type': 'text/plain; charset=utf-8' } : {},
             });
-          }
-        } catch (err) {
-          const isError = err instanceof Error;
-          response = new fetchAPI.Response(isError ? err.message : null, {
-            status: 503,
-            headers: isError ? { 'content-type': 'text/plain; charset=utf-8' } : {},
-          });
-        }
-        endResponse(response);
+            endResponse(response);
+          },
+        );
       }
     },
   };

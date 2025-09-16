@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { createDeferred } from '@graphql-tools/utils';
 import { fetch } from '@whatwg-node/fetch';
 import { eventStream } from '../../../packages/graphql-yoga/__tests__/utilities.js';
 import { buildApp } from '../src/app.js';
@@ -124,6 +125,9 @@ describe('fastify example integration', () => {
       errors: [
         {
           message: 'Can only perform a mutation operation from a POST request.',
+          extensions: {
+            code: 'BAD_REQUEST',
+          },
         },
       ],
     });
@@ -258,8 +262,8 @@ data"
   });
 
   it('request cancelation', async () => {
-    const slowFieldResolverInvoked = createDeferred();
-    const slowFieldResolverCanceled = createDeferred();
+    const slowFieldResolverInvoked = createDeferred<void>();
+    const slowFieldResolverCanceled = createDeferred<void>();
     const address = await app.listen({
       port: 0,
     });
@@ -309,7 +313,7 @@ data"
   });
 
   it('subscription cancelation', async () => {
-    const cancelationIsLoggedPromise = createDeferred();
+    const cancelationIsLoggedPromise = createDeferred<void>();
     const address = await app.listen({
       port: 0,
     });
@@ -357,18 +361,3 @@ data"
     }
   });
 });
-
-type Deferred<T = void> = {
-  resolve: (value: T) => void;
-  reject: (value: unknown) => void;
-  promise: Promise<T>;
-};
-
-function createDeferred<T = void>(): Deferred<T> {
-  const d = {} as Deferred<T>;
-  d.promise = new Promise<T>((resolve, reject) => {
-    d.resolve = resolve;
-    d.reject = reject;
-  });
-  return d;
-}

@@ -12,34 +12,34 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
-		"format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
-		"postinstall": "cd ./node_modules/puppeteer && npm install"
+		"format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ."
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "2.1.0",
-		"@sveltejs/kit": "1.0.0-next.520",
-		"@types/jest": "^29.0.0",
-		"@typescript-eslint/eslint-plugin": "6.7.5",
-		"@typescript-eslint/parser": "6.7.5",
-		"eslint": "8.42.0",
-		"eslint-config-prettier": "9.0.0",
+		"@sveltejs/adapter-auto": "6.1.0",
+		"@sveltejs/kit": "2.20.6",
+		"@sveltejs/vite-plugin-svelte": "6.2.0",
+		"@types/jest": "^30.0.0",
+		"@typescript-eslint/eslint-plugin": "8.44.0",
+		"@typescript-eslint/parser": "8.44.0",
+		"@whatwg-node/fetch": "0.10.10",
+		"eslint": "9.35.0",
+		"eslint-config-prettier": "10.1.8",
 		"eslint-plugin-svelte3": "4.0.0",
-		"jest": "^29.0.0",
-		"prettier": "3.0.0",
-		"prettier-plugin-svelte": "3.0.3",
-		"puppeteer": "19.6.0",
-		"svelte": "4.0.1",
-		"svelte-check": "3.4.3",
-		"svelte-preprocess": "5.0.4",
-		"tslib": "2.5.3",
-		"typescript": "5.1.6",
-		"vite": "4.3.9"
+		"jest": "^30.0.0",
+		"prettier": "3.6.2",
+		"prettier-plugin-svelte": "3.4.0",
+		"svelte": "5.38.10",
+		"svelte-check": "4.3.1",
+		"svelte-preprocess": "6.0.3",
+		"tslib": "2.8.1",
+		"typescript": "5.9.2",
+		"vite": "7.1.5"
 	},
 	"dependencies": {
-		"@envelop/graphql-jit": "8.0.0",
-		"graphql-yoga": "5.3.1",
-		"@graphql-yoga/render-graphiql": "5.3.1",
-		"graphql": "16.6.0"
+		"@envelop/graphql-jit": "10.0.0",
+		"@graphql-yoga/render-graphiql": "workspace:*",
+		"graphql": "16.11.0",
+		"graphql-yoga": "workspace:*"
 	},
 	"type": "module"
 }

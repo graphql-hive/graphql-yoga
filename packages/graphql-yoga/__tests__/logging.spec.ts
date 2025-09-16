@@ -28,17 +28,17 @@ describe('logging', () => {
       expect(console.debug).not.toHaveBeenCalled();
     });
     it(`prints debug messages if DEBUG env var is set`, () => {
-      const originalValue = process.env.DEBUG;
+      const originalValue = process.env['DEBUG'];
       try {
-        process.env.DEBUG = '1';
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        process.env['DEBUG'] = '1';
+
         jest.spyOn(console, 'debug').mockImplementationOnce(() => {});
         const logger = createLogger();
         logger.debug('TEST');
 
         expect(console.debug).toHaveBeenCalled();
       } finally {
-        process.env.DEBUG = originalValue;
+        process.env['DEBUG'] = originalValue;
       }
     });
   });
@@ -76,7 +76,7 @@ describe('logging', () => {
       });
 
       expect(await response.text()).toMatchInlineSnapshot(
-        `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":2}],"path":["hi"]}],"data":{"hi":null}}"`,
+        `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":2}],"path":["hi"],"extensions":{"code":"INTERNAL_SERVER_ERROR"}}],"data":{"hi":null}}"`,
       );
 
       expect(logger.error).toHaveBeenCalledTimes(1);

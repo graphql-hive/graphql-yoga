@@ -22,8 +22,8 @@ function mapValue<T, V>(
 ): Record<string, V> {
   const result = Object.create(null);
 
-  for (const key of Object.keys(map)) {
-    result[key] = fn(map[key], key);
+  for (const [key, value] of Object.entries(map)) {
+    result[key] = fn(value, key);
   }
   return result;
 }
@@ -37,8 +37,8 @@ function toJSONDeep(value: unknown): unknown {
     return value;
   }
 
-  if (typeof value.toJSON === 'function') {
-    return value.toJSON();
+  if (typeof value['toJSON'] === 'function') {
+    return value['toJSON']();
   }
 
   if (Array.isArray(value)) {

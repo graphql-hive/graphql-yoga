@@ -1,0 +1,236 @@
+# Explicit Resource Management
+
+import { Tabs } from '@theguild/components'
+
+While implementing your GraphQL server with GraphQL Yoga, you need to control over the lifecycle of
+your resources. This is especially important when you are dealing with resources that need to be
+cleaned up when they are no longer needed, or clean up the operations in a queue when the server is
+shutting down.
+
+## Dispose GraphQL Yoga
+
+GraphQL Yoga supports
+[Explicit Resource Management](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management)
+approach that allows you to dispose of resources when they are no longer needed. This can be done in
+two ways shown below;
+
+<Tabs items={['`await using` syntax', '`dispose` method']}>
+  <Tabs.Tab>
+  We use the `await using` syntax to create a new instance of `yoga` and dispose
+of it when the block is exited. Notice that we are using a block to limit the scope of `yoga` within `{ }`.
+So resources will be disposed of when the block is exited.
+
+```ts {2,17}
+console.log('Yoga is starting')
+{
+  await using yoga = createYoga({
+    schema: createSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          hello: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          hello: () => 'world'
+        }
+      }
+    })
+  })
+}
+console.log('Yoga is disposed')
+```
+
+    </Tabs.Tab>
+    <Tabs.Tab>
+    We create a new instance of `yoga` and
+
+dispose of it using the `dispose` method.
+
+```ts
+console.log('Yoga is starting')
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => 'world'
+      }
+    }
+  })
+})
+await yoga.dispose()
+console.log('Yoga is disposed')
+```
+
+    </Tabs.Tab>
+
+</Tabs>
+
+In the first example, we use the `await using` syntax to create a new instance of `yoga` and dispose
+of it when the block is exited. In the second example,
+
+### Dispose on Node.js
+
+When running GraphQL Yoga on Node.js, you can use process event listeners or server's `close` event
+to trigger GraphQL Yoga's disposal. Or you can configure GraphQL Yoga to handle this automatically
+by listening `process` exit signals.
+
+<Tabs items={['Explicit disposal', 'Automatic disposal on process exit']}>
+
+<Tabs.Tab>
+
+We can dispose of the GraphQL Yoga instance when the server is closed like below.
+
+```ts
+import { createServer } from 'http'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: { hello: () => 'world' }
+    }
+  })
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+server.once('close', async () => {
+  await yoga.dispose()
+  console.info('Server is disposed so is Yoga')
+})
+```
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+`disposeOnProcessTerminate` option will register an event listener for `process` termination in
+Node.js
+
+```ts
+import { createServer } from 'http'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+createServer(
+  createYoga({
+    schema: createSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          hello: String
+        }
+      `,
+      resolvers: { Query: { hello: () => 'world' } }
+    }),
+    disposeOnProcessTerminate: true
+  })
+).listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+</Tabs.Tab>
+
+</Tabs>
+
+## Plugin Disposal
+
+If you have plugins that need some internal resources to be disposed of, you can use the `onDispose`
+hook to dispose of them. This hook will be invoked when the GraphQL Yoga instance is disposed like
+above.
+
+```ts
+let dbConnection: Connection
+const plugin = {
+  onPluginInit: async () => {
+    dbConnection = await createConnection()
+  },
+  onDispose: async () => {
+    // Dispose of resources
+    await dbConnection.close()
+  }
+}
+```
+
+Or you can flush a queue of operations when the server is shutting down.
+
+```ts
+const backgroundJobs: Promise<void>[] = []
+
+const plugin = {
+  onRequestParse() {
+    backgroundJobs.push(
+      sendAnalytics({
+        /* ... */
+      })
+    )
+  },
+  onDispose: async () => {
+    // Flush the queue of background jobs
+    await Promise.all(backgroundJobs)
+  }
+}
+```
+
+But for this kind of purposes, `waitUntil` can be a better choice.
+
+## Background jobs
+
+If you have background jobs that need to be completed before the environment is shut down.
+`waitUntil` is better choice than `onDispose`. In this case, those jobs will keep running in the
+background but in case of disposal, they will be awaited. `waitUntil` works so similar to
+[Cloudflare Workers' `waitUntil` function](https://developers.cloudflare.com/workers/runtime-apis/handlers/fetch/#parameters).
+
+But GraphQL Yoga handles `waitUntil` even if it is not provided by the environment.
+
+```ts
+const yoga = createSchema({
+  typeDefs: /* GraphQL */ `
+    type Query {
+      greetings(name: String!): String
+    }
+  `,
+  resolvers: {
+    Query: {
+      hello: (_, args, context) => {
+        // This does not block the response
+        context.waitUntil(
+          fetch('http://my-analytics.com/analytics', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: args.name,
+              userAgent: context.request.headers.get('User-Agent')
+            })
+          })
+        )
+        return `Hello, ${args.name}`
+      }
+    }
+  }
+})
+
+const res = await yoga.fetch('http://localhost:4000/graphql', {
+  query: /* GraphQL */ `
+    query {
+      greetings(name: "John")
+    }
+  `
+})
+
+console.log(await res.json()) // { data: { greetings: "Hello, John" } }
+
+await yoga.dispose()
+// The fetch request for `analytics` will be awaited here
+```

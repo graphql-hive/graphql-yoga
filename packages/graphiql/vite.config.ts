@@ -1,23 +1,44 @@
+import { execSync } from 'node:child_process';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
+
+const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
+
+const monacoEditorPlugin: typeof $monacoEditorPlugin =
+  // @ts-expect-error - We need to do this because the plugin is a CJS module
+  $monacoEditorPlugin.default ?? $monacoEditorPlugin;
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  cacheDir: path.join(pnpmStoreDir, '.vite'),
   plugins: [
-    react({
-      // fastRefresh: false,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no types
+    import('@vitejs/plugin-react').then(m =>
+      (m.default || m)({
+        // fastRefresh: false,
+      }),
+    ),
+    monacoEditorPlugin({
+      languageWorkers: ['editorWorkerService', 'json'],
+      customWorkers: [
+        {
+          label: 'graphql',
+          entry: 'monaco-graphql/esm/graphql.worker.js',
+        },
+      ],
     }),
   ],
   server: {
     port: 4001,
     proxy: {
-      '/graphql': 'http://localhost:4000',
+      '/graphql': 'http://localhost:4000/graphql',
     },
   },
   define:
     // Having this environment variable set in development will break the dev server
-    process.env.BUILD === 'true'
+    process.env['BUILD'] === 'true'
       ? {
           'process.env.NODE_ENV': '"production"',
         }

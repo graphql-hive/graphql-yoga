@@ -1,5 +1,7 @@
 import { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import { FetchAPI, MaybeArray } from '../../types.js';
 import { ResultProcessor, ResultProcessorInput } from '../types.js';
@@ -10,7 +12,7 @@ export function getSSEProcessor(): ResultProcessor {
     let pingIntervalMs = 12_000;
 
     // for testing the pings, reduce the timeout
-    if (globalThis.process?.env?.NODE_ENV === 'test') {
+    if (globalThis.process?.env?.['NODE_ENV'] === 'test') {
       pingIntervalMs = 300;
     }
 
@@ -49,36 +51,43 @@ export function getSSEProcessor(): ResultProcessor {
           iterator = {
             next: () => {
               if (finished) {
-                return Promise.resolve({ done: true, value: null });
+                return fakePromise({ done: true, value: null });
               }
               finished = true;
-              return Promise.resolve({ done: false, value: result });
+              return fakePromise({ done: false, value: result });
             },
           };
         }
       },
-      async pull(controller) {
-        try {
-          const result = await iterator.next();
-
-          if (result.value != null) {
-            controller.enqueue(textEncoder.encode(`event: next\n`));
-            const chunk = jsonStringifyResultWithoutInternals(result.value);
-            controller.enqueue(textEncoder.encode(`data: ${chunk}\n\n`));
-          }
-          if (result.done) {
-            controller.enqueue(textEncoder.encode(`event: complete\n`));
-            controller.enqueue(textEncoder.encode(`data:\n\n`));
-            clearInterval(pingInterval);
-            controller.close();
-          }
-        } catch (err) {
-          controller.error(err);
-        }
+      pull(controller) {
+        return handleMaybePromise(
+          () => iterator.next(),
+          result => {
+            if (result.value != null) {
+              controller.enqueue(textEncoder.encode(`event: next\n`));
+              const chunk = jsonStringifyResultWithoutInternals(result.value);
+              controller.enqueue(textEncoder.encode(`data: ${chunk}\n\n`));
+            }
+            if (result.done) {
+              controller.enqueue(textEncoder.encode(`event: complete\n`));
+              controller.enqueue(textEncoder.encode(`data:\n\n`));
+              clearInterval(pingInterval);
+              controller.close();
+            }
+          },
+          err => {
+            controller.error(err);
+          },
+        );
       },
-      async cancel(e) {
+      cancel(e) {
         clearInterval(pingInterval);
-        await iterator.return?.(e);
+        if (iterator.return) {
+          return handleMaybePromise(
+            () => iterator.return?.(e),
+            () => {},
+          );
+        }
       },
     });
     return new fetchAPI.Response(readableStream, responseInit);

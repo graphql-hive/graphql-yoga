@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { inspect } from 'node:util';
 import { CONTEXT, Inject, Injectable, Scope } from 'graphql-modules';
 
@@ -17,7 +18,7 @@ export class BasicProvider {
 
   public async *getCountdown(from: number) {
     for (let i = from; i >= 0; i--) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await setTimeout$(1000);
       yield i;
     }
   }

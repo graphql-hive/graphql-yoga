@@ -1,19 +1,35 @@
 import { createServer } from 'node:http';
+import { AddressInfo } from 'node:net';
 import { createClient } from 'graphql-ws';
-import { useServer } from 'graphql-ws/lib/use/ws';
+import { useServer } from 'graphql-ws/use/ws';
 import { createSchema, createYoga } from 'graphql-yoga';
 import WebSocket from 'ws';
 import { buildApp } from '../src/app.js';
 
 describe('graphql-ws example integration', () => {
   const app = buildApp();
-  beforeAll(() => app.start(4000));
+  function findAvailablePort() {
+    return new Promise<number>((resolve, reject) => {
+      const server = createServer();
+      server.listen(0, () => {
+        const { port } = server.address() as AddressInfo;
+        server.close(() => resolve(port));
+      });
+      server.once('error', reject);
+    });
+  }
+  let url: string;
+  beforeAll(async () => {
+    const port = await findAvailablePort();
+    url = `ws://localhost:${port}/graphql`;
+    return app.start(port);
+  });
   afterAll(() => app.stop());
 
   it('should execute query', async () => {
     const client = createClient({
       webSocketImpl: WebSocket,
-      url: 'ws://localhost:4000/graphql',
+      url,
       retryAttempts: 0, // fail right away
     });
 
@@ -30,13 +46,13 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledWith({ data: { hello: 'world' } });
+    expect(onNext).toHaveBeenCalledWith({ data: { hello: 'world' } });
   });
 
   it('should execute mutation', async () => {
     const client = createClient({
       webSocketImpl: WebSocket,
-      url: 'ws://localhost:4000/graphql',
+      url,
       retryAttempts: 0, // fail right away
     });
 
@@ -53,13 +69,13 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledWith({ data: { dontChange: 'didntChange' } });
+    expect(onNext).toHaveBeenCalledWith({ data: { dontChange: 'didntChange' } });
   });
 
   it('should subscribe', async () => {
     const client = createClient({
       webSocketImpl: WebSocket,
-      url: 'ws://localhost:4000/graphql',
+      url,
       retryAttempts: 0, // fail right away
     });
 
@@ -76,8 +92,8 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledTimes(5);
-    expect(onNext).toBeCalledWith({ data: { greetings: 'Hi' } });
+    expect(onNext).toHaveBeenCalledTimes(5);
+    expect(onNext).toHaveBeenCalledWith({ data: { greetings: 'Hi' } });
   });
 
   it('should not fail if context is not as per the documentation', async () => {
@@ -106,15 +122,15 @@ describe('graphql-ws example integration', () => {
         execute: (args: any) => args.execute(args),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         subscribe: (args: any) => args.subscribe(args),
-        onSubscribe: async (_ctx, msg) => {
+        onSubscribe: async (_ctx, _id, params) => {
           const { schema, execute, subscribe, contextFactory, parse, validate } =
             yoga.getEnveloped(); // <- malformed/missing context
 
           const args = {
             schema,
-            operationName: msg.payload.operationName,
-            document: parse(msg.payload.query),
-            variableValues: msg.payload.variables,
+            operationName: params.operationName,
+            document: parse(params.query),
+            variableValues: params.variables,
             contextValue: await contextFactory(),
             execute,
             subscribe,
@@ -131,17 +147,19 @@ describe('graphql-ws example integration', () => {
       }),
     );
 
+    const port = await findAvailablePort();
+
     await new Promise<void>((resolve, reject) => {
       server.on('error', err => reject(err));
       server.on('listening', () => resolve());
-      server.listen(4001);
+      server.listen(port);
     });
 
     //
 
     const client = createClient({
       webSocketImpl: WebSocket,
-      url: 'ws://localhost:4001/graphql',
+      url: `ws://localhost:${port}/graphql`,
       retryAttempts: 0, // fail right away
     });
 
@@ -158,8 +176,8 @@ describe('graphql-ws example integration', () => {
       );
     });
 
-    expect(onNext).toBeCalledTimes(1);
-    expect(onNext).toBeCalledWith({ data: { hello: 'world' } });
+    expect(onNext).toHaveBeenCalledTimes(1);
+    expect(onNext).toHaveBeenCalledWith({ data: { hello: 'world' } });
 
     //
 

@@ -7,7 +7,6 @@ export function isPOSTFormUrlEncodedRequest(request: Request) {
   );
 }
 
-export async function parsePOSTFormUrlEncodedRequest(request: Request): Promise<GraphQLParams> {
-  const requestBody = await request.text();
-  return parseURLSearchParams(requestBody);
+export function parsePOSTFormUrlEncodedRequest(request: Request): Promise<GraphQLParams> {
+  return request.text().then(parseURLSearchParams);
 }

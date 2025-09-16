@@ -29,9 +29,10 @@ describe('graphql-auth example integration', () => {
   it('should throw error on executing auth required field', async () => {
     const response = await fetch(`http://localhost:${port}/graphql?query=query{requiresAuth}`);
     const body = await response.json();
-    expect(body.errors).toBeDefined();
-    expect(body.errors[0].message).toBe("Accessing 'Query.requiresAuth' requires authentication.");
     expect(body.data).toBeNull();
+    expect(body.errors).toBeDefined();
+    expect(body.errors[0].message).toBe('Unauthorized field or type');
+    expect(body.errors[0].path).toEqual(['requiresAuth']);
   });
 
   it('should execute on auth required field', async () => {
@@ -101,7 +102,7 @@ data:
 ":
 
 event: next
-data: {"data":null,"errors":[{"message":"Accessing 'Subscription.requiresAuth' requires authentication.","locations":[{"line":1,"column":14}]}]}
+data: {"data":null,"errors":[{"message":"Unauthorized field or type","locations":[{"line":1,"column":14}],"path":["requiresAuth"],"extensions":{"code":"UNAUTHORIZED_FIELD_OR_TYPE"}}]}
 
 event: complete
 data:

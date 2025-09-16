@@ -1,6 +1,6 @@
 {
   "name": "hello-world-benchmark",
-  "version": "3.5.1",
+  "version": "3.17.2",
   "type": "module",
   "private": true,
   "scripts": {
@@ -12,13 +12,14 @@
     "test": "start-server-and-test start http://127.0.0.1:4000/ping loadtest"
   },
   "dependencies": {
-    "@envelop/graphql-jit": "8.0.0",
-    "@faker-js/faker": "8.0.2",
-    "@graphql-yoga/plugin-response-cache": "3.5.1",
-    "graphql": "16.6.0",
-    "graphql-yoga": "5.3.1"
+    "@envelop/graphql-jit": "10.0.0",
+    "@faker-js/faker": "10.0.0",
+    "@graphql-yoga/plugin-response-cache": "workspace:*",
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#semver:^20"
   },
   "devDependencies": {
-    "start-server-and-test": "2.0.0"
+    "start-server-and-test": "2.1.0"
   }
 }

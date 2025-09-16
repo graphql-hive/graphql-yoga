@@ -2,12 +2,21 @@ import { fetch } from '@whatwg-node/fetch';
 import { startApp } from '../src/app.js';
 
 describe('hapi example integration', () => {
-  const port = 4000;
-  let stop = () => {
-    // noop
-  };
+  let port: number;
+  function findAvailablePort() {
+    return new Promise<number>((resolve, reject) => {
+      const server = require('http').createServer();
+      server.listen(0, () => {
+        const { port } = server.address();
+        server.close(() => resolve(port));
+      });
+      server.once('error', reject);
+    });
+  }
+  let stop: VoidFunction;
   beforeAll(async () => {
-    stop = await startApp(4000);
+    port = await findAvailablePort();
+    stop = await startApp(port);
   });
   afterAll(() => stop());
 

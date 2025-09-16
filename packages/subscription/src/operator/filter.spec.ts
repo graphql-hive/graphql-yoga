@@ -1,3 +1,4 @@
+import { fakePromise } from '@whatwg-node/server';
 import { filter } from './filter.js';
 
 async function collectAsyncIterableValues<TType>(
@@ -34,7 +35,7 @@ describe('filter', () => {
       yield 1;
     }
 
-    const filterFn = (value: number) => Promise.resolve(value < 3);
+    const filterFn = (value: number) => fakePromise(value < 3);
     const stream = filter(filterFn)(source());
     const result = await collectAsyncIterableValues(stream);
 

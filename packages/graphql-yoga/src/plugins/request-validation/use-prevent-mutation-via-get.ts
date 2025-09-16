@@ -1,4 +1,10 @@
-import { DocumentNode, getOperationAST, GraphQLError, OperationDefinitionNode } from 'graphql';
+import {
+  DocumentNode,
+  getOperationAST,
+  GraphQLError,
+  GraphQLHTTPErrorExtensions,
+  OperationDefinitionNode,
+} from 'graphql';
 import { Maybe } from '@envelop/core';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaInitialContext } from '../../types.js';
@@ -10,12 +16,13 @@ export function assertMutationViaGet(
   operationName?: string,
 ) {
   const operation: OperationDefinitionNode | undefined = document
-    ? getOperationAST(document, operationName) ?? undefined
+    ? (getOperationAST(document, operationName) ?? undefined)
     : undefined;
 
   if (!operation) {
     throw createGraphQLError('Could not determine what operation to execute.', {
       extensions: {
+        code: 'OPERATION_RESOLUTION_FAILURE',
         http: {
           status: 400,
         },
@@ -32,6 +39,7 @@ export function assertMutationViaGet(
             Allow: 'POST',
           },
         },
+        code: 'BAD_REQUEST',
       },
     });
   }
@@ -59,15 +67,16 @@ export function usePreventMutationViaGET(): Plugin<YogaInitialContext> {
 
         if (result instanceof Error) {
           if (result instanceof GraphQLError) {
-            result.extensions.http = {
-              spec: true,
-              status: 400,
-            };
+            // @ts-expect-error - We are modifying the extensions on purpose
+            const extensions: Record<string, unknown> = (result.extensions ||= {});
+            extensions['code'] ||= 'GRAPHQL_PARSE_FAILED';
+            const httpExtensions: GraphQLHTTPErrorExtensions = (extensions['http'] ||= {});
+            httpExtensions.spec ||= true;
+            httpExtensions.status ||= 400;
           }
-          throw result;
+        } else {
+          assertMutationViaGet(request.method, result, operationName);
         }
-
-        assertMutationViaGet(request.method, result, operationName);
       };
     },
   };

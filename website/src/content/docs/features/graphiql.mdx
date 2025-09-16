@@ -1,0 +1,180 @@
+---
+description: GraphiQL is an in-browser IDE for writing, validating, and testing GraphQL queries.
+---
+
+import { Callout } from '@theguild/components'
+
+# GraphiQL
+
+[GraphiQL](https://github.com/graphql/graphiql) is an in-browser IDE for writing, validating, and
+testing GraphQL queries.
+
+By default, GraphiQL is enabled only when in development and served under the `/graphql` route for
+`GET` requests with a `accept: text/html` header. You can configure or completely disable GraphiQL
+with the `graphiql` option.
+
+## Default Document String
+
+You can set the default document string for GraphiQL by setting the `defaultQuery` option.
+
+```ts filename="Set the default Document String" {7}
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+
+// Provide your schema
+const yoga = createYoga({
+  graphiql: {
+    defaultQuery: /* GraphQL */ `
+      query {
+        hello
+      }
+    `
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Disable GraphiQL
+
+You can disable GraphiQL simply by setting `graphiql: false{:ts}`.
+
+<Callout>
+  Be aware that disabling GraphiQL does not really make your GraphQL server more secure. As
+  long as the introspection and/or the "did you mean x" suggestion feature of
+  GraphQL are enabled.
+
+You can further decrease your attack surface by disabling GraphQL introspection.
+
+[Learn more about disabling introspection](/docs/features/introspection)
+
+</Callout>
+
+```ts filename="Disable GraphiQL" /graphiql: false/
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+
+// Provide your schema
+const yoga = createYoga({ graphiql: false })
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Dynamic Options per Request
+
+You can also dynamically set GraphiQL options based on the incoming request. This allows rendering
+GraphiQL conditionally e.g. based on a header presence or value.
+
+```ts filename="Dynamic options based on the incoming request"
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+
+// Provide your schema
+const yoga = createYoga({
+  graphiql(request) {
+    if (request.headers.get('graphiql-enabled')) {
+      return true
+    }
+    return false
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+Within the function passed to `graphiql` you also have access to the `serverContext`. E.g. on
+Node.js it contains the `http.Request` and `http.Response` objects.
+
+```ts
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+
+// Provide your schema
+const yoga = createYoga({
+  graphiql(request, { req, res }) {
+    // access something attached to the request object
+    // e.g. a user object added by an auth middleware.
+    if (req.user.role === 'admin') {
+      return true
+    }
+    return false
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Offline Usage
+
+By default, GraphiQL code is served from a CDN because if we added GraphiQL code inside Yoga, it
+would end up with huge bundle size and exceed the payload limit for some environments for example
+(CF Workers, AWS etc). If you want to use GraphiQL from a local version, you need to install it
+manually.
+
+```sh npm2yarn
+npm i @graphql-yoga/render-graphiql
+```
+
+And you need to pass imported `renderGraphiQL` to `createYoga` like below:
+
+```ts filename="Render GraphiQL offline"
+import { createYoga } from 'graphql-yoga'
+import { renderGraphiQL } from '@graphql-yoga/render-graphiql'
+
+const yoga = createYoga({ renderGraphiQL })
+```
+
+## Usage with Content Security Policy
+
+In production, chances are you have enabled
+[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) (CSP) to prevent
+attacks.
+
+Yoga by itself doesn't require any special CSP configuration, but if you plan to use GraphiQL, you
+will need to add some sources to your CSP configuration:
+
+- `script-src`:
+  - `unpkg.com`: used to load the graphql module.
+  - `unsafe-inline`: GraphiQL is bundled with Webpack which rely on script tag injections.
+- `style-src`:
+  - `unpkg.com`: GraphiQL styles are loaded directly from its module bundle, next to its scripts.
+- `img-src`:
+  - `raw.githubusercontent.com`: The Guild logo is loaded from github
+
+## Apollo Sandbox (as alternative)
+
+If you want to use [Apollo Sandbox](https://www.apollographql.com/docs/apollo-sandbox) in favor of
+GraphiQL. You can install this package and use it;
+
+```sh npm2yarn
+npm i @graphql-yoga/render-apollo-sandbox
+```
+
+```ts filename="Use Apollo Sandbox"
+import { createYoga } from 'graphql-yoga'
+import { renderApolloSandbox } from '@graphql-yoga/render-apollo-sandbox'
+
+// Pass Apollo Sandbox renderer instead of GraphiQL
+const yoga = createYoga({
+  renderGraphiQL: renderApolloSandbox({
+    /**
+     * Options here
+     */
+  })
+})
+```
+
+About the options, see here:
+[Apollo Sandbox Options](https://www.apollographql.com/docs/apollo-sandbox#options)

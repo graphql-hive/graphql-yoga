@@ -1,8 +1,9 @@
 import express from 'express';
 import request from 'supertest';
+import { App } from 'supertest/types.js';
 import { buildApp } from '../src/app.js';
 
-function getTests(app: Express.Application) {
+function getTests(app: App) {
   it('should show GraphiQL', async () => {
     const response = await request(app).get('/graphql').set('Accept', 'text/html');
     expect(response.statusCode).toBe(200);

@@ -8,7 +8,7 @@ contains the React component `GraphQLYoga`.
 You can run a local instance on `http://localhost:4001` with the following command".
 
 ```ts
-pnpm --filter @graphiql/yoga start
+pnpm --filter @graphql-yoga/graphiql start
 ```
 
 The development server will automatically proxy `http://localhost:4000/graphql`, so make sure you

@@ -1,4 +1,5 @@
 import { GraphQLSchema } from 'graphql';
+import { fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga } from '../src/index.js';
 
 describe('schema', () => {
@@ -110,7 +111,7 @@ describe('schema', () => {
   });
 
   it('schema promise', async () => {
-    const schemaPromise = Promise.resolve(
+    const schemaPromise = fakePromise(
       createSchema({
         typeDefs: /* GraphQL */ `
           type Query {
@@ -146,7 +147,7 @@ describe('schema', () => {
   });
 
   it('fails if promise does not resolve to a schema', async () => {
-    const schemaPromise = Promise.resolve(null as unknown as GraphQLSchema);
+    const schemaPromise = fakePromise(null as unknown as GraphQLSchema);
     const yoga = createYoga({
       schema: schemaPromise,
       maskedErrors: false,
@@ -174,7 +175,7 @@ describe('schema', () => {
   it('schema factory returning a promise', async () => {
     const yoga = createYoga({
       schema: () =>
-        Promise.resolve(
+        fakePromise(
           createSchema({
             typeDefs: /* GraphQL */ `
               type Query {
@@ -209,7 +210,7 @@ describe('schema', () => {
 
   it('fails if factory function returning a promise does not resolve to a schema', async () => {
     const yoga = createYoga({
-      schema: () => Promise.resolve(null as unknown as GraphQLSchema),
+      schema: () => fakePromise(null as unknown as GraphQLSchema),
       maskedErrors: false,
     });
     const query = /* GraphQL */ `

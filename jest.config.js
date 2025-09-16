@@ -20,6 +20,7 @@ if (process.env.INTEGRATION_TEST === 'true') {
     testMatch.push('!**/examples/sveltekit/**', '!**/examples/fastify*/**');
   }
   testMatch.push('!**/examples/bun*/**');
+  testMatch.push('**/examples/bun-pothos/__integration-tests__/bun-pothos.spec.ts');
 } else {
   testMatch.push(
     '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',
@@ -36,12 +37,16 @@ if (process.env.LEAKS_TEST === 'true') {
     '!**/apollo-link.spec.ts',
     '!**/uwebsockets.test.ts',
     '!**/apollo-client.test.ts',
+    '!**/browser.spec.ts',
+    '!**/egg.spec.ts',
+    '!**/sveltekit.spec.ts',
   );
 }
 
 testMatch.push('!**/dist/**', '!**/.bob/**');
 
 module.exports = {
+  prettierPath: null,
   testEnvironment: 'node',
   rootDir: ROOT_DIR,
   restoreMocks: true,
@@ -55,6 +60,4 @@ module.exports = {
   testMatch,
   testTimeout,
   resolver: 'bob-the-bundler/jest-resolver',
-  // jest-snapshots don't support prettier v3 (https://github.com/jestjs/jest/issues/14305)
-  prettierPath: null,
 };

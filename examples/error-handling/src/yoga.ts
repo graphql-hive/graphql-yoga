@@ -33,7 +33,9 @@ export const yoga = createYoga({
       Query: {
         greeting: async () => {
           // This service does not exist
-          const greeting = await fetch('http://localhost:9999/greeting').then(res => res.text());
+          const greeting = await fetch('http://0.0.0.0:9999/greeting', {
+            signal: AbortSignal.timeout(1000),
+          }).then(res => res.text());
 
           return greeting;
         },

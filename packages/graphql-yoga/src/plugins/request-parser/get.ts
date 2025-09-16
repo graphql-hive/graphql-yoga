@@ -7,7 +7,7 @@ export function isGETRequest(request: Request) {
 }
 
 export function parseGETRequest(request: Request): GraphQLParams {
-  const [, queryString = ''] = request.url.split('?');
+  const queryString = request.url.substring(request.url.indexOf('?') + 1);
   const searchParams = new URLSearchParams(queryString);
   return handleURLSearchParams(searchParams);
 }

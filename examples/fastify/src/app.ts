@@ -118,21 +118,11 @@ export function buildApp(logging = true) {
   app.route({
     url: graphQLServer.graphqlEndpoint,
     method: ['GET', 'POST', 'OPTIONS'],
-    handler: async (req, reply) => {
-      const response = await graphQLServer.handleNodeRequestAndResponse(req, reply, {
+    handler: (req, reply) =>
+      graphQLServer.handleNodeRequestAndResponse(req, reply, {
         req,
         reply,
-      });
-      for (const [name, value] of response.headers) {
-        reply.header(name, value);
-      }
-
-      reply.status(response.status);
-
-      reply.send(response.body);
-
-      return reply;
-    },
+      }),
   });
 
   return [app, graphQLServer.graphqlEndpoint] as const;

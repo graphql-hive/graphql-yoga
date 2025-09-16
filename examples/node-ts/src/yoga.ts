@@ -1,7 +1,7 @@
 import { createGraphQLError, createSchema, createYoga, Plugin } from 'graphql-yoga';
 
 // available when handling requests, needs to be provided by the implementor
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type ServerContext = {};
 
 // available in GraphQL, during execution/subscription
@@ -39,7 +39,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
 });
 
 // context only relevant to the plugin
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type DisableSubscriptionPluginContext = {};
 
 function useDisableSubscription(): Plugin<

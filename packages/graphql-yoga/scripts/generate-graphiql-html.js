@@ -5,16 +5,26 @@ import { minify as minifyT } from 'html-minifier-terser';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// TODO review if this function is still needed.
+// The types suggest that minifyT is already returning a string.
+// And toString does not accept an argument.
+/**
+ * @param {string} str
+ */
 async function minify(str) {
   return (
-    await minifyT(str, {
-      minifyJS: true,
-      useShortDoctype: false,
-      removeAttributeQuotes: true,
-      collapseWhitespace: true,
-      minifyCSS: true,
-    })
-  ).toString('utf-8');
+    (
+      await minifyT(str, {
+        minifyJS: true,
+        useShortDoctype: false,
+        removeAttributeQuotes: true,
+        collapseWhitespace: true,
+        minifyCSS: true,
+      })
+    )
+      // @ts-expect-error
+      .toString('utf-8')
+  );
 }
 
 async function minifyGraphiQLHTML() {

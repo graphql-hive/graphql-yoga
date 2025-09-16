@@ -8,24 +8,33 @@
   "keywords": [],
   "scripts": {
     "check": "tsc --pretty --noEmit",
+    "codegen": "graphql-codegen",
     "dev": "cross-env NODE_ENV=development ts-node-dev --exit-child --respawn src/main.ts",
     "migrate": "prisma migrate dev",
-    "postinstall": "prisma generate",
+    "postinstall": "pnpm run prisma:generate && pnpm run codegen",
+    "precheck": "pnpm run codegen",
+    "prisma:generate": "prisma generate",
     "start": "ts-node src/main.ts"
   },
   "dependencies": {
-    "graphql": "16.6.0",
-    "graphql-yoga": "5.3.1"
+    "graphql": "16.11.0",
+    "graphql-yoga": "workspace:*"
   },
   "devDependencies": {
-    "@prisma/client": "5.13.0",
-    "@prisma/internals": "5.13.0",
-    "@prisma/migrate": "5.13.0",
-    "@types/node": "18.16.16",
-    "cross-env": "7.0.3",
-    "prisma": "5.13.0",
-    "ts-node": "10.9.1",
+    "@eddeee888/gcg-typescript-resolver-files": "0.12.2",
+    "@graphql-codegen/cli": "6.0.0",
+    "@graphql-codegen/cli": "6.0.0",
+    "@prisma/client": "6.16.1",
+    "@prisma/client": "6.16.2",
+    "@prisma/internals": "6.16.1",
+    "@prisma/internals": "6.16.2",
+    "@prisma/migrate": "6.16.1",
+    "@prisma/migrate": "6.16.2",
+    "@types/node": "24.5.0",
+    "cross-env": "10.0.0",
+    "prisma": "6.16.2",
+    "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.1.6"
+    "typescript": "5.9.2"
   }
 }

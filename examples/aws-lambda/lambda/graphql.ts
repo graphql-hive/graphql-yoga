@@ -1,12 +1,12 @@
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { pipeline } from 'stream/promises';
+import type { Context, LambdaFunctionURLEvent } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
 
 const yoga = createYoga<{
-  event: APIGatewayEvent;
+  event: LambdaFunctionURLEvent;
   lambdaContext: Context;
+  res: awslambda.ResponseStream;
 }>({
-  graphqlEndpoint: '/graphql',
-  landingPage: false,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
@@ -21,33 +21,38 @@ const yoga = createYoga<{
   }),
 });
 
-export async function handler(
-  event: APIGatewayEvent,
-  lambdaContext: Context,
-): Promise<APIGatewayProxyResult> {
+export const handler = awslambda.streamifyResponse(async function handler(
+  event: LambdaFunctionURLEvent,
+  res,
+  lambdaContext,
+) {
   const response = await yoga.fetch(
-    event.path +
-      '?' +
-      new URLSearchParams((event.queryStringParameters as Record<string, string>) || {}).toString(),
+    // Construct the URL
+    `https://${event.requestContext.domainName}${event.requestContext.http.path}?${event.rawQueryString}`,
     {
-      method: event.httpMethod,
+      method: event.requestContext.http.method,
       headers: event.headers as HeadersInit,
-      body: event.body
-        ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
-        : undefined,
+      // Parse the body if needed
+      body: event.body && event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     },
     {
       event,
       lambdaContext,
+      res,
     },
   );
 
-  const responseHeaders = Object.fromEntries(response.headers.entries());
-
-  return {
+  // Attach the metadata to the response stream
+  res = awslambda.HttpResponseStream.from(res, {
     statusCode: response.status,
-    headers: responseHeaders,
-    body: await response.text(),
-    isBase64Encoded: false,
-  };
-}
+    headers: Object.fromEntries(response.headers.entries()),
+  });
+
+  // Pipe the response body to the response stream
+  if (response.body) {
+    await pipeline(response.body, res);
+  }
+
+  // End the response stream
+  res.end();
+});

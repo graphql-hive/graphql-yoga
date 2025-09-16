@@ -31,7 +31,7 @@ export function useCSRFPrevention(
 ): Plugin<YogaInitialContext> {
   const { requestHeaders = ['x-graphql-yoga-csrf'] } = options;
   return {
-    async onRequestParse({ request }) {
+    onRequestParse({ request }) {
       if (wasTheRequestAlreadyPreflightChecked(request.headers?.get('content-type'))) {
         return;
       }

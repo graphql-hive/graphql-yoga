@@ -1,4 +1,5 @@
 import { ExecutionResult } from 'graphql';
+import { fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga, Plugin, Repeater } from '../src/index.js';
 
 describe('accept header', () => {
@@ -166,7 +167,7 @@ describe('accept header', () => {
     const plugin: Plugin = {
       onExecute(args) {
         args.setExecuteFn(() =>
-          Promise.resolve(
+          fakePromise(
             new Repeater<ExecutionResult>((_push, end) => {
               end();
             }),

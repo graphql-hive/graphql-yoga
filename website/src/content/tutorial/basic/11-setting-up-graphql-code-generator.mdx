@@ -1,0 +1,394 @@
+---
+title: Setting up GraphQL Code Generator
+description:
+  Set up GraphQL Code Generator and Server Preset in your project to enforce type-safety and runtime
+  safety.
+---
+
+import { Callout, FileTree } from '@theguild/components'
+
+# Setting up GraphQL Code Generator and Server Preset
+
+In this section, you are going to set up
+[GraphQL Code Generator](https://the-guild.dev/graphql/codegen) with Server Preset in your project.
+This adds strong typing automatically, and reduces runtime error for your application.
+
+## Preparation
+
+First, let's install the required packages:
+
+```sh npm2yarn
+npm i -D --save-exact @graphql-codegen/cli@5.0.3 @eddeee888/gcg-typescript-resolver-files@0.11.0
+```
+
+- `@graphql-codegen/cli` is the main package for GraphQL Code Generator. It provides a CLI to
+  generate code from your GraphQL schema.
+- `@eddeee888/gcg-typescript-resolver-files` is a GraphQL Code Generator preset, written
+  specifically for GraphQL servers. It automatically generates TypeScript types and resolver files.
+  It also runs statical analysis to ensure type-safety.
+
+So far, you've been keeping a lot of code together for simplicity. This new setup requires your
+project to be structured in a way that it is still maintainable at scale. Most noticable, schema
+type definitions and resolvers are separated into different files.
+
+Let's start by creating a new folder `src/schema/base` and move the type definitions to a file
+called `schema.graphql` under this folder:
+
+```graphql filename="src/schema/base/schema.graphql"
+type Query {
+  info: String!
+  feed(filterNeedle: String, skip: Int, take: Int): [Link!]!
+  comment(id: ID!): Comment
+}
+
+type Mutation {
+  postLink(url: String!, description: String!): Link!
+  postCommentOnLink(linkId: ID!, body: String!): Comment!
+}
+
+type Link {
+  id: ID!
+  description: String!
+  url: String!
+  comments: [Comment!]!
+}
+
+type Comment {
+  id: ID!
+  createdAt: String!
+  body: String!
+}
+```
+
+Next, create a `codegen.ts` at the root of your project:
+
+```ts filename="codegen.ts"
+import { defineConfig } from '@eddeee888/gcg-typescript-resolver-files'
+import type { CodegenConfig } from '@graphql-codegen/cli'
+
+// (1)
+const config: CodegenConfig = {
+  schema: 'src/schema/**/schema.graphql', // (2)
+  generates: {
+    'src/schema': defineConfig({
+      // (3)
+      resolverGeneration: 'minimal', // (4)
+      typesPluginsConfig: {
+        contextType: '../context#GraphQLContext' // (5)
+      }
+    })
+  }
+}
+export default config
+```
+
+This file contains the configuration for GraphQL Code Generator. Let's break it down:
+
+1. The `config` variable tells GraphQL Code Generator what to generate.
+2. The `schema` field points to the schema file you created.
+3. The `generates` field tells GraphQL Code Generator where to put the generated files. In this
+   case, Server Preset will generate files under `src/schema`
+4. The `resolverGeneration: "minimal"` config tells Server Preset to generate just the root-level
+   resolvers, unless there are mappers (more on this later).
+5. The `contextType` config is used to generate the context type for every resolver.
+
+Now, run the following command:
+
+```sh
+npx graphql-codegen
+```
+
+You will see a new folder `src/schema` created with the following files:
+
+<FileTree>
+  <FileTree.Folder defaultOpen name="src">
+    <FileTree.Folder defaultOpen name="schema">
+      <FileTree.Folder defaultOpen name="base">
+        <FileTree.Folder defaultOpen name="resolvers">
+          <FileTree.Folder defaultOpen name="Mutation">
+            <FileTree.File name="postCommentOnLink.ts" />
+            <FileTree.File name="postLink.ts" />
+          </FileTree.Folder>
+          <FileTree.Folder defaultOpen name="Query">
+            <FileTree.File name="comment.ts" />
+            <FileTree.File name="feed.ts" />
+            <FileTree.File name="info.ts" />
+          </FileTree.Folder>
+        </FileTree.Folder>
+        <FileTree.File name="schema.graphql" />
+      </FileTree.Folder>
+      <FileTree.File name="resolvers.generated.ts" />
+      <FileTree.File name="resolvers.generated.graphqls" />
+      <FileTree.File name="typeDefs.generated.ts" />
+      <FileTree.File name="types.generated.ts" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+1. `Mutation/postCommentOnLink.ts`, `Mutation/postLink.ts`, `Query/comment.ts`, `Query/feed.ts` and
+   `Query/info.ts` are the generated root-level resolvers.
+2. `resolvers.generated.ts` contains the resolvers map. All generated resolvers (e.g.
+   `Query.comment`, `Mutation.postCommentOnLink`, etc.) are automatically imported into this file.
+3. `schema.generated.graphqls` contains the merged schema of your application. In this example,
+   there is only one `schema.graphql` file. However, as the server grows, you can choose to break it
+   up into smaller modules, each with its own schema file e.g. `src/schema/comment/schema.graphql`,
+   `src/schema/link/schema.graphql`, etc.
+4. `typeDefs.generated.ts` contains the generated type definitions. This is the AST representation
+   of the schema that can be provided to the GraphQL server.
+5. `types.generated.ts` file contains the generated types.
+
+Note that the generated root-level resolver files do not have any implementation yet, and there is
+no object type resolvers. In the next section, you will learn how to migrate the existing
+implementation.
+
+## Migrate logic to new resolvers
+
+### Root-level resolvers
+
+By default, a generated root-level resolver file may look like this:
+
+```ts filename="src/schema/base/resolvers/Query/feed.ts"
+import type { QueryResolvers } from './../../../types.generated'
+
+export const feed: NonNullable<QueryResolvers['feed']> = async (_parent, _arg, _ctx) => {
+  /* Implement Query.feed resolver logic here */
+}
+```
+
+It should be trivial to bring the existing logic over:
+
+```ts filename="src/schema/base/resolvers/Query/feed.ts"
+export const feed: NonNullable<QueryResolvers['feed']> = async (_parent, args, context) => {
+  const where = args.filterNeedle
+    ? {
+        OR: [
+          { description: { contains: args.filterNeedle } },
+          { url: { contains: args.filterNeedle } }
+        ]
+      }
+    : {}
+
+  const take = applyTakeConstraints({
+    min: 1,
+    max: 50,
+    value: args.take ?? 30
+  })
+
+  return context.prisma.link.findMany({
+    where,
+    skip: args.skip,
+    take
+  })
+}
+```
+
+<Callout type='info'>
+You don't have to manually type `parent`, `args` or `context` types. They are
+automatically inferred by the `NonNullable<QueryResolvers['feed']>` type!
+</Callout>
+
+You may notice TypeScript may report an error that looks like this:
+
+```ts twoslash
+type Link = { id: number; createdAt: Date; description: string; url: string; comments: string[] }
+type QueryResolvers = {
+  feed: () => Promise<Link[]>
+}
+// ---cut---
+// @error: Property 'comments' is missing in type '{ id: number; createdAt: Date; description: string; url: string; }' but required in type 'Link'.
+export const feed: NonNullable<QueryResolvers['feed']> = async () => {
+  // ---cut-start---
+  return []
+  // ---cut-end---
+}
+```
+
+This is because the generated types forces you to return objects that match schema types to avoid
+runtime errors. However, you want to defer resolve here by using mappers - like previous
+implementation - to ensure `comments` is not fetched until it is requested. This is covered in the
+next section.
+
+### Using mappers
+
+In the previous implementation, you used `Link` type from `@prisma/client` as the mapper for GraphQL
+`Link` type. This is done by making `Query.feed` return an array of Prisma's `Link`, and manually
+typed the `parent` of Link resolvers:
+
+```ts filename="src/schema.ts (previously)"
+// Previous implementation
+import type { Link } from '@prisma/client'
+
+const resolvers = {
+  Query: {
+    // other resolvers
+    feed: async (parent: unknown, args: {}, context: GraphQLContext): Promise<Link[]> => {
+      // other logic
+      return context.prisma.link.findMany() // Returns an array of Prisma's Link
+    }
+  },
+  Link: {
+    // Manually type the parent of each resolver as Prisma's Link
+    id: (parent: Link) => parent.id,
+    description: (parent: Link) => parent.description,
+    url: (parent: Link) => parent.url,
+    comments: (parent: Link, args: {}, context: GraphQLContext) => {
+      return context.prisma.comment.findMany({
+        orderBy: { createdAt: 'desc' },
+        where: {
+          linkId: parent.id
+        }
+      })
+    }
+  }
+}
+```
+
+The previous approach can be tedious as you need to manually wire up all the types. With the codegen
+setup, you only need to declare Prisma's `Link` type as the mapper once, and it will be
+automatically applied to all Link resolvers. Here are the steps of using mappers:
+
+1. Create a new file to track mappers: `src/schema/base/schema.mappers.ts`. This file is in the same
+   folder as the `schema.graphql` file.
+2. Add mappers for types that exist in `schema.graphql` into `schema.mappers.ts` with the convention
+   of `<GraphQL type name>Mapper`
+
+For `Link`, it should look like this:
+
+```ts filename="src/schema/base/schema.mappers.ts"
+import type { Link } from '@prisma/client'
+
+export type LinkMapper = Link
+```
+
+Now, when you run `npx graphql-codegen`, the following happens automatically:
+
+- Typing `LinkMapper` as `parent` for every Link resolvers
+- Creating `src/schema/base/resolvers/Link.ts`, and wire it up to the resolvers map in
+  `resolvers.generated.ts`
+- Running static analysis and suggests you to implement the `comments` resolvers to avoid runtime
+  errors.
+
+The generated `src/schema/base/resolvers/Link.ts` file may look like this:
+
+```ts filename="src/schema/base/resolvers/Link.ts"
+import type { LinkResolvers } from './../../types.generated'
+
+/*
+ * Note: This object type is generated because "LinkMapper" is declared. This is to ensure runtime safety.
+ *
+ * When a mapper is used, it is possible to hit runtime errors in some scenarios:
+ * - given a field name, the schema type's field type does not match mapper's field type
+ * - or a schema type's field does not exist in the mapper's fields
+ *
+ * If you want to skip this file generation, remove the mapper or update the pattern in the `resolverGeneration.object` config.
+ */
+export const Link: LinkResolvers = {
+  /* Implement Link resolver logic here */
+  comments: async (_parent, _arg, _ctx) => {
+    /* Link.comments resolver is required because Link.comments exists but LinkMapper.comments does not */
+  }
+}
+```
+
+Note that `Link.id`, `Link.description` and `Link.url` resolvers are not generated. The types of
+these properties in Prisma's Link are compatible to the mapper's types, meaning the resolvers can be
+omitted.
+
+Now, you can simply remove the comments, and migrate the existing `comments` resolver over:
+
+```ts filename="src/schema/base/resolvers/Link.ts"
+import type { LinkResolvers } from './../../types.generated'
+
+export const Link: LinkResolvers = {
+  comments: (parent, _arg, context) => {
+    return context.prisma.comment.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: {
+        linkId: parent.id
+      }
+    })
+  }
+}
+```
+
+### Force create an object type resolver file
+
+Sometimes, you may want to implement custom logic in your resolvers. Object type resolvers can be
+generated by simply creating an empty file where the it should be generated, and run codegen.
+
+For example, let's force create `Comment` object type resolver file. We know that `Comment` is a
+type that is on the same level as `Link` in the resolvers map, so you can create an empty file
+`src/schema/base/resolvers/Comment.ts`, then run `npx graphql-codegen`.
+
+When codegen is run, Server Preset detects that you want to have custom logic for `Comment` type, so
+it will fill in the content of the file, and wire it up to the resolvers map. The content may look
+like this:
+
+```ts filename="src/schema/base/resolvers/Comment.ts"
+import type { CommentResolvers } from './../../types.generated'
+
+export const Comment: CommentResolvers = {
+  /* Implement Comment resolver logic here */
+}
+```
+
+## Using generated resolvers map and type definitions
+
+Once you have migrated all the resolver logic, the last step is to use the generated resolvers map
+and type definitions to your server:
+
+```ts filename="src/schema.ts"
+import { createSchema } from 'graphql-yoga'
+import { resolvers } from './schema/resolvers.generated'
+import { typeDefs } from './schema/typeDefs.generated'
+
+export const schema = createSchema({
+  resolvers: [resolvers],
+  typeDefs: [typeDefs]
+})
+```
+
+<Callout type="info">
+  For more details on how GraphQL Code Generator and Server Preset setup can help you scale your
+  GraphQL server, read [Scalable APIs with GraphQL Server Codegen
+  Preset](https://the-guild.dev/blog/scalable-apis-with-graphql-server-codegen-preset)
+</Callout>
+
+### Maintaining generated files
+
+The files with `.generated.` section are completely generated, and require no manual update or
+intervention. Every time you run codegen, these files change based on your schema or mappers
+changes. In other words, your schema and mappers are the source of truth, and the generated files
+are the derived output.
+
+For the reason above, it is recommended to _not_ commit these files to your version control, nor run
+your development tools (such as linting and formatting) on them to avoid noise and unncessary work.
+As long as you keep the generated files up-to-date with your schema and mappers, typecheck should
+work correctly.
+
+To ignore these generated files, add them to your tools' ignore file:
+
+```sh
+# .gitignore
+*.generated.*
+
+# .eslintignore
+*.generated.*
+
+# .prettierignore
+*.generated.*
+```
+
+## Summary
+
+In this section, you have set up GraphQL Code Generator with Server Preset in your project. This
+setup takes care of all the types and resolvers convention for you, so you can focus on developing
+your application!
+
+## Optional Exercise
+
+As an additional exercise, you can try migrating the rest of the resolvers and mappers to the new
+setup.
+
+You can find the full solution, with a commit for each step, in
+[this repository](https://github.com/Urigo/hackernews-node-ts).

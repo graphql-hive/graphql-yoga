@@ -1,9 +1,6 @@
 import { ASTVisitor, Kind, ValidationContext } from 'graphql';
-import {
-  createGraphQLError,
-  GraphQLDeferDirective,
-  GraphQLStreamDirective,
-} from '@graphql-tools/utils';
+import { createGraphQLError } from 'graphql-yoga';
+import { GraphQLDeferDirective, GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**
  * Stream directive on list field

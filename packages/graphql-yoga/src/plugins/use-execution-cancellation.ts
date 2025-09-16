@@ -1,4 +1,4 @@
-import type { Plugin } from './types';
+import type { Plugin } from './types.js';
 
 /**
  * Enables experimental support for request cancelation.

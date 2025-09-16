@@ -18,7 +18,7 @@ export function createRedisEventTarget<TEvent extends CustomEvent>(
 
   const serializer = args.serializer ?? JSON;
 
-  const callbacksForTopic = new Map<string, Set<(event: TEvent) => void>>();
+  const callbacksForTopic = new Map<string, Set<EventListener>>();
 
   function onMessage(channel: string, message: string) {
     const callbacks = callbacksForTopic.get(channel);
@@ -34,9 +34,9 @@ export function createRedisEventTarget<TEvent extends CustomEvent>(
     }
   }
 
-  subscribeClient.on('message', onMessage);
+  (subscribeClient as Redis).on('message', onMessage);
 
-  function addCallback(topic: string, callback: (event: TEvent) => void) {
+  function addCallback(topic: string, callback: EventListener) {
     let callbacks = callbacksForTopic.get(topic);
     if (callbacks === undefined) {
       callbacks = new Set();
@@ -47,7 +47,7 @@ export function createRedisEventTarget<TEvent extends CustomEvent>(
     callbacks.add(callback);
   }
 
-  function removeCallback(topic: string, callback: (event: TEvent) => void) {
+  function removeCallback(topic: string, callback: EventListener) {
     const callbacks = callbacksForTopic.get(topic);
     if (callbacks === undefined) {
       return;
@@ -61,7 +61,7 @@ export function createRedisEventTarget<TEvent extends CustomEvent>(
   }
 
   return {
-    addEventListener(topic, callbackOrOptions) {
+    addEventListener(topic, callbackOrOptions: EventListenerOrEventListenerObject) {
       if (callbackOrOptions != null) {
         const callback =
           'handleEvent' in callbackOrOptions ? callbackOrOptions.handleEvent : callbackOrOptions;
@@ -75,7 +75,7 @@ export function createRedisEventTarget<TEvent extends CustomEvent>(
       );
       return true;
     },
-    removeEventListener(topic, callbackOrOptions) {
+    removeEventListener(topic, callbackOrOptions: EventListenerOrEventListenerObject) {
       if (callbackOrOptions != null) {
         const callback =
           'handleEvent' in callbackOrOptions ? callbackOrOptions.handleEvent : callbackOrOptions;

@@ -48,7 +48,7 @@ export default function Home() {
             <h2>Learn &rarr;</h2>
             <p>Learn about Next.js</p>
           </a>
-          <a href="https://graphql-yoga.vercel.app" className={styles.card}>
+          <a href="https://the-guild.dev/graphql/yoga-server" className={styles.card}>
             <h2>Learn &rarr;</h2>
             <p>Learn about GraphQL Yoga</p>
           </a>

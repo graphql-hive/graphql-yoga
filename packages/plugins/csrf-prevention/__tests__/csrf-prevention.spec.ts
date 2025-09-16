@@ -27,6 +27,10 @@ describe('csrf-prevention', () => {
     maskedErrors: false,
   });
 
+  afterAll(async () => {
+    await yoga.dispose();
+  });
+
   it('should not allow requests without the necessary header', async () => {
     const res = await yoga.fetch('http://yoga/graphql?query={hello}', {
       'x-not-the-required': 'header',

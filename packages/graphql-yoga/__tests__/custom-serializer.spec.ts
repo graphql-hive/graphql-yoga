@@ -43,7 +43,7 @@ it('supports custom JSON serializer', async () => {
   });
 
   const resJson = await res.json();
-  expect(stringifyFn).toBeCalledTimes(1);
+  expect(stringifyFn).toHaveBeenCalledTimes(1);
   expect(resJson).toMatchObject({
     data: {
       hello: 'world',
@@ -105,5 +105,5 @@ it('works with the custom serializer of GraphQL JIT', async () => {
     },
   });
 
-  expect(stringifyFn).toBeCalledTimes(1);
+  expect(stringifyFn).toHaveBeenCalledTimes(1);
 });

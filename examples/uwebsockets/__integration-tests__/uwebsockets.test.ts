@@ -1,28 +1,23 @@
-import Crypto from 'node:crypto';
-import { AddressInfo, createServer } from 'node:net';
 import { Client, createClient } from 'graphql-ws';
-import type { us_listen_socket } from 'uWebSockets.js';
 import ws from 'ws';
-import { fetch } from '@whatwg-node/fetch';
+import { crypto, fetch } from '@whatwg-node/fetch';
 
 describe('uWebSockets', () => {
-  const nodeMajor = parseInt(process.versions.node.split('.')[0], 10);
-  if (nodeMajor < 16 || nodeMajor > 20) {
-    it('should be skipped', () => undefined);
+  let uws: typeof import('uWebSockets.js');
+  try {
+    uws = require('uWebSockets.js');
+  } catch (e) {
+    it.skip('uWebSockets.js is not installed', () => {});
     return;
   }
-  let listenSocket: us_listen_socket;
+  const { app } = require('../src/app');
   let port: number;
   let client: Client;
   beforeAll(async () => {
-    port = await getPortFree();
-    // eslint-disable-next-line no-async-promise-executor
-    await new Promise<void>(async (resolve, reject) => {
-      const { app } = await import('../src/app');
-      app.listen(port, newListenSocket => {
-        listenSocket = newListenSocket;
+    port = await new Promise((resolve, reject) => {
+      app.listen(0, listenSocket => {
         if (listenSocket) {
-          resolve();
+          resolve(uws.us_socket_local_port(listenSocket));
           return;
         }
         reject('Failed to start the server');
@@ -31,22 +26,11 @@ describe('uWebSockets', () => {
     client = createClient({
       url: `ws://localhost:${port}/graphql`,
       webSocketImpl: ws,
-      /**
-       * Generates a v4 UUID to be used as the ID.
-       * Reference: https://gist.github.com/jed/982883
-       */
-      generateID: () =>
-        // @ts-expect-error I have no idea for the reason of this error. I am just the guy that has to fix the broken eslint setup.
-        ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-          (c ^ (Crypto.randomBytes(1)[0] & (15 >> (c / 4)))).toString(16),
-        ),
+      generateID: () => crypto.randomUUID(),
     });
   });
   afterAll(async () => {
-    if (listenSocket) {
-      const { us_listen_socket_close } = await import('uWebSockets.js');
-      us_listen_socket_close(listenSocket);
-    }
+    app.close();
     await client.dispose();
   });
   it('should show GraphiQL', async () => {
@@ -108,14 +92,4 @@ describe('uWebSockets', () => {
       },
     });
   });
-
-  async function getPortFree() {
-    return new Promise<number>(res => {
-      const srv = createServer();
-      srv.listen(0, () => {
-        const port = (srv.address() as AddressInfo).port;
-        srv.close(() => res(port));
-      });
-    });
-  }
 });

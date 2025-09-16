@@ -1,0 +1,514 @@
+---
+description: GraphQL Server with focus on easy setup, performance & great developer experience
+---
+
+import { Callout } from '@theguild/components'
+
+# Plugins
+
+Yoga builds upon the GraphQL plugin system envelop and adds additional HTTP specific hooks for
+customizing both the GraphQL execution and HTTP layer. Many of the additional features of Yoga are
+added via plugins. If you need to customize your GraphQL API you can also write your own plugins.
+
+## Using Plugins
+
+You can both use Yoga or Envelop plugins with GraphQL Yoga.
+
+<Callout>
+  When there is both a Envelop and Yoga specific plugin available, you should always opt-in for the
+  Yoga variant as this one allows certain optimizations compared to just an Envelop plugin. As
+  envelop plugins have only control over the GraphQL execution for example a plugin such as the
+  [response-cache](https://the-guild.dev/graphql/envelop/plugins/use-response-cache), can never act
+  on the HTTP level. However, the [yoga response-cache](/docs/features/response-caching), [Persisted
+  Operations](/docs/features/persisted-operations) or [Defer/Stream](/docs/features/defer-stream)
+  plugin utilizes the HTTP level hooks, and thus can completly skip all of the expensive GraphQL
+  execution steps for serving cached results.
+</Callout>
+
+### Yoga Plugin Example
+
+Please refer to the corresponding feature documentation pages. E.g.
+[Response Cache](/docs/features/response-caching),
+[Persisted Operations](/docs/features/persisted-operations) or
+[Defer/Stream](/docs/features/defer-stream).
+
+```ts filename="Yoga Defer Stream Plugin Usage Example"
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { useDeferStream } from '@graphql-yoga/plugin-defer-stream'
+
+const yoga = createYoga({
+  plugins: [useDeferStream()]
+})
+
+const server = createServer(yoga)
+
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+### Envelop Plugin Example
+
+<Callout>
+  [Envelop is a lightweight JavaScript (TypeScript) library for customizing the GraphQL execution
+  layer, allowing developers to build, share and compose plugins that enhance the capabilities of
+  your GraphQL server](https://envelop.dev). GraphQL Yoga uses [Envelop](https://envelop.dev) under
+  the hood so you can easily extend your server's capabilities with the plugins from [Envelop
+  Ecosystem](https://www.envelop.dev/plugins)
+</Callout>
+
+The following example adds [GraphQL JIT](https://github.com/zalando-incubator/graphql-jit) to our
+GraphQL Server using [Envelop GraphQL JIT Plugin](https://www.envelop.dev/plugins/use-graphql-jit)
+
+```ts
+import { createSchema, createYoga } from 'graphql-yoga'
+import { useGraphQlJit } from '@envelop/graphql-jit'
+
+// Provide your schema
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'Hello World!'
+      }
+    }
+  }),
+  plugins: [useGraphQlJit()]
+})
+
+// Start the server and explore http://localhost:4000/graphql
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Writing Plugins
+
+Sometimes you might want to build your own plugins. You can write your own Yoga plugin and even
+share it with other people by publishing it to `npm`.
+
+<Callout>
+  A good entry-point for discovering how to write Yoga plugins is to look at the source code of the
+  existing plugins maintained by us.
+</Callout>
+
+The most hooks for Yoga origin from the envelop plugin system.
+[Please refer to the Envelop Plugin Lifecycle documentation for more information.](https://the-guild.dev/graphql/envelop/docs/plugins/lifecycle)
+In addition, Yoga adds more HTTP specific hooks.
+
+### Plugin Lifecycle
+
+The following diagram shows the plugin lifecycle of GraphQL Yoga. For a detailed description of each
+hook, please refer to the detail sections of each hook.
+
+```mermaid
+stateDiagram-v2
+    [*] --> onRequest
+
+    state onRequest_if_state <<choice>>
+
+    onRequest --> onRequest_if_state
+
+    onRequest_if_state --> onResponse: Is not a GraphQL Request
+    onRequest_if_state --> GraphQLRequest: Is GraphQL Request
+
+    GraphQLRequest: GraphQL Request
+
+    state GraphQLRequest {
+      [*] --> onRequestParse
+      onRequestParse --> onParams
+      onParams --> onParse
+      onParse --> onValidate
+      onValidate --> onContextBuilding
+      onContextBuilding --> onExecute
+      onContextBuilding --> onSubscribe
+
+      onExecute --> onExecutionResult
+      onSubscribe --> onExecutionResult
+
+      onExecutionResult --> onResultProcess
+
+      onResultProcess --> [*]
+    }
+
+    GraphQLRequest --> onResponse
+    onResponse --> [*]
+
+```
+
+### `onRequest`
+
+This hook is invoked for ANY incoming HTTP request. Here you can manipulate the request or create a
+short circuit before Yoga handles the request.
+
+<Callout type="warning">
+
+Exceptions thrown by this hook are not caught. This means they will buble up to the HTTP server
+underlying implementation.
+
+For example, the `node:http` server crashes the entire process on uncaught exceptions.
+
+Prefer `onRequestParse` when possible, or wrap the hook code in a `try` block.
+
+</Callout>
+
+**Example actions in this hook:**
+
+- Manipulate the request
+- Short circuit before Yoga handles the request
+
+#### API
+
+- `request`: The incoming HTTP request as WHATWG `Request` object.
+  [Learn more about the request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
+- `serverContext`: The early context object that is shared between all hooks and the GraphQL
+  execution. [Learn more about the context](/docs/features/context).
+- `fetchAPI`: WHATWG Fetch API implementation.
+  [Learn more about the fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+- `url`: WHATWG URL object of the incoming request.
+  [Learn more about the URL object](https://developer.mozilla.org/en-US/docs/Web/API/URL).
+- `endResponse`: A function that allows you to end the request early and send a response to the
+  client.
+
+#### Example
+
+```ts
+import { Plugin } from 'graphql-yoga'
+
+function useAuth(): Plugin {
+  return {
+    onRequest({ request, fetchAPI, endResponse }) {
+      if (!request.headers.get('authorization')) {
+        endResponse(
+          new fetchAPI.Response(null, {
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        )
+      }
+    }
+  }
+}
+```
+
+### `onRequestParse`
+
+This hook is invoked for any incoming GraphQL HTTP request and is invoked before attempting to parse
+the GraphQL parameters. Here you can manipulate the request, set a custom request parser or apply
+security measures such as checking for access tokens etc.
+
+**Example actions in this hook:**
+
+- Manipulate the request
+- Set custom GraphQL request parser (use custom GraphQL protocol)
+- Apply security measures
+
+### `onParams`
+
+This hook is invoked for an incoming GraphQL request after the GraphQL parameters (`query`,
+`variables`, `extensions` and `operationName`) have been ATTEMPTED to be parsed.
+
+Within this hook you can manipulate and customize the parameters or even implement a whole new way
+of parsing the parameters (if you wish to diverge from the GraphQL over HTTP specification).
+
+In addition to that you could also short-circuit and skip the GraphQL execution. E.g. you might want
+to serve a result from the cache instead.
+
+**Example actions in this hook:**
+
+- **[Response Cache](/docs/features/response-caching)**: Short-circuit GraphQL execution if response
+  can be served from the cache.
+- **[Persisted Operations](/docs/features/persisted-operations):** Load the `query` document string
+  from the persisted operations store before running the execution.
+- **[APQ](/docs/features/automatic-persisted-queries):** Load/persist the `query` document string on
+  the persisted operations store.
+
+### `onParse`
+
+Called for parsing the GraphQL document. This hook has a before and after stage. You can hook into
+before the document is parsed and/or into after the document is parsed.
+
+**Example actions in this hook:**
+
+- Replace GraphQL parser and support future GraphQL syntax
+- Collect metrics about parsing success/failures
+
+### `onValidate`
+
+Called for validating the GraphQL document. This hook has a before and after stage. You can hook
+into before the document is parsed and/or into after the document is parsed.
+
+**Example actions in this hook:**
+
+- Register additional validation rules (e.g. [Disable Introspection](/docs/features/introspection))
+- Collect metrics about validation success/failures
+
+### `onContextBuilding`
+
+Called for building the GraphQL context. This hook has a before and after stage. You can hook into
+before and after the context is built.
+
+**Example actions in this hook:**
+
+- Authentication
+- Add data to context object (e.g. user data or dataloader instances)
+
+### `onExecute`
+
+Called for executing a GraphQL mutation or query operation. This hook has a before and after stage.
+You can hook into before and after the GraphQL request is executed.
+
+**Example actions in this hook:**
+
+- Collect metrics about execution time
+- Error logging/reporting
+
+### `onSubscribe`
+
+Called for subscribing to a GraphQL subscription operation. This hook has a before and after stage.
+You can hook into before and after the GraphQL subscription is executed.
+
+**Example actions in this hook:**
+
+- Collect metrics about execution time
+- Error logging/reporting
+
+### `onExecutionResult`
+
+This hook is invoked for each result produced for GraphQL operation, before it is processed to be
+sent to client.
+
+In particular, it is useful to handle batched operations. If a request contains batched operations,
+this hook is called once of each operation, while `onResultProcess` will be only called once for the
+entire request.
+
+Here, you can modify the result, to add monitoring or instrumentation extensions for example.
+
+**Example actions in this hook:**
+
+- Add metadata to results
+- Collect errors
+
+### `onResultProcess`
+
+This hook is invoked after a GraphQL request has been processed and before the response is forwarded
+to the client. Here you can customize what transport/response processor format should be used for
+sending the result over the wire.
+
+**Example actions in this hook:**
+
+- Specify custom response format
+- Logging/Metrics
+
+### `onResponse`
+
+This hook is invoked after a HTTP request (both GraphQL and NON GraphQL) has been processed and
+after the response has been forwarded to the client. Here you can perform any cleanup or logging
+operations, or you can manipulate the outgoing response object.
+
+<Callout type="warning">
+
+Exceptions thrown by this hook are not caught. This means they will buble up to the HTTP server
+underlying implementation.
+
+For example, the `node:http` server crashes the entire process on uncaught exceptions.
+
+Prefer `onRequestParse` when possible, or wrap the hook code in a `try` block.
+
+</Callout>
+
+**Example actions in this hook:**
+
+- Specify custom response format
+- Logging/Metrics
+
+#### API
+
+- `request`: The incoming HTTP request as WHATWG `Request` object.
+  [Learn more about the request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
+- `serverContext`: The final context object that is shared between all hooks and the GraphQL
+  execution. [Learn more about the context](/docs/features/context).
+- `response`: The outgoing HTTP response as WHATWG `Response` object.
+  [Learn more about the response interface](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+
+#### Example
+
+```ts
+import { Plugin } from 'graphql-yoga'
+
+function useYogaSignature(): Plugin {
+  return {
+    onResponse({ request, response }) {
+      response.headers.set('X-GraphQL-Server', 'Yoga')
+    }
+  }
+}
+```
+
+### `onDispose`
+
+If you have plugins that need some internal resources to be disposed of, you can use the `onDispose`
+hook to dispose of them. This hook will be invoked when the GraphQL Yoga instance is disposed like
+above.
+
+```ts
+let dbConnection: Connection
+const plugin = {
+  onPluginInit: async () => {
+    dbConnection = await createConnection()
+  },
+  onDispose: async () => {
+    // Dispose of resources
+    await dbConnection.close()
+  }
+}
+```
+
+Or you can flush a queue of operations when the server is shutting down.
+
+```ts
+const backgroundJobs: Promise<void>[] = []
+
+const plugin = {
+  onRequestParse() {
+    backgroundJobs.push(
+      sendAnalytics({
+        /* ... */
+      })
+    )
+  },
+  onDispose: async () => {
+    // Flush the queue of background jobs
+    await Promise.all(backgroundJobs)
+  }
+}
+```
+
+But for this kind of purposes, `waitUntil` can be a better choice.
+[Learn more about explicit resource management here](/docs/features/explicit-resource-management).
+
+### `instrumentation`
+
+An optional `instrumentation` instance can be present in the plugin.
+
+This `Instrumentation` instance allows to wrap an entire phase execution (including all plugin
+hooks), meaning running code just before, just after and around the execution of the phase.
+
+Instrumentation doesn't have access to input/output of a phase, use hooks to have access to those
+data. If needed, we recommend to share data between instrumentation and hooks with a `WeakMap` and
+the given `context` as the key.
+
+All instrumentation takes 2 parameters:
+
+- `payload`: an object containing the graphql context or the http request depending on the
+  instrument.
+- `wrapped`: The function representing the execution of the phase. It takes no parameters, and
+  returns `void` (or `Promise<void>` for asynchrone phases). **This function must always be
+  called**. If this function returns a `Promise`, the instrument should return a `Promise` resolving
+  after it.
+
+#### Instrumentation composition
+
+If multiple plugins have `instrumentation`, they are composed in the same order they are defined the
+plugin array (the first is outtermost call, the last is inner most call).
+
+It is possible to customize this composition if it doesn't suite your need (ie. you need hooks and
+instrumentation to have a different oreder of execution).
+
+```ts
+import { composeInstrumentation, envelop } from '@envelop/core'
+
+const { instrumentation: instrumentation1, ...plugin1 } = usePlugin1()
+const { instrumentation: instrumentation2, ...plugin2 } = usePlugin2()
+
+const instrumentation = composeInstrumentation([instrumentation2, instrumentation1])
+
+const getEnveloped = envelop({
+  plugin: [{ insturments }, plugin1, plugin2]
+})
+```
+
+#### `request`
+
+Wraps the HTTP request handling. This includes all the plugins `onRequest` and `onResponse` hooks.
+
+This instrument can be asynchronous, the wrapped funcion **can be** asynchronous. Be sure to return
+a `Promise` if `wrapped()` returned a `Promise`.
+
+#### `requestParse`
+
+Wraps the parsing of the request phase to extract grapqhl params. This include all the plugins
+`onRequestParse` hooks.
+
+This insturment can be asynchronous, the wrapped function **can be** asynchrounous. Be sure to
+return a `Promise` if `wrapped()` returns a `Promise`.
+
+#### `operation`
+
+Wraps the Graphql operation execution pipeline. This is called for each graphql operation, meaning
+it can be called mutliple time for the same HTTP request if batching is enabled.
+
+This instrument can be asynchronous, the wrapped function **can be** asynchronous. Be sur to return
+a `Promise` if `wrapped()` returnd a `Promise`.
+
+#### `init`
+
+Wraps the envelop (the call to `envelop` function) initialisation.
+
+This includes all the plugins `onEnveloped` hooks, and the creation of the Envelop Orchestrator.
+
+This instrumentation must be synchrone, the wrapped function is always synchrone.
+
+#### `parse`
+
+Wraps the parse phase. This includes all the plugins `onParse` hooks and the actual engine `parse`.
+
+This instrument must be synchrone, the wrapped function is always synchrone.
+
+#### `validate`
+
+Wraps the validate phase. This includes all the plugins `onValidate` hooks and the actual engine
+`validate`.
+
+This instrument must be synchrone, the wrapped function is always synchrone.
+
+#### `context`
+
+Wraps the context building phase. This includes all the plugins `onContextBuilding` hooks.
+
+This instrument must be synchrone, the wrapped function is always synchrone.
+
+#### `execute`
+
+Wraps the execute phase. This includes all the plugins `onExecute` hooks.
+
+This instrument can be asynchrone, the wrapped function **can be** asynchrone. Be sure to `await` or
+use `.then` on the result of the `wrapped` function to run code after the `execute` phase.
+
+Note that `wrapped` is not guaranted to return a promise.
+
+#### `subscribe`
+
+Wraps the subscribe phase. This includes all the plugins `onSubsribe` hooks. Note that it doesn't
+wrap the entire lifetime of the subscription, but only it's intialisation.
+
+This instrument can be asynchrone, the wrapped function **can be** asynchrone. Be sure to `await` or
+use `.then` on the result of the `wrapped` function to run code after the `subsribe` phase.
+
+Note that `wrapped` is not guaranted to return a promise.
+
+#### `resultProcess`
+
+Wraps the context result processing phase. This includes all the plugins `onResultProcess` hooks.
+
+This instrumentation can be asynchrone, the wrapped function **can be** asynchronous. Be sure to
+return a `Promise` if `wrapped()` returns a `Promise`.

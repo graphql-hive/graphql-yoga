@@ -1,0 +1,17 @@
+export default {
+  'integration-with-aws-lambda': 'AWS Lambda',
+  'integration-with-cloudflare-workers': 'Cloudflare Workers',
+  'integration-with-gcp': 'Google Cloud Platform',
+  'integration-with-azure-functions': 'Azure Functions',
+  'integration-with-deno': 'Deno',
+  'integration-with-express': 'Express',
+  'integration-with-fastify': 'Fastify',
+  'integration-with-koa': 'Koa',
+  'integration-with-nestjs': 'NestJS',
+  'integration-with-nextjs': 'Next.js',
+  'integration-with-sveltekit': 'SvelteKit',
+  'integration-with-hapi': 'Hapi',
+  'integration-with-bun': 'Bun',
+  'integration-with-uwebsockets': 'µWebSockets.js',
+  'z-other-environments': 'Other Environments',
+};

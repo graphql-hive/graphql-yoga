@@ -1,4 +1,5 @@
 import { exec } from 'node:child_process';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { promisify } from 'node:util';
 
 export const execPromise = promisify(exec);
@@ -41,7 +42,7 @@ export async function waitForEndpoint(
         e.message,
       );
 
-      await new Promise(resolve => setTimeout(resolve, timeout));
+      await setTimeout$(timeout);
     }
   }
 
@@ -66,16 +67,20 @@ export async function assertGraphiQL(endpoint: string) {
     },
   });
 
+  const html = await response.text();
+
   if (response.status !== 200) {
-    console.warn(`⚠️ Invalid GraphiQL status code:`, response.status);
+    console.warn(`⚠️ Invalid GraphiQL status code:`, response.status, ', body:', html);
 
     throw new Error(`Failed to locate GraphiQL: invalid status code (${response.status})`);
   }
 
-  const html = await response.text();
-
   if (!html.includes('<title>Yoga GraphiQL</title>')) {
-    console.warn(`⚠️ Invalid GraphiQL body:`, html);
+    console.warn(`⚠️ Invalid GraphiQL body:`, {
+      html,
+      headers: Object.fromEntries(response.headers.entries()),
+      status: response.status,
+    });
 
     throw new Error(`Failed to locate GraphiQL: failed to find signs for GraphiQL HTML`);
   }

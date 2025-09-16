@@ -38,6 +38,7 @@ describe('graphql-scalars', () => {
         })),
       ],
     }),
+    logging: false,
   });
   for (const { name: typeName } of allScalars) {
     it(`should respond with 400 if ${typeName} scalar parsing fails from "variables"`, async () => {

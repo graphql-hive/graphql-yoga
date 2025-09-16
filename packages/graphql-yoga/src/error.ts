@@ -4,8 +4,6 @@ import type { YogaLogger } from '@graphql-yoga/logger';
 import type { ResultProcessorInput } from './plugins/types.js';
 import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
-export { createGraphQLError };
-
 declare module 'graphql' {
   interface GraphQLErrorExtensions {
     http?: GraphQLHTTPExtensions;
@@ -41,7 +39,8 @@ export function isAbortError(error: unknown): error is DOMException {
   return (
     typeof error === 'object' &&
     error?.constructor?.name === 'DOMException' &&
-    (error as Record<string, unknown>).name === 'AbortError'
+    ((error as DOMException).name === 'AbortError' ||
+      (error as DOMException).name === 'TimeoutError')
   );
 }
 
@@ -90,6 +89,7 @@ export function handleError(
     errors.add(
       createGraphQLError(error, {
         extensions: {
+          code: 'INTERNAL_SERVER_ERROR',
           unexpected: true,
         },
       }),
@@ -98,6 +98,7 @@ export function handleError(
     errors.add(
       createGraphQLError(error.toString(), {
         extensions: {
+          code: 'INTERNAL_SERVER_ERROR',
           unexpected: true,
         },
       }),
@@ -135,17 +136,20 @@ export function getResponseInitByRespectingErrors(
 
   if ('errors' in result && result.errors?.length) {
     for (const error of result.errors) {
-      if (error.extensions?.http) {
-        if (error.extensions.http.headers) {
-          Object.assign(headers, error.extensions.http.headers);
+      if (error.extensions?.['http']) {
+        if (error.extensions['http'].headers) {
+          Object.assign(headers, error.extensions['http'].headers);
         }
-        if (isApplicationJson && error.extensions.http.spec) {
+        if (isApplicationJson && error.extensions['http'].spec) {
           continue;
         }
-        if (error.extensions.http.status && (!status || error.extensions.http.status > status)) {
-          status = error.extensions.http.status;
+        if (
+          error.extensions['http'].status &&
+          (!status || error.extensions['http'].status > status)
+        ) {
+          status = error.extensions['http'].status;
         }
-      } else if (!isOriginalGraphQLError(error) || error.extensions?.unexpected) {
+      } else if (!isOriginalGraphQLError(error) || error.extensions?.['unexpected']) {
         unexpectedErrorExists = true;
       }
     }

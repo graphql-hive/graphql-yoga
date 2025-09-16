@@ -27,12 +27,12 @@ export const yoga = createYoga<unknown, { currentUser: User }>({
       mode: 'protect-granular',
       async resolveUserFn(context: YogaInitialContext) {
         let accessToken = context.request.headers.get('x-authorization') ?? null;
-        if (accessToken === null) {
+        if (accessToken == null) {
           const url = new URL(context.request.url);
           accessToken = url.searchParams.get('x-authorization');
         }
 
-        if (accessToken === null) {
+        if (accessToken == null) {
           return null;
         }
         return users[accessToken] ?? null;
@@ -41,15 +41,15 @@ export const yoga = createYoga<unknown, { currentUser: User }>({
   ],
   schema: createSchema({
     typeDefs: /* GraphQL */ `
-      directive @auth on FIELD_DEFINITION
+      directive @authenticated on FIELD_DEFINITION
 
       type Query {
-        requiresAuth: String @auth
+        requiresAuth: String @authenticated
         public: String
       }
 
       type Subscription {
-        requiresAuth: String @auth
+        requiresAuth: String @authenticated
         public: String
       }
     `,

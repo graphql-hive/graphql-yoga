@@ -1,14 +1,17 @@
 import { getOperationAST } from 'graphql';
 import { GetEnvelopedFn } from '@envelop/core';
 import { ExecutionArgs } from '@graphql-tools/executor';
+import { handleMaybePromise, iterateAsync, MaybePromise } from '@whatwg-node/promise-helpers';
+import { ServerAdapterInitialContext } from '@whatwg-node/server';
 import { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import { FetchAPI, GraphQLParams } from './types.js';
 
-export async function processResult({
+export function processResult<TServerContext>({
   request,
   result,
   fetchAPI,
   onResultProcessHooks,
+  serverContext,
 }: {
   request: Request;
   result: ResultProcessorInput;
@@ -16,44 +19,50 @@ export async function processResult({
   /**
    * Response Hooks
    */
-  onResultProcessHooks: OnResultProcess[];
-}) {
+  onResultProcessHooks: OnResultProcess<TServerContext>[];
+  serverContext: TServerContext & ServerAdapterInitialContext;
+}): MaybePromise<Response> {
   let resultProcessor: ResultProcessor | undefined;
 
   const acceptableMediaTypes: string[] = [];
   let acceptedMediaType = '*/*';
 
-  for (const onResultProcessHook of onResultProcessHooks) {
-    await onResultProcessHook({
-      request,
-      acceptableMediaTypes,
-      result,
-      setResult(newResult) {
-        result = newResult;
-      },
-      resultProcessor,
-      setResultProcessor(newResultProcessor, newAcceptedMimeType) {
-        resultProcessor = newResultProcessor;
-        acceptedMediaType = newAcceptedMimeType;
-      },
-    });
-  }
+  return handleMaybePromise(
+    () =>
+      iterateAsync(onResultProcessHooks, onResultProcessHook =>
+        onResultProcessHook({
+          request,
+          acceptableMediaTypes,
+          result,
+          setResult(newResult) {
+            result = newResult;
+          },
+          resultProcessor,
+          setResultProcessor(newResultProcessor, newAcceptedMimeType) {
+            resultProcessor = newResultProcessor;
+            acceptedMediaType = newAcceptedMimeType;
+          },
+          serverContext,
+        }),
+      ),
+    () => {
+      // If no result processor found for this result, return an error
+      if (!resultProcessor) {
+        return new fetchAPI.Response(null, {
+          status: 406,
+          statusText: 'Not Acceptable',
+          headers: {
+            accept: acceptableMediaTypes.join('; charset=utf-8, '),
+          },
+        });
+      }
 
-  // If no result processor found for this result, return an error
-  if (!resultProcessor) {
-    return new fetchAPI.Response(null, {
-      status: 406,
-      statusText: 'Not Acceptable',
-      headers: {
-        accept: acceptableMediaTypes.join('; charset=utf-8, '),
-      },
-    });
-  }
-
-  return resultProcessor(result, fetchAPI, acceptedMediaType);
+      return resultProcessor(result, fetchAPI, acceptedMediaType);
+    },
+  );
 }
 
-export async function processRequest({
+export function processRequest({
   params,
   enveloped,
 }: {
@@ -61,7 +70,7 @@ export async function processRequest({
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
 }) {
   // Parse GraphQLParams
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   const document = enveloped.parse(params.query!);
 
   // Validate parsed Document Node
@@ -72,22 +81,26 @@ export async function processRequest({
   }
 
   // Build the context for the execution
-  const contextValue = await enveloped.contextFactory();
-  const executionArgs: ExecutionArgs = {
-    schema: enveloped.schema,
-    document,
-    contextValue,
-    variableValues: params.variables,
-    operationName: params.operationName,
-  };
+  return handleMaybePromise(
+    () => enveloped.contextFactory(),
+    contextValue => {
+      const executionArgs: ExecutionArgs = {
+        schema: enveloped.schema,
+        document,
+        contextValue,
+        variableValues: params.variables,
+        operationName: params.operationName,
+      };
 
-  // Get the actual operation
-  const operation = getOperationAST(document, params.operationName);
+      // Get the actual operation
+      const operation = getOperationAST(document, params.operationName);
 
-  // Choose the right executor
-  const executeFn =
-    operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
+      // Choose the right executor
+      const executeFn =
+        operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
 
-  // Get the result to be processed
-  return executeFn(executionArgs);
+      // Get the result to be processed
+      return executeFn(executionArgs);
+    },
+  );
 }

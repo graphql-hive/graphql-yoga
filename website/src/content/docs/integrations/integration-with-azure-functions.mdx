@@ -1,0 +1,44 @@
+# Integration with Azure Functions
+
+Azure Functions is a serverless environment that supports JavaScript, and GraphQL Yoga runs on it
+with a few lines of code.
+
+## Installation
+
+```sh npm2yarn
+npm i @azure/functions graphql-yoga graphql
+```
+
+## Example
+
+```ts filename="graphql.ts"
+import { createSchema, createYoga } from 'graphql-yoga'
+import { app, InvocationContext } from '@azure/functions'
+
+// The `InvocationContext` is your server context
+const yoga = createYoga<InvocationContext>({
+  // This is the path to your Azure function
+  graphqlEndpoint: '/api/yoga',
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'This is the `greetings` field of the root `Query` type'
+      }
+    }
+  })
+})
+
+app.http('yoga', {
+  methods: ['GET', 'POST'],
+  authLevel: 'anonymous',
+  handler: yoga
+})
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/azure-functions).

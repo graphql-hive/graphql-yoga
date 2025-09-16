@@ -20,7 +20,7 @@ WebSockets cannot be used with
 [custom Next.js server](https://nextjs.org/docs/advanced-features/custom-server) that will serve the
 GraphQL API, WebSockets and the rest of Next.js content.
 
-This custom server implementation can be found in [`server.mjs`](server.mjs).
+This custom server implementation can be found in [`server.js`](server.js).
 
 ## Learn More
 

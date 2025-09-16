@@ -5,21 +5,51 @@
     <title>__TITLE__</title>
     <link
       rel="icon"
-      href="https://raw.githubusercontent.com/dotansimha/graphql-yoga/main/website/public/favicon.ico"
+      href="https://raw.githubusercontent.com/graphql-hive/graphql-yoga/refs/heads/main/website/src/app/favicon.ico"
     />
     <link
+      crossorigin
       rel="stylesheet"
-      href="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/style.css"
+      href="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/graphiql.css"
     />
   </head>
   <body id="body" class="no-focus-outline">
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-
-    <script type="module">
-      import { renderYogaGraphiQL } from 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/yoga-graphiql.es.js';
-
-      renderYogaGraphiQL(root, __OPTS__);
+    <div id="root">Loading __TITLE__...</div>
+    <script>
+      function prepareBlob(workerContent) {
+        const blob = new Blob([workerContent], { type: 'application/javascript' });
+        return URL.createObjectURL(blob);
+      }
+      const workers = {};
+      const workerUrls = {
+        editorWorkerService:
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/editor.worker.bundle.js',
+        json: 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/json.worker.bundle.js',
+        graphql:
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/graphql.worker..bundle.js',
+      };
+      function prepareWorkers() {
+        return Promise.all(
+          Object.entries(workerUrls).map(async ([label, url]) => {
+            const res = await fetch(url);
+            const text = await res.text();
+            workers[label] = prepareBlob(text);
+          }),
+        );
+      }
+      self['MonacoEnvironment'] = {
+        globalAPI: false,
+        getWorkerUrl: function (moduleId, label) {
+          return workers[label];
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/yoga-graphiql.umd.js"></script>
+    <script>
+      prepareWorkers().finally(() => {
+        YogaGraphiQL.renderYogaGraphiQL(root, __OPTS__);
+      });
     </script>
   </body>
 </html>

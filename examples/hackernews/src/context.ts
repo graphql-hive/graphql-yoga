@@ -7,7 +7,5 @@ export type GraphQLContext = {
 };
 
 export async function createContext(): Promise<GraphQLContext> {
-  return {
-    prisma,
-  };
+  return { prisma };
 }

@@ -1,11 +1,13 @@
 import { createServer, Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import { parse } from 'graphql';
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
+import { parse, versionInfo } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
-import { ApolloClient, FetchResult, InMemoryCache } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 import { YogaLink } from '@graphql-yoga/apollo-link';
 
-describe('Yoga Apollo Link', () => {
+const describeIf = (condition: boolean) => (condition ? describe : describe.skip);
+describeIf(versionInfo.major >= 16)('Yoga Apollo Link', () => {
   const endpoint = '/graphql';
   const hostname = '127.0.0.1';
   const yoga = createYoga({
@@ -36,7 +38,7 @@ describe('Yoga Apollo Link', () => {
           time: {
             async *subscribe() {
               while (true) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await setTimeout$(1000);
                 yield new Date().toISOString();
               }
             },
@@ -49,7 +51,7 @@ describe('Yoga Apollo Link', () => {
 
   let server: Server;
   let url: string;
-  let client: ApolloClient<unknown>;
+  let client: ApolloClient;
 
   beforeAll(async () => {
     server = createServer(yoga);
@@ -75,8 +77,7 @@ describe('Yoga Apollo Link', () => {
         }
       `),
     });
-    expect(result.error).toBeUndefined();
-    expect(result.errors?.length).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toEqual({
       hello: 'Hello Apollo Client!',
     });
@@ -93,8 +94,9 @@ describe('Yoga Apollo Link', () => {
     const collectedValues: string[] = [];
     let i = 0;
     await new Promise<void>(resolve => {
-      const subscription = observable.subscribe((result: FetchResult) => {
-        collectedValues.push(result.data?.time);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const subscription = observable.subscribe((result: any) => {
+        collectedValues.push(result.data?.['time']);
         i++;
         if (i > 2) {
           subscription.unsubscribe();
@@ -122,7 +124,7 @@ describe('Yoga Apollo Link', () => {
         }),
       },
     });
-    expect(result.errors?.length).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toEqual({
       readFile: 'Hello World',
     });

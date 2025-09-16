@@ -1,5 +1,6 @@
 import { GraphQLSchema, isSchema } from 'graphql';
 import { PromiseOrValue } from '@envelop/core';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
 import type { Plugin } from './types.js';
 
@@ -12,9 +13,9 @@ export type YogaSchemaDefinition<TServerContext, TUserContext> =
     >);
 
 export const useSchema = <
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   TServerContext = {},
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   TUserContext = {},
 >(
   schemaDef?: YogaSchemaDefinition<TServerContext, TUserContext>,
@@ -34,8 +35,15 @@ export const useSchema = <
     return {
       onRequestParse() {
         return {
-          async onRequestParseDone() {
-            schema ||= await schemaDef;
+          onRequestParseDone() {
+            if (!schema) {
+              return handleMaybePromise(
+                () => schemaDef,
+                schemaDef => {
+                  schema = schemaDef;
+                },
+              );
+            }
           },
         };
       },
@@ -53,12 +61,17 @@ export const useSchema = <
   return {
     onRequestParse({ request, serverContext }) {
       return {
-        async onRequestParseDone() {
-          const schema = await schemaDef({
-            ...(serverContext as TServerContext),
-            request,
-          });
-          schemaByRequest.set(request, schema);
+        onRequestParseDone() {
+          return handleMaybePromise(
+            () =>
+              schemaDef({
+                ...(serverContext as TServerContext),
+                request,
+              }),
+            schemaDef => {
+              schemaByRequest.set(request, schemaDef);
+            },
+          );
         },
       };
     },

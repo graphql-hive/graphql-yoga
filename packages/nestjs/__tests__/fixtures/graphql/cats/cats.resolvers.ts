@@ -3,7 +3,7 @@ import { Args, Mutation, Query, ResolveField, Resolver, Subscription } from '@ne
 import { createPubSub } from '../../../utils/pubsub';
 import { CatsGuard } from './cats.guard';
 import { CatsService } from './cats.service';
-import { Cat } from './interfaces/cat.interface';
+import { type Cat } from './interfaces/cat.interface';
 
 const catCreated = createPubSub<{ catCreated: Cat }>();
 

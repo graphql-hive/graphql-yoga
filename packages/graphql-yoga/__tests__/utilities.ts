@@ -10,7 +10,6 @@ export function eventStream<TType = unknown>(source: ReadableStream<Uint8Array>)
     }));
     const iterable = source[Symbol.asyncIterator]();
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const result = await Promise.race([cancel, iterable.next()]);
 

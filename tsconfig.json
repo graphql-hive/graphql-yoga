@@ -1,25 +1,24 @@
 {
+  "extends": ["@tsconfig/strictest"],
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "experimentalDecorators": true,
-    "module": "NodeNext",
     "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["esnext"],
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "sourceMap": false,
-    "declaration": true,
+    "declaration": false,
     "noImplicitThis": true,
-    "strict": true,
     "alwaysStrict": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": false,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "jsx": "preserve",
+    "exactOptionalPropertyTypes": false,
+    "noUnusedLocals": false,
     "paths": {
       "graphql-yoga": ["packages/graphql-yoga/src/index.ts"],
       "@graphql-yoga/subscription": ["packages/subscription/src/index.ts"],
@@ -29,9 +28,16 @@
       "@graphql-yoga/apollo-link": ["packages/client/apollo-link/src/index.ts"],
       "@graphql-yoga/urql-exchange": ["packages/client/urql-exchange/src/index.ts"],
       "@graphql-yoga/*": ["packages/*/src/index.ts"]
-    },
-    "jsx": "preserve"
+    }
   },
   "include": ["packages"],
-  "exclude": ["**/dist", "**/temp", "**/.bob", "**/examples", "**/benchmark"]
+  "exclude": [
+    "**/dist",
+    "**/node_modules",
+    "**/.bob",
+    "**/e2e",
+    "**/benchmark",
+    "**/website",
+    "**/examples"
+  ]
 }

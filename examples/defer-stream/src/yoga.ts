@@ -1,8 +1,7 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
-
-const wait = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
 const typeDefs = /* GraphQL */ `
   type Query {
@@ -59,15 +58,15 @@ const resolvers = {
     async *alphabet(_, { waitFor }) {
       for (const character of alphabet) {
         yield character;
-        await wait(waitFor);
+        await setTimeout$(waitFor);
       }
     },
     fastField: async () => {
-      await wait(100);
+      await setTimeout$(100);
       return 'I am speed';
     },
     slowField: async (_, { waitFor }) => {
-      await wait(waitFor);
+      await setTimeout$(waitFor);
       return 'I am slow';
     },
   },

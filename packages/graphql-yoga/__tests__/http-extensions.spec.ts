@@ -631,7 +631,9 @@ describe('Result Extensions', () => {
         this.name = 'CustomError';
       }
 
-      toJSON() {
+      // eslint-disable-next-line
+      // @ts-ignore - Only in graphql@^16 is `toJSON` a base method
+      /* override */ toJSON() {
         return {
           message: this.message,
           extensions: { name: this.name, foo: 'bar' },

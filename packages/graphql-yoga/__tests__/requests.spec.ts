@@ -19,7 +19,7 @@ describe('requests', () => {
         requestUrl: (_, __, ctx) => ctx.request.url,
       },
       Mutation: {
-        echo(root, args) {
+        echo(_, args) {
           return args.str;
         },
       },
@@ -402,6 +402,47 @@ describe('requests', () => {
     expect(body.errors?.[0].message).toBe('Unexpected parameter "test" in the request body.');
   });
 
+  it('does not error if there is a specified invalid parameter in the request body', async () => {
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      extraParamNames: ['test'],
+    });
+    const response = await yoga.fetch(`http://yoga/graphql`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/graphql+json',
+      },
+      body: JSON.stringify({ query: '{ ping }', test: 'a' }),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.errors).toBeUndefined();
+    expect(body.data.ping).toBe('pong');
+  });
+
+  it('throws when there is an invalid parameter in the request body other than the specified invalid parameters', async () => {
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      extraParamNames: ['test'],
+    });
+    const response = await yoga.fetch(`http://yoga/graphql`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/graphql+json',
+      },
+      body: JSON.stringify({ query: '{ ping }', test2: 'a' }),
+    });
+
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.data).toBeUndefined();
+    expect(body.errors?.[0].message).toBe('Unexpected parameter "test2" in the request body.');
+  });
+
   it('should use supported accept header when multiple are provided', async () => {
     const response = await yoga.fetch('http://yoga/test-graphql', {
       method: 'POST',
@@ -493,7 +534,7 @@ describe('requests', () => {
     const firstResBody = await firstRes.json();
     expect(firstResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(1);
-    expect(onExecuteFn.mock.calls[0][0].args.contextValue.request).toBe(firstReq);
+    expect(onExecuteFn.mock.calls[0]?.[0].args.contextValue.request).toBe(firstReq);
     const secondReq = new Request('http://yoga/graphql', {
       method: 'POST',
       headers: {
@@ -506,9 +547,9 @@ describe('requests', () => {
     const secondResBody = await secondRes.json();
     expect(secondResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(2);
-    expect(onExecuteFn.mock.calls[1][0].args.contextValue.request).toBe(secondReq);
-    expect(onExecuteFn.mock.calls[1][0].args.contextValue).not.toBe(
-      onExecuteFn.mock.calls[0][0].args.contextValue,
+    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue.request).toBe(secondReq);
+    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue).not.toBe(
+      onExecuteFn.mock.calls[0]![0].args.contextValue,
     );
   });
 });

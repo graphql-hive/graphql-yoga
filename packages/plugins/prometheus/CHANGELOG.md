@@ -1,5 +1,575 @@
 # @graphql-yoga/plugin-prometheus
 
+## 6.10.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`e7b8906`](https://github.com/graphql-hive/graphql-yoga/commit/e7b8906d2259c643b61a4fc1d8345df533a64eb9)]:
+  - graphql-yoga@5.15.2
+
+## 6.10.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ecd605b`](https://github.com/graphql-hive/graphql-yoga/commit/ecd605bc3d8ae3989dd09be31b89c1f5ae94c8be)]:
+  - graphql-yoga@5.15.1
+
+## 6.10.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ccb5c53`](https://github.com/graphql-hive/graphql-yoga/commit/ccb5c536a81165a8581e63341c5a80109fe15cf5),
+  [`ccb5c53`](https://github.com/graphql-hive/graphql-yoga/commit/ccb5c536a81165a8581e63341c5a80109fe15cf5)]:
+  - graphql-yoga@5.15.0
+
+## 6.9.0
+
+### Patch Changes
+
+- [#4087](https://github.com/graphql-hive/graphql-yoga/pull/4087)
+  [`6e04a7f`](https://github.com/graphql-hive/graphql-yoga/commit/6e04a7ff03295d5f12277b8f48428ba61f46f58e)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^13.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/13.0.0)
+    (from `^12.1.3`, in `dependencies`)
+- Updated dependencies
+  [[`5f75a42`](https://github.com/graphql-hive/graphql-yoga/commit/5f75a42c8a739fad10f951e2d4953495e93b743e),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1),
+  [`98c82a5`](https://github.com/graphql-hive/graphql-yoga/commit/98c82a5d70040f488d72cfda52b8afa81b5da2a1)]:
+  - graphql-yoga@5.14.0
+
+## 6.8.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`8b41a52`](https://github.com/graphql-hive/graphql-yoga/commit/8b41a522917826b7ea24eca97e421b5aaeda6337)]:
+  - graphql-yoga@5.13.5
+
+## 6.8.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`000c33d`](https://github.com/graphql-hive/graphql-yoga/commit/000c33dc043454f4b73d15f03c3e688cfb9d0901)]:
+  - graphql-yoga@5.13.4
+
+## 6.8.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1773c8c`](https://github.com/graphql-hive/graphql-yoga/commit/1773c8c193e7cf7dc34710da8422fb951c4f4a41),
+  [`3a7ef74`](https://github.com/graphql-hive/graphql-yoga/commit/3a7ef74eae1f1926213f671b20521bed14496873)]:
+  - graphql-yoga@5.13.3
+
+## 6.8.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`abe91bd`](https://github.com/dotansimha/graphql-yoga/commit/abe91bd9039376f50b81babae61bcfb8f7e01a36),
+  [`9311842`](https://github.com/dotansimha/graphql-yoga/commit/9311842f82e098404c31921244a74695cd1f2392)]:
+  - graphql-yoga@5.13.2
+
+## 6.8.1
+
+### Patch Changes
+
+- [#3865](https://github.com/dotansimha/graphql-yoga/pull/3865)
+  [`dee7995`](https://github.com/dotansimha/graphql-yoga/commit/dee79952919d001bdd4f5b3d802be1bc62051565)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^12.1.3` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/12.1.3)
+    (from `^12.1.1`, in `dependencies`)
+- Updated dependencies
+  [[`dee7995`](https://github.com/dotansimha/graphql-yoga/commit/dee79952919d001bdd4f5b3d802be1bc62051565)]:
+  - graphql-yoga@5.13.1
+
+## 6.8.0
+
+### Patch Changes
+
+- [#3793](https://github.com/dotansimha/graphql-yoga/pull/3793)
+  [`63b78d5`](https://github.com/dotansimha/graphql-yoga/commit/63b78d5a7f6f7fd1d5939e92ede2574fda9d08dd)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^12.1.1` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/12.1.1)
+    (from `^12.0.0`, in `dependencies`)
+- Updated dependencies
+  [[`63b78d5`](https://github.com/dotansimha/graphql-yoga/commit/63b78d5a7f6f7fd1d5939e92ede2574fda9d08dd),
+  [`63b78d5`](https://github.com/dotansimha/graphql-yoga/commit/63b78d5a7f6f7fd1d5939e92ede2574fda9d08dd),
+  [`6ed67e8`](https://github.com/dotansimha/graphql-yoga/commit/6ed67e8cd7e5fe6f982096a3056d3336f4a29752)]:
+  - graphql-yoga@5.13.0
+
+## 6.7.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a6b3de9`](https://github.com/dotansimha/graphql-yoga/commit/a6b3de917ca50806d691330a58ee17e31c87cd2c)]:
+  - graphql-yoga@5.12.2
+
+## 6.7.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`fbf328c`](https://github.com/dotansimha/graphql-yoga/commit/fbf328c2af38f4d449221bf262561fd76c64db55)]:
+  - graphql-yoga@5.12.1
+
+## 6.7.0
+
+### Patch Changes
+
+- [#3780](https://github.com/dotansimha/graphql-yoga/pull/3780)
+  [`ea63828`](https://github.com/dotansimha/graphql-yoga/commit/ea6382820673b63b80885d5a317900a677bbc29a)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^12.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/12.0.0)
+    (from `^11.1.0`, in `dependencies`)
+- Updated dependencies
+  [[`96498ee`](https://github.com/dotansimha/graphql-yoga/commit/96498ee25fd310d781ce006b1fe7064c66e64fc3),
+  [`5150146`](https://github.com/dotansimha/graphql-yoga/commit/5150146a2d0b8f444a3527950d7163126a0fe24b),
+  [`5150146`](https://github.com/dotansimha/graphql-yoga/commit/5150146a2d0b8f444a3527950d7163126a0fe24b)]:
+  - graphql-yoga@5.12.0
+
+## 6.6.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5fd15b8`](https://github.com/dotansimha/graphql-yoga/commit/5fd15b851a0141839346ce918207a607c00ac205),
+  [`d13b8a4`](https://github.com/dotansimha/graphql-yoga/commit/d13b8a4a25f665e8484d64214b566e207de73514)]:
+  - graphql-yoga@5.11.0
+
+## 6.5.9
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1c055f5`](https://github.com/dotansimha/graphql-yoga/commit/1c055f597b59a2c6c6ab8ae10b8e9b771c91c2c1)]:
+  - graphql-yoga@5.10.11
+
+## 6.5.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.10.10
+
+## 6.5.7
+
+### Patch Changes
+
+- [#3651](https://github.com/dotansimha/graphql-yoga/pull/3651)
+  [`690294a`](https://github.com/dotansimha/graphql-yoga/commit/690294a97fb57bad9ddb38d69d14fcb3cbf5c4ff)
+  Thanks [@ardatan](https://github.com/ardatan)! - `request` is missing when GraphQL WS is used as
+  expected, and as we don't need HTTP/Yoga specific metrics, this should be skipped
+
+## 6.5.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d24c5d5`](https://github.com/dotansimha/graphql-yoga/commit/d24c5d58e05b6f3b59b7745a55ba9c8dc6fb3aa3),
+  [`d24c5d5`](https://github.com/dotansimha/graphql-yoga/commit/d24c5d58e05b6f3b59b7745a55ba9c8dc6fb3aa3)]:
+  - graphql-yoga@5.10.9
+
+## 6.5.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ed344ea`](https://github.com/dotansimha/graphql-yoga/commit/ed344ea7fed85163eba0c636b5b7f64c482ce150)]:
+  - graphql-yoga@5.10.8
+
+## 6.5.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`8fee214`](https://github.com/dotansimha/graphql-yoga/commit/8fee214eac4be3e9e18935502d32de69f0a1484e),
+  [`1df4912`](https://github.com/dotansimha/graphql-yoga/commit/1df4912693fad5efaf2fe99bf0433c9abc829004)]:
+  - graphql-yoga@5.10.7
+
+## 6.5.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`121ccba`](https://github.com/dotansimha/graphql-yoga/commit/121ccbafcafb7e90d4ec6c210b62a439a040d41a)]:
+  - graphql-yoga@5.10.6
+
+## 6.5.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`eca7cd1`](https://github.com/dotansimha/graphql-yoga/commit/eca7cd1163c58a5505ea371f745cb196f8bb20df),
+  [`05fe345`](https://github.com/dotansimha/graphql-yoga/commit/05fe34588fbeb28de847db9d7d58c5a6ae90e36b)]:
+  - graphql-yoga@5.10.5
+
+## 6.5.1
+
+### Patch Changes
+
+- [#3520](https://github.com/dotansimha/graphql-yoga/pull/3520)
+  [`944ecd5`](https://github.com/dotansimha/graphql-yoga/commit/944ecd55abb1b77e88950eb3396919939915feb7)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^11.1.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/11.1.0)
+    (from `11.1.0`, in `dependencies`)
+- Updated dependencies
+  [[`944ecd5`](https://github.com/dotansimha/graphql-yoga/commit/944ecd55abb1b77e88950eb3396919939915feb7)]:
+  - graphql-yoga@5.10.4
+
+## 6.5.0
+
+### Minor Changes
+
+- [#3489](https://github.com/dotansimha/graphql-yoga/pull/3489)
+  [`131dfa3`](https://github.com/dotansimha/graphql-yoga/commit/131dfa3f1b2e644501de4cfbc261d4b384bd20b1)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Allow to explicitly control which
+  events and timing should be observe.
+
+  Each metric can now be configured to observe events and timings only for certain GraphQL pipeline
+  phases, or depending on the request context.
+
+  ## Example: trace only execution and subscription errors
+
+  ```ts
+  import { execute, parse, specifiedRules, subscribe, validate } from 'graphql'
+  import { envelop, useEngine } from '@envelop/core'
+  import { usePrometheus } from '@envelop/prometheus'
+
+  const TRACKED_OPERATION_NAMES = [
+    // make a list of operation that you want to monitor
+  ]
+
+  const getEnveloped = envelop({
+    plugins: [
+      useEngine({ parse, validate, specifiedRules, execute, subscribe }),
+      usePrometheus({
+        metrics: {
+          // Here, an array of phases can be provided to enable the metric only on certain phases.
+          // In this example, only error happening during the execute and subscribe phases will tracked
+          graphql_envelop_phase_error: ['execute', 'subscribe']
+        }
+      })
+    ]
+  })
+  ```
+
+  ## Example: Monitor timing only of a set of operations by name
+
+  ```ts
+  import { execute, parse, specifiedRules, subscribe, validate } from 'graphql'
+  import { envelop, useEngine } from '@envelop/core'
+  import { usePrometheus } from '@envelop/prometheus'
+
+  const TRACKED_OPERATION_NAMES = [
+    // make a list of operation that you want to monitor
+  ]
+
+  const getEnveloped = envelop({
+    plugins: [
+      useEngine({ parse, validate, specifiedRules, execute, subscribe }),
+      usePrometheus({
+        metrics: {
+          graphql_yoga_http_duration: createHistogram({
+            registry,
+            histogram: {
+              name: 'graphql_envelop_request_duration',
+              help: 'Time spent on HTTP connection',
+              labelNames: ['operationName']
+            },
+            fillLabelsFn: ({ operationName }, _rawContext) => ({ operationName }),
+            phases: ['execute', 'subscribe'],
+
+            // Here `shouldObserve` control if the request timing should be observed, based on context
+            shouldObserve: ({ operationName }) => TRACKED_OPERATIONS.includes(operationName)
+          })
+        }
+      })
+    ]
+  })
+  ```
+
+  ## Default Behavior Change
+
+  A metric is enabled using `true` value in metrics options will observe in every phases available.
+
+  Previously, which phase was observe was depending on which other metric were enabled. For example,
+  this config would only trace validation error:
+
+  ```ts
+  usePrometheus({
+    metrics: {
+      graphql_envelop_phase_error: true,
+      graphql_envelop_phase_validate: true
+    }
+  })
+  ```
+
+  This is no longer the case. If you were relying on this behavior, please use an array of string to
+  restrict observed phases.
+
+  ```ts
+  usePrometheus({
+    metrics: {
+      graphql_envelop_phase_error: ['validate']
+    }
+  })
+  ```
+
+  ## Deprecation
+
+  The `fillLabelFn` function was provided the `response` and `request` through the `context`
+  argument.
+
+  This is now deprecated, `request` and `response` are now available in the first `params` argument.
+  This change allows to provide better typing, since `context` is not typed.
+
+### Patch Changes
+
+- [#3489](https://github.com/dotansimha/graphql-yoga/pull/3489)
+  [`131dfa3`](https://github.com/dotansimha/graphql-yoga/commit/131dfa3f1b2e644501de4cfbc261d4b384bd20b1)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@11.1.0-alpha-20241122091727-adade563355e3d213f27427a9a1d86adf9431d41` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/11.1.0)
+    (from `11.0.0`, in `dependencies`)
+
+- [#3519](https://github.com/dotansimha/graphql-yoga/pull/3519)
+  [`ca1e8b4`](https://github.com/dotansimha/graphql-yoga/commit/ca1e8b44c26e509397bee5cfdb5074f6e809fc34)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@11.1.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/11.1.0)
+    (from `11.1.0-alpha-20241122091727-adade563355e3d213f27427a9a1d86adf9431d41`, in `dependencies`)
+
+## 6.4.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c93366d`](https://github.com/dotansimha/graphql-yoga/commit/c93366df8b4a2edd209d1eb94d989eaba3b7031b),
+  [`c93366d`](https://github.com/dotansimha/graphql-yoga/commit/c93366df8b4a2edd209d1eb94d989eaba3b7031b)]:
+  - graphql-yoga@5.10.3
+
+## 6.4.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`7a413bc`](https://github.com/dotansimha/graphql-yoga/commit/7a413bc4fac839fbdc4fbb3cd5241c7828b2f6da),
+  [`7a413bc`](https://github.com/dotansimha/graphql-yoga/commit/7a413bc4fac839fbdc4fbb3cd5241c7828b2f6da)]:
+  - graphql-yoga@5.10.2
+
+## 6.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`20cd9b6`](https://github.com/dotansimha/graphql-yoga/commit/20cd9b6cd58b507580e3d39621eb3dbc2ca4e781)]:
+  - graphql-yoga@5.10.1
+
+## 6.4.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f81501c`](https://github.com/dotansimha/graphql-yoga/commit/f81501c70213330323a1d6ee9d45b3206af3675f)]:
+  - graphql-yoga@5.10.0
+
+## 6.3.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2523d9f`](https://github.com/dotansimha/graphql-yoga/commit/2523d9fa954b82e11412918aab2ae6fe7e7611d6),
+  [`87ee333`](https://github.com/dotansimha/graphql-yoga/commit/87ee333724c0c6e0b9f72aa50e38a0a8a080593f)]:
+  - graphql-yoga@5.9.0
+
+## 6.2.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`18fe916`](https://github.com/dotansimha/graphql-yoga/commit/18fe916853fc6192b8b2a607f91b67f3a7cae7bc),
+  [`6bb19ed`](https://github.com/dotansimha/graphql-yoga/commit/6bb19edf5b103d6d9b6088e2e22cfa71a85f26f7)]:
+  - graphql-yoga@5.8.0
+
+## 6.1.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5dae4ab`](https://github.com/dotansimha/graphql-yoga/commit/5dae4abeb6a4aa82f396a19d31d0155fe10bc752),
+  [`5dae4ab`](https://github.com/dotansimha/graphql-yoga/commit/5dae4abeb6a4aa82f396a19d31d0155fe10bc752),
+  [`5dae4ab`](https://github.com/dotansimha/graphql-yoga/commit/5dae4abeb6a4aa82f396a19d31d0155fe10bc752),
+  [`5dae4ab`](https://github.com/dotansimha/graphql-yoga/commit/5dae4abeb6a4aa82f396a19d31d0155fe10bc752)]:
+  - graphql-yoga@5.7.0
+
+## 6.0.0
+
+### Major Changes
+
+- [#3391](https://github.com/dotansimha/graphql-yoga/pull/3391)
+  [`0788d8a`](https://github.com/dotansimha/graphql-yoga/commit/0788d8ab90642a87af0623cfacfdb85aa9f38500)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - **Breaking Change:** Rename all metrics
+  options to their actual metric name to avoid confusion.
+
+  All metric options have been moved under a mandatory `metrics` key, and the name of each options
+  have been renamed to match the default metric name.
+
+  The plugin option argument is also now mandatory.
+
+  ```diff
+  export const serveConfig = defineConfig({
+    plugins: pluginCtx => [
+      usePrometheus({
+        ...pluginCtx,
+
+        // Enable all available metrics
+  -     http: true
+  -     requestSummary: true,
+  -     parse: true,
+  -     validate: true,
+  -     contextBuilding: true,
+  -     execute: true,
+  -     subscribe: true,
+  -     errors: true,
+  -     deprecatedFields: true,
+  -     requestTotalDuration: true,
+  -     schemaChangeCount: true,
+
+        // Warning: enabling resolvers level metrics will introduce significant overhead
+  -     resolvers: true,
+  +     metrics: {
+  +       graphql_yoga_http_duration: true,
+  +       graphql_envelop_request_time_summary: true,
+  +       graphql_envelop_phase_parse: true,
+  +       graphql_envelop_phase_validate: true,
+  +       graphql_envelop_phase_context: true,
+  +       graphql_envelop_phase_execute: true,
+  +       graphql_envelop_phase_subscribe: true,
+  +       graphql_envelop_error_result: true,
+  +       graphql_envelop_deprecated_field: true,
+  +       graphql_envelop_request_duration: true,
+  +       graphql_envelop_schema_change: true,
+
+          // Warning: enabling resolvers level metrics will introduce significant overhead
+  +       graphql_envelop_execute_resolver: true,
+  +     }
+      })
+    ]
+  })
+  ```
+
+- [#3408](https://github.com/dotansimha/graphql-yoga/pull/3408)
+  [`88393b3`](https://github.com/dotansimha/graphql-yoga/commit/88393b3fae602c969ce99a0075439e1322c896d3)
+  Thanks [@dotansimha](https://github.com/dotansimha)! - By default, the following metrics are now
+  enabled:
+  - `graphql_envelop_deprecated_field`
+  - `graphql_envelop_request`
+  - `graphql_envelop_request_duration`
+  - `graphql_envelop_request_time_summary`
+  - `graphql_envelop_phase_parse`
+  - `graphql_envelop_phase_validate`
+  - `graphql_envelop_phase_context`
+  - `graphql_envelop_error_result`
+  - `graphql_envelop_phase_execute`
+  - `graphql_envelop_phase_subscribe`
+  - `graphql_envelop_schema_change`
+  - `graphql_yoga_http_duration`
+
+### Minor Changes
+
+- [#3391](https://github.com/dotansimha/graphql-yoga/pull/3391)
+  [`0788d8a`](https://github.com/dotansimha/graphql-yoga/commit/0788d8ab90642a87af0623cfacfdb85aa9f38500)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Add missing labels `path` and `phase`
+  of `graphql_envelop_error_result` metric to the configuration.
+
+  Add missing labels `method` and `statusCode` of `graphql_yoga_http_duration` metric to the
+  configuration.
+
+### Patch Changes
+
+- [#3391](https://github.com/dotansimha/graphql-yoga/pull/3391)
+  [`0788d8a`](https://github.com/dotansimha/graphql-yoga/commit/0788d8ab90642a87af0623cfacfdb85aa9f38500)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@11.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/11.0.0)
+    (from `^10.0.0`, in `dependencies`)
+
+## 5.3.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0866c1b`](https://github.com/dotansimha/graphql-yoga/commit/0866c1be8868eb891a0a62e36c9270d87f205330)]:
+  - graphql-yoga@5.6.3
+
+## 5.3.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b7bf47b`](https://github.com/dotansimha/graphql-yoga/commit/b7bf47bf72f3c04de6de7866aa68cdd5eac90566),
+  [`81a736b`](https://github.com/dotansimha/graphql-yoga/commit/81a736be76cb91049fc9ef54f536ce79e0c90e16)]:
+  - graphql-yoga@5.6.2
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`4252e3d`](https://github.com/dotansimha/graphql-yoga/commit/4252e3d0e664e3c247c709cd47a0645c68dc527a)]:
+  - graphql-yoga@5.6.1
+
+## 5.3.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9f3f945`](https://github.com/dotansimha/graphql-yoga/commit/9f3f94522a9e8a7a19657efdd445a360ec244d55)]:
+  - graphql-yoga@5.6.0
+
+## 5.2.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0208024`](https://github.com/dotansimha/graphql-yoga/commit/02080249adb8b120d44a89126571145dc3be8e4e)]:
+  - graphql-yoga@5.5.0
+
+## 5.1.0
+
+### Patch Changes
+
+- [#3300](https://github.com/dotansimha/graphql-yoga/pull/3300)
+  [`fdd902c`](https://github.com/dotansimha/graphql-yoga/commit/fdd902c2a713c6bd951e1b1e6570164b6ff2d546)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`graphql-yoga@workspace:^` ↗︎](https://www.npmjs.com/package/graphql-yoga/v/workspace:^) (from
+    `^5.3.1`, in `peerDependencies`)
+
+- [#3278](https://github.com/dotansimha/graphql-yoga/pull/3278)
+  [`edf3737`](https://github.com/dotansimha/graphql-yoga/commit/edf37376ff3bdbc718114faae3174f1b8574c77a)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Fix labels not filled properly on
+  invalid operations
+
+- Updated dependencies
+  [[`4cd43b9`](https://github.com/dotansimha/graphql-yoga/commit/4cd43b9ff56ad9358dc897f4bb87a6a94f953047),
+  [`fdd902c`](https://github.com/dotansimha/graphql-yoga/commit/fdd902c2a713c6bd951e1b1e6570164b6ff2d546),
+  [`d5dfe99`](https://github.com/dotansimha/graphql-yoga/commit/d5dfe99af030a5afac26968ba8dd81dee6df0dc2),
+  [`7335a82`](https://github.com/dotansimha/graphql-yoga/commit/7335a82a4b0696c464311a5027a43b16c7f68156),
+  [`f9aa1cd`](https://github.com/dotansimha/graphql-yoga/commit/f9aa1cdc968816a9f83f054dbd24799c85f71a2c)]:
+  - graphql-yoga@5.4.0
+
 ## 5.0.0
 
 ### Major Changes
@@ -23,7 +593,6 @@
 
   If you need to be sure metrics configuration is up to date after a plugin re-initialization, you
   can either:
-
   - restart the whole node process instead of just recreating a graphql server at runtime
   - clear the registry using `registry.clear()` before plugin re-initialization:
     ```ts
@@ -184,7 +753,6 @@
 - [#3050](https://github.com/dotansimha/graphql-yoga/pull/3050)
   [`17343a1e`](https://github.com/dotansimha/graphql-yoga/commit/17343a1e6b6ed9f4879d49e0d73b32b3eea31ce9)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`prom-client@^15.0.0` ↗︎](https://www.npmjs.com/package/prom-client/v/15.0.0) (from
     `^13 || ^14.0.0`, in `peerDependencies`)
@@ -192,7 +760,6 @@
 - [#3070](https://github.com/dotansimha/graphql-yoga/pull/3070)
   [`5b615478`](https://github.com/dotansimha/graphql-yoga/commit/5b6154783957874281bdf180575cdf57fadb75bf)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@9.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/9.0.0)
     (from `8.0.3`, in `dependencies`)
@@ -217,7 +784,6 @@
 - [#2985](https://github.com/dotansimha/graphql-yoga/pull/2985)
   [`75ee8523`](https://github.com/dotansimha/graphql-yoga/commit/75ee8523b5507ab44947abfd6e8fe612baee1ada)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@8.0.1` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/8.0.1)
     (from `8.0.0`, in `dependencies`)
@@ -375,7 +941,6 @@
 - [#2452](https://github.com/dotansimha/graphql-yoga/pull/2452)
   [`64f769ec`](https://github.com/dotansimha/graphql-yoga/commit/64f769ec41f41a0c625bc7d4c749435f573e690c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Updated dependency
     [`@envelop/prometheus@7.0.5` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/7.0.5)
     (from `7.0.4`, in `dependencies`)
@@ -407,7 +972,6 @@
 - [#2411](https://github.com/dotansimha/graphql-yoga/pull/2411)
   [`a747d249`](https://github.com/dotansimha/graphql-yoga/commit/a747d24976de5ed6bd05013ba451bffea05f4e8c)
   Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
-
   - Added dependency
     [`graphql@^15.2.0 || ^16.0.0` ↗︎](https://www.npmjs.com/package/graphql/v/15.2.0) (to
     `peerDependencies`)

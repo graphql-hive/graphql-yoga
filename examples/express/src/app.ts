@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import express from 'express';
 import { createSchema, createYoga } from 'graphql-yoga';
 
@@ -27,7 +28,7 @@ export function buildApp(app: ReturnType<typeof express>) {
           countdown: {
             async *subscribe(_, { from }) {
               for (let i = from; i >= 0; i--) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await setTimeout$(1000);
                 yield { countdown: i };
               }
             },

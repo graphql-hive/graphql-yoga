@@ -1,7 +1,7 @@
 import { Output } from '@pulumi/pulumi';
 import { OutputValue, Stack } from '@pulumi/pulumi/automation';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type DeploymentConfiguration<TProgramOutput = {}> = {
   prerequisites?: (stack: Stack) => Promise<void>;
   config?: (stack: Stack) => Promise<void>;

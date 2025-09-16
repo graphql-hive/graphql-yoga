@@ -17,6 +17,7 @@ export function useCheckMethodForGraphQL(): Plugin {
                 Allow: 'GET, POST',
               },
             },
+            code: 'BAD_REQUEST',
           },
         });
       }

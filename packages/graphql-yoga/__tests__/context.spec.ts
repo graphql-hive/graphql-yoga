@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+
 import { Plugin } from '../src/plugins/types';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
@@ -192,8 +192,9 @@ describe('Context', () => {
       expect(plugin[hook]).toHaveBeenCalledTimes(1);
     }
     const contextObject = contextObjects.values().next().value;
-    expect(contextObject).toBeDefined();
-    expect(contextObject.myExtraContext).toBe('myExtraContext');
+    expect(contextObject).toMatchObject({
+      myExtraContext: 'myExtraContext',
+    });
   });
   it('share different context objects for batched requests', async () => {
     const contextObjects = new Set();
@@ -269,5 +270,82 @@ describe('Context', () => {
       expect(contextObject).toBeDefined();
       expect((contextObject as { myExtraContext: string }).myExtraContext).toBe('myExtraContext');
     }
+  });
+
+  it('retains server context prototype', async () => {
+    class ServerContext {}
+
+    let contextObject: ServerContext | undefined;
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hello: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            hello: () => 'world',
+          },
+        },
+      }),
+      plugins: [
+        {
+          onExecute: jest.fn(({ args }) => {
+            contextObject = args.contextValue;
+          }),
+        },
+      ],
+    });
+    const queryRes = await yoga.fetch('http://yoga/graphql?query={hello}', new ServerContext());
+    await queryRes.arrayBuffer();
+
+    expect(contextObject).toBeInstanceOf(ServerContext);
+  });
+
+  it('retains server context prototype for batched requests', async () => {
+    class ServerContext {}
+
+    let contextObject: ServerContext | undefined;
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hello: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            hello: () => 'world',
+          },
+        },
+      }),
+      plugins: [
+        {
+          onExecute: jest.fn(({ args }) => {
+            contextObject = args.contextValue;
+          }),
+        },
+      ],
+      batching: true,
+    });
+    const queryRes = await yoga.fetch(
+      'http://yoga/graphql',
+      {
+        method: 'POST',
+        body: JSON.stringify([
+          { query: '{hello}' },
+          { query: '{__typename hello}' },
+          { query: '{__typename}' },
+        ]),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+      new ServerContext(),
+    );
+    await queryRes.arrayBuffer();
+
+    expect(contextObject).toBeInstanceOf(ServerContext);
   });
 });

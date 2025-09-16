@@ -1,0 +1,246 @@
+---
+description:
+  Next.js is a web framework that allows you to build websites very quickly and GraphQL Yoga can be
+  integrated with Next.js easily as an API Route.
+---
+
+# Integration with Next.js
+
+[Next.js](https://nextjs.org) is a web framework that allows you to build websites very quickly and
+GraphQL Yoga can be integrated with Next.js easily as
+[a custom route handler](https://nextjs.org/docs/app/building-your-application/routing/router-handlers).
+
+## Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql
+```
+
+## Example
+
+```ts filename="app/api/graphql/route.ts"
+// Next.js Custom Route Handler: https://nextjs.org/docs/app/building-your-application/routing/router-handlers
+import { createSchema, createYoga } from 'graphql-yoga'
+
+interface NextContext {
+  params: Promise<Record<string, string>>
+}
+
+const { handleRequest } = createYoga<NextContext>({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'This is the `greetings` field of the root `Query` type'
+      }
+    }
+  }),
+
+  // While using Next.js file convention for routing, we need to configure Yoga to use the correct endpoint
+  graphqlEndpoint: '/api/graphql',
+
+  // Yoga needs to know how to create a valid Next response
+  fetchAPI: { Response }
+})
+
+export { handleRequest as GET, handleRequest as POST, handleRequest as OPTIONS }
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/nextjs-app)
+
+### Using legacy Pages Directory
+
+The App Router and custom Route Handlers only exist since NextJS 13. If you are using an older
+version of NextJS or still using Pages Directory layout, you can still use GraphQL Yoga as an
+[API Route](https://nextjs.org/docs/pages/building-your-application/routing/api-routes).
+
+```ts filename="pages/api/graphql.ts"
+// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+export const config = {
+  api: {
+    // Disable body parsing (required for file uploads)
+    bodyParser: false
+  }
+}
+
+const schema = createSchema({
+  typeDefs: /* GraphQL */ `
+    type Query {
+      greetings: String
+    }
+  `,
+  resolvers: {
+    Query: {
+      greetings: () => 'This is the `greetings` field of the root `Query` type'
+    }
+  }
+})
+
+export default createYoga<{
+  req: NextApiRequest
+  res: NextApiResponse
+}>({
+  schema,
+  // Needed to be defined explicitly because our endpoint lives at a different path other than `/graphql`
+  graphqlEndpoint: '/api/graphql'
+})
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/nextjs-legacy-pages)
+
+## WebSockets for subscriptions
+
+WebSockets cannot be used with
+[Next.js API Routes](https://nextjs.org/docs/api-routes/introduction), we therefore have to create a
+[custom Next.js server](https://nextjs.org/docs/advanced-features/custom-server) that will serve the
+GraphQL API, WebSockets and the rest of Next.js content.
+
+### Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql ws graphql-ws
+```
+
+### Example
+
+```ts filename="server.js"
+const { createServer } = require('http')
+const { WebSocketServer } = require('ws')
+const { createYoga, createSchema } = require('graphql-yoga')
+const { useServer } = require('graphql-ws/use/ws')
+const { parse } = require('url')
+const next = require('next')
+const { setTimeout: setTimeout$ } = require('timers/promises')
+
+const dev = process.env.NODE_ENV !== 'production'
+const hostname = 'localhost'
+const port = 3000
+
+// prepare nextjs
+const app = next({ dev, hostname, port })
+
+// match the route next would use if yoga was in `pages/api/graphql.ts`
+const graphqlEndpoint = '/api/graphql'
+
+// prepare yoga
+const yoga = createYoga({
+  graphqlEndpoint,
+  graphiql: {
+    subscriptionsProtocol: 'WS'
+  },
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String!
+      }
+      type Subscription {
+        clock: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => 'world'
+      },
+      Subscription: {
+        clock: {
+          async *subscribe() {
+            for (let i = 0; i < 5; i++) {
+              yield { clock: new Date().toString() }
+              await setTimeout$(1_000)
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
+;(async () => {
+  await app.prepare()
+  const handle = app.getRequestHandler()
+
+  // create http server
+  const server = createServer(async (req, res) => {
+    try {
+      // Be sure to pass `true` as the second argument to `url.parse`.
+      // This tells it to parse the query portion of the URL.
+      const url = parse(req.url, true)
+
+      if (url.pathname.startsWith(graphqlEndpoint)) {
+        await yoga(req, res)
+      } else {
+        await handle(req, res, url)
+      }
+    } catch (err) {
+      console.error(`Error while handling ${req.url}`, err)
+      res.writeHead(500).end()
+    }
+  })
+
+  // create websocket server
+  const wsServer = new WebSocketServer({ server, path: graphqlEndpoint })
+
+  // prepare graphql-ws
+  useServer(
+    {
+      execute: args => args.rootValue.execute(args),
+      subscribe: args => args.rootValue.subscribe(args),
+      onSubscribe: async (ctx, _id, params) => {
+        const { schema, execute, subscribe, contextFactory, parse, validate } = yoga.getEnveloped({
+          ...ctx,
+          req: ctx.extra.request,
+          socket: ctx.extra.socket,
+          params
+        })
+
+        const args = {
+          schema,
+          operationName: params.operationName,
+          document: parse(params.query),
+          variableValues: params.variables,
+          contextValue: await contextFactory(),
+          rootValue: {
+            execute,
+            subscribe
+          }
+        }
+
+        const errors = validate(args.schema, args.document)
+        if (errors.length) return errors
+        return args
+      }
+    },
+    wsServer
+  )
+
+  await new Promise((resolve, reject) =>
+    server.listen(port, err => (err ? reject(err) : resolve()))
+  )
+
+  console.log(`
+> App started!
+  HTTP server running on http://${hostname}:${port}
+  GraphQL WebSocket server running on ws://${hostname}:${port}${graphqlEndpoint}
+`)
+})()
+```
+
+### Running Next.js
+
+Now that we have the custom server implemented, you start it by running:
+
+```sh
+node server.js
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/nextjs-ws)

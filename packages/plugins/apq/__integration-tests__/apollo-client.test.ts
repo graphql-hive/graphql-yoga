@@ -12,7 +12,6 @@ function sha256(input: string) {
 
 describe('Automatic Persisted Queries', () => {
   if (version.startsWith('15')) {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     it('noop', () => {});
     return;
   }
@@ -34,12 +33,8 @@ describe('Automatic Persisted Queries', () => {
     plugins: [useAPQ()],
   });
 
-  const fetchSpy = jest.fn(async (info: RequestInfo | URL, init: RequestInit) =>
-    server.fetch(info as URL, init),
-  );
-
   const linkChain = createPersistedQueryLink({ sha256 }).concat(
-    new HttpLink({ uri: 'http://localhost:4000/graphql', fetch: fetchSpy }),
+    new HttpLink({ uri: 'http://localhost:4000/graphql', fetch: (...args) => fetchSpy(...args) }),
   );
 
   const client = new ApolloClient({
@@ -47,8 +42,18 @@ describe('Automatic Persisted Queries', () => {
     link: linkChain,
   });
 
+  let fetchSpy: jest.Mock;
+
+  beforeEach(() => {
+    fetchSpy = jest.fn(async (info: RequestInfo | URL, init: RequestInit) =>
+      server.fetch(info as URL, init),
+    );
+  });
+
   it('works', async () => {
     const query = '{\n  foo\n}';
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: Fails with GraphQL v15
     const { data } = await client.query({ query: parse(query) });
 
     expect(data).toEqual({ foo: 'bar' });
@@ -58,6 +63,11 @@ describe('Automatic Persisted Queries', () => {
       body: JSON.stringify({
         variables: {},
         extensions: {
+          clientLibrary: {
+            name: '@apollo/client',
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            version: require('@apollo/client/package.json').version,
+          },
           persistedQuery: {
             version: 1,
             sha256Hash: sha256(query),
@@ -66,7 +76,7 @@ describe('Automatic Persisted Queries', () => {
       }),
       headers: {
         'content-type': 'application/json',
-        accept: '*/*',
+        accept: 'application/graphql-response+json,application/json;q=0.9',
       },
       method: 'POST',
     });
@@ -74,6 +84,11 @@ describe('Automatic Persisted Queries', () => {
       body: JSON.stringify({
         variables: {},
         extensions: {
+          clientLibrary: {
+            name: '@apollo/client',
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            version: require('@apollo/client/package.json').version,
+          },
           persistedQuery: {
             version: 1,
             sha256Hash: sha256(query),
@@ -83,7 +98,7 @@ describe('Automatic Persisted Queries', () => {
       }),
       headers: {
         'content-type': 'application/json',
-        accept: '*/*',
+        accept: 'application/graphql-response+json,application/json;q=0.9',
       },
       method: 'POST',
     });

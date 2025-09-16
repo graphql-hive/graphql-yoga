@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { YogaGraphiQL, YogaGraphiQLProps } from './YogaGraphiQL.js';
 
 export function renderYogaGraphiQL(element: Element, opts?: YogaGraphiQLProps) {
-  ReactDOM.render(<YogaGraphiQL {...opts} />, element);
+  const root = createRoot(element);
+  root.render(<YogaGraphiQL {...opts} />);
 }
 
 globalThis.React = React;

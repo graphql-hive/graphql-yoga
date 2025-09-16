@@ -1,0 +1,115 @@
+---
+description:
+  AWS Lambda is a serverless computing platform that makes it easy to build applications that run on
+  the AWS cloud. GraphQL Yoga is platform agnostic so they can fit together easily.
+---
+
+# Integration with AWS Lambda
+
+AWS Lambda is a serverless computing platform that makes it easy to build applications that run on
+the AWS cloud. GraphQL Yoga is platform agnostic so they can fit together easily.
+
+## Installation
+
+```sh npm2yarn
+npm i aws-lambda graphql-yoga graphql
+```
+
+## Example
+
+```ts filename="graphql.ts"
+import { pipeline } from 'stream/promises'
+import type { Context, LambdaFunctionURLEvent } from 'aws-lambda'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+const yoga = createYoga<{
+  event: LambdaFunctionURLEvent
+  lambdaContext: Context
+  res: awslambda.ResponseStream
+}>({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'This is the `greetings` field of the root `Query` type'
+      }
+    }
+  })
+})
+
+export const handler = awslambda.streamifyResponse(async function handler(
+  event: LambdaFunctionURLEvent,
+  res,
+  lambdaContext
+) {
+  const response = await yoga.fetch(
+    // Construct the URL
+    `https://${event.requestContext.domainName}${event.requestContext.http.path}?${event.rawQueryString}`,
+    {
+      method: event.requestContext.http.method,
+      headers: event.headers as HeadersInit,
+      // Parse the body if needed
+      body: event.body && event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body
+    },
+    {
+      event,
+      lambdaContext,
+      res
+    }
+  )
+
+  // Attach the metadata to the response stream
+  res = awslambda.HttpResponseStream.from(res, {
+    statusCode: response.status,
+    headers: Object.fromEntries(response.headers.entries())
+  })
+
+  // Pipe the response body to the response stream
+  if (response.body) {
+    await pipeline(response.body, res)
+  }
+
+  // End the response stream
+  res.end()
+})
+```
+
+If you have typings issues, you might need to add the following extra types;
+
+```ts filename="awslambda.d.ts"
+import type { Writable } from 'node:stream'
+import type { Context, Handler } from 'aws-lambda'
+
+declare global {
+  namespace awslambda {
+    export namespace HttpResponseStream {
+      function from(
+        responseStream: ResponseStream,
+        metadata: {
+          statusCode?: number
+          headers?: Record<string, string>
+        }
+      ): ResponseStream
+    }
+
+    export type ResponseStream = Writable & {
+      setContentType(type: string): void
+    }
+
+    export type StreamifyHandler<Event> = (
+      event: Event,
+      responseStream: ResponseStream,
+      context: Context
+    ) => Promise<unknown>
+
+    export function streamifyResponse<Event>(handler: StreamifyHandler<Event>): Handler<Event>
+  }
+}
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/graphql-hive/graphql-yoga/tree/main/examples/aws-lambda).

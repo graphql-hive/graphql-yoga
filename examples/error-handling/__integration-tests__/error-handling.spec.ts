@@ -22,24 +22,27 @@ describe('error-handling example integration', () => {
     const body = await response.json();
 
     expect(body).toMatchInlineSnapshot(`
-      {
-        "data": null,
-        "errors": [
-          {
-            "locations": [
-              {
-                "column": 7,
-                "line": 1,
-              },
-            ],
-            "message": "Unexpected error.",
-            "path": [
-              "greeting",
-            ],
-          },
-        ],
-      }
-    `);
+{
+  "data": null,
+  "errors": [
+    {
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+      },
+      "locations": [
+        {
+          "column": 7,
+          "line": 1,
+        },
+      ],
+      "message": "Unexpected error.",
+      "path": [
+        "greeting",
+      ],
+    },
+  ],
+}
+`);
   });
 
   it('should get a custom error', async () => {

@@ -1,5 +1,7 @@
+import { ExecutionArgs, ExecutionResult, SubscriptionArgs } from 'graphql';
 import { Plugin, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
 import { useSofa as createSofaHandler } from 'sofa-api';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { SofaHandler } from './types.js';
 
 type SofaHandlerConfig = Parameters<typeof createSofaHandler>[0];
@@ -21,7 +23,6 @@ export function useSofa(config: SofaPluginConfig): Plugin {
     ReturnType<YogaServerInstance<Record<string, unknown>, Record<string, unknown>>['getEnveloped']>
   >();
 
-  const requestByContext = new WeakMap<YogaInitialContext, Request>();
   return {
     onYogaInit({ yoga }) {
       getEnveloped = yoga.getEnveloped;
@@ -30,34 +31,98 @@ export function useSofa(config: SofaPluginConfig): Plugin {
       sofaHandler = createSofaHandler({
         ...config,
         schema: onSchemaChangeEventPayload.schema,
-        async context(serverContext: YogaInitialContext) {
+        context(serverContext: YogaInitialContext) {
           const enveloped = getEnveloped(serverContext);
-          const request = requestByContext.get(serverContext);
-          const contextValue = await enveloped.contextFactory({ request });
-          envelopedByContext.set(contextValue as YogaInitialContext, enveloped);
-          return contextValue;
+          return handleMaybePromise(
+            () => enveloped.contextFactory(serverContext),
+            contextValue$ => {
+              envelopedByContext.set(contextValue$, enveloped);
+              return contextValue$;
+            },
+          );
         },
-        execute(args) {
-          const enveloped = envelopedByContext.get(args.contextValue as YogaInitialContext);
+        execute(
+          ...args:
+            | [ExecutionArgs]
+            | [
+                schema: ExecutionArgs['schema'],
+                document: ExecutionArgs['document'],
+                rootValue?: ExecutionArgs['rootValue'],
+                contextValue?: ExecutionArgs['contextValue'],
+                variableValues?: ExecutionArgs['variableValues'],
+                operationName?: ExecutionArgs['operationName'],
+                fieldResolver?: ExecutionArgs['fieldResolver'],
+                typeResolver?: ExecutionArgs['typeResolver'],
+              ]
+        ): Promise<ExecutionResult> {
+          const executionArgs =
+            args.length === 1
+              ? args[0]
+              : {
+                  schema: args[0],
+                  document: args[1],
+                  rootValue: args[2],
+                  contextValue: args[3],
+                  variableValues: args[4],
+                  operationName: args[5],
+                  fieldResolver: args[6],
+                  typeResolver: args[7],
+                };
+          const enveloped = envelopedByContext.get(
+            executionArgs.contextValue as YogaInitialContext,
+          );
           if (!enveloped) {
             throw new TypeError('Illegal invocation.');
           }
-          return enveloped.execute(args);
+          return enveloped.execute(executionArgs);
         },
-        subscribe(args) {
-          const enveloped = envelopedByContext.get(args.contextValue as YogaInitialContext);
+        subscribe(
+          ...args:
+            | [SubscriptionArgs | ExecutionArgs]
+            | [
+                schema: SubscriptionArgs['schema'],
+                document: SubscriptionArgs['document'],
+                rootValue?: SubscriptionArgs['rootValue'],
+                contextValue?: SubscriptionArgs['contextValue'],
+                variableValues?: SubscriptionArgs['variableValues'],
+                operationName?: SubscriptionArgs['operationName'],
+                fieldResolver?: SubscriptionArgs['fieldResolver'],
+                subscribeFieldResolver?: SubscriptionArgs['subscribeFieldResolver'],
+              ]
+        ) {
+          const subscriptionArgs =
+            args.length === 1
+              ? args[0]
+              : {
+                  schema: args[0],
+                  document: args[1],
+                  rootValue: args[2],
+                  contextValue: args[3],
+                  variableValues: args[4],
+                  operationName: args[5],
+                  fieldResolver: args[6],
+                  subscribeFieldResolver: args[7],
+                };
+          const enveloped = envelopedByContext.get(
+            subscriptionArgs.contextValue as YogaInitialContext,
+          );
           if (!enveloped) {
             throw new TypeError('Illegal invocation.');
           }
-          return enveloped.subscribe(args);
+          return enveloped.subscribe(subscriptionArgs);
         },
       });
     },
-    async onRequest({ request, serverContext, endResponse }) {
-      requestByContext.set(serverContext as YogaInitialContext, request);
-      const response = await sofaHandler.handle(request, serverContext as Record<string, unknown>);
-      if (response != null && response.status !== 404) {
-        endResponse(response);
+    onRequest({ request, endResponse, serverContext, url }) {
+      if (url.pathname.startsWith(config.basePath)) {
+        return handleMaybePromise(
+          () => sofaHandler.handleRequest(request, serverContext),
+          res => {
+            if (res) {
+              endResponse(res);
+            }
+          },
+        );
       }
     },
   };

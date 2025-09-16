@@ -35,7 +35,8 @@ export function processRegularResult(
       !Array.isArray(executionResult) &&
       areGraphQLErrors(executionResult.errors) &&
       executionResult.errors.some(
-        err => !err.extensions?.originalError || isGraphQLError(err.extensions.originalError),
+        err =>
+          !err.extensions?.['originalError'] || isGraphQLError(err.extensions['originalError']),
       ),
   );
 

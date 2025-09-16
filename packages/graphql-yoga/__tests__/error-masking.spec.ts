@@ -111,10 +111,10 @@ describe('error masking', () => {
   });
 
   it('includes the original error in the extensions in dev mode (process.env.NODE_ENV=development)', async () => {
-    const initialEnv = process.env.NODE_ENV;
+    const initialEnv = process.env['NODE_ENV'];
 
     try {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
 
       const yoga = createYoga({
         schema: createTestSchema(),
@@ -137,7 +137,7 @@ describe('error masking', () => {
         'Error: This error will get mask if you enable maskedError.',
       );
     } finally {
-      process.env.NODE_ENV = initialEnv;
+      process.env['NODE_ENV'] = initialEnv;
     }
   });
 
@@ -744,16 +744,119 @@ describe('error masking', () => {
             },
           ],
           message: 'Unexpected error.',
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR',
+          },
           path: ['root'],
         },
       ],
     });
     // in the future this might change as we decide to within our graphql-tools/executor error handler treat DOMException similar to a normal Error
-    expect(error.mock.calls).toMatchObject([[{ message: 'Unexpected error value: {}' }]]);
+    expect(error.mock.calls).toMatchObject([[{ message: 'This operation was aborted' }]]);
     expect(debug.mock.calls).toEqual([
       ['Parsing request to extract GraphQL parameters'],
       ['Processing GraphQL Parameters'],
       ['Processing GraphQL Parameters done.'],
     ]);
+  });
+
+  // Execution engine wraps errors recursively so the only way to make sure it is an unexpected error is to check originalError recursively
+  it('respects wrapped original errors', async () => {
+    const error = new Error('I like turtles');
+    const wrappedError = createGraphQLError('I like tortoises', {
+      originalError: error,
+    });
+    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+      originalError: wrappedError,
+    });
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => wrappedOverWrappedError,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    const body = await response.json();
+    expect(body).toMatchObject({
+      errors: [
+        {
+          message: 'Unexpected error.',
+        },
+      ],
+    });
+  });
+
+  // extensions may contain internal data and we dont want to leak it
+  it('should not inherit the extensions of a graphql error with original error', async () => {
+    const wrappedError = createGraphQLError('I like tortoises', {
+      extensions: {
+        code: 'SOME_ERROR', // should not overwrite the INTERNAL_SERVER_ERROR code
+        'x-hi': 'there',
+      },
+      originalError: new Error('I like turtles'),
+    });
+
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => wrappedError,
+          },
+        },
+      }),
+      logging: false,
+      maskedErrors: true,
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    await expect(response.json()).resolves.toMatchInlineSnapshot(`
+{
+  "data": null,
+  "errors": [
+    {
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+      },
+      "locations": [
+        {
+          "column": 3,
+          "line": 1,
+        },
+      ],
+      "message": "Unexpected error.",
+      "path": [
+        "a",
+      ],
+    },
+  ],
+}
+`);
   });
 });

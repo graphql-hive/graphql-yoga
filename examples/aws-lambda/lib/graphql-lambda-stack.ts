@@ -10,7 +10,7 @@ export class GraphqlLambdaStack extends cdk.Stack {
     const graphqlLambda = new lambda.Function(this, 'graphqlLambda', {
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       handler: 'graphql.handler',
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     new apiGateway.LambdaRestApi(this, 'graphqlEndpoint', {

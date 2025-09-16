@@ -24,11 +24,12 @@ const yogaApp = createYoga<RequestEvent>({
 	graphqlEndpoint: '/api/graphql',
 	renderGraphiQL,
 	graphiql: {
-		defaultQuery: `query Hello {
-	hello
-}`
-	},
-	fetchAPI: globalThis
+		defaultQuery: /* GraphQL */ `
+			query Hello {
+				hello
+			}
+		`
+	}
 });
 
 export { yogaApp as GET, yogaApp as POST };

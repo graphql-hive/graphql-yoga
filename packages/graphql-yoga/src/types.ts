@@ -2,6 +2,7 @@
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
 import type { createFetch } from '@whatwg-node/fetch';
+import { ServerAdapterInitialContext } from '@whatwg-node/server';
 
 export type GraphQLSchemaWithContext<TContext> = GraphQLSchema & {
   _context?: TContext;
@@ -17,7 +18,7 @@ export interface GraphQLParams<
   extensions?: TExtensions;
 }
 
-export interface YogaInitialContext {
+export interface YogaInitialContext extends ServerAdapterInitialContext {
   /**
    * GraphQL Parameters
    */

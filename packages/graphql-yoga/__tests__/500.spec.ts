@@ -34,6 +34,9 @@ describe('Handle non GraphQL Errors as 500 when error masking is disabled', () =
         errors: [
           {
             message: 'Oops!',
+            extensions: {
+              code: 'INTERNAL_SERVER_ERROR',
+            },
           },
         ],
       });

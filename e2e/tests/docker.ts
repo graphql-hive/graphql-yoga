@@ -38,7 +38,7 @@ export const dockerDeployment = (
     });
 
     // Since the provider picked a random ephemeral port for this container, export the endpoint.
-    const endpoint = container.ports.apply(ports => `localhost:${ports![0].external}`);
+    const endpoint = container.ports.apply(ports => `127.0.0.1:${ports![0].external}`);
 
     return {
       endpoint: interpolate`http://${endpoint}/graphql`,

@@ -21,7 +21,7 @@ fs.writeFileSync(pkgPath, JSON.stringify(pkg, undefined, '  ') + '\n');
 // disable apollo federation and sofa testing with <16 versions
 const graphql15AndLess = parseInt(graphqlVersion.split('.')[0]) <= 15;
 
-for (const testPath of [`examples/apollo-federation`, 'examples/sofa']) {
+for (const testPath of [`examples/apollo-federation`]) {
   if (graphql15AndLess) {
     // disable
     const testPathAbs = path.resolve(__dirname, '..', testPath, '__integration-tests__');

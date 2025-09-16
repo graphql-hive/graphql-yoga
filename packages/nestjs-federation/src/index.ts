@@ -29,11 +29,13 @@ export class YogaFederationDriver<
     super();
   }
 
-  async generateSchema(options: YogaFederationDriverConfig<Platform>): Promise<GraphQLSchema> {
+  override async generateSchema(
+    options: YogaFederationDriverConfig<Platform>,
+  ): Promise<GraphQLSchema> {
     return await this.graphqlFederationFactory.generateSchema(options);
   }
 
-  public async start(options: YogaFederationDriverConfig<Platform>) {
+  public override async start(options: YogaFederationDriverConfig<Platform>) {
     if (options.definitions?.path) {
       if (!options.schema) {
         throw new Error('Schema is required when providing definitions path');
@@ -66,7 +68,7 @@ export class YogaFederationDriver<
     }
   }
 
-  public async stop(): Promise<void> {
+  public override async stop(): Promise<void> {
     await this.subscriptionService?.stop();
   }
 }
@@ -96,11 +98,13 @@ export interface YogaGatewayDriverConfig<Platform extends YogaDriverPlatform = '
 export class YogaGatewayDriver<
   Platform extends YogaDriverPlatform = 'express',
 > extends AbstractYogaDriver<Platform> {
-  public async generateSchema(_options: YogaGatewayDriverConfig<Platform>): Promise<GraphQLSchema> {
+  public override async generateSchema(
+    _options: YogaGatewayDriverConfig<Platform>,
+  ): Promise<GraphQLSchema> {
     return new GraphQLSchema({});
   }
 
-  public async start(options: YogaGatewayDriverConfig<Platform>) {
+  public override async start(options: YogaGatewayDriverConfig<Platform>) {
     const { server: serverOpts = {}, gateway: gatewayOpts = {} } = options;
     const gateway: ApolloGateway = new ApolloGateway(gatewayOpts);
 
@@ -108,16 +112,18 @@ export class YogaGatewayDriver<
 
     await super.start({
       ...serverOpts,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - There is a type mismatch here
       plugins: [...(serverOpts.plugins || []), useApolloFederation({ gateway })],
     });
   }
 
-  public async mergeDefaultOptions(
+  public override async mergeDefaultOptions(
     options: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     return {
       ...options,
-      server: await super.mergeDefaultOptions(options?.server ?? {}),
+      server: await super.mergeDefaultOptions(options?.['server'] ?? {}),
     };
   }
 }

@@ -4,7 +4,10 @@ import type { Plugin } from '../types.js';
 
 const expectedParameters = new Set(['query', 'variables', 'operationName', 'extensions']);
 
-export function assertInvalidParams(params: unknown): asserts params is GraphQLParams {
+export function assertInvalidParams(
+  params: unknown,
+  extraParamNames?: string[],
+): asserts params is GraphQLParams {
   if (params == null || typeof params !== 'object') {
     throw createGraphQLError('Invalid "params" in the request body', {
       extensions: {
@@ -12,6 +15,7 @@ export function assertInvalidParams(params: unknown): asserts params is GraphQLP
           spec: true,
           status: 400,
         },
+        code: 'BAD_REQUEST',
       },
     });
   }
@@ -20,18 +24,25 @@ export function assertInvalidParams(params: unknown): asserts params is GraphQLP
       continue;
     }
     if (!expectedParameters.has(paramKey)) {
+      if (extraParamNames?.includes(paramKey)) {
+        continue;
+      }
       throw createGraphQLError(`Unexpected parameter "${paramKey}" in the request body.`, {
         extensions: {
           http: {
             status: 400,
           },
+          code: 'BAD_REQUEST',
         },
       });
     }
   }
 }
 
-export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
+export function checkGraphQLQueryParams(
+  params: unknown,
+  extraParamNames?: string[],
+): GraphQLParams {
   if (!isObject(params)) {
     throw createGraphQLError(
       `Expected params to be an object but given ${extendedTypeof(params)}.`,
@@ -43,14 +54,15 @@ export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
               Allow: 'GET, POST',
             },
           },
+          code: 'BAD_REQUEST',
         },
       },
     );
   }
 
-  assertInvalidParams(params);
+  assertInvalidParams(params, extraParamNames);
 
-  if (params.query == null) {
+  if (params['query'] == null) {
     throw createGraphQLError('Must provide query string.', {
       extensions: {
         http: {
@@ -60,11 +72,12 @@ export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
             Allow: 'GET, POST',
           },
         },
+        code: 'BAD_REQUEST',
       },
     });
   }
 
-  const queryType = extendedTypeof(params.query);
+  const queryType = extendedTypeof(params['query']);
   if (queryType !== 'string') {
     throw createGraphQLError(`Expected "query" param to be a string, but given ${queryType}.`, {
       extensions: {
@@ -74,11 +87,12 @@ export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
             Allow: 'GET, POST',
           },
         },
+        code: 'BAD_REQUEST',
       },
     });
   }
 
-  const variablesParamType = extendedTypeof(params.variables);
+  const variablesParamType = extendedTypeof(params['variables']);
   if (!['object', 'null', 'undefined'].includes(variablesParamType)) {
     throw createGraphQLError(
       `Expected "variables" param to be empty or an object, but given ${variablesParamType}.`,
@@ -90,12 +104,13 @@ export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
               Allow: 'GET, POST',
             },
           },
+          code: 'BAD_REQUEST',
         },
       },
     );
   }
 
-  const extensionsParamType = extendedTypeof(params.extensions);
+  const extensionsParamType = extendedTypeof(params['extensions']);
   if (!['object', 'null', 'undefined'].includes(extensionsParamType)) {
     throw createGraphQLError(
       `Expected "extensions" param to be empty or an object, but given ${extensionsParamType}.`,
@@ -107,6 +122,7 @@ export function checkGraphQLQueryParams(params: unknown): GraphQLParams {
               Allow: 'GET, POST',
             },
           },
+          code: 'BAD_REQUEST',
         },
       },
     );
@@ -124,10 +140,10 @@ export function isValidGraphQLParams(params: unknown): params is GraphQLParams {
   }
 }
 
-export function useCheckGraphQLQueryParams(): Plugin {
+export function useCheckGraphQLQueryParams(extraParamNames?: string[]): Plugin {
   return {
     onParams({ params }) {
-      checkGraphQLQueryParams(params);
+      checkGraphQLQueryParams(params, extraParamNames);
     },
   };
 }

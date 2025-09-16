@@ -1,10 +1,11 @@
+import { fakePromise } from '@whatwg-node/server';
 import { createYoga } from '../server';
 
 describe('GraphiQL', () => {
   describe('when received an option factory that returns Promise', () => {
     it('should respect graphiql option', async () => {
       const yoga = createYoga({
-        graphiql: () => Promise.resolve({ title: 'Test GraphiQL' }),
+        graphiql: () => fakePromise({ title: 'Test GraphiQL' }),
       });
       const response = await yoga.fetch('http://localhost:3000/graphql', {
         method: 'GET',
@@ -19,7 +20,7 @@ describe('GraphiQL', () => {
 
     it('returns error when graphiql is disabled', async () => {
       const yoga = createYoga({
-        graphiql: () => Promise.resolve(false),
+        graphiql: () => fakePromise(false),
       });
       const response = await yoga.fetch('http://localhost:3000/graphql', {
         method: 'GET',
@@ -33,7 +34,7 @@ describe('GraphiQL', () => {
 
     it('returns graphiql when passing query params and trailing slash', async () => {
       const yoga = createYoga({
-        graphiql: () => Promise.resolve({ title: 'Test GraphiQL' }),
+        graphiql: () => fakePromise({ title: 'Test GraphiQL' }),
       });
       const responseWithQueryParams = await yoga.fetch(
         'http://localhost:3000/graphql?query=something+awesome',

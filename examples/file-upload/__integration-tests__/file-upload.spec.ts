@@ -64,9 +64,13 @@ describe('graphql-auth example integration', () => {
     formData.set('map', JSON.stringify({ 0: ['variables.file'] }));
     formData.set(
       '0',
-      new File([await fs.promises.readFile(sourceFilePath)], path.basename(sourceFilePath), {
-        type: 'image/jpg',
-      }),
+      new File(
+        [(await fs.promises.readFile(sourceFilePath)) as any],
+        path.basename(sourceFilePath),
+        {
+          type: 'image/jpg',
+        },
+      ),
     );
 
     const response = await fetch(`http://localhost:${port}/graphql`, {
@@ -105,9 +109,13 @@ describe('graphql-auth example integration', () => {
     formData.set('map', JSON.stringify({ 0: ['variables.file'] }));
     formData.set(
       '0',
-      new File([await fs.promises.readFile(sourceFilePath)], path.basename(sourceFilePath), {
-        type: 'image/png',
-      }),
+      new File(
+        [(await fs.promises.readFile(sourceFilePath)) as any],
+        path.basename(sourceFilePath),
+        {
+          type: 'image/png',
+        },
+      ),
     );
 
     const response = await fetch(`http://localhost:${port}/graphql`, {
