@@ -338,29 +338,25 @@ export type Env = {
 }
 export type GraphQLContext = YogaInitialContext & Env & ExecutionContext
 
+const graphqlServer = createYoga<GraphQLContext>({
+  schema: createSchema({ typeDefs, resolvers }),
+  plugins: [
+    useResponseCache({
+      cache: createKvCache({
+        KV: env.GRAPHQL_RESPONSE_CACHE,
+        ctx,
+        keyPrefix: 'graphql' // optional
+        cacheReadTTL: 1000 * 60, // 1 minute
+      }),
+      session: () => null,
+      includeExtensionMetadata: true,
+      ttl: 1000 * 60 // 1 minute
+    })
+  ]
+})
+
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const kvCache = createKvCache({
-      KV: env.GRAPHQL_RESPONSE_CACHE,
-      ctx,
-      keyPrefix: 'graphql' // optional
-      cacheReadTTL: 1000 * 60, // 1 minute
-    })
-
-    const graphqlServer = createYoga<GraphQLContext>({
-      schema: createSchema({ typeDefs, resolvers }),
-      plugins: [
-        useResponseCache({
-          cache: kvCache,
-          session: () => null,
-          includeExtensionMetadata: true,
-          ttl: 1000 * 60 // 1 minute
-        })
-      ]
-    })
-
-    return graphqlServer.fetch(request, env, ctx)
-  }
+  fetch: graphqlServer,
 }
 ```
 
