@@ -31,7 +31,7 @@ import {
   ServerAdapterRequestHandler,
   useCORS,
 } from '@whatwg-node/server';
-import { handleError } from './error.js';
+import { handleError, isAbortError } from './error.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
@@ -384,7 +384,7 @@ export class YogaServer<
             : options?.parserAndValidationCache,
         ),
       useLimitBatching(batchingLimit),
-      useCheckGraphQLQueryParams(),
+      useCheckGraphQLQueryParams(options?.extraParamNames),
       useUnhandledRoute({
         graphqlEndpoint,
         showLandingPage: options?.landingPage !== false,
@@ -395,6 +395,18 @@ export class YogaServer<
       useCheckMethodForGraphQL(),
       // We make sure that the user doesn't send a mutation with GET
       usePreventMutationViaGET(),
+      // Make sure we always throw AbortError instead of masking it!
+      maskedErrors !== null && {
+        onSubscribe() {
+          return {
+            onSubscribeError({ error }) {
+              if (isAbortError(error)) {
+                throw error;
+              }
+            },
+          };
+        },
+      },
       maskedErrors !== null && useMaskedErrors(maskedErrors),
       options?.allowedHeaders?.response != null &&
         useAllowedResponseHeaders(options.allowedHeaders.response),
