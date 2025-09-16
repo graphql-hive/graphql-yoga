@@ -1,0 +1,71 @@
+{
+  "name": "@graphql-yoga/render-apollo-sandbox",
+  "version": "0.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dotansimha/graphql-yoga.git",
+    "directory": "packages/plugins/apollo-sandbox"
+  },
+  "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/typings/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./*": {
+      "require": {
+        "types": "./dist/typings/*.d.cts",
+        "default": "./dist/cjs/*.js"
+      },
+      "import": {
+        "types": "./dist/typings/*.d.ts",
+        "default": "./dist/esm/*.js"
+      },
+      "default": {
+        "types": "./dist/typings/*.d.ts",
+        "default": "./dist/esm/*.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typings": "dist/typings/index.d.ts",
+  "peerDependencies": {
+    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0",
+    "graphql-yoga": "workspace:^"
+  },
+  "dependencies": {
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "graphql": "16.10.0",
+    "graphql-yoga": "workspace:^"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
+  }
+}
