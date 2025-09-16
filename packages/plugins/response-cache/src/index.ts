@@ -60,16 +60,14 @@ export interface ResponseCachePluginExtensions {
   http?: {
     headers?: Record<string, string>;
   };
-  responseCache: EnvelopResponseCacheExtensions;
+  responseCache?: EnvelopResponseCacheExtensions;
   [key: string]: unknown;
 }
 
 export interface Cache extends EnvelopCache {
   get(
     key: string,
-  ): PromiseOrValue<
-    ExecutionResult<Record<string, unknown>, ResponseCachePluginExtensions> | undefined
-  >;
+  ): PromiseOrValue<Maybe<ExecutionResult<Record<string, unknown>, ResponseCachePluginExtensions>>>;
 }
 
 export function useResponseCache<TContext = YogaInitialContext>(
