@@ -32,6 +32,7 @@ import {
   useCORS,
 } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
+import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
   isPOSTFormUrlEncodedRequest,
@@ -192,6 +193,16 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * @example ['doc_id', 'id']
    */
   extraParamNames?: string[] | undefined;
+
+  /**
+   * Allowed headers. Headers not part of this list will be striped out.
+   */
+  allowedHeaders?: {
+    /** Allowed headers for outgoing responses */
+    response?: string[] | undefined;
+    /** Allowed headers for ingoing requests */
+    request?: string[] | undefined;
+  };
 };
 
 export type BatchingOptions =
@@ -312,7 +323,8 @@ export class YogaServer<
       }),
       // Use the schema provided by the user
       !!options?.schema && useSchema(options.schema),
-
+      options?.allowedHeaders?.request != null &&
+        useAllowedRequestHeaders(options.allowedHeaders.request),
       options?.context != null &&
         useExtendContext(initialContext => {
           if (options?.context) {
@@ -364,61 +376,42 @@ export class YogaServer<
       useResultProcessors(),
 
       ...(options?.plugins ?? []),
-      // To make sure those are called at the end
-      {
-        onPluginInit({ addPlugin }) {
-          if (options?.parserAndValidationCache !== false) {
-            addPlugin(
-              // @ts-expect-error Add plugins has context but this hook doesn't care
-              useParserAndValidationCache(
-                !options?.parserAndValidationCache || options?.parserAndValidationCache === true
-                  ? {}
-                  : options?.parserAndValidationCache,
-              ),
-            );
-          }
-          // @ts-expect-error Add plugins has context but this hook doesn't care
-          addPlugin(useLimitBatching(batchingLimit));
-          // @ts-expect-error Add plugins has context but this hook doesn't care
-          addPlugin(useCheckGraphQLQueryParams(options?.extraParamNames));
-          const showLandingPage = !!(options?.landingPage ?? true);
-          addPlugin(
-            // @ts-expect-error Add plugins has context but this hook doesn't care
-            useUnhandledRoute({
-              graphqlEndpoint,
-              showLandingPage,
-              landingPageRenderer:
-                typeof options?.landingPage === 'function' ? options.landingPage : undefined,
-            }),
-          );
-          // We check the method after user-land plugins because the plugin might support more methods (like graphql-sse).
-          // @ts-expect-error Add plugins has context but this hook doesn't care
-          addPlugin(useCheckMethodForGraphQL());
-          // We make sure that the user doesn't send a mutation with GET
-          // @ts-expect-error Add plugins has context but this hook doesn't care
-          addPlugin(usePreventMutationViaGET());
 
-          if (maskedErrors) {
-            // Make sure we always throw AbortError instead of masking it!
-            addPlugin({
-              onSubscribe() {
-                return {
-                  onSubscribeError({ error }) {
-                    if (isAbortError(error)) {
-                      throw error;
-                    }
-                  },
-                };
-              },
-            });
-            addPlugin(useMaskedErrors(maskedErrors));
-          }
-          addPlugin(
-            // We handle validation errors at the end
-            useHTTPValidationError(),
-          );
+      options?.parserAndValidationCache !== false &&
+        useParserAndValidationCache(
+          !options?.parserAndValidationCache || options?.parserAndValidationCache === true
+            ? {}
+            : options?.parserAndValidationCache,
+        ),
+      useLimitBatching(batchingLimit),
+      useCheckGraphQLQueryParams(options?.extraParamNames),
+      useUnhandledRoute({
+        graphqlEndpoint,
+        showLandingPage: options?.landingPage !== false,
+        landingPageRenderer:
+          typeof options?.landingPage === 'function' ? options.landingPage : undefined,
+      }),
+      // We check the method after user-land plugins because the plugin might support more methods (like graphql-sse).
+      useCheckMethodForGraphQL(),
+      // We make sure that the user doesn't send a mutation with GET
+      usePreventMutationViaGET(),
+      // Make sure we always throw AbortError instead of masking it!
+      maskedErrors !== null && {
+        onSubscribe() {
+          return {
+            onSubscribeError({ error }) {
+              if (isAbortError(error)) {
+                throw error;
+              }
+            },
+          };
         },
       },
+      maskedErrors !== null && useMaskedErrors(maskedErrors),
+      options?.allowedHeaders?.response != null &&
+        useAllowedResponseHeaders(options.allowedHeaders.response),
+      // We handle validation errors at the end
+      useHTTPValidationError(),
     ];
 
     this.getEnveloped = envelop({
