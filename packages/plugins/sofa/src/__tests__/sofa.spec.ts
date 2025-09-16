@@ -19,9 +19,9 @@ it('should be able to invoke graphql query w/ plugin active', async () => {
     schema,
     plugins: [
       useSofa({
-        basePath: "/rest",
+        basePath: '/rest',
         swaggerUI: {
-            endpoint: "/swagger",
+          endpoint: '/swagger',
         },
       }),
     ],
