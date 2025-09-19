@@ -1,4 +1,4 @@
-import { assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
+import { assertEquals } from 'jsr:@std/assert';
 import { yoga } from './yoga.ts';
 
 Deno.test('Deno example test', async () => {
