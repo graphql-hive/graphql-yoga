@@ -152,7 +152,7 @@ importers:
         version: 5.9.2
       wrangler:
         specifier: 4.37.1
-        version: 4.37.1(@cloudflare/workers-types@4.20250913.0)
+        version: 4.37.1(@cloudflare/workers-types@4.20250917.0)
 
   benchmark:
     dependencies:
@@ -432,8 +432,8 @@ importers:
         version: link:../../packages/graphql-yoga/dist
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: 4.20250913.0
-        version: 4.20250913.0
+        specifier: 4.20250917.0
+        version: 4.20250917.0
       '@whatwg-node/fetch':
         specifier: ^0.10.1
         version: 0.10.10
@@ -442,7 +442,7 @@ importers:
         version: 5.9.2
       wrangler:
         specifier: 4.37.1
-        version: 4.37.1(@cloudflare/workers-types@4.20250913.0)
+        version: 4.37.1(@cloudflare/workers-types@4.20250917.0)
 
   examples/cookies:
     dependencies:
@@ -1379,7 +1379,7 @@ importers:
         version: 5.9.2
       wrangler:
         specifier: 4.37.1
-        version: 4.37.1(@cloudflare/workers-types@4.20250913.0)
+        version: 4.37.1(@cloudflare/workers-types@4.20250917.0)
 
   examples/sofa:
     dependencies:
@@ -2160,7 +2160,7 @@ importers:
     devDependencies:
       '@envelop/response-cache-cloudflare-kv':
         specifier: ^4.0.0
-        version: 4.0.0(@cloudflare/workers-types@4.20250913.0)(@envelop/response-cache@8.0.0(@envelop/core@5.3.0)(graphql@16.11.0))(graphql@16.11.0)
+        version: 4.0.0(@cloudflare/workers-types@4.20250917.0)(@envelop/response-cache@8.0.0(@envelop/core@5.3.0)(graphql@16.11.0))(graphql@16.11.0)
       '@envelop/response-cache-redis':
         specifier: ^4.2.4
         version: 4.2.4(@envelop/core@5.3.0)(graphql@16.11.0)
@@ -3875,6 +3875,9 @@ packages:
 
   '@cloudflare/workers-types@4.20250913.0':
     resolution: {integrity: sha512-JjrYEvRn7cyALxwoFTw3XChaQneHSJOXqz2t5iKEpNzAnC2iPQU75rtTK/gw03Jjy4SHY5aEBh/uqQePtonZlA==}
+
+  '@cloudflare/workers-types@4.20250917.0':
+    resolution: {integrity: sha512-Lsn9dZoRYZZCXXHZNa50cMP8kWhQZG9M7WjxNSiXFzC8bk4Wh/0SYYo4YINxEjEt6h2o69LmAhFaJ+qgaJTh8Q==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -19072,6 +19075,8 @@ snapshots:
 
   '@cloudflare/workers-types@4.20250913.0': {}
 
+  '@cloudflare/workers-types@4.20250917.0': {}
+
   '@colors/colors@1.5.0':
     optional: true
 
@@ -19247,13 +19252,13 @@ snapshots:
       prom-client: 15.1.3
       tslib: 2.8.1
 
-  '@envelop/response-cache-cloudflare-kv@4.0.0(@cloudflare/workers-types@4.20250913.0)(@envelop/response-cache@8.0.0(@envelop/core@5.3.0)(graphql@16.11.0))(graphql@16.11.0)':
+  '@envelop/response-cache-cloudflare-kv@4.0.0(@cloudflare/workers-types@4.20250917.0)(@envelop/response-cache@8.0.0(@envelop/core@5.3.0)(graphql@16.11.0))(graphql@16.11.0)':
     dependencies:
       '@envelop/response-cache': 8.0.0(@envelop/core@5.3.0)(graphql@16.11.0)
       graphql: 16.11.0
       tslib: 2.8.1
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250913.0
+      '@cloudflare/workers-types': 4.20250917.0
 
   '@envelop/response-cache-redis@4.2.4(@envelop/core@5.3.0)(graphql@16.11.0)':
     dependencies:
@@ -35780,6 +35785,23 @@ snapshots:
       workerd: 1.20250913.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250913.0
+      fsevents: 2.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  wrangler@4.37.1(@cloudflare/workers-types@4.20250917.0):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.4.0
+      '@cloudflare/unenv-preset': 2.7.3(unenv@2.0.0-rc.21)(workerd@1.20250913.0)
+      blake3-wasm: 2.1.5
+      esbuild: 0.25.9
+      miniflare: 4.20250913.0
+      path-to-regexp: 6.3.0
+      unenv: 2.0.0-rc.21
+      workerd: 1.20250913.0
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20250917.0
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
