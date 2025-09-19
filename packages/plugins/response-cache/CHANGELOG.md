@@ -1,5 +1,18 @@
 # @graphql-yoga/plugin-response-cache
 
+## 3.18.0
+
+### Patch Changes
+
+- [#4184](https://github.com/graphql-hive/graphql-yoga/pull/4184)
+  [`3841884`](https://github.com/graphql-hive/graphql-yoga/commit/3841884cb5d90e8e3c54b98f4e43a976201974a8)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Fix types for the `cache` option.
+  Envelop cache implementations (redis and CloudFlare KV) are now usable without TS errors.
+- Updated dependencies
+  [[`a4e1c5f`](https://github.com/graphql-hive/graphql-yoga/commit/a4e1c5f8bfbaada3ffea4a7a2b090ce7e015e715),
+  [`0a7a635`](https://github.com/graphql-hive/graphql-yoga/commit/0a7a635f60886e6ecaa9a5e4245c15a00f9d9737)]:
+  - graphql-yoga@5.16.0
+
 ## 3.17.2
 
 ### Patch Changes
