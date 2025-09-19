@@ -1,5 +1,21 @@
 # graphql-yoga
 
+## 5.16.0
+
+### Minor Changes
+
+- [#3188](https://github.com/graphql-hive/graphql-yoga/pull/3188)
+  [`a4e1c5f`](https://github.com/graphql-hive/graphql-yoga/commit/a4e1c5f8bfbaada3ffea4a7a2b090ce7e015e715)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - Add `allowedHeaders` option to allow
+  filtering Response and Request headers
+
+### Patch Changes
+
+- [#4191](https://github.com/graphql-hive/graphql-yoga/pull/4191)
+  [`0a7a635`](https://github.com/graphql-hive/graphql-yoga/commit/0a7a635f60886e6ecaa9a5e4245c15a00f9d9737)
+  Thanks [@ardatan](https://github.com/ardatan)! - Fix workers' loading in online GraphiQL mode, so
+  that Monaco features like autocomplete can work properly
+
 ## 5.15.2
 
 ### Patch Changes
