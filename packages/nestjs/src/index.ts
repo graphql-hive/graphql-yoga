@@ -34,7 +34,7 @@ export type YogaDriverServerContext<Platform extends YogaDriverPlatform> =
 
 export type YogaDriverServerOptions<Platform extends YogaDriverPlatform> = Omit<
   YogaServerOptions<YogaDriverServerContext<Platform>, never>,
-  'context' | 'schema'
+  'context' | 'schema' | 'graphqlEndpoint'
 > & {
   conditionalSchema?: YogaSchemaDefinition<YogaDriverServerContext<Platform>, never> | undefined;
 };
