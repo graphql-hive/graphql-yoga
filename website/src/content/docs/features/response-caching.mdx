@@ -190,11 +190,11 @@ const typeDefs = /* GraphQL */ `
 
   type Query {
     # cache operations selecting Query.lazy for 10 seconds
-    lazy: Something @cacheControl(maxAge: 10000)
+    lazy: Something @cacheControl(maxAge: 10)
   }
 
-  # only cache query operations containing User for 500ms
-  type User @cacheControl(maxAge: 500) {
+  # only cache query operations containing User for 1 second
+  type User @cacheControl(maxAge: 1) {
     #...
   }
 `
