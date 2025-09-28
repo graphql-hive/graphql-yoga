@@ -265,6 +265,50 @@ const plugin = usePersistedOperations({
 
 Use this option with caution!
 
+### Determine whether a request is using persisted documents
+
+Sometimes it is useful to run logic based on whether the execution context is using a persisted
+operation or not. The `isPersistedOperationContext` helper function can determine that based on the
+GraphQL execution context.
+
+**Usage Example: Enable max depth rule conditionally**
+
+```ts
+import { createYoga } from 'graphql-yoga'
+import { maxDepthRule } from '@escape.tech/graphql-armor-max-depth'
+import {
+  isPersistedDocumentContext,
+  usePersistedOperations
+} from '@graphql-yoga/plugin-persisted-operations'
+import schema from './schema.js'
+import store from './store.js'
+
+const yoga = createYoga({
+  plugins: [
+    usePersistedOperations({
+      getPersistedOperation(key: string) {
+        return store.get(key) || null
+      },
+      allowArbitraryOperations: true
+    }),
+    {
+      onValidate(ctx) {
+        if (isPersistedDocumentContext(ctx.context)) {
+          return
+        }
+
+        ctx.addValidationRule(
+          maxDepthRule({
+            n: 20
+          })
+        )
+      }
+    }
+  ],
+  schema
+})
+```
+
 ## Using Relay's Persisted Queries Specification
 
 If you are using
