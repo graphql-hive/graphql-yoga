@@ -9,7 +9,12 @@
     },
     {
       "files": ["website/**/*.{ts,js,tsx}"],
-      "rules": { "import/no-default-export": "off", "import/extensions": "off" }
+      "rules": {
+        "import/no-default-export": "off",
+        "import/extensions": "off",
+        // Next.js is using `/// <reference ... />` in the env types.
+        "@typescript-eslint/triple-slash-reference": "off"
+      }
     },
     {
       "files": ["examples/**/*"],
