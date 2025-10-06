@@ -1,6 +1,6 @@
 import { withGuildDocs } from '@theguild/components/next.config';
 
-export default withGuildDocs({
+const config = withGuildDocs({
   redirects: async () =>
     Object.entries({
       '/docs/quick-start': '/docs',
@@ -31,3 +31,11 @@ export default withGuildDocs({
   },
   output: 'export',
 });
+
+if (config.experimental?.turbo) {
+  // TODO: Migrate this in @theguild/components
+  config.turbopack = config.experimental!.turbo;
+  delete config.experimental!.turbo;
+}
+
+export default config;
