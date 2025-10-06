@@ -1,0 +1,139 @@
+---
+description:
+  Integrate GraphQL Yoga with Nuxt 4 to build powerful, type-safe GraphQL APIs with a modern
+  developer experience and built-in Apollo Sandbox interface.
+---
+
+# Integration with Nuxt 4
+
+[GraphQL Yoga](https://the-guild.dev/graphql/yoga-server) is a fully-featured GraphQL server with focus on easy setup, performance and great developer experience. This guide shows how to integrate GraphQL Yoga with Nuxt 4 to create powerful backend APIs for your Nuxt applications.
+
+## Installation
+
+```sh npm2yarn
+npm i graphql-yoga graphql
+```
+
+## Server Setup
+
+Create the necessary server files to integrate GraphQL Yoga with Nuxt's Nitro server:
+
+```ts
+// server/services/index.ts
+import { createSchema } from 'graphql-yoga'
+
+export const schema = createSchema({
+  typeDefs: /* GraphQL */ `
+    type Query {
+      hello: String
+      ping: String
+    }
+  `,
+  resolvers: {
+    Query: {
+      hello: () => 'world',
+      ping: () => 'pong',
+    },
+  },
+})
+```
+
+```ts
+// server/plugins/yoga.ts
+import { createYoga } from 'graphql-yoga'
+import { defineEventHandler, sendWebResponse, toWebRequest } from 'h3'
+import { schema } from '../services'
+
+const routePath = '/api/graphql'
+const healthCheckPath = '/api/graphql/health'
+
+const yoga = createYoga({
+  graphqlEndpoint: routePath,
+  healthCheckEndpoint: healthCheckPath,
+  schema: schema,
+})
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.router.use(routePath, defineEventHandler(async (event) => {
+    const response = await yoga.fetch(toWebRequest(event))
+    return sendWebResponse(event, response)
+  }))
+  
+  nitroApp.router.use(healthCheckPath, defineEventHandler(async () => {
+    return { status: 'ok' }
+  }))
+})
+```
+
+> You can check the complete example in the GitHub repository
+> [here](https://github.com/productdevbook/nuxt-4-graphql-yoga)
+
+## Usage
+
+Once your server is running, you can access the Apollo Sandbox by navigating to `/api/graphql` and test your API with a simple query:
+
+```graphql
+query {
+  hello
+  ping
+}
+```
+
+## Features
+
+- ⚡ Quick integration with Nuxt 4's Nitro server
+- 🧪 Interactive Apollo Sandbox for testing queries
+- 🔄 Hot Module Replacement during development
+- 📋 Type-safe schema definition and resolvers
+- 🛡️ Health check endpoint at `/api/graphql/health`
+
+## Advanced Configuration
+
+### Custom Sandbox UI
+
+You can customize the Apollo Sandbox interface by modifying the `renderGraphiQL` function:
+
+```ts
+renderGraphiQL: () => {
+  return `
+  <!DOCTYPE html>
+  <html>
+    <body style="margin: 0; overflow-x: hidden; overflow-y: hidden">
+    <div id="sandbox" style="height:100vh; width:100vw;"></div>
+    <script src="https://embeddable-sandbox.cdn.apollographql.com/v2/embeddable-sandbox.umd.production.min.js"></script>
+    <script>
+    new window.EmbeddedSandbox({
+      target: "#sandbox",
+      initialEndpoint: window.location.href,
+      hideCookieToggle: false,
+      initialState: {
+        includeCookies: true
+      }
+    });
+    </script>
+    </body>
+  </html>`
+}
+```
+
+### Adding Authentication
+
+You can easily add authentication to your GraphQL API by accessing the Nuxt event context:
+
+```ts
+const yoga = createYoga<{
+  event?: H3Event<object>
+}>({
+  // ... other options
+  context: ({ event }) => {
+    // Access event.context for auth data
+    return {
+      user: event?.context.user,
+      // other context values
+    }
+  },
+})
+```
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/productdevbook/nuxt-4-graphql-yoga)
