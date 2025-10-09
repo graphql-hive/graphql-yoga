@@ -68,7 +68,7 @@ const RootLayout: FC<{
         <HiveNavigation
           productName={PRODUCTS.YOGA.name}
           logo={
-            <Anchor href="/" className="hive-focus -m-2 flex items-center rounded-md p-2 gap-3">
+            <Anchor href="/" className="hive-focus -m-2 flex items-center rounded-md p-2 gap-2">
               <YogaIcon className="size-8 shrink-0" />
               <span className="text-2xl font-medium tracking-[-0.16px]">Yoga</span>
             </Anchor>
@@ -104,10 +104,10 @@ const RootLayout: FC<{
       footer={
         <HiveFooter
           logo={
-            <Anchor href="/" className="hive-focus -m-2 flex items-center rounded-md p-2 gap-3">
+            <div className="flex gap-2">
               <YogaIcon className="size-8 shrink-0" />
               <span className="text-2xl font-medium tracking-[-0.16px]">Yoga</span>
-            </Anchor>
+            </div>
           }
           description={websiteDescription}
         />
