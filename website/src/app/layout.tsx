@@ -1,22 +1,16 @@
 import { FC, ReactNode } from 'react';
-import { GitHubIcon, PaperIcon, PencilIcon, PRODUCTS } from '@theguild/components';
-import { getDefaultMetadata, getPageMap, GuildLayout } from '@theguild/components/server';
+import { GitHubIcon, PaperIcon, PencilIcon } from '@theguild/components';
+import { getPageMap, GuildLayout } from '@theguild/components/server';
 import '@theguild/components/style.css';
 import { pageMap as changelogsPageMap } from './changelogs/[...slug]/page';
+import { rootMetadata, websiteDescription, websiteLogo } from './metadata';
 import { pageMap as v2PageMap } from './v2/[[...slug]]/page';
 import { pageMap as v3PageMap } from './v3/[[...slug]]/page';
 import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
 
-const description = PRODUCTS.YOGA.title;
-const websiteName = 'Yoga';
-
-export const metadata = getDefaultMetadata({
-  description,
-  websiteName,
-  productName: 'YOGA',
-});
+export const metadata = rootMetadata;
 
 const RootLayout: FC<{
   children: ReactNode;
@@ -45,9 +39,9 @@ const RootLayout: FC<{
         // Override nav width
         className: '[&>.light_#h-navmenu-container]:max-w-[1392px]',
       }}
-      websiteName={websiteName}
-      description={description}
-      logo={<PRODUCTS.YOGA.logo className="w-8 h-auto" />}
+      websiteName="Yoga"
+      description={websiteDescription}
+      logo={websiteLogo}
       layoutProps={{
         docsRepositoryBase: 'https://github.com/graphql-hive/graphql-yoga/tree/main/website',
       }}
