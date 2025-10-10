@@ -1,28 +1,45 @@
 import { FC, ReactNode } from 'react';
-import { GitHubIcon, PaperIcon, PencilIcon, PRODUCTS } from '@theguild/components';
-import { getDefaultMetadata, getPageMap, GuildLayout } from '@theguild/components/server';
+import localFont from 'next/font/local';
+import {
+  Anchor,
+  GitHubIcon,
+  HiveFooter,
+  HiveNavigation,
+  ListIcon,
+  PaperIcon,
+  PencilIcon,
+  PRODUCTS,
+  YogaIcon,
+} from '@theguild/components';
+import { getPageMap, HiveLayout } from '@theguild/components/server';
 import '@theguild/components/style.css';
 import { pageMap as changelogsPageMap } from './changelogs/[...slug]/page';
+import { rootMetadata, websiteDescription } from './metadata';
 import { pageMap as v2PageMap } from './v2/[[...slug]]/page';
 import { pageMap as v3PageMap } from './v3/[[...slug]]/page';
 import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
+import './global.css';
+import { Metadata } from 'next';
 
-const description = PRODUCTS.YOGA.title;
-const websiteName = 'Yoga';
+export const metadata: Metadata = rootMetadata;
 
-export const metadata = getDefaultMetadata({
-  description,
-  websiteName,
-  productName: 'YOGA',
+const neueMontreal = localFont({
+  src: [
+    { path: '../fonts/PPNeueMontreal-Regular.woff2', weight: '400' },
+    { path: '../fonts/PPNeueMontreal-Medium.woff2', weight: '500' },
+    // Medium is actually 530, so we use it both for 500 and 600
+    { path: '../fonts/PPNeueMontreal-Medium.woff2', weight: '600' },
+    { path: '../fonts/PPNeueMontreal-SemiBold.woff2', weight: '700' },
+  ],
 });
 
 const RootLayout: FC<{
   children: ReactNode;
 }> = async ({ children }) => {
-  let [meta, ...pageMap] = await getPageMap();
-  pageMap = [
+  let [meta, ..._pageMap] = await getPageMap();
+  _pageMap = [
     {
       data: {
         // @ts-expect-error -- ignore
@@ -33,56 +50,71 @@ const RootLayout: FC<{
         v4: { type: 'page', title: 'Yoga 4 Docs' },
       },
     },
-    ...pageMap,
+    ..._pageMap,
     { route: '/changelogs', name: 'changelogs', children: changelogsPageMap },
     { route: '/v4', name: 'v4', children: v4PageMap },
     { route: '/v3', name: 'v3', children: v3PageMap },
     { route: '/v2', name: 'v2', children: v2PageMap },
   ];
+
   return (
-    <GuildLayout
-      htmlProps={{
-        // Override nav width
-        className: '[&>.light_#h-navmenu-container]:max-w-[1392px]',
-      }}
-      websiteName={websiteName}
-      description={description}
-      logo={<PRODUCTS.YOGA.logo className="w-8 h-auto" />}
-      layoutProps={{
-        docsRepositoryBase: 'https://github.com/graphql-hive/graphql-yoga/tree/main/website',
-      }}
-      pageMap={pageMap}
-      navbarProps={{
-        navLinks: [{ href: '/tutorial', children: 'Tutorial' }],
-        developerMenu: [
-          {
-            href: '/docs',
-            icon: <PaperIcon />,
-            children: 'Documentation',
-          },
-          {
-            href: 'https://the-guild.dev/graphql/hive/blog',
-            icon: <PencilIcon />,
-            children: 'Blog',
-          },
-          {
-            href: 'https://github.com/graphql-hive/graphql-yoga',
-            icon: <GitHubIcon />,
-            children: 'GitHub',
-          },
-          {
-            href: '/changelog',
-            icon: null,
-            children: 'Changelog',
-          },
-        ],
-        children: <VersionDropdown />,
-      }}
-      search={<VersionedSearch />}
+    <HiveLayout
+      className="[&>.light_#h-navmenu-container]:max-w-[1392px]"
+      fontFamily={neueMontreal.style.fontFamily}
+      docsRepositoryBase="https://github.com/graphql-hive/graphql-yoga/tree/main/website"
+      head={null}
       lightOnlyPages={['/']}
+      navbar={
+        <HiveNavigation
+          productName={PRODUCTS.YOGA.name}
+          logo={
+            <Anchor href="/" className="hive-focus -m-2 flex items-center rounded-md p-2 gap-2">
+              <YogaIcon className="size-8 shrink-0" />
+              <span className="text-2xl font-medium tracking-[-0.16px]">Yoga</span>
+            </Anchor>
+          }
+          navLinks={[{ href: '/tutorial', children: 'Tutorial' }]}
+          developerMenu={[
+            {
+              href: '/docs',
+              icon: <PaperIcon />,
+              children: 'Documentation',
+            },
+            {
+              href: 'https://the-guild.dev/graphql/hive/blog',
+              icon: <PencilIcon />,
+              children: 'Blog',
+            },
+            {
+              href: '/changelog',
+              icon: <ListIcon />,
+              children: 'Changelog',
+            },
+            {
+              href: 'https://github.com/graphql-hive/graphql-yoga',
+              icon: <GitHubIcon />,
+              children: 'GitHub',
+            },
+          ]}
+          search={<VersionedSearch />}
+        >
+          <VersionDropdown />
+        </HiveNavigation>
+      }
+      footer={
+        <HiveFooter
+          logo={
+            <div className="flex gap-2">
+              <YogaIcon className="size-8 shrink-0" />
+              <span className="text-2xl font-medium tracking-[-0.16px]">Yoga</span>
+            </div>
+          }
+          description={websiteDescription}
+        />
+      }
     >
       {children}
-    </GuildLayout>
+    </HiveLayout>
   );
 };
 

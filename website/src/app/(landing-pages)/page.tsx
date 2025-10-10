@@ -14,7 +14,7 @@ import {
   ToolsAndLibrariesCards,
   YogaIcon,
 } from '@theguild/components';
-import { metadata as rootMetadata } from '../layout';
+import { rootMetadata } from '../metadata';
 import { PracticeYogaSection } from './practice-yoga-section';
 // import FAQ from './faq.mdx';
 import { ReachZenQuickerWithYoga } from './reach-zen-quicker-with-yoga';
