@@ -1,5 +1,17 @@
 # @graphql-yoga/graphiql
 
+## 4.4.2
+
+### Patch Changes
+
+- [#4212](https://github.com/graphql-hive/graphql-yoga/pull/4212)
+  [`066a2cd`](https://github.com/graphql-hive/graphql-yoga/commit/066a2cdd19260a5d3305ff06a32c69234594ce7c)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`react@19.2.0` ↗︎](https://www.npmjs.com/package/react/v/19.2.0) (from
+    `19.1.1`, in `dependencies`)
+  - Updated dependency [`react-dom@19.2.0` ↗︎](https://www.npmjs.com/package/react-dom/v/19.2.0)
+    (from `19.1.1`, in `dependencies`)
+
 ## 4.4.1
 
 ### Patch Changes
