@@ -4,7 +4,6 @@ import {
   Anchor,
   GitHubIcon,
   HiveFooter,
-  HiveLayoutConfig,
   HiveNavigation,
   ListIcon,
   PaperIcon,
@@ -22,8 +21,9 @@ import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
 import './global.css';
+import { Metadata } from 'next';
 
-export const metadata = rootMetadata;
+export const metadata: Metadata = rootMetadata;
 
 const neueMontreal = localFont({
   src: [
@@ -38,8 +38,8 @@ const neueMontreal = localFont({
 const RootLayout: FC<{
   children: ReactNode;
 }> = async ({ children }) => {
-  let [meta, ...pageMap] = await getPageMap();
-  pageMap = [
+  let [meta, ..._pageMap] = await getPageMap();
+  _pageMap = [
     {
       data: {
         // @ts-expect-error -- ignore
@@ -50,7 +50,7 @@ const RootLayout: FC<{
         v4: { type: 'page', title: 'Yoga 4 Docs' },
       },
     },
-    ...pageMap,
+    ..._pageMap,
     { route: '/changelogs', name: 'changelogs', children: changelogsPageMap },
     { route: '/v4', name: 'v4', children: v4PageMap },
     { route: '/v3', name: 'v3', children: v3PageMap },
