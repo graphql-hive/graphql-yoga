@@ -1,5 +1,6 @@
 import { inspect } from '@graphql-tools/utils';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
 describe('error masking', () => {
@@ -858,5 +859,51 @@ describe('error masking', () => {
   ],
 }
 `);
+  });
+
+  it.only('should mask experimental coordinate error attribute on production env', async () => {
+    const yoga = createYoga({
+      logging: false,
+      // maskedErrors: {
+      //   isDev: true,
+      // },
+      maskedErrors: false,
+      plugins: [useErrorCoordinate()],
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => {
+              throw createGraphQLError('Test Error', { coordinate: 'Query.a' });
+            },
+          },
+        },
+      }),
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    const body = await response.json();
+    expect(response.status).toEqual(200);
+
+    expect(body).toMatchObject({
+      errors: [
+        {
+          message: 'Test Error',
+          coordinate: 'Query.a',
+        },
+      ],
+    });
   });
 });
