@@ -97,8 +97,8 @@ importers:
         specifier: 1.0.16
         version: 1.0.16
       babel-plugin-transform-typescript-metadata:
-        specifier: 0.3.2
-        version: 0.3.2(@babel/core@7.28.5)(@babel/traverse@7.28.5)
+        specifier: 0.4.0
+        version: 0.4.0(@babel/core@7.28.5)
       bob-the-bundler:
         specifier: 7.0.1
         version: 7.0.1(typescript@5.9.3)
@@ -8852,14 +8852,10 @@ packages:
     peerDependencies:
       '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
 
-  babel-plugin-transform-typescript-metadata@0.3.2:
-    resolution: {integrity: sha512-mWEvCQTgXQf48yDqgN7CH50waTyYBeP2Lpqx4nNWab9sxEpdXVeKgfj1qYI2/TgUPQtNFZ85i3PemRtnXVYYJg==}
+  babel-plugin-transform-typescript-metadata@0.4.0:
+    resolution: {integrity: sha512-thy3pV6nMurTsjxONcv14/AyWCLY3RoftFQGJSTrhLOToYSVFCQlm2PD6KHK1UqHPKHwRPXgujfUWhrKuVctcg==}
     peerDependencies:
-      '@babel/core': ^7
-      '@babel/traverse': ^7
-    peerDependenciesMeta:
-      '@babel/traverse':
-        optional: true
+      '@babel/core': ^7.0.0 || ^8.0.0-0
 
   babel-preset-current-node-syntax@1.2.0:
     resolution: {integrity: sha512-E/VlAEzRrsLEb2+dv8yp3bo4scof3l9nR4lrld+Iy5NyVqgVYUJnDAmunkhPMisRI32Qc4iRiz425d8vM++2fg==}
@@ -25143,12 +25139,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-plugin-transform-typescript-metadata@0.3.2(@babel/core@7.28.5)(@babel/traverse@7.28.5):
+  babel-plugin-transform-typescript-metadata@0.4.0(@babel/core@7.28.5):
     dependencies:
       '@babel/core': 7.28.5
       '@babel/helper-plugin-utils': 7.27.1
-    optionalDependencies:
-      '@babel/traverse': 7.28.5
 
   babel-preset-current-node-syntax@1.2.0(@babel/core@7.28.5):
     dependencies:
