@@ -33,6 +33,7 @@ try {
     output: 'export',
   });
 } catch (e) {
+  // eslint-disable-next-line no-console
   console.error('Error configuring Next.js:', e);
   process.exit(1);
 }
