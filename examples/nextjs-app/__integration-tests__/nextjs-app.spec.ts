@@ -1,4 +1,6 @@
+import path from 'node:path';
 import { version } from 'graphql';
+import { rimrafSync } from 'rimraf';
 import { fetch } from '@whatwg-node/fetch';
 import { getAvailablePort, Proc, spawn, waitForAvailable } from './utils';
 
@@ -12,15 +14,20 @@ describe('nextjs 13 App Router', () => {
   let port: number;
   let serverProcess: Proc;
   beforeAll(async () => {
+    rimrafSync(path.join(__dirname, '..', '.next'));
     const signal = AbortSignal.timeout(30_000);
     port = await getAvailablePort();
     serverProcess = await spawn('pnpm', ['dev'], {
       signal,
       env: { PORT: String(port) },
+      cwd: path.join(__dirname, '..'),
     });
     await waitForAvailable(port, { signal });
   });
-  afterAll(() => serverProcess?.kill());
+  afterAll(() => {
+    rimrafSync(path.join(__dirname, '..', '.next'));
+    return serverProcess?.kill();
+  });
 
   it('should show GraphiQL', async () => {
     const response = await fetch(`http://127.0.0.1:${port}/api/graphql`, {

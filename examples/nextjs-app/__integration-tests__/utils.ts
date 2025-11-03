@@ -13,12 +13,16 @@ export interface Proc {
 export function spawn(
   cmd: string,
   args: string[],
-  { signal, env }: { signal: AbortSignal; env?: Record<string, string> },
+  {
+    signal,
+    env,
+    cwd = path.join(module.path, '..'),
+  }: { signal: AbortSignal; env?: Record<string, string>; cwd: string },
 ): Promise<Proc> {
   const proc = cp.spawn(cmd, args, {
     // ignore stdin because we're not feeding the process anything, pipe stdout and stderr
     stdio: ['ignore', 'pipe', 'pipe'],
-    cwd: path.join(module.path, '..'),
+    cwd,
     signal,
     env: {
       // @ts-ignore this runs inside jest so process is always available
