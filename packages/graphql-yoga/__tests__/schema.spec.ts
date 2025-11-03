@@ -104,7 +104,7 @@ describe('schema', () => {
     expect(await result.json()).toEqual({
       errors: [
         {
-          message: `No schema found for this request. Make sure you use this plugin with GraphQL Yoga.`,
+          message: `The factory function did not return a valid GraphQLSchema.`,
         },
       ],
     });
@@ -228,7 +228,7 @@ describe('schema', () => {
     const { errors } = await result.json();
     expect(errors).toEqual([
       {
-        message: `No schema found for this request. Make sure you use this plugin with GraphQL Yoga.`,
+        message: `The factory function did not return a valid GraphQLSchema.`,
       },
     ]);
   });
