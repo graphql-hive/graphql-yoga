@@ -43,7 +43,7 @@
     "prettier:check": "prettier --ignore-path .prettierignore --check .",
     "release": "pnpm build && changeset publish",
     "start:docs": "pnpm --filter=website dev",
-    "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
+    "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit --runInBand",
     "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
     "test:unit": "jest --detectOpenHandles",
     "test:unit:leaks": "cross-env LEAKS_TEST=true pnpm run test:unit --detectLeaks"
