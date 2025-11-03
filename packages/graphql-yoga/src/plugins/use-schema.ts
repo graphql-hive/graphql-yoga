@@ -79,7 +79,7 @@ export const useSchema = <
                 }),
               schemaDef => {
                 if (!isGraphQLSchema(schemaDef)) {
-                  throw new Error(`The resolved schema is not a valid GraphQLSchema instance.`);
+                  throw new Error('The factory function did not return a valid GraphQLSchema.');
                 }
                 schemaByRequest.set(request, schemaDef);
               },
