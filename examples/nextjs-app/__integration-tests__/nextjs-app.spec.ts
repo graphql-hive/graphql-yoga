@@ -6,8 +6,10 @@ import { getAvailablePort, Proc, spawn, waitForAvailable } from './utils';
 
 jest.setTimeout(33_000);
 
+const nodeMajorVersion = parseInt(process.version.split('.')[0].replace('v', ''), 10);
+
 describe('nextjs 13 App Router', () => {
-  if (version.startsWith('15.')) {
+  if (version.startsWith('15.') || nodeMajorVersion < 20) {
     it.skip('skips for v15', () => {});
     return;
   }
