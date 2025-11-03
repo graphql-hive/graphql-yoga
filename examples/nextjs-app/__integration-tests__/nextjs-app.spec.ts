@@ -10,7 +10,7 @@ const nodeMajorVersion = parseInt(process.version.split('.')[0].replace('v', '')
 
 describe('nextjs 13 App Router', () => {
   if (version.startsWith('15.') || nodeMajorVersion < 20) {
-    it.skip('skips for v15', () => {});
+    it.skip('skips', () => {});
     return;
   }
   let port: number;

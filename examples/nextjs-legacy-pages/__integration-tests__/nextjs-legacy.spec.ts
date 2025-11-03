@@ -9,8 +9,13 @@ import {
 } from '../../nextjs-app/__integration-tests__/utils';
 
 jest.setTimeout(33_000);
+const nodeMajorVersion = parseInt(process.version.split('.')[0].replace('v', ''), 10);
 
 describe('NextJS Legacy Pages', () => {
+  if (nodeMajorVersion < 20) {
+    it.skip('skips', () => {});
+    return;
+  }
   let port: number;
   let serverProcess: Proc;
   beforeAll(async () => {
