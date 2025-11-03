@@ -28,4 +28,11 @@ export default createYoga<{
       },
     },
   }),
+  plugins: [
+    {
+      onValidate({ setResult }) {
+        setResult([]);
+      },
+    },
+  ],
 });
