@@ -1,5 +1,22 @@
 # @graphql-yoga/nestjs
 
+## 3.17.0
+
+### Minor Changes
+
+- [#4182](https://github.com/graphql-hive/graphql-yoga/pull/4182)
+  [`3705256`](https://github.com/graphql-hive/graphql-yoga/commit/370525642b908d78c1d6238bf12c033a18cad0cd)
+  Thanks [@Kalos-S](https://github.com/Kalos-S)! - Remove unused graphqlEndpoint NestJS driver
+  option
+
+### Patch Changes
+
+- Updated dependencies
+  [[`6f83cea`](https://github.com/graphql-hive/graphql-yoga/commit/6f83cea1aa1e2166664304f6853e7d5f88f0739a),
+  [`e1f52b6`](https://github.com/graphql-hive/graphql-yoga/commit/e1f52b656c30e94d13d050a9211740c5b1d49913),
+  [`6f83cea`](https://github.com/graphql-hive/graphql-yoga/commit/6f83cea1aa1e2166664304f6853e7d5f88f0739a)]:
+  - graphql-yoga@5.16.1
+
 ## 3.16.0
 
 ### Patch Changes
