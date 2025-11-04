@@ -1,4 +1,3 @@
-import { dset } from 'dset';
 import { createGraphQLError } from '@graphql-tools/utils';
 import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
 import { GraphQLParams } from '../../types.js';
@@ -48,7 +47,7 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
           const file = requestBody.get(fileIndex);
           const keys = map[fileIndex]!;
           for (const key of keys) {
-            dset(operations, key, file);
+            setObjectKeyPath(operations, key, file);
           }
         }
       }
@@ -68,4 +67,22 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       throw e;
     },
   );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setObjectKeyPath(object: any, keyPath: string, value: any): void {
+  const keys = keyPath.split('.');
+  let current = object;
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]!;
+    const isLastKey = i === keys.length - 1;
+    if (isLastKey) {
+      current[key] = value;
+    } else {
+      if (!(key in current)) {
+        current[key] = {};
+      }
+      current = current[key];
+    }
+  }
 }
