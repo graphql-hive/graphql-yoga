@@ -75,6 +75,9 @@ function setObjectKeyPath(object: any, keyPath: string, value: any): void {
   let current = object;
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]!;
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      return;
+    }
     const isLastKey = i === keys.length - 1;
     if (isLastKey) {
       current[key] = value;
