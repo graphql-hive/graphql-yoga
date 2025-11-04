@@ -1,5 +1,26 @@
 # graphql-yoga
 
+## 5.16.1
+
+### Patch Changes
+
+- [#4263](https://github.com/graphql-hive/graphql-yoga/pull/4263)
+  [`6f83cea`](https://github.com/graphql-hive/graphql-yoga/commit/6f83cea1aa1e2166664304f6853e7d5f88f0739a)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
+  - Updated dependency
+    [`@whatwg-node/server@^0.10.14` ↗︎](https://www.npmjs.com/package/@whatwg-node/server/v/0.10.14)
+    (from `^0.10.5`, in `dependencies`)
+
+- [#4264](https://github.com/graphql-hive/graphql-yoga/pull/4264)
+  [`e1f52b6`](https://github.com/graphql-hive/graphql-yoga/commit/e1f52b656c30e94d13d050a9211740c5b1d49913)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Removed dependency [`dset@^3.1.4` ↗︎](https://www.npmjs.com/package/dset/v/3.1.4) (from
+    `dependencies`)
+
+- [#4263](https://github.com/graphql-hive/graphql-yoga/pull/4263)
+  [`6f83cea`](https://github.com/graphql-hive/graphql-yoga/commit/6f83cea1aa1e2166664304f6853e7d5f88f0739a)
+  Thanks [@ardatan](https://github.com/ardatan)! - Update GraphiQL dependencies
+
 ## 5.16.0
 
 ### Minor Changes
