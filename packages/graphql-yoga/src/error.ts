@@ -108,9 +108,7 @@ export function handleError(
     errors.add(
       createGraphQLError('Unexpected error.', {
         extensions: {
-          http: {
-            unexpected: true,
-          },
+          unexpected: true,
         },
       }),
     );
