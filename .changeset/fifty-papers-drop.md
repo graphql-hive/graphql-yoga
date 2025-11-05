@@ -2,5 +2,14 @@
 'graphql-yoga': patch
 ---
 
-`handleError` correctly sets \`unexpected: true\` in the extensions instead of \`http.unexpected:
-true\`
+Fixes the bug where the error masking incorrectly sets `http.unexpected` instead of just `unexpected`.
+
+```diff
+{
+  "extensions": {
+-    "http": {
+      "unexpected": true
+-    }
+  }
+}
+```
