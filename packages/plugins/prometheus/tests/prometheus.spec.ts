@@ -271,4 +271,34 @@ describe('Prometheus', () => {
     expect(metrics).toContain('statusCode="400"');
     expect(metrics).toContain('operationName="TestProm"');
   });
+  it('disables endpoint when set to false', async () => {
+    const yoga = createYoga({
+      schema,
+      plugins: [
+        usePrometheus({
+          endpoint: false,
+          metrics: {
+            graphql_yoga_http_duration: true,
+          },
+          registry,
+        }),
+      ],
+    });
+    const graphqlResult = await yoga.fetch('http://localhost:4000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: /* GraphQL */ `
+          query TestProm {
+            hello
+          }
+        `,
+      }),
+    });
+    await graphqlResult.text();
+    const result = await yoga.fetch('http://localhost:4000/metrics');
+    expect(result.status).toBe(404);
+  });
 });

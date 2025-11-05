@@ -117,7 +117,14 @@ const DEFAULT_METRICS_CONFIG: PrometheusTracingPluginConfig['metrics'] = {
 };
 
 export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
-  const endpoint = options.endpoint || '/metrics';
+  let endpoint: string | false;
+  if (options.endpoint === false) {
+    endpoint = false;
+  } else if (typeof options.endpoint === 'string') {
+    endpoint = options.endpoint;
+  } else {
+    endpoint = '/metrics';
+  }
   const registry = options.registry || defaultRegistry;
   const resolvedOptions: EnvelopPrometheusTracingPluginConfig = {
     ...options,
@@ -130,22 +137,24 @@ export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
   const basePlugin: Plugin = {
     onPluginInit({ addPlugin }) {
       addPlugin(useEnvelopPrometheus({ ...resolvedOptions, registry }) as Plugin);
-      addPlugin({
-        onRequest({ url, fetchAPI, endResponse }) {
-          if (endpoint && url.pathname === endpoint) {
-            return registry.metrics().then(metrics => {
-              endResponse(
-                new fetchAPI.Response(metrics, {
-                  headers: {
-                    'Content-Type': registry.contentType,
-                  },
-                }),
-              );
-            });
-          }
-          return undefined;
-        },
-      });
+      if (endpoint) {
+        addPlugin({
+          onRequest({ url, fetchAPI, endResponse }) {
+            if (url.pathname === endpoint) {
+              return registry.metrics().then(metrics => {
+                endResponse(
+                  new fetchAPI.Response(metrics, {
+                    headers: {
+                      'Content-Type': registry.contentType,
+                    },
+                  }),
+                );
+              });
+            }
+            return undefined;
+          },
+        });
+      }
     },
   };
 
