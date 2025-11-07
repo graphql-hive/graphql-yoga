@@ -1,5 +1,13 @@
 # @graphql-yoga/nestjs
 
+## 3.17.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ba38629`](https://github.com/graphql-hive/graphql-yoga/commit/ba38629974f7ad353a28efd7ab83b7ffe938881c)]:
+  - graphql-yoga@5.16.2
+
 ## 3.17.0
 
 ### Minor Changes

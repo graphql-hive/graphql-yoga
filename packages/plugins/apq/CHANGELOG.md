@@ -1,5 +1,17 @@
 # @graphql-yoga/plugin-apq
 
+## 3.16.2
+
+### Patch Changes
+
+- [#4278](https://github.com/graphql-hive/graphql-yoga/pull/4278)
+  [`b8d2f70`](https://github.com/graphql-hive/graphql-yoga/commit/b8d2f705a0461ede3ce190c49c4f55f98d5381f2)
+  Thanks [@renovate](https://github.com/apps/renovate)! - Better error codes
+
+- Updated dependencies
+  [[`ba38629`](https://github.com/graphql-hive/graphql-yoga/commit/ba38629974f7ad353a28efd7ab83b7ffe938881c)]:
+  - graphql-yoga@5.16.2
+
 ## 3.16.1
 
 ### Patch Changes

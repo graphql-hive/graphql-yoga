@@ -1,5 +1,24 @@
 # @graphql-yoga/plugin-prometheus
 
+## 6.11.2
+
+### Patch Changes
+
+- [#4278](https://github.com/graphql-hive/graphql-yoga/pull/4278)
+  [`b8d2f70`](https://github.com/graphql-hive/graphql-yoga/commit/b8d2f705a0461ede3ce190c49c4f55f98d5381f2)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/prometheus@^14.0.0` ↗︎](https://www.npmjs.com/package/@envelop/prometheus/v/14.0.0)
+    (from `^13.0.0`, in `dependencies`)
+
+- [#4269](https://github.com/graphql-hive/graphql-yoga/pull/4269)
+  [`a191076`](https://github.com/graphql-hive/graphql-yoga/commit/a1910762dccd6f0092be3e3afcce3507b04a1208)
+  Thanks [@ardatan](https://github.com/ardatan)! - Disable the endpoint when `endpoint: false`
+
+- Updated dependencies
+  [[`ba38629`](https://github.com/graphql-hive/graphql-yoga/commit/ba38629974f7ad353a28efd7ab83b7ffe938881c)]:
+  - graphql-yoga@5.16.2
+
 ## 6.11.1
 
 ### Patch Changes

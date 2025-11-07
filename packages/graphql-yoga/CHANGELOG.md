@@ -1,5 +1,24 @@
 # graphql-yoga
 
+## 5.16.2
+
+### Patch Changes
+
+- [#4270](https://github.com/graphql-hive/graphql-yoga/pull/4270)
+  [`ba38629`](https://github.com/graphql-hive/graphql-yoga/commit/ba38629974f7ad353a28efd7ab83b7ffe938881c)
+  Thanks [@ardatan](https://github.com/ardatan)! - Fixes the bug where the error masking incorrectly
+  sets `http.unexpected` instead of just `unexpected`.
+
+  ```diff
+  {
+    "extensions": {
+  -    "http": {
+        "unexpected": true
+  -    }
+    }
+  }
+  ```
+
 ## 5.16.1
 
 ### Patch Changes
