@@ -124,7 +124,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
                 http: {
                   status: responseConfig.forceStatusCodeOk ? 200 : 400,
                 },
-                code: 'PERSISTED_QUERY_MISMATCH',
+                code: 'PERSISTED_QUERY_HASH_MISMATCH',
               },
             });
           }

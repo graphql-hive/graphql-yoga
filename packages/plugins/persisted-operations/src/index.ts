@@ -107,14 +107,32 @@ export function usePersistedOperations<
   const operationASTByRequest = new WeakMap<Request, DocumentNode>();
   const persistedOperationRequest = new WeakSet<Request>();
 
-  const notFoundErrorFactory = createErrorFactory('PersistedQueryNotFound', customErrors?.notFound);
+  const notFoundErrorFactory = createErrorFactory(
+    'PersistedQueryNotFound',
+    customErrors?.notFound || {
+      message: 'PersistedQueryNotFound',
+      extensions: {
+        code: 'PERSISTED_QUERY_NOT_IN_LIST',
+      },
+    },
+  );
   const keyNotFoundErrorFactory = createErrorFactory(
     'PersistedQueryKeyNotFound',
-    customErrors?.keyNotFound,
+    customErrors?.keyNotFound || {
+      message: 'PersistedQueryKeyNotFound',
+      extensions: {
+        code: 'PERSISTED_QUERY_ID_REQUIRED',
+      },
+    },
   );
   const persistentQueryOnlyErrorFactory = createErrorFactory(
     'PersistedQueryOnly',
-    customErrors?.persistedQueryOnly,
+    customErrors?.persistedQueryOnly || {
+      message: 'PersistedQueryOnly',
+      extensions: {
+        code: 'CANNOT_SEND_PQ_ID_AND_BODY',
+      },
+    },
   );
 
   return {
