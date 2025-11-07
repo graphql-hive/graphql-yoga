@@ -1,5 +1,7 @@
 # @graphql-yoga/urql-exchange
 
+## 5.1.2
+
 ## 5.1.1
 
 ## 5.1.0

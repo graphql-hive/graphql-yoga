@@ -1,5 +1,16 @@
 # @graphql-yoga/graphiql
 
+## 4.4.3
+
+### Patch Changes
+
+- [#4267](https://github.com/graphql-hive/graphql-yoga/pull/4267)
+  [`dd575b2`](https://github.com/graphql-hive/graphql-yoga/commit/dd575b2fe8b372d0b575750106a319a5195c15b8)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/url-loader@9.0.2` ↗︎](https://www.npmjs.com/package/@graphql-tools/url-loader/v/9.0.2)
+    (from `9.0.1`, in `dependencies`)
+
 ## 4.4.2
 
 ### Patch Changes
