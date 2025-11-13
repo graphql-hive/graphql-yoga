@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 24]
+        node-version: [18, 20, 25]
         graphql-version: ['15.10.1', '16.10.0']
     steps:
       - name: Checkout Repository
@@ -115,7 +115,7 @@ jobs:
 
       - if: ${{matrix.node-version == '25'}}
         name: Disable Local Storage
-        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
+        run: 'NODE_OPTIONS="--no-webstorage" > $GITHUB_ENV'
 
       - name: Run Unit Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
@@ -179,7 +179,7 @@ jobs:
 
       - if: ${{matrix.node-version == '25'}}
         name: Disable Local Storage
-        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
+        run: 'NODE_OPTIONS="--no-webstorage" > $GITHUB_ENV'
 
       - name: Run Integration Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
