@@ -1,0 +1,27 @@
+diff --git a/build/index.js b/build/index.js
+index 866ad663d0f392c721c39cbcb3be88d19b85fac2..52d55b21306e668344fd0416aad8aaa6914bc364 100644
+--- a/build/index.js
++++ b/build/index.js
+@@ -61,9 +61,19 @@ function _jestValidate() {
+  */
+ 
+ // some globals we do not want, either because deprecated or we set it ourselves
+-const denyList = new Set(['GLOBAL', 'root', 'global', 'globalThis', 'Buffer', 'ArrayBuffer', 'Uint8Array',
+-// if env is loaded within a jest test
+-'jest-symbol-do-not-touch']);
++const denyList = new Set([
++  'GLOBAL',
++  'root',
++  'global',
++  'globalThis',
++  'Buffer',
++  'ArrayBuffer',
++  'Uint8Array',
++  // if env is loaded within a jest test
++  'jest-symbol-do-not-touch',
++  // Fixes "SecurityError: Cannot initialize local storage without a `--localstorage-file` path" on Node 25
++  'localStorage'
++]);
+ const nodeGlobals = new Map(Object.getOwnPropertyNames(globalThis).filter(global => !denyList.has(global)).map(nodeGlobalsKey => {
+   const descriptor = Object.getOwnPropertyDescriptor(globalThis, nodeGlobalsKey);
+   if (!descriptor) {
