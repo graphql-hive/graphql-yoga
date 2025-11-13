@@ -75,8 +75,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 24]
-        graphql-version: ['15.10.1', '16.10.0']
+        node-version: [18, 20, 25]
+        graphql-version: ['15.10.1', '16.12.0']
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -113,10 +113,6 @@ jobs:
       - name: Build Packages
         run: pnpm build
 
-      - if: ${{matrix.node-version == '25'}}
-        name: Disable Local Storage
-        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
-
       - name: Run Unit Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -136,8 +132,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 24]
-        graphql-version: ['15.10.1', '16.10.0']
+        node-version: [18, 20, 25]
+        graphql-version: ['15.10.1', '16.12.0']
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -176,10 +172,6 @@ jobs:
 
       - name: Build Packages
         run: pnpm build
-
-      - if: ${{matrix.node-version == '25'}}
-        name: Disable Local Storage
-        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
 
       - name: Run Integration Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
