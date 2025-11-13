@@ -11,6 +11,10 @@ const pkgPath = path.resolve(__dirname, '..', 'package.json');
 const pkgFile = fs.readFileSync(pkgPath);
 
 const pkg = JSON.parse(pkgFile.toString());
+if (pkg?.pnpm?.overrides?.graphql === graphqlVersion) {
+  console.log(`graphql version is already set to ${graphqlVersion}, skipping...`);
+  process.exit(0);
+}
 pkg.pnpm.overrides = {
   ...pkg.pnpm.overrides,
   graphql: graphqlVersion,
