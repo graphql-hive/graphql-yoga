@@ -113,6 +113,10 @@ jobs:
       - name: Build Packages
         run: pnpm build
 
+      - if: ${{matrix.node-version == '25'}}
+        name: Disable Local Storage
+        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
+
       - name: Run Unit Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -172,6 +176,10 @@ jobs:
 
       - name: Build Packages
         run: pnpm build
+
+      - if: ${{matrix.node-version == '25'}}
+        name: Disable Local Storage
+        run: "NODE_OPTIONS=\"--no-webstorage\" > $GITHUB_ENV"
 
       - name: Run Integration Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
