@@ -861,7 +861,7 @@ describe('error masking', () => {
 `);
   });
 
-  it.only('should mask experimental coordinate error attribute on production env', async () => {
+  it('should mask experimental coordinate error attribute on production env', async () => {
     const yoga = createYoga({
       logging: false,
       maskedErrors: {
