@@ -864,10 +864,9 @@ describe('error masking', () => {
   it.only('should mask experimental coordinate error attribute on production env', async () => {
     const yoga = createYoga({
       logging: false,
-      // maskedErrors: {
-      //   isDev: true,
-      // },
-      maskedErrors: false,
+      maskedErrors: {
+        isDev: true,
+      },
       plugins: [useErrorCoordinate()],
       schema: createSchema({
         typeDefs: /* GraphQL */ `
