@@ -872,12 +872,16 @@ describe('error masking', () => {
         typeDefs: /* GraphQL */ `
           type Query {
             a: String!
+            b: String!
           }
         `,
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('Test Error', { coordinate: 'Query.a' });
+              throw createGraphQLError('Test Error');
+            },
+            b: () => {
+              throw new Error('Test Error');
             },
           },
         },
@@ -901,6 +905,27 @@ describe('error masking', () => {
         {
           message: 'Test Error',
           coordinate: 'Query.a',
+        },
+      ],
+    });
+
+    const response2 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ b }' }),
+    });
+
+    const body2 = await response2.json();
+    expect(response2.status).toEqual(200);
+
+    expect(body2).toMatchObject({
+      errors: [
+        {
+          message: 'Unexpected error.',
+          coordinate: 'Query.b',
         },
       ],
     });
