@@ -1,5 +1,6 @@
 import { inspect } from '@graphql-tools/utils';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
 describe('error masking', () => {
@@ -858,5 +859,75 @@ describe('error masking', () => {
   ],
 }
 `);
+  });
+
+  it('should mask experimental coordinate error attribute on production env', async () => {
+    const yoga = createYoga({
+      logging: false,
+      maskedErrors: {
+        isDev: true,
+      },
+      plugins: [useErrorCoordinate()],
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+            b: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => {
+              throw createGraphQLError('Test Error');
+            },
+            b: () => {
+              throw new Error('Test Error');
+            },
+          },
+        },
+      }),
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+
+    const body = await response.json();
+    expect(response.status).toEqual(200);
+
+    expect(body).toMatchObject({
+      errors: [
+        {
+          message: 'Test Error',
+          coordinate: 'Query.a',
+        },
+      ],
+    });
+
+    const response2 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ b }' }),
+    });
+
+    const body2 = await response2.json();
+    expect(response2.status).toEqual(200);
+
+    expect(body2).toMatchObject({
+      errors: [
+        {
+          message: 'Unexpected error.',
+          coordinate: 'Query.b',
+        },
+      ],
+    });
   });
 });
