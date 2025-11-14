@@ -22,7 +22,13 @@
     "node": ">=18.0.0",
     "pnpm": ">=9.1.3"
   },
-  "keywords": ["graphql", "server", "api", "graphql-server", "apollo"],
+  "keywords": [
+    "graphql",
+    "server",
+    "api",
+    "graphql-server",
+    "apollo"
+  ],
   "scripts": {
     "build": "pnpm --filter=@graphql-yoga/graphiql run build && pnpm --filter=@graphql-yoga/render-graphiql run build && pnpm --filter=graphql-yoga run generate-graphiql-html && bob build && pnpm --filter=graphql-yoga run inject-version",
     "build-website": "pnpm build && cd website && pnpm build",
@@ -85,7 +91,9 @@
     "wrangler": "4.46.0"
   },
   "lint-staged": {
-    "packages/**/src/**/*.{ts,tsx}": ["cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"],
+    "packages/**/src/**/*.{ts,tsx}": [
+      "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"
+    ],
     "**/*.{ts,tsx,graphql,yml,yaml,md,json,html,mdx,prettierignore,eslintignore,js,mjs,cjs,md}": [
       "prettier --write"
     ]
