@@ -26,17 +26,15 @@ export const yoga = createYoga({
 
 Once enabled, located errors will gain the `coordinate` attribute:
 
-```json
-{
-  "data": null,
-  "errors": [
-    {
-      "locations": [{ "column": 3, "line": 1 }],
-      "message": "An Error Occured",
-      "path": ["a"],
-      "coordinate": "Query.a"
+```ts
+const myPlugin = {
+  onExecutionResult({ result }) {
+    if (result.errors) {
+      for (const error of result.errors) {
+        console.log('Error at', error.coordinate, ':', error.message)
+      }
     }
-  ]
+  }
 }
 ```
 
@@ -45,14 +43,15 @@ Once enabled, located errors will gain the `coordinate` attribute:
 Adding a schema coordinate to errors exposes information about the schema, which can be an attack
 vector if you rely on the fact your schema is private and secret.
 
-This is why the `coordinate` attribute is masked from error by default when running in production
-mode (`NODE_ENV != 'development'`). The `coordinate` attribute is still part of the error object,
-but is hidden at serialization time so that it is not exposed to the client.
+This is why the `coordinate` attribute is not serialized by default, and will not be exposed to
+clients.
 
-You can customize error masking by providing the `errorMasking` option:
+If you want to send this information to client, override either each `toJSON` error's method, or add
+a dedicated extension.
 
 ```ts
-import { createYoga, useErrorCoordinate } from 'graphql-yoga'
+import { GraphQLError } from 'graphql'
+import { createYoga, maskError, useErrorCoordinate } from 'graphql-yoga'
 import { schema } from './schema'
 
 export const yoga = createYoga({
@@ -61,7 +60,18 @@ export const yoga = createYoga({
   maskedErrors: {
     isDev: process.env['NODE_ENV'] === 'development', // when `isDev` is true, errors are not masked
     maskError: (error, message, isDev) => {
-      //... you can provide your own masking logic, to always expose `coordinate` for example.
+      if (error instanceof GraphQLError) {
+        error.toJSON = () => {
+          // Get default graphql serialized error representation
+          const json = GraphQLError.prototype.toJSON.apply(error)
+          // Manually add the coordinate attribute. You can also use extensions instead.
+          json.coordinate = error.coordinate
+          return json
+        }
+      }
+
+      // Keep the default error masking implementation
+      return maskError(error, message, isDev)
     }
   }
 })
