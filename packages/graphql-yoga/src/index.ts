@@ -50,6 +50,7 @@ export { createGraphQLError, isPromise, mapMaybePromise } from '@graphql-tools/u
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
+export { useErrorCoordinate } from './plugins/use-error-coordinate.js';
 export {
   type LandingPageRenderer,
   type LandingPageRendererOpts,

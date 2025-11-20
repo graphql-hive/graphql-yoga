@@ -1,4 +1,4 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
 import { MaskError } from '../types.js';
 
@@ -36,6 +36,7 @@ export const maskError: MaskError = (
     errorOptions.source = error.source;
     errorOptions.positions = error.positions;
     errorOptions.path = error.path;
+    errorOptions.coordinate = getSchemaCoordinate(error);
     if (isDev && error.originalError) {
       errorExtensions['originalError'] = serializeError(error.originalError);
     }
