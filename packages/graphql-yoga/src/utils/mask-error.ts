@@ -1,20 +1,6 @@
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
 import { MaskError } from '../types.js';
-
-// We override the `toJSON` function to mask coordinate, because otherwise, it will be entirely
-// masked for plugins after the onExecuteDone phase (which have an impact for telemetry for example)
-function toJsonWithoutCoordinate(this: GraphQLError): GraphQLFormattedError {
-  const toJSON: typeof GraphQLError.prototype.toJSON =
-    (this as { _originalToJSON?: typeof GraphQLError.prototype.toJSON })._originalToJSON ??
-    GraphQLError.prototype.toJSON;
-  const json = toJSON.apply(this);
-  // @ts-expect-error coordinate is readonly
-  delete json.coordinate;
-
-  return json;
-}
 
 function serializeError(error: unknown) {
   if (isGraphQLError(error)) {
@@ -36,12 +22,6 @@ export const maskError: MaskError = (
   isDev = globalThis.process?.env?.['NODE_ENV'] === 'development',
 ) => {
   if (isOriginalGraphQLError(error)) {
-    if (!isDev) {
-      Object.defineProperties(error, {
-        toJSON: { value: toJsonWithoutCoordinate },
-        _originalToJSON: { value: error.toJSON },
-      });
-    }
     return error;
   }
   const errorExtensions: Record<string, unknown> = {
@@ -67,20 +47,5 @@ export const maskError: MaskError = (
     errorExtensions['originalError'] = serializeError(error);
   }
 
-  const maskedError = createGraphQLError(message, errorOptions);
-
-  if (!isDev) {
-    Object.defineProperties(maskedError, {
-      toJSON: { value: toJsonWithoutCoordinate },
-      _originalToJSON: { value: maskedError.toJSON },
-    });
-    if (maskedError.extensions['originalError'] instanceof GraphQLError) {
-      Object.defineProperties(maskedError.extensions['originalError'], {
-        toJSON: { value: toJsonWithoutCoordinate },
-        _originalToJSON: { value: maskedError.extensions['originalError'].toJSON },
-      });
-    }
-  }
-
-  return maskedError;
+  return createGraphQLError(message, errorOptions);
 };
