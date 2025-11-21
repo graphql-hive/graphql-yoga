@@ -196,6 +196,11 @@ export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
       // If only it is Yoga, we calculate HTTP request time
       if (context.request) {
         return ({ result: document, context }) => {
+          if (document instanceof Error) {
+            // validation errors can be parse results
+            // graphql errors are also instances of errors
+            return;
+          }
           const operationAST = getOperationAST(document, context.params.operationName);
           const params = {
             document,
