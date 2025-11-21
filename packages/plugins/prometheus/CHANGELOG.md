@@ -1,5 +1,16 @@
 # @graphql-yoga/plugin-prometheus
 
+## 6.11.3
+
+### Patch Changes
+
+- [#4296](https://github.com/graphql-hive/graphql-yoga/pull/4296)
+  [`d39201e`](https://github.com/graphql-hive/graphql-yoga/commit/d39201e4dcb02ebba995b3b88ee7fa8fd79619d2)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Plugin stops and handles parsing errors
+
+  Previously it would throw an unhandled exception becauase Prometheus was expecting a GraphQL
+  document in onParse hook always, but it can also be an error.
+
 ## 6.11.2
 
 ### Patch Changes
