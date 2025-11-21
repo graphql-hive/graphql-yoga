@@ -1,5 +1,6 @@
 import { getOperationAST, type DocumentNode } from 'graphql';
 import { Plugin } from 'graphql-yoga';
+import { isGraphQLError } from 'packages/graphql-yoga/src/error';
 import { register as defaultRegistry } from 'prom-client';
 import {
   createCounter,
@@ -196,6 +197,10 @@ export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
       // If only it is Yoga, we calculate HTTP request time
       if (context.request) {
         return ({ result: document, context }) => {
+          if (document instanceof Error) {
+            // validation errors can be results
+            return;
+          }
           const operationAST = getOperationAST(document, context.params.operationName);
           const params = {
             document,
