@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError } from '../../error.js';
 import { MaybeArray } from '../../types.js';
 import { ExecutionResultWithSerializer } from '../types.js';
@@ -50,6 +50,7 @@ function omitInternalsFromError<E extends GraphQLError | Error | undefined>(err:
       path: err.path,
       originalError: omitInternalsFromError(err.originalError || undefined),
       extensions: Object.keys(extensions).length ? extensions : undefined,
+      coordinate: getSchemaCoordinate(err),
     }) as E;
   }
   return err;

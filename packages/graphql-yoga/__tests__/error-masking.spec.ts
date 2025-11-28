@@ -1,5 +1,7 @@
+import { ExecutionResult, GraphQLError } from 'graphql';
 import { inspect } from '@graphql-tools/utils';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
 describe('error masking', () => {
@@ -858,5 +860,70 @@ describe('error masking', () => {
   ],
 }
 `);
+  });
+
+  it('should mask experimental coordinate error attribute on production env', async () => {
+    let error: GraphQLError | undefined;
+    const yoga = createYoga({
+      logging: false,
+      plugins: [
+        useErrorCoordinate(),
+        {
+          onExecutionResult({ result }) {
+            error = (result as ExecutionResult).errors?.[0];
+          },
+        },
+      ],
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            a: String!
+            b: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: () => {
+              throw createGraphQLError('Test Error');
+            },
+            b: () => {
+              throw new Error('Test Error');
+            },
+          },
+        },
+      }),
+    });
+
+    const r1 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ a }' }),
+    });
+    const b1 = await r1.json();
+
+    expect(error).toMatchObject({
+      message: 'Test Error',
+      coordinate: 'Query.a',
+    });
+    expect(b1.errors[0].coordinate).toBeUndefined();
+
+    const r2 = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        accept: 'application/graphql-response+json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ b }' }),
+    });
+    const b2 = await r2.json();
+
+    expect(error).toMatchObject({
+      message: 'Unexpected error.',
+      coordinate: 'Query.b',
+    });
+    expect(b2.errors[0].coordinate).toBeUndefined();
   });
 });
