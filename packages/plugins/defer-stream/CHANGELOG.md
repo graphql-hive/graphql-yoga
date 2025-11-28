@@ -1,5 +1,20 @@
 # @graphql-yoga/plugin-defer-stream
 
+## 3.17.0
+
+### Patch Changes
+
+- [#4288](https://github.com/graphql-hive/graphql-yoga/pull/4288)
+  [`66c370c`](https://github.com/graphql-hive/graphql-yoga/commit/66c370cb185f632ec9d28cf642d3049a981effeb)
+  Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@^10.11.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/10.11.0)
+    (from `^10.6.1`, in `dependencies`)
+- Updated dependencies
+  [[`66c370c`](https://github.com/graphql-hive/graphql-yoga/commit/66c370cb185f632ec9d28cf642d3049a981effeb),
+  [`66c370c`](https://github.com/graphql-hive/graphql-yoga/commit/66c370cb185f632ec9d28cf642d3049a981effeb)]:
+  - graphql-yoga@5.17.0
+
 ## 3.16.2
 
 ### Patch Changes
