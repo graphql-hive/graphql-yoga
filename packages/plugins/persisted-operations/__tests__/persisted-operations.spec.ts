@@ -1,6 +1,9 @@
 import { DocumentNode, parse, validate } from 'graphql';
-import { createSchema, createYoga, GraphQLParams } from 'graphql-yoga';
-import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations';
+import { createSchema, createYoga, GraphQLParams, Plugin, useExtendContext } from 'graphql-yoga';
+import {
+  isPersistedOperationContext,
+  usePersistedOperations,
+} from '@graphql-yoga/plugin-persisted-operations';
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `
@@ -527,5 +530,147 @@ describe('Persisted Operations', () => {
     const body = await response.json();
     expect(body.errors).toBeUndefined();
     expect(body.data.__typename).toBe('Query');
+  });
+
+  describe('"isPersistedOperationContext" helper', () => {
+    it('returns true for persisted document context', async () => {
+      const store = new Map<string, string>();
+      const plugin: Plugin = {
+        onValidate(ctx) {
+          expect(isPersistedOperationContext(ctx.context)).toEqual(true);
+        },
+      };
+
+      const yoga = createYoga({
+        plugins: [
+          usePersistedOperations({
+            getPersistedOperation(key: string) {
+              return store.get(key) || null;
+            },
+            allowArbitraryOperations: true,
+          }),
+          plugin,
+        ],
+        schema,
+      });
+      const persistedOperationKey = 'my-persisted-operation';
+      store.set(persistedOperationKey, '{__typename}');
+      const result = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          extensions: {
+            persistedQuery: {
+              version: 1,
+              sha256Hash: persistedOperationKey,
+            },
+          },
+        }),
+      });
+      expect(result.status).toEqual(200);
+      await result.json();
+    });
+    it('returns false for non-persisted document context', async () => {
+      const plugin: Plugin = {
+        onValidate(ctx) {
+          expect(isPersistedOperationContext(ctx.context)).toEqual(false);
+        },
+      };
+
+      const yoga = createYoga({
+        plugins: [
+          usePersistedOperations({
+            getPersistedOperation() {
+              throw new Error('Not implemented');
+            },
+            allowArbitraryOperations: true,
+          }),
+          plugin,
+        ],
+        schema,
+      });
+      const result = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: '{__typename}',
+        }),
+      });
+      expect(result.status).toEqual(200);
+      await result.json();
+    });
+    it('information is retained if context is extended', async () => {
+      const store = new Map<string, string>();
+      const yoga = createYoga({
+        plugins: [
+          usePersistedOperations({
+            getPersistedOperation(key: string) {
+              return store.get(key) || null;
+            },
+            allowArbitraryOperations: true,
+          }),
+          useExtendContext(() => ({ a: 69 })),
+        ],
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              isPersistedOperationContext: Boolean!
+            }
+          `,
+          resolvers: {
+            Query: {
+              isPersistedOperationContext(_, __, context) {
+                return isPersistedOperationContext(context);
+              },
+            },
+          },
+        }),
+      });
+
+      store.set('LOL', '{isPersistedOperationContext}');
+
+      let result = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          extensions: {
+            persistedQuery: {
+              version: 1,
+              sha256Hash: 'LOL',
+            },
+          },
+        }),
+      });
+      expect(result.status).toEqual(200);
+      let body = await result.json();
+      expect(body).toEqual({
+        data: {
+          isPersistedOperationContext: true,
+        },
+      });
+
+      result = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: '{isPersistedOperationContext}',
+        }),
+      });
+      expect(result.status).toEqual(200);
+      body = await result.json();
+      expect(body).toEqual({
+        data: {
+          isPersistedOperationContext: false,
+        },
+      });
+    });
   });
 });
