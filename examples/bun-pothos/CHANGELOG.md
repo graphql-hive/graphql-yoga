@@ -1,5 +1,13 @@
 # @examples/bun-pothos
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c27f550`](https://github.com/graphql-hive/graphql-yoga/commit/c27f5506f579318a333c86aaa5aa861f21b16784)]:
+  - graphql-yoga@5.17.1
+
 ## 0.4.0
 
 ### Patch Changes

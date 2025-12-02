@@ -1,5 +1,19 @@
 # @graphql-yoga/plugin-apollo-usage-report
 
+## 0.12.1
+
+### Patch Changes
+
+- [#4302](https://github.com/graphql-hive/graphql-yoga/pull/4302)
+  [`c27f550`](https://github.com/graphql-hive/graphql-yoga/commit/c27f5506f579318a333c86aaa5aa861f21b16784)
+  Thanks [@beaumontjonathan](https://github.com/beaumontjonathan)! - Bump
+  @whatwg-node/promise-helpers to fix missing export unfakePromise
+
+- Updated dependencies
+  [[`c27f550`](https://github.com/graphql-hive/graphql-yoga/commit/c27f5506f579318a333c86aaa5aa861f21b16784)]:
+  - graphql-yoga@5.17.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.17.1
+
 ## 0.12.0
 
 ### Patch Changes

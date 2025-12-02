@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.17.1
+
+### Patch Changes
+
+- [#4302](https://github.com/graphql-hive/graphql-yoga/pull/4302)
+  [`c27f550`](https://github.com/graphql-hive/graphql-yoga/commit/c27f5506f579318a333c86aaa5aa861f21b16784)
+  Thanks [@beaumontjonathan](https://github.com/beaumontjonathan)! - Bump
+  @whatwg-node/promise-helpers to fix missing export unfakePromise
+
 ## 5.17.0
 
 ### Minor Changes
