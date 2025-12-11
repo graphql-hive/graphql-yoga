@@ -108,7 +108,7 @@ interface InitialState {
 }
 
 export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
-  return function renderApolloSandbox(graphiqlOpts: GraphiQLOptions) {
+  return function renderApolloSandbox(graphiqlOpts?: GraphiQLOptions) {
     const initialState: InitialState = {
       document: graphiqlOpts.defaultQuery,
       headers: graphiqlOpts.headers,
@@ -120,13 +120,22 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
       initialState,
     };
     return /* HTML */ `
-      <div style="width: 100%; height: 100%;" id="embedded-sandbox"></div>
-      <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
-      <script>
-        const opts = ${JSON.stringify(finalOpts)};
-        opts.initialEndpoint ||= new URL(location.pathname, location.href).toString();
-        new window.EmbeddedSandbox(opts);
-      </script>
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <title>Apollo Sandbox</title>
+        </head>
+        <body style="margin: 0;">
+          <div style="width: 100%; height: 100%;" id="embedded-sandbox"></div>
+          <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+          <script>
+            const opts = ${JSON.stringify(finalOpts)};
+            opts.initialEndpoint ||= new URL(location.pathname, location.href).toString();
+            opts.target = '#embedded-sandbox';
+            new window.EmbeddedSandbox(opts);
+          </script>
+        </body>
+      </html>
     `;
   };
 }
