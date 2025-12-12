@@ -121,11 +121,11 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
     };
     return /* HTML */ `
       <!DOCTYPE html>
-      <html lang="en">
+      <html style="height: 100%;" lang="en">
         <head>
           <title>Apollo Sandbox</title>
         </head>
-        <body style="margin: 0;">
+        <body style="margin: 0;height: 100%;">
           <div style="width: 100%; height: 100%;" id="embedded-sandbox"></div>
           <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
           <script>
