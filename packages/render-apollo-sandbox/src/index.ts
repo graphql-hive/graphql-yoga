@@ -1,4 +1,4 @@
-import type { GraphiQLOptions } from 'graphql-yoga';
+import type { GraphiQLOptions, GraphiQLRenderer } from 'graphql-yoga';
 
 export interface ApolloSandboxOptions {
   /**
@@ -24,6 +24,10 @@ export interface ApolloSandboxOptions {
    * An object containing additional options related to the state of the embedded Sandbox on page load.
    */
   initialState?: InitialState;
+  /**
+   * Target HTML element
+   */
+  target?: string;
 }
 
 interface InitialState {
@@ -107,26 +111,42 @@ interface InitialState {
   sharedHeaders?: Record<string, string>;
 }
 
-export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
+export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions): GraphiQLRenderer {
   return function renderApolloSandbox(graphiqlOpts: GraphiQLOptions) {
+    const includeCookies =
+      graphiqlOpts.credentials === 'include' || graphiqlOpts.credentials === 'same-origin';
     const initialState: InitialState = {
       document: graphiqlOpts.defaultQuery,
       headers: graphiqlOpts.headers,
       sharedHeaders: graphiqlOpts.additionalHeaders,
+      includeCookies,
       ...sandboxOpts?.initialState,
     };
+    const endpoint = graphiqlOpts.endpoint
+      ? JSON.stringify(graphiqlOpts.endpoint)
+      : 'location.pathname';
     const finalOpts: ApolloSandboxOptions = {
+      includeCookies,
       ...sandboxOpts,
       initialState,
     };
     return /* HTML */ `
-      <div style="width: 100%; height: 100%;" id="embedded-sandbox"></div>
-      <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
-      <script>
-        const opts = ${JSON.stringify(finalOpts)};
-        opts.initialEndpoint ||= new URL(location.pathname, location.href).toString();
-        new window.EmbeddedSandbox(opts);
-      </script>
+      <!DOCTYPE html>
+      <html style="height: 100%;" lang="en">
+        <head>
+          <title>Apollo Sandbox</title>
+        </head>
+        <body style="margin: 0;height: 100%;">
+          <div style="width: 100%; height: 100%;" id="embedded-sandbox"></div>
+          <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+          <script>
+            const opts = ${JSON.stringify(finalOpts)};
+            opts.initialEndpoint ||= new URL(${endpoint}, location.href).toString();
+            opts.target ||= '#embedded-sandbox';
+            new window.EmbeddedSandbox(opts);
+          </script>
+        </body>
+      </html>
     `;
   };
 }

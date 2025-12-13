@@ -146,7 +146,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    */
   graphiql?: GraphiQLOptionsOrFactory<TServerContext> | undefined;
 
-  renderGraphiQL?: ((options?: GraphiQLOptions) => PromiseOrValue<BodyInit>) | undefined;
+  renderGraphiQL?: ((options: GraphiQLOptions) => PromiseOrValue<BodyInit>) | undefined;
 
   schema?: YogaSchemaDefinition<TServerContext, TUserContext> | undefined;
 

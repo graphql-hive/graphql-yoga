@@ -160,9 +160,11 @@ export type GraphiQLOptionsOrFactory<TServerContext> =
 export interface GraphiQLPluginConfig<TServerContext> {
   graphqlEndpoint: string;
   options?: GraphiQLOptionsOrFactory<TServerContext>;
-  render?(options: GraphiQLOptions): PromiseOrValue<BodyInit>;
+  render?: GraphiQLRenderer;
   logger?: YogaLogger;
 }
+
+export type GraphiQLRenderer = (options: GraphiQLOptions) => PromiseOrValue<BodyInit>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useGraphiQL<TServerContext extends Record<string, any>>(
