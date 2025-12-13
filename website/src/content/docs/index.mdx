@@ -26,7 +26,7 @@ npm i graphql-yoga graphql
 You will need to provide a schema to Yoga, there are many ways to assemble a GraphQL schema, here's
 just a few:
 
-<Tabs items={['graphql-yoga', '@graphql-tools/schema', 'Pothos', 'GraphQL Nexus', 'gqtx', 'graphql-js']}>
+<Tabs items={['graphql-yoga', '@graphql-tools/schema', 'Pothos', 'GraphQL Nexus', 'GQLoom', 'gqtx', 'graphql-js']}>
   <Tabs.Tab>
 Use the `createSchema` function included in Yoga. It actually reuses the [`makeExecutableSchema` from @graphql-tools/schema](https://www.graphql-tools.com/docs/generate-schema).
 
@@ -123,6 +123,131 @@ const helloField = queryField('hello', {
 
 export const schema = makeSchema({ types: [helloField] })
 ```
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+
+[GQLoom](https://gqloom.dev) is a code-first GraphQL schema weaver that weaves runtime types (like
+Zod, Valibot, Yup, Effect Schema, JSON Schema) into GraphQL schemas. Install it and create a schema.
+
+    <Tabs items={['Zod', 'Valibot', 'Yup', 'Effect Schema', 'JSON Schema']}>
+      <Tabs.Tab>
+
+[Zod](https://zod.dev/) is a TypeScript-first validation library. Using Zod, you can define
+_schemas_ you can use to validate data, from a simple `string` to a complex nested object.
+
+```sh npm2yarn
+npm i @gqloom/core @gqloom/zod zod
+```
+
+```js filename="schema.js"
+import * as z from 'zod'
+import { query, resolver, weave } from '@gqloom/core'
+import { ZodWeaver } from '@gqloom/zod'
+
+const helloResolver = resolver({
+  hello: query(z.string(), () => 'world')
+})
+
+export const schema = weave(ZodWeaver, helloResolver)
+```
+
+      </Tabs.Tab>
+
+      <Tabs.Tab>
+
+[Valibot](https://valibot.dev/) is the open source schema library for TypeScript with bundle size,
+type safety and developer experience in mind.
+
+```sh npm2yarn
+npm i @gqloom/core @gqloom/valibot valibot
+```
+
+```js filename="schema.js"
+import * as v from 'valibot'
+import { query, resolver, weave } from '@gqloom/core'
+import { ValibotWeaver } from '@gqloom/valibot'
+
+const helloResolver = resolver({
+  hello: query(v.string(), () => 'world')
+})
+
+export const schema = weave(ValibotWeaver, helloResolver)
+```
+
+      </Tabs.Tab>
+
+      <Tabs.Tab>
+
+[Yup](https://github.com/jquense/yup) is a schema builder for runtime value parsing and validation.
+Define a schema, transform a value to match, assert the shape of an existing value, or both.
+
+```sh npm2yarn
+npm i @gqloom/core @gqloom/yup yup
+```
+
+```js filename="schema.js"
+import { string } from 'yup'
+import { query, resolver, weave } from '@gqloom/core'
+import { YupWeaver } from '@gqloom/yup'
+
+const helloResolver = resolver({
+  hello: query(string().required(), () => 'world')
+})
+
+export const schema = weave(YupWeaver, helloResolver)
+```
+
+      </Tabs.Tab>
+
+      <Tabs.Tab>
+
+[Effect Schema](https://effect.website/docs/schema/introduction) is a module for defining and using
+schemas to validate and transform data in TypeScript.
+
+```sh npm2yarn
+npm i @gqloom/core @gqloom/effect effect
+```
+
+```js filename="schema.js"
+import { Schema } from 'effect'
+import { query, resolver, weave } from '@gqloom/core'
+import { EffectWeaver } from '@gqloom/effect'
+
+const helloResolver = resolver({
+  hello: query(Schema.standardSchemaV1(Schema.String), () => 'world')
+})
+
+export const schema = weave(EffectWeaver, helloResolver)
+```
+
+      </Tabs.Tab>
+
+      <Tabs.Tab>
+
+[JSON Schema](https://json-schema.org/) is a declarative language for annotating and validating JSON
+documents' structure, constraints, and data types. It helps you standardize and define expectations
+for JSON data.
+
+```sh npm2yarn
+npm i @gqloom/core @gqloom/json
+```
+
+```js filename="schema.js"
+import { query, resolver, weave } from '@gqloom/core'
+import { jsonSilk } from '@gqloom/json'
+
+const helloResolver = resolver({
+  hello: query(jsonSilk({ type: 'string' }), () => 'world')
+})
+
+export const schema = weave(helloResolver)
+```
+
+      </Tabs.Tab>
+
+    </Tabs>
 
   </Tabs.Tab>
 
