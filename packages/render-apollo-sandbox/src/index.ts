@@ -1,4 +1,4 @@
-import type { GraphiQLOptions } from 'graphql-yoga';
+import type { GraphiQLOptions, GraphiQLRenderer } from 'graphql-yoga';
 
 export interface ApolloSandboxOptions {
   /**
@@ -24,6 +24,10 @@ export interface ApolloSandboxOptions {
    * An object containing additional options related to the state of the embedded Sandbox on page load.
    */
   initialState?: InitialState;
+  /**
+   * Target HTML element
+   */
+  target?: string;
 }
 
 interface InitialState {
@@ -107,15 +111,19 @@ interface InitialState {
   sharedHeaders?: Record<string, string>;
 }
 
-export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
-  return function renderApolloSandbox(graphiqlOpts?: GraphiQLOptions) {
+export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions): GraphiQLRenderer {
+  return function renderApolloSandbox(graphiqlOpts: GraphiQLOptions) {
+    const includeCookies =
+      graphiqlOpts.credentials === 'include' || graphiqlOpts.credentials === 'same-origin';
     const initialState: InitialState = {
       document: graphiqlOpts.defaultQuery,
       headers: graphiqlOpts.headers,
       sharedHeaders: graphiqlOpts.additionalHeaders,
+      includeCookies,
       ...sandboxOpts?.initialState,
     };
     const finalOpts: ApolloSandboxOptions = {
+      includeCookies,
       ...sandboxOpts,
       initialState,
     };
@@ -131,7 +139,7 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions) {
           <script>
             const opts = ${JSON.stringify(finalOpts)};
             opts.initialEndpoint ||= new URL(location.pathname, location.href).toString();
-            opts.target = '#embedded-sandbox';
+            opts.target ||= '#embedded-sandbox';
             new window.EmbeddedSandbox(opts);
           </script>
         </body>

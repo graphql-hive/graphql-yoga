@@ -3,6 +3,7 @@ export type {
   GraphiQLOptions,
   GraphiQLPluginConfig,
   GraphiQLOptionsOrFactory,
+  GraphiQLRenderer,
 } from './plugins/use-graphiql.js';
 export { renderGraphiQL, shouldRenderGraphiQL } from './plugins/use-graphiql.js';
 export { useReadinessCheck } from './plugins/use-readiness-check.js';
