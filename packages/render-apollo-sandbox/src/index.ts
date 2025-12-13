@@ -122,6 +122,9 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions): GraphiQ
       includeCookies,
       ...sandboxOpts?.initialState,
     };
+    const endpoint = graphiqlOpts.endpoint
+      ? JSON.stringify(graphiqlOpts.endpoint)
+      : 'location.pathname';
     const finalOpts: ApolloSandboxOptions = {
       includeCookies,
       ...sandboxOpts,
@@ -138,7 +141,7 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions): GraphiQ
           <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
           <script>
             const opts = ${JSON.stringify(finalOpts)};
-            opts.initialEndpoint ||= new URL(location.pathname, location.href).toString();
+            opts.initialEndpoint ||= new URL(${endpoint}, location.href).toString();
             opts.target ||= '#embedded-sandbox';
             new window.EmbeddedSandbox(opts);
           </script>
