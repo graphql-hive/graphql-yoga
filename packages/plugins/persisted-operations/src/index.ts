@@ -94,6 +94,19 @@ export type CustomPersistedQueryErrors = {
   keyNotFound?: CustomErrorFactory;
 };
 
+const isPersistedOperationContextSymbol = Symbol.for('hive_is_persisted_operation_context');
+
+/**
+ * Helper function for determining whether the execution is using a persisted document.
+ */
+export function isPersistedOperationContext<TContext extends object>(context: TContext): boolean {
+  return isPersistedOperationContextSymbol in context;
+}
+
+function markContextAsPersistedOperationContext<TContext extends object>(context: TContext) {
+  (context as Record<string | symbol, unknown>)[isPersistedOperationContextSymbol] = true;
+}
+
 export function usePersistedOperations<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TPluginContext extends Record<string, any>,
@@ -137,7 +150,7 @@ export function usePersistedOperations<
 
   return {
     onParams(payload) {
-      const { request, params, setParams } = payload;
+      const { request, params, setParams, context } = payload;
 
       if (params.query) {
         if (allowArbitraryOperations === false) {
@@ -169,6 +182,8 @@ export function usePersistedOperations<
           if (persistedQuery == null) {
             throw notFoundErrorFactory(payload);
           }
+
+          markContextAsPersistedOperationContext(context);
 
           if (typeof persistedQuery === 'object') {
             setParams({
