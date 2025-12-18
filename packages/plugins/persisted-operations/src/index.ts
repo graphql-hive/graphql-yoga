@@ -104,8 +104,8 @@ export function usePersistedOperations<
   skipDocumentValidation = false,
   customErrors,
 }: UsePersistedOperationsOptions<TPluginContext>): Plugin<TPluginContext> {
-  const operationASTByRequest = new WeakMap<Request, DocumentNode>();
-  const persistedOperationRequest = new WeakSet<Request>();
+  const operationASTByCtx = new WeakMap<Record<string, unknown>, DocumentNode>();
+  const persistedOperationCtx = new WeakSet<Record<string, unknown>>();
 
   const notFoundErrorFactory = createErrorFactory(
     'PersistedQueryNotFound',
@@ -137,7 +137,7 @@ export function usePersistedOperations<
 
   return {
     onParams(payload) {
-      const { request, params, setParams } = payload;
+      const { request, params, setParams, context } = payload;
 
       if (params.query) {
         if (allowArbitraryOperations === false) {
@@ -165,40 +165,43 @@ export function usePersistedOperations<
       return handleMaybePromise(
         () =>
           getPersistedOperation(persistedOperationKey, request, payload.context as TPluginContext),
-        persistedQuery => {
-          if (persistedQuery == null) {
+        persistedOperation => {
+          if (persistedOperation == null) {
             throw notFoundErrorFactory(payload);
           }
 
-          if (typeof persistedQuery === 'object') {
+          if (typeof persistedOperation === 'object') {
+            if (persistedOperation.kind !== 'Document') {
+              throw new Error('Persisted operation object is not a valid DocumentNode');
+            }
             setParams({
               query: `__PERSISTED_OPERATION_${persistedOperationKey}__`,
               operationName: params.operationName,
               variables: params.variables,
               extensions: params.extensions,
             });
-            operationASTByRequest.set(request, persistedQuery);
+            operationASTByCtx.set(context, persistedOperation);
           } else {
             setParams({
-              query: persistedQuery,
+              query: persistedOperation,
               operationName: params.operationName,
               variables: params.variables,
               extensions: params.extensions,
             });
           }
-          persistedOperationRequest.add(request);
+          persistedOperationCtx.add(context);
         },
       );
     },
-    onValidate({ setResult, context: { request } }) {
-      if (skipDocumentValidation && persistedOperationRequest.has(request)) {
-        setResult([]); // skip validation
-      }
-    },
-    onParse({ setParsedDocument, context: { request } }) {
-      const ast = operationASTByRequest.get(request);
+    onParse({ setParsedDocument, context }) {
+      const ast = operationASTByCtx.get(context);
       if (ast) {
         setParsedDocument(ast);
+      }
+    },
+    onValidate({ setResult, context }) {
+      if (skipDocumentValidation && persistedOperationCtx.has(context)) {
+        setResult([]); // skip validation
       }
     },
   };
