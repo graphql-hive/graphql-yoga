@@ -1,5 +1,18 @@
 # @graphql-yoga/plugin-persisted-operations
 
+## 3.18.0
+
+### Patch Changes
+
+- [#4315](https://github.com/graphql-hive/graphql-yoga/pull/4315)
+  [`ecbcb80`](https://github.com/graphql-hive/graphql-yoga/commit/ecbcb8064768c8ffd6efb0dbece98c856540bfe2)
+  Thanks [@ardatan](https://github.com/ardatan)! - Handle persisted operations not per request but
+  per params, so batching is supported
+
+- Updated dependencies
+  [[`3eabd17`](https://github.com/graphql-hive/graphql-yoga/commit/3eabd17faae2d85dae09608370707ba2833052bd)]:
+  - graphql-yoga@5.18.0
+
 ## 3.17.1
 
 ### Patch Changes

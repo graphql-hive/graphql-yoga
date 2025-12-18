@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.18.0
+
+### Minor Changes
+
+- [#4312](https://github.com/graphql-hive/graphql-yoga/pull/4312)
+  [`3eabd17`](https://github.com/graphql-hive/graphql-yoga/commit/3eabd17faae2d85dae09608370707ba2833052bd)
+  Thanks [@ardatan](https://github.com/ardatan)! - Export `GraphiQLRenderer` type which is the
+  signature for `renderGraphiQL` option of Yoga configuration
+
 ## 5.17.1
 
 ### Patch Changes
