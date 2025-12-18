@@ -1,5 +1,23 @@
 # @graphql-yoga/render-apollo-sandbox
 
+## 0.3.0
+
+### Patch Changes
+
+- [#4312](https://github.com/graphql-hive/graphql-yoga/pull/4312)
+  [`3eabd17`](https://github.com/graphql-hive/graphql-yoga/commit/3eabd17faae2d85dae09608370707ba2833052bd)
+  Thanks [@ardatan](https://github.com/ardatan)! - - Add `target` option that allows you to choose
+  which HTML element you want to render Apollo Sandbox
+  - Set it to `#embedded-sandbox` by default
+  - Use `GraphiQLRenderer` type from `graphql-yoga` package to prevent typing regressions
+  - Fix `renderGraphiQL` option type
+  - Set `initialEndpoint` based on `graphiqlOpts.endpoint` if provided
+  - Set `includeCookies` based on `graphiqlOpts.credentials` if provided
+  - Fix margin and size issues in the rendered HTML
+- Updated dependencies
+  [[`3eabd17`](https://github.com/graphql-hive/graphql-yoga/commit/3eabd17faae2d85dae09608370707ba2833052bd)]:
+  - graphql-yoga@5.18.0
+
 ## 0.2.1
 
 ### Patch Changes
