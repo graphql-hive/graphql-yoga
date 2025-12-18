@@ -9,6 +9,12 @@ const schema = createSchema({
       print(str: String): String
     }
   `,
+  resolvers: {
+    Query: {
+      _: () => 'Hello, World!',
+      print: (_parent, args) => args.str,
+    },
+  },
 });
 
 describe('Persisted Operations', () => {
@@ -527,5 +533,58 @@ describe('Persisted Operations', () => {
     const body = await response.json();
     expect(body.errors).toBeUndefined();
     expect(body.data.__typename).toBe('Query');
+  });
+  it('batched persisted operations', async () => {
+    const store = new Map<string, string>();
+    const yoga = createYoga({
+      plugins: [
+        usePersistedOperations({
+          getPersistedOperation(key: string) {
+            return store.get(key) || null;
+          },
+        }),
+      ],
+      batching: {
+        limit: 10,
+      },
+      schema,
+    });
+    const persistedOperationKey1 = 'persisted-operation-1';
+    const persistedOperationKey2 = 'persisted-operation-2';
+    store.set(persistedOperationKey1, '{__typename}');
+    store.set(persistedOperationKey2, 'query Print($str: String){ print(str: $str) }');
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify([
+        {
+          extensions: {
+            persistedQuery: {
+              version: 1,
+              sha256Hash: persistedOperationKey1,
+            },
+          },
+        },
+        {
+          operationName: 'Print',
+          variables: { str: 'Hello, World!' },
+          extensions: {
+            persistedQuery: {
+              version: 1,
+              sha256Hash: persistedOperationKey2,
+            },
+          },
+        },
+      ]),
+    });
+
+    const body = await response.json();
+    expect(body[0].errors).toBeUndefined();
+    expect(body[0].data.__typename).toBe('Query');
+    expect(body[1].errors).toBeUndefined();
+    expect(body[1].data.print).toBe('Hello, World!');
   });
 });
