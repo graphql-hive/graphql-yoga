@@ -21,7 +21,9 @@ beforeAll(async () => {
   url = (await app.getUrl()) + '/graphql';
 });
 
-afterAll(() => app.close());
+afterAll(() => {
+  app.close();
+});
 
 it('should subscribe using graphql-ws', async () => {
   const client = createClient({

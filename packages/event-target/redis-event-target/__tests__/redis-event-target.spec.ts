@@ -2,11 +2,14 @@ import Redis from 'ioredis-mock';
 import { CustomEvent } from '@whatwg-node/events';
 import { createRedisEventTarget } from '../src';
 
+// Use a uniq host name to prevent sharing data across test files when running on Bun
+const redis = () => new Redis({ host: 'redis-event-target.spec.ts' });
+
 describe('createRedisEventTarget', () => {
   it('can listen to a simple publish', done => {
     const eventTarget = createRedisEventTarget({
-      publishClient: new Redis({}),
-      subscribeClient: new Redis({}),
+      publishClient: redis(),
+      subscribeClient: redis(),
     });
 
     eventTarget.addEventListener('a', (event: CustomEvent) => {
@@ -27,8 +30,8 @@ describe('createRedisEventTarget', () => {
 
   it('does not listen for events for which no lister is set up', done => {
     const eventTarget = createRedisEventTarget({
-      publishClient: new Redis({}),
-      subscribeClient: new Redis({}),
+      publishClient: redis(),
+      subscribeClient: redis(),
     });
 
     eventTarget.addEventListener('a', (_event: CustomEvent) => {
@@ -51,8 +54,8 @@ describe('createRedisEventTarget', () => {
   });
   it('distributes the event to all event listeners', done => {
     const eventTarget = createRedisEventTarget({
-      publishClient: new Redis({}),
-      subscribeClient: new Redis({}),
+      publishClient: redis(),
+      subscribeClient: redis(),
     });
 
     let counter = 0;

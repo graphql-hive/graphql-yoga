@@ -2,11 +2,14 @@ import Redis from 'ioredis-mock';
 import { CustomEvent } from '@whatwg-node/events';
 import { createRedisEventTarget } from '../src';
 
+// Use a uniq host name to prevent sharing data across test files when running on Bun
+const redis = () => new Redis({ host: 'serializer.spec.ts' });
+
 describe('createRedisEventTarget: serializer arg', () => {
   it('uses native JSON by default', done => {
     const eventTarget = createRedisEventTarget({
-      publishClient: new Redis({}),
-      subscribeClient: new Redis({}),
+      publishClient: redis(),
+      subscribeClient: redis(),
     });
 
     eventTarget.addEventListener('a', (event: CustomEvent) => {
@@ -31,8 +34,8 @@ describe('createRedisEventTarget: serializer arg', () => {
 
   it('can use a custom serializer', done => {
     const eventTarget = createRedisEventTarget({
-      publishClient: new Redis({}),
-      subscribeClient: new Redis({}),
+      publishClient: redis(),
+      subscribeClient: redis(),
       serializer: {
         stringify: message => `__CUSTOM__${JSON.stringify(message)}`,
         parse: (message: string) => {

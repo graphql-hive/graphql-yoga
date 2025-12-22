@@ -26,7 +26,7 @@ describe('validation cache', () => {
       plugins: [plugin],
     });
 
-    let response = await yoga.fetch('/graphql', {
+    let response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -37,7 +37,7 @@ describe('validation cache', () => {
     expect(await response.text()).toMatchInlineSnapshot(`"{"data":{"hi":"hi"}}"`);
     expect(validateFn).toHaveBeenCalledTimes(1);
 
-    response = await yoga.fetch('/graphql', {
+    response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -73,7 +73,7 @@ describe('validation cache', () => {
       plugins: [plugin],
     });
 
-    let response = await yoga.fetch('/graphql', {
+    let response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -84,7 +84,7 @@ describe('validation cache', () => {
     expect(await response.text()).toMatchInlineSnapshot(`"{"data":{"hi":"hi"}}"`);
     expect(validateFn).toHaveBeenCalledTimes(1);
 
-    response = await yoga.fetch('/graphql', {
+    response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -142,7 +142,7 @@ describe('validation cache', () => {
 
     const yoga = createYoga({ schema: () => currentSchema, plugins: [plugin] });
 
-    let response = await yoga.fetch('/graphql', {
+    let response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -156,7 +156,7 @@ describe('validation cache', () => {
 
     currentSchema = secondSchema;
 
-    response = await yoga.fetch('/graphql', {
+    response = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -196,7 +196,7 @@ describe('validation cache', () => {
     });
 
     const query = (person: string | null) =>
-      yoga.fetch('/graphql', {
+      yoga.fetch('http://yoga/graphql', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',

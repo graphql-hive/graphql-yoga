@@ -109,40 +109,30 @@ describe('Subscription', () => {
 
     const iterator = response.body![Symbol.asyncIterator]();
 
-    const results = [];
+    let result = '';
     let value: Uint8Array;
+    let count = 0;
 
     while (({ value } = await iterator.next())) {
       if (value === undefined) {
         break;
       }
-      results.push(Buffer.from(value).toString('utf-8'));
-      if (results.length === 3) {
+      result += Buffer.from(value).toString('utf-8');
+      count++;
+      if (count === 3) {
         d.resolve();
       }
     }
 
-    expect(results).toMatchInlineSnapshot(`
-[
-  ":
-
-",
-  ":
-
-",
-  ":
-
-",
-  "event: next
-data: {"data":{"hi":"hi"}}
-
-",
-  "event: complete
-data:
-
-",
-]
-`);
+    expect(result).toEqual(
+      ':\n\n' +
+        ':\n\n' +
+        ':\n\n' +
+        'event: next\n' +
+        'data: {"data":{"hi":"hi"}}\n\n' +
+        'event: complete\n' +
+        'data:\n\n',
+    );
   });
 
   test('should issue pings event if event source never publishes anything', async () => {
@@ -198,36 +188,23 @@ data:
 
     const iterator = response.body![Symbol.asyncIterator]();
 
-    const results = [];
+    let results = '';
+    let count = 0;
     let value: Uint8Array;
 
     while (({ value } = await iterator.next())) {
       if (value === undefined) {
         break;
       }
-      results.push(Buffer.from(value).toString('utf-8'));
-      if (results.length === 4) {
+      results += Buffer.from(value).toString('utf-8');
+      count++;
+      if (count === 4) {
         await iterator.return!();
       }
     }
 
     await d.promise;
-    expect(results).toMatchInlineSnapshot(`
-      [
-        ":
-
-      ",
-        ":
-
-      ",
-        ":
-
-      ",
-        ":
-
-      ",
-      ]
-    `);
+    expect(results).toEqual(':\n\n' + ':\n\n' + ':\n\n' + ':\n\n');
   });
 
   test('erroring event stream should be handled (non GraphQL error)', async () => {

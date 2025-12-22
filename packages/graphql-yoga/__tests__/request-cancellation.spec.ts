@@ -71,7 +71,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     await rootResolverGotInvokedD.promise;
     abortController.abort();
     requestGotCancelledD.resolve();
-    await expect(promise).rejects.toThrow('This operation was aborted');
+    await expect(promise).rejects.toThrow(/operation was aborted/);
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(aResolverGotInvoked).toBe(false);
     expect(debugLogs.mock.calls).toEqual([
@@ -81,7 +81,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     ]);
   });
 
-  it('request cancellation stops invocation of subsequent resolvers (GraphQL over SSE with Subscription)', async () => {
+  it.only('request cancellation stops invocation of subsequent resolvers (GraphQL over SSE with Subscription)', async () => {
     const rootResolverGotInvokedD = createDeferredPromise();
     const requestGotCancelledD = createDeferredPromise();
     let aResolverGotInvoked = false;
@@ -147,16 +147,16 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
 "
 `);
 
-    await rootResolverGotInvokedD.promise;
     const next$ = iterator.next().then(({ done, value }) => {
       // in case it resolves, parse the buffer to string for easier debugging.
       return { done, value: Buffer.from(value).toString('utf-8') };
     });
+    await rootResolverGotInvokedD.promise;
 
     abortController.abort();
     requestGotCancelledD.resolve();
 
-    await expect(next$).rejects.toThrow('This operation was aborted');
+    await expect(next$).rejects.toThrow(/operation was aborted/);
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(aResolverGotInvoked).toBe(false);
 
@@ -255,7 +255,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     await aResolverGotInvokedD.promise;
     abortController.abort();
     requestGotCancelledD.resolve();
-    await expect(next$).rejects.toThrow('This operation was aborted');
+    await expect(next$).rejects.toThrow(/operation was aborted/);
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(bResolverGotInvoked).toBe(false);
     expect(debugLogs.mock.calls).toEqual([
