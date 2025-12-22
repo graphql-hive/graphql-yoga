@@ -28,7 +28,7 @@ it('supports custom JSON serializer', async () => {
     }),
     plugins: [useCustomSerializer],
   });
-  const res = await yoga.fetch('/graphql', {
+  const res = await yoga.fetch('http://yoga/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ it('works with the custom serializer of GraphQL JIT', async () => {
     ],
   });
 
-  const res = await yoga.fetch('/graphql', {
+  const res = await yoga.fetch('http://yoga/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -590,11 +590,12 @@ describe('Result Extensions', () => {
         `,
         resolvers: {
           Query: {
-            throw(_, { status }) {
+            throw(_, { status, statusText }) {
               throw createGraphQLError('Test', {
                 extensions: {
                   http: {
                     status,
+                    statusText,
                   },
                 },
               });
@@ -609,6 +610,10 @@ describe('Result Extensions', () => {
       }
     `;
     for (const statusCodeStr in STATUS_CODES) {
+      // Skip 100-199 status range as Bun complains about manually creating a Response for those
+      if (statusCodeStr.startsWith('1')) {
+        continue;
+      }
       const status = Number(statusCodeStr);
       const res = await yoga.fetch('http://yoga/graphql', {
         method: 'POST',

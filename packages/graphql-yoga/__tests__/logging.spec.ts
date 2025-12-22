@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { GraphQLError } from 'graphql';
-import { jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src';
 
 describe('logging', () => {

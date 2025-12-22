@@ -1,3 +1,4 @@
+import { STATUS_CODES } from 'node:http';
 import { GraphQLError } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaLogger } from '@graphql-yoga/logger';
@@ -165,6 +166,8 @@ export function getResponseInitByRespectingErrors(
 
   return {
     status,
+    // TODO: Add a copy of this mapping to whatwg-node to avoid relying on node:http import
+    statusText: STATUS_CODES[status.toString()],
     headers,
   };
 }

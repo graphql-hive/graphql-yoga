@@ -470,6 +470,7 @@ Content-Length: 17
     it('execute stream operation', async () => {
       const yoga = createYoga({ schema, plugins: [useDeferStream()] });
       const executor = buildHTTPExecutor({
+        endpoint: 'http://yoga/graphql',
         fetch: yoga.fetch,
       });
 

@@ -41,7 +41,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
       fieldExecutionWeight: expect.any(Number),
     };
 
-    expect(trace).toMatchObject(expectedTrace);
+    expect(deepCopy(trace)).toMatchObject(expectedTrace);
     // its ok to be "equal" since executions can happen in the same tick
     expect(trace.startTime!.seconds).toBeLessThanOrEqual(trace.endTime!.seconds!);
     if (trace.startTime!.seconds === trace.endTime!.seconds) {
@@ -63,7 +63,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
       endTime: expect.any(Number),
     };
 
-    expect(node).toMatchObject(expectedTraceNode);
+    expect(deepCopy(node)).toMatchObject(expectedTraceNode);
     // its ok to be "equal" since executions can happen in the same tick
     expect(node.startTime).toBeLessThanOrEqual(node.endTime!);
   }
@@ -117,7 +117,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
 
     expect(response.status).toBe(200);
     expect(result.errors).toMatchObject(expectedErrors);
-    expect(result.data).toMatchObject(expectedData);
+    expect(deepCopy(result.data)).toMatchObject(expectedData);
     expect(result.extensions?.['ftv1']).toEqual(expect.any(String));
 
     const ftv1 = result.extensions?.['ftv1'] as string;
@@ -188,7 +188,7 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
     expect(JSON.parse(nullableFail.error![0]!.json!)).toMatchObject(expectedErrors[0]!);
   });
 
-  it.skip('nonNullableFail - multi federated query - should return result with expected data and errors', async () => {
+  it('nonNullableFail - multi federated query - should return result with expected data and errors', async () => {
     const query = /* GraphQL */ `
       query {
         testNestedField {
@@ -308,3 +308,15 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
     expect(JSON.parse(testNestedField.error![0]!.json!)).toMatchObject(expectedErrors[0]!);
   });
 });
+
+// Workaround Bun expect.toMatchObject mutating the tested object: https://github.com/oven-sh/bun/issues/3521
+function deepCopy(o: any): any {
+  if (!o || typeof o !== 'object') return o;
+  if (Array.isArray(o)) return [...o].map(deepCopy);
+
+  const res = { ...o };
+  Object.entries(o).forEach(([key, value]) => {
+    res[key] = deepCopy(value);
+  });
+  return res;
+}
