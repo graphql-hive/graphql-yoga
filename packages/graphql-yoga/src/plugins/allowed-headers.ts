@@ -17,7 +17,8 @@ export function useAllowedRequestHeaders(allowedHeaders: string[]): Plugin {
 }
 
 function removeDisallowedHeaders(headers: Headers, allowedHeaders: string[]) {
-  for (const headerName of headers.keys()) {
+  for (const headerName of [...headers.keys()]) {
+    console.log('checking', headerName);
     if (!allowedHeaders.includes(headerName)) {
       headers.delete(headerName);
     }

@@ -1,5 +1,5 @@
-import { GraphQLSchema } from 'graphql';
-import { PromiseOrValue } from '@envelop/core';
+import type { GraphQLSchema } from 'graphql';
+import type { PromiseOrValue } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
 import type { Plugin } from './types.js';

@@ -36,24 +36,13 @@
     "prettier:check": "prettier --ignore-path .prettierignore --check .",
     "release": "pnpm build && changeset publish",
     "start:docs": "pnpm --filter=website dev",
+    "test": "bun test tests/",
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
     "test:unit": "jest --detectOpenHandles",
     "test:unit:leaks": "cross-env LEAKS_TEST=true pnpm run test:unit --detectLeaks"
   },
-  "workspaces": [
-    "packages/*",
-    "packages/plugins/*",
-    "packages/client/*",
-    "packages/event-target/*",
-    "packages/envelop/*",
-    "packages/plugins/response-cache/*",
-    "packages/plugins/persisted-documents/*",
-    "!packages/**/dist",
-    "benchmark",
-    "website",
-    "e2e"
-  ],
+  "workspaces": ["packages/**", "!packages/**/dist", "benchmark", "website", "e2e"],
   "devDependencies": {
     "@babel/core": "7.28.5",
     "@babel/plugin-proposal-decorators": "7.28.0",

@@ -1,4 +1,4 @@
-import { type PromiseOrValue } from 'graphql-yoga';
+import type { PromiseOrValue } from 'graphql-yoga';
 import { VerifyOptions } from 'jsonwebtoken';
 import { extractFromHeader } from './utils.js';
 

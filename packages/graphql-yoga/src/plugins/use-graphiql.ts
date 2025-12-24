@@ -1,4 +1,4 @@
-import { PromiseOrValue } from '@envelop/core';
+import type { PromiseOrValue } from '@envelop/core';
 import { YogaLogger } from '@graphql-yoga/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';

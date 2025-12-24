@@ -33,12 +33,7 @@
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "graphql",
-    "server",
-    "api",
-    "graphql-server"
-  ],
+  "keywords": ["graphql", "server", "api", "graphql-server"],
   "scripts": {
     "check": "tsc --pretty --noEmit",
     "generate-graphiql-html": "node scripts/generate-graphiql-html.js",
@@ -49,8 +44,8 @@
     "graphql": "^15.2.0 || ^16.0.0"
   },
   "dependencies": {
-    "@envelop/core": "^5.3.0",
-    "@envelop/instrumentation": "^1.0.0",
+    "@envelop/core": "workspace:^",
+    "@envelop/instrumentation": "workspace:^",
     "@graphql-tools/executor": "^1.5.0",
     "@graphql-tools/schema": "^10.0.11",
     "@graphql-tools/utils": "^10.11.0",
@@ -63,9 +58,9 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@envelop/disable-introspection": "9.0.0",
-    "@envelop/graphql-jit": "11.0.0",
-    "@envelop/live-query": "10.0.0",
+    "@envelop/disable-introspection": "workspace:^",
+    "@envelop/graphql-jit": "workspace:^",
+    "@envelop/live-query": "workspace:^",
     "@graphql-yoga/render-graphiql": "workspace:*",
     "@jest/globals": "^30.0.0",
     "@n1ru4l/in-memory-live-query-store": "0.10.0",

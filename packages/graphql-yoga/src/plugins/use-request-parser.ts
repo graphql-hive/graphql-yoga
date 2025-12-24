@@ -1,4 +1,4 @@
-import { PromiseOrValue } from '@envelop/core';
+import type { PromiseOrValue } from '@envelop/core';
 import { GraphQLParams } from '../types.js';
 import { Plugin } from './types.js';
 

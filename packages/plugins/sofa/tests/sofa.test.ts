@@ -24,7 +24,7 @@ describe('SOFA Plugin', () => {
         }),
       ],
     });
-    const res = await yoga.fetch('/api/hello', {
+    const res = await yoga.fetch('http://yoga/api/hello', {
       headers: {
         'user-agent': 'test',
       },

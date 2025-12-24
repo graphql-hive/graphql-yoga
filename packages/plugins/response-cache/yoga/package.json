@@ -1,0 +1,66 @@
+{
+  "name": "@graphql-yoga/plugin-response-cache",
+  "version": "3.20.0",
+  "type": "module",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphql-hive/graphql-yoga.git",
+    "directory": "packages/plugins/response-cache"
+  },
+  "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/typings/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "keywords": ["graphql", "server", "api", "graphql-server"],
+  "scripts": {
+    "check": "tsc --pretty --noEmit"
+  },
+  "peerDependencies": {
+    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql-yoga": "workspace:^"
+  },
+  "dependencies": {
+    "@envelop/core": "workspace:^",
+    "@envelop/response-cache": "workspace:^",
+    "@whatwg-node/promise-helpers": "^1.3.2"
+  },
+  "devDependencies": {
+    "@envelop/response-cache-cloudflare-kv": "workspace:^",
+    "@envelop/response-cache-redis": "workspace:^",
+    "graphql": "16.12.0",
+    "graphql-yoga": "workspace:*",
+    "tslib": "^2.6.2"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
+  }
+}
