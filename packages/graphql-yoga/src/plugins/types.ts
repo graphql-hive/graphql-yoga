@@ -4,7 +4,7 @@ import {
   Plugin as EnvelopPlugin,
   OnExecuteHook,
   OnSubscribeHook,
-  PromiseOrValue,
+  type PromiseOrValue,
   RegisterContextErrorHandler,
   SetSchemaFn,
 } from '@envelop/core';

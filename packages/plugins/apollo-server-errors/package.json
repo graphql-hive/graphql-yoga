@@ -1,0 +1,75 @@
+{
+  "name": "@envelop/apollo-server-errors",
+  "version": "9.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphql-hive/envelop.git",
+    "directory": "packages/plugins/apollo-server-errors"
+  },
+  "author": "Dotan Simha <dotansimha@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/cjs/index.js",
+  "typings": "dist/typings/index.d.ts",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/typings/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./*": {
+      "require": {
+        "types": "./dist/typings/*.d.cts",
+        "default": "./dist/cjs/*.js"
+      },
+      "import": {
+        "types": "./dist/typings/*.d.ts",
+        "default": "./dist/esm/*.js"
+      },
+      "default": {
+        "types": "./dist/typings/*.d.ts",
+        "default": "./dist/esm/*.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@envelop/core": "workspace:^",
+    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"
+  },
+  "dependencies": {
+    "apollo-server-errors": "^3.3.1",
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "@envelop/core": "workspace:^",
+    "@graphql-tools/schema": "10.0.30",
+    "apollo-server-core": "3.13.0",
+    "graphql": "16.12.0",
+    "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
+  }
+}

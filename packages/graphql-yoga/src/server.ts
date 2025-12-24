@@ -2,9 +2,9 @@
 import { ExecutionResult, parse, specifiedRules, validate } from 'graphql';
 import {
   envelop,
-  GetEnvelopedFn,
+  type GetEnvelopedFn,
   isAsyncIterable,
-  PromiseOrValue,
+  type PromiseOrValue,
   useEngine,
   useExtendContext,
   useMaskedErrors,
