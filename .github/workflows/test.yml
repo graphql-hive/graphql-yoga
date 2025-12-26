@@ -26,7 +26,9 @@ jobs:
         with:
           node-version-file: .node-version
           install-command: bun install --frozen-lockfile
-      - name: Test with Stitching Runtime
+      - name: Generate Yoga HTML in TS files
+        run: bun run generate-html-ts
+      - name: Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 10
@@ -52,6 +54,8 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           install-command: bun install --frozen-lockfile
+      - name: Generate Yoga HTML in TS files
+        run: bun run generate-html-ts
       - name: Test
         run: bun run test:node
 
@@ -75,6 +79,8 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           install-command: bun install --frozen-lockfile
+      - name: Generate Yoga HTML in TS files
+        run: bun run generate-html-ts
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
