@@ -121,7 +121,7 @@ describe('useOpenTelemetry', () => {
     await testInstance.execute(pingQuery);
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('query.anonymous');
+    expect(actual[0]!.name).toBe('query.anonymous');
   });
 
   it('Should add resolver span if requested', async () => {
@@ -134,8 +134,8 @@ describe('useOpenTelemetry', () => {
     await testInstance.execute(pingQuery);
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(2);
-    expect(actual[0].name).toBe('Query.ping');
-    expect(actual[1].name).toBe('query.anonymous');
+    expect(actual[0]!.name).toBe('Query.ping');
+    expect(actual[1]!.name).toBe('query.anonymous');
   });
 
   it('Should add default resolver spans if enabled / unspecified', async () => {
@@ -155,9 +155,9 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(3);
-    expect(actual[0].name).toBe('Query.obj');
-    expect(actual[1].name).toBe('Obj.field1');
-    expect(actual[2].name).toBe('query.anonymous');
+    expect(actual[0]!.name).toBe('Query.obj');
+    expect(actual[1]!.name).toBe('Obj.field1');
+    expect(actual[2]!.name).toBe('query.anonymous');
   });
 
   it('Should not add default resolver spans if disabled', async () => {
@@ -177,8 +177,8 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(2);
-    expect(actual[0].name).toBe('Query.obj');
-    expect(actual[1].name).toBe('query.anonymous');
+    expect(actual[0]!.name).toBe('Query.obj');
+    expect(actual[1]!.name).toBe('query.anonymous');
   });
 
   it('query should add trace_id to extensions', async () => {
@@ -204,7 +204,7 @@ describe('useOpenTelemetry', () => {
     `);
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('query.ping');
+    expect(actual[0]!.name).toBe('query.ping');
   });
 
   it('can exclude operation by using list of strings', async () => {
@@ -286,7 +286,7 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]!.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_DOCUMENT]: queryStr,
       [AttributeName.EXECUTION_OPERATION_NAME]: 'echo',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'query',
@@ -313,7 +313,7 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_NAME]: 'echo',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'query',
     });
@@ -354,7 +354,7 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_DOCUMENT]: `
       query echo($testVar: String!, $testVar2: String!, $selector: String!) {
         echo1: echo(message: $testVar)
@@ -390,7 +390,7 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_NAME]: 'echo',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'query',
     });
@@ -413,12 +413,12 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_DOCUMENT]: queryStr,
       [AttributeName.EXECUTION_OPERATION_NAME]: 'error',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'query',
     });
-    expect(actual[0].status.code).toEqual(SpanStatusCode.ERROR);
+    expect(actual[0]?.status.code).toEqual(SpanStatusCode.ERROR);
   });
 
   it('should add subscription span', async () => {
@@ -447,8 +447,8 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('subscription.counter');
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.name).toBe('subscription.counter');
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_DOCUMENT]: queryStr,
       [AttributeName.EXECUTION_OPERATION_NAME]: 'counter',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'subscription',
@@ -479,8 +479,8 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('subscription.anonymous');
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.name).toBe('subscription.anonymous');
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_NAME]: 'anonymous',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'subscription',
     });
@@ -516,8 +516,8 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('subscription.counter');
-    expect(actual[0].attributes).toEqual({
+    expect(actual[0]?.name).toBe('subscription.counter');
+    expect(actual[0]?.attributes).toEqual({
       [AttributeName.EXECUTION_OPERATION_DOCUMENT]: queryStr,
       [AttributeName.EXECUTION_OPERATION_NAME]: 'counter',
       [AttributeName.EXECUTION_OPERATION_TYPE]: 'subscription',
@@ -538,7 +538,7 @@ describe('useOpenTelemetry', () => {
 
     const actual = exporter.getFinishedSpans();
     expect(actual.length).toBe(1);
-    expect(actual[0].name).toBe('my-prefix.query.ping');
+    expect(actual[0]?.name).toBe('my-prefix.query.ping');
   });
 });
 

@@ -124,7 +124,7 @@ describe('validate', () => {
 
     expect(r.errors).toBeDefined();
     expect(r.errors!.length).toBe(1);
-    expect(r.errors![0].message).toBe('Invalid!');
+    expect(r.errors![0]!.message).toBe('Invalid!');
   });
 
   it('Should allow to add validation rules (reportError, `useValidationRule`)', async () => {
@@ -143,7 +143,7 @@ describe('validate', () => {
 
     expect(r.errors).toBeDefined();
     expect(r.errors!.length).toBe(1);
-    expect(r.errors![0].message).toBe('Invalid!');
+    expect(r.errors![0]!.message).toBe('Invalid!');
   });
 
   it('Should allow to add validation rules (throw)', async () => {
@@ -165,7 +165,7 @@ describe('validate', () => {
 
     expect(r.errors).toBeDefined();
     expect(r.errors!.length).toBe(1);
-    expect(r.errors![0].message).toBe('Invalid!');
+    expect(r.errors![0]!.message).toBe('Invalid!');
   });
 
   it('Should not replace default rules when adding new ones', async () => {

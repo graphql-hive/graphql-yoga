@@ -66,7 +66,7 @@ export const createDefaultMaskError =
     return createSerializableGraphQLError(message, error, isDev);
   };
 
-const isDev = globalThis.process?.env?.NODE_ENV === 'development';
+const isDev = globalThis.process?.env?.['NODE_ENV'] === 'development';
 
 export const defaultMaskError: MaskError = createDefaultMaskError(isDev);
 

@@ -21,7 +21,7 @@ const getWildcardTypes = (scope: Set<string>): Set<string> => {
   const wildcardTypes = new Set<string>();
   for (const item of scope) {
     if (item.endsWith('*')) {
-      const [typeName] = item.split('.');
+      const typeName = item.split('.')[0]!; // a split always contains at least one element
       wildcardTypes.add(typeName);
     }
   }

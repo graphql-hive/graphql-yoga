@@ -346,5 +346,5 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 };
 
 function interpolateByArgs(message: string, args: { [key: string]: string }) {
-  return message.replace(/\{{([^)]*)\}}/g, (_, key) => args[key.trim()]);
+  return message.replace(/\{{([^)]*)\}}/g, (_, key) => args[key.trim()] ?? key);
 }

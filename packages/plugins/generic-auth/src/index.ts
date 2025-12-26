@@ -400,12 +400,12 @@ export const useGenericAuth = <
 
                   const typeDirectives = parentType && getDirectiveExtensions(parentType, schema);
                   const typeAuthArgs = typeDirectives[authDirectiveName]?.[0];
-                  const typeScopes = typeDirectives[requiresScopesDirectiveName]?.[0]?.scopes;
-                  const typePolicies = typeDirectives[policyDirectiveName]?.[0]?.policies;
+                  const typeScopes = typeDirectives[requiresScopesDirectiveName]?.[0]?.['scopes'];
+                  const typePolicies = typeDirectives[policyDirectiveName]?.[0]?.['policies'];
                   const fieldDirectives = getDirectiveExtensions(field, schema);
                   const fieldAuthArgs = fieldDirectives[authDirectiveName]?.[0];
-                  const fieldScopes = fieldDirectives[requiresScopesDirectiveName]?.[0]?.scopes;
-                  const fieldPolicies = fieldDirectives[policyDirectiveName]?.[0]?.policies;
+                  const fieldScopes = fieldDirectives[requiresScopesDirectiveName]?.[0]?.['scopes'];
+                  const fieldPolicies = fieldDirectives[policyDirectiveName]?.[0]?.['policies'];
                   const userScopes = extractScopes(user);
                   const userPolicies =
                     policiesByContext.get(args.contextValue as unknown as ContextType) ?? [];
@@ -436,7 +436,7 @@ export const useGenericAuth = <
                 };
 
                 return {
-                  FragmentSpread(node, key, parent, path, ancestors) {
+                  FragmentSpread(node, _key, _parent, path) {
                     const fragmentName = node.name.value;
                     const fragment = context.getFragment(fragmentName);
                     if (fragment) {

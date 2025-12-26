@@ -1,11 +1,6 @@
 import jsonStableStringify from 'fast-json-stable-stringify';
 import {
-  ASTVisitor,
-  DocumentNode,
-  ExecutionArgs,
   getOperationAST,
-  GraphQLDirective,
-  GraphQLType,
   isListType,
   isNonNullType,
   isUnionType,
@@ -14,16 +9,21 @@ import {
   TypeInfo,
   visit,
   visitWithTypeInfo,
+  type ASTVisitor,
+  type DocumentNode,
+  type ExecutionArgs,
+  type GraphQLDirective,
+  type GraphQLType,
 } from 'graphql';
 import {
-  ExecutionResult,
   getDocumentString,
   isAsyncIterable,
-  Maybe,
-  ObjMap,
-  OnExecuteDoneHookResult,
-  OnExecuteHookResult,
-  Plugin,
+  type ExecutionResult,
+  type Maybe,
+  type ObjMap,
+  type OnExecuteDoneHookResult,
+  type OnExecuteHookResult,
+  type Plugin,
 } from '@envelop/core';
 import {
   getDirective,
@@ -33,7 +33,7 @@ import {
   memoize4,
   mergeIncrementalResult,
 } from '@graphql-tools/utils';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, type MaybePromise } from '@whatwg-node/promise-helpers';
 import type { Cache, CacheEntityRecord } from './cache.js';
 import { hashSHA256 } from './hash-sha256.js';
 import { createInMemoryCache } from './in-memory-cache.js';
@@ -797,17 +797,18 @@ function removeMetadataFieldsFromResult(
   // clone the data to avoid mutation
   data = { ...data };
 
-  const typename = data.__responseCacheTypeName ?? data.__typename;
+  const typename = data['__responseCacheTypeName'] ?? data['__typename'];
   if (typeof typename === 'string') {
     const entity: CacheEntityRecord = { typename };
-    delete data.__responseCacheTypeName;
+    delete data['__responseCacheTypeName'];
 
     if (
-      data.__responseCacheId &&
-      (typeof data.__responseCacheId === 'string' || typeof data.__responseCacheId === 'number')
+      data['__responseCacheId'] &&
+      (typeof data['__responseCacheId'] === 'string' ||
+        typeof data['__responseCacheId'] === 'number')
     ) {
-      entity.id = data.__responseCacheId;
-      delete data.__responseCacheId;
+      entity.id = data['__responseCacheId'];
+      delete data['__responseCacheId'];
     }
 
     onEntity?.(entity, data);

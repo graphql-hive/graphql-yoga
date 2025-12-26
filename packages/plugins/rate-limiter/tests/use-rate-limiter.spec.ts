@@ -24,8 +24,8 @@ describe('Rate-Limiter', () => {
     `,
       resolvers: {
         Query: {
-          limited: (root, args, context) => 'limited',
-          unlimited: (root, args, context) => 'unlimited',
+          limited: () => 'limited',
+          unlimited: () => 'unlimited',
         },
       },
     });
@@ -60,8 +60,8 @@ describe('Rate-Limiter', () => {
           `,
           resolvers: {
             Query: {
-              limited: (root, args, context) => 'limited',
-              unlimited: (root, args, context) => 'unlimited',
+              limited: () => 'limited',
+              unlimited: () => 'unlimited',
             },
           },
         }),
@@ -70,8 +70,8 @@ describe('Rate-Limiter', () => {
       const result = await testInstance.execute(`query { limited }`);
       assertSingleExecutionValue(result);
       expect(result.errors!.length).toBe(1);
-      expect(result.errors![0].message).toBe('too many calls');
-      expect(result.errors![0].path).toEqual(['limited']);
+      expect(result.errors![0]!.message).toBe('too many calls');
+      expect(result.errors![0]!.path).toEqual(['limited']);
     });
     it('Should allow unlimited calls', async () => {
       const testInstance = createTestkit(
@@ -122,8 +122,8 @@ describe('Rate-Limiter', () => {
       const result = await testInstance.execute(`query { limited }`);
       assertSingleExecutionValue(result);
       expect(result.errors!.length).toBe(1);
-      expect(result.errors![0].message).toBe('too many calls');
-      expect(result.errors![0].path).toEqual(['limited']);
+      expect(result.errors![0]!.message).toBe('too many calls');
+      expect(result.errors![0]!.path).toEqual(['limited']);
     });
 
     it('Should interpolate {{ id }}', async () => {
@@ -142,8 +142,8 @@ describe('Rate-Limiter', () => {
       `,
         resolvers: {
           Query: {
-            limited: (root, args, context) => 'limited',
-            unlimited: (root, args, context) => 'unlimited',
+            limited: () => 'limited',
+            unlimited: () => 'unlimited',
           },
         },
       });
@@ -162,8 +162,8 @@ describe('Rate-Limiter', () => {
       assertSingleExecutionValue(result);
 
       expect(result.errors!.length).toBe(1);
-      expect(result.errors![0].message).toBe(`too many calls for ${identifyFn({})}`);
-      expect(result.errors![0].path).toEqual(['limited']);
+      expect(result.errors![0]!.message).toBe(`too many calls for ${identifyFn({})}`);
+      expect(result.errors![0]!.path).toEqual(['limited']);
     });
   });
 

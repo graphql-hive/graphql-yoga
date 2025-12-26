@@ -2228,7 +2228,7 @@ describe('useResponseCache', () => {
     let introspectionCounter = 0;
 
     const schemaType = schema.getType('__Schema') as GraphQLObjectType;
-    const schemaTypeQueryTypeField = schemaType.getFields()['queryType'];
+    const schemaTypeQueryTypeField = schemaType.getFields()['queryType']!;
     const originalResolve = schemaTypeQueryTypeField.resolve!;
     schemaTypeQueryTypeField.resolve = (...args) => {
       introspectionCounter++;
@@ -2277,7 +2277,7 @@ describe('useResponseCache', () => {
     let introspectionCounter = 0;
 
     const schemaType = schema.getType('__Schema') as GraphQLObjectType;
-    const schemaTypeQueryTypeField = schemaType.getFields()['queryType'];
+    const schemaTypeQueryTypeField = schemaType.getFields()['queryType']!;
     const originalResolve = schemaTypeQueryTypeField.resolve!;
     schemaTypeQueryTypeField.resolve = (...args) => {
       introspectionCounter++;

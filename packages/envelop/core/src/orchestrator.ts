@@ -119,7 +119,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
   for (let i = 0; i < plugins.length; i++) {
     const plugin = plugins[i];
     const pluginsToAdd: Plugin[] = [];
-    plugin.onPluginInit?.({
+    plugin?.onPluginInit?.({
       plugins,
       addPlugin: newPlugin => {
         pluginsToAdd.push(newPlugin);

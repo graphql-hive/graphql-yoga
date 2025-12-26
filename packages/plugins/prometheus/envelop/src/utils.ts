@@ -320,8 +320,8 @@ export function getHistogramFromConfig<
   availablePhases: AtLeastOne<Phases>,
   histogram: Omit<HistogramConfiguration<string>, 'registers' | 'name'>,
   fillLabelsFn: FillLabelsFn<string, Params> = params => ({
-    operationName: params.operationName!,
-    operationType: params.operationType!,
+    operationName: params['operationName']!,
+    operationType: params['operationType']!,
   }),
 ): Required<HistogramAndLabels<Phases, string, Params>> | undefined {
   const metric = (config.metrics as MetricOptions)[phase];
@@ -381,8 +381,8 @@ export function getSummaryFromConfig<
   summary: Omit<SummaryConfiguration<string>, 'registers' | 'name'>,
   fillLabelsFn: FillLabelsFn<string, Params> = params =>
     filterFillParamsFnParams(config, {
-      operationName: params.operationName!,
-      operationType: params.operationType!,
+      operationName: params['operationName']!,
+      operationType: params['operationType']!,
     }),
 ): Required<SummaryAndLabels<Phases, string, Params>> | undefined {
   const metric = (config.metrics as MetricOptions)[phase];
@@ -439,8 +439,8 @@ export function getCounterFromConfig<
   counter: Omit<CounterConfiguration<string>, 'registers' | 'name'>,
   fillLabelsFn: FillLabelsFn<string, Params> = params =>
     filterFillParamsFnParams(config, {
-      operationName: params.operationName!,
-      operationType: params.operationType!,
+      operationName: params['operationName']!,
+      operationType: params['operationType']!,
     }),
 ): Required<CounterAndLabels<Phases, string, Params>> | undefined {
   const metric = (config.metrics as MetricOptions)[phase];

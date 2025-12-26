@@ -302,7 +302,7 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
       };
 
       if (params.error?.path) {
-        labels.path = params.error.path?.join('.');
+        labels['path'] = params.error.path?.join('.');
       }
 
       return filterFillParamsFnParams(config, labels);
@@ -347,7 +347,7 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
     if (errorsCounter.phases.includes('subscribe')) {
       phasesToHook.subscribe.error.push({
         shouldHandle: errorsCounter.shouldObserve,
-        handler: ({ params, context, error }) => {
+        handler: ({ params, context }) => {
           const labels = errorsCounter.fillLabelsFn(params, context);
           errorsCounter.counter.labels(labels).inc();
         },

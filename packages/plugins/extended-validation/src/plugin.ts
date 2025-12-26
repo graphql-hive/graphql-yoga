@@ -173,7 +173,7 @@ function buildHandler(
               function visitPath(path: readonly (string | number)[], data: any = {}) {
                 let currentData = (data ||= typeof path[0] === 'number' ? [] : {});
                 for (const pathItemIndex in path.slice(0, -1)) {
-                  const pathItem = path[pathItemIndex];
+                  const pathItem = path[pathItemIndex]!; // Safe because it is constructed from the array itself
                   currentData = currentData[pathItem] ||=
                     typeof path[Number(pathItemIndex) + 1] === 'number' ? [] : {};
                   if (Array.isArray(currentData)) {
@@ -181,12 +181,12 @@ function buildHandler(
                     if (path[pathItemIndexInArray] === '@') {
                       pathItemIndexInArray = Number(pathItemIndex) + 2;
                     }
-                    currentData = currentData.map((c, i) =>
+                    currentData = currentData.map(c =>
                       visitPath(path.slice(pathItemIndexInArray), c),
                     );
                   }
                 }
-                currentData[path[path.length - 1]] = null;
+                currentData[path[path.length - 1]!] = null; // Safe, the path can't be empty
                 return data;
               }
               errors.forEach(e => {

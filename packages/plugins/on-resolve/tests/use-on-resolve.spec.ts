@@ -38,13 +38,13 @@ describe('useOnResolve', () => {
 
     let i = 0;
     for (const field of ['value1', 'value2']) {
-      expect(onResolveFn.mock.calls[i][0].context).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].root).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].args).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info.fieldName).toBe(field);
-      expect(onResolveFn.mock.calls[i][0].resolver).toBeInstanceOf(Function);
-      expect(onResolveFn.mock.calls[i][0].replaceResolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].context).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].root).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].args).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info.fieldName).toBe(field);
+      expect(onResolveFn.mock.calls[i]?.[0].resolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].replaceResolver).toBeInstanceOf(Function);
 
       expect(onResolveDoneFn.mock.calls[i][0].result).toBe(field);
       expect(onResolveDoneFn.mock.calls[i][0].setResult).toBeInstanceOf(Function);
@@ -68,13 +68,13 @@ describe('useOnResolve', () => {
 
     let i = 0;
     for (const field of ['queryType', 'name']) {
-      expect(onResolveFn.mock.calls[i][0].context).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].root).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].args).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info.fieldName).toBe(field);
-      expect(onResolveFn.mock.calls[i][0].resolver).toBeInstanceOf(Function);
-      expect(onResolveFn.mock.calls[i][0].replaceResolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].context).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].root).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].args).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info.fieldName).toBe(field);
+      expect(onResolveFn.mock.calls[i]?.[0].resolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].replaceResolver).toBeInstanceOf(Function);
 
       expect(onResolveDoneFn.mock.calls[i][0].setResult).toBeInstanceOf(Function);
 
@@ -108,13 +108,13 @@ describe('useOnResolve', () => {
 
     let i = 0;
     for (const field of ['obj', 'field1']) {
-      expect(onResolveFn.mock.calls[i][0].context).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].root).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].args).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info).toBeDefined();
-      expect(onResolveFn.mock.calls[i][0].info.fieldName).toBe(field);
-      expect(onResolveFn.mock.calls[i][0].resolver).toBeInstanceOf(Function);
-      expect(onResolveFn.mock.calls[i][0].replaceResolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].context).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].root).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].args).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info).toBeDefined();
+      expect(onResolveFn.mock.calls[i]?.[0].info.fieldName).toBe(field);
+      expect(onResolveFn.mock.calls[i]?.[0].resolver).toBeInstanceOf(Function);
+      expect(onResolveFn.mock.calls[i]?.[0].replaceResolver).toBeInstanceOf(Function);
 
       i++;
     }
