@@ -1,9 +1,6 @@
-import { execSync } from 'node:child_process';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
 import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
-
-const pnpmStoreDir = execSync('pnpm store path').toString('utf-8').trim();
 
 const monacoEditorPlugin: typeof $monacoEditorPlugin =
   // @ts-expect-error - We need to do this because the plugin is a CJS module
@@ -11,7 +8,8 @@ const monacoEditorPlugin: typeof $monacoEditorPlugin =
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  cacheDir: path.join(pnpmStoreDir, '.vite'),
+  // TODO: Is this necessary ? The default stores it in the node_modules. Should we store it in bun's cache too ?
+  // cacheDir: path.join(pnpmStoreDir, '.vite'),
   plugins: [
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - no types
