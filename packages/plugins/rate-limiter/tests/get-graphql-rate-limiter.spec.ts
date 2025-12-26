@@ -1,10 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { GraphQLResolveInfo } from 'graphql';
 import { RedisClient } from 'redis-mock';
 import { RedisStore } from '@envelop/rate-limiter';
 import { getFieldIdentity, getGraphQLRateLimiter } from '../src/get-graphql-rate-limiter.js';
 import { InMemoryStore } from '../src/in-memory-store.js';
-import { GraphQLRateLimitDirectiveArgs } from '../src/types.js';
+import { type GraphQLRateLimitDirectiveArgs } from '../src/types.js';
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));

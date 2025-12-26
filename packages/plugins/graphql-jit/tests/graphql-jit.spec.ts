@@ -1,4 +1,4 @@
-import { execute, ExecutionResult, subscribe, type ExecutionArgs } from 'graphql';
+import { execute, subscribe } from 'graphql';
 import { LRUCache } from 'lru-cache';
 import { useParserCache } from '@envelop/parser-cache';
 import {

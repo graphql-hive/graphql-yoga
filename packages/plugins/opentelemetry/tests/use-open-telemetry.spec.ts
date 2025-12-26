@@ -1,4 +1,4 @@
-import { buildSchema, GraphQLError } from 'graphql';
+import { createGraphQLError } from 'graphql-yoga';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as opentelemetry from '@opentelemetry/api';
@@ -10,7 +10,7 @@ import {
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 import { Repeater } from '@repeaterjs/repeater';
-import { AttributeName, TracingOptions, useOpenTelemetry } from '../src/index.js';
+import { AttributeName, useOpenTelemetry, type TracingOptions } from '../src/index.js';
 
 function createTraceProvider(exporter: InMemorySpanExporter) {
   const provider = new BasicTracerProvider();
@@ -51,7 +51,7 @@ describe('useOpenTelemetry', () => {
           return `echo: ${message}`;
         },
         error: () => {
-          throw new GraphQLError('boom');
+          throw createGraphQLError('boom');
         },
         obj: () => ({
           field1: 'field1',

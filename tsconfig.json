@@ -1,54 +1,43 @@
 {
-  "extends": [
-    "@tsconfig/strictest"
-  ],
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
-    "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
-    "experimentalDecorators": true,
+    // tsc only for type checking
     "noEmit": true,
+    // tsdown will take care of building, we use the most modern JS while coding
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
-    "emitDecoratorMetadata": true,
-    "sourceMap": false,
-    "declaration": false,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "resolveJsonModule": true,
-    "jsx": "preserve",
+    // TODO: Enable it once it is enabled in `graphql-tools` and `whatwg-node`
     "exactOptionalPropertyTypes": false,
-    "noUnusedLocals": false,
+    // For GraphiQL 
+    "jsx": "preserve",
+    // Required by Nest
+    "experimentalDecorators": true,
     "paths": {
       "graphql-yoga": [
-        "packages/graphql-yoga/src/index.ts"
+        "./packages/graphql-yoga/src/index.ts"
       ],
       "@graphql-yoga/*": [
-        "packages/*/src/index.ts",
-        "packages/client/*/src/index.ts"
+        "./packages/*/src/index.ts",
+        "./packages/client/*/src/index.ts"
       ],
       "@graphql-yoga/plugin-*": [
-        "packages/plugins/*/src/index.ts",
-        "packages/plugins/*/yoga/src/index.ts"
+        "./packages/plugins/*/src/index.ts",
+        "./packages/plugins/*/yoga/src/index.ts"
       ],
       "@graphql-yoga/typed-event-target": [
-        "packages/event-target/typed-event-target/src/index.ts"
+        "./packages/event-target/typed-event-target/src/index.ts"
       ],
       "@graphql-yoga/redis-event-target": [
-        "packages/event-target/redis-event-target/src/index.ts"
+        "./packages/event-target/redis-event-target/src/index.ts"
       ],
       "@envelop/testing": [
-        "packages/testing/src/index.ts"
+        "./packages/testing/src/index.ts"
       ],
       "@envelop/*": [
-        "packages/envelop/*/src/index.ts",
-        "packages/plugins/*/src/index.ts",
-        "packages/plugins/*/envelop/src/index.ts"
+        "./packages/envelop/*/src/index.ts",
+        "./packages/plugins/*/src/index.ts",
+        "./packages/plugins/*/envelop/src/index.ts"
       ]
     }
   },

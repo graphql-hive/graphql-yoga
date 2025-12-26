@@ -41,9 +41,10 @@ export type CORSOptions =
   | false;
 
 declare global {
-  interface ReadableStream<R = any> {
-    [Symbol.asyncIterator]: () => AsyncIterator<R>;
-  }
+  // TODO: Is this still necessary ?
+  // interface ReadableStream<R = any> {
+  //   [Symbol.asyncIterator]: () => AsyncIterator<R>;
+  // }
 }
 
 export type FetchAPI = ReturnType<typeof createFetch>;

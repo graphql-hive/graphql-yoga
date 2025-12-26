@@ -110,7 +110,7 @@ describe('Subscription', () => {
     const iterator = response.body![Symbol.asyncIterator]();
 
     let result = '';
-    let value: Uint8Array;
+    let value: Uint8Array | undefined;
     let count = 0;
 
     while (({ value } = await iterator.next())) {
@@ -190,7 +190,7 @@ describe('Subscription', () => {
 
     let results = '';
     let count = 0;
-    let value: Uint8Array;
+    let value: Uint8Array | undefined;
 
     while (({ value } = await iterator.next())) {
       if (value === undefined) {

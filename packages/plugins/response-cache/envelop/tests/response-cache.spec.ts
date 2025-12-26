@@ -4074,19 +4074,6 @@ describe('useResponseCache', () => {
   });
 
   it('should not leak __responseCacheTypeName or __responseCacheId', async () => {
-    const spy = jest.fn(() => [
-      {
-        id: 1,
-        name: 'User 1',
-        comments: [
-          {
-            id: 1,
-            text: 'Comment 1 of User 1',
-          },
-        ],
-      },
-    ]);
-
     const schema = makeExecutableSchema({
       typeDefs: /* GraphQL */ `
         ${cacheControlDirective}
