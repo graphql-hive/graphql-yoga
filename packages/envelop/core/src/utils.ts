@@ -8,8 +8,8 @@ import {
   OnExecuteDoneHookResultOnNextHook,
   PolymorphicExecuteArguments,
   PolymorphicSubscribeArguments,
-  type PromiseOrValue,
   SubscribeFunction,
+  type PromiseOrValue,
 } from '@envelop/types';
 import { fakePromise } from '@whatwg-node/promise-helpers';
 

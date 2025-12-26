@@ -4,9 +4,9 @@ import {
   Plugin as EnvelopPlugin,
   OnExecuteHook,
   OnSubscribeHook,
-  type PromiseOrValue,
   RegisterContextErrorHandler,
   SetSchemaFn,
+  type PromiseOrValue,
 } from '@envelop/core';
 import { ExecutionResult } from '@graphql-tools/utils';
 import { MaybePromise } from '@whatwg-node/promise-helpers';

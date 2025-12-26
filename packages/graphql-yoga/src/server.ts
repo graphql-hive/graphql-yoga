@@ -2,12 +2,12 @@
 import { ExecutionResult, parse, specifiedRules, validate } from 'graphql';
 import {
   envelop,
-  type GetEnvelopedFn,
   isAsyncIterable,
-  type PromiseOrValue,
   useEngine,
   useExtendContext,
   useMaskedErrors,
+  type GetEnvelopedFn,
+  type PromiseOrValue,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';

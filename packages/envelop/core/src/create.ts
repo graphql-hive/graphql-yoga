@@ -1,5 +1,11 @@
 import { getInstrumented } from '@envelop/instrumentation';
-import type { ArbitraryObject, ComposeContext, GetEnvelopedFn, Optional, Plugin } from '@envelop/types';
+import type {
+  ArbitraryObject,
+  ComposeContext,
+  GetEnvelopedFn,
+  Optional,
+  Plugin,
+} from '@envelop/types';
 import { createEnvelopOrchestrator, EnvelopOrchestrator } from './orchestrator.js';
 
 type ExcludeFalsy<TArray extends any[]> = Exclude<TArray[0], null | undefined | false>[];

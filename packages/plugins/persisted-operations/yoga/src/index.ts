@@ -3,9 +3,9 @@ import {
   createGraphQLError,
   type GraphQLParams,
   type Maybe,
+  type OnParamsEventPayload,
   type Plugin,
   type PromiseOrValue,
-  type OnParamsEventPayload,
 } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
