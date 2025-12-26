@@ -53,6 +53,8 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
       - name: Bun setup
         uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun ci
       - name: 'Generate HTML in TS files'
         run: bun run --verbose generate-html-ts
       - name: Check Types
