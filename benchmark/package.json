@@ -7,8 +7,8 @@
     "build": "tsc",
     "check": "exit 0",
     "loadtest": "k6 -e GITHUB_PR=$GITHUB_PR -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run k6.js",
-    "pretest": "npm run build",
-    "start": "node dist/start-server.js",
+    "pretest": "bun run build",
+    "start": "bun dist/start-server.js",
     "test": "start-server-and-test start http://127.0.0.1:4000/ping loadtest"
   },
   "dependencies": {
