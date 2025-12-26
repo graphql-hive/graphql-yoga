@@ -25,6 +25,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+          install-command: bun install --frozen-lockfile
       - name: Test with Stitching Runtime
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -50,6 +51,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
+          install-command: bun install --frozen-lockfile
       - name: Test
         run: bun run test:node
 
@@ -72,6 +74,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
+          install-command: bun install --frozen-lockfile
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -92,6 +95,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+          install-command: bun install --frozen-lockfile
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -116,6 +124,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+          install-command: bun install --frozen-lockfile
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -136,6 +149,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+          install-command: bun install --frozen-lockfile
       - name: Build Packages
         run: bun run build
       - name: Bundle Apollo Federation Subgraph Example
