@@ -1,4 +1,4 @@
-import { GraphQLError, GraphQLSchema, validate, ValidationContext } from 'graphql';
+import { GraphQLError, GraphQLSchema, validate } from 'graphql';
 import { assertSingleExecutionValue, createSpiedPlugin, createTestkit } from '@envelop/testing';
 import { useValidationRule } from '../src/plugins/use-validation-rule.js';
 import { query, schema } from './common.js';

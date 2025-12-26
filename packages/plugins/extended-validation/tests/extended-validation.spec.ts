@@ -166,7 +166,7 @@ describe('useExtendedValidation', () => {
       ],
       schema,
     );
-    const result = await testkit.execute(operation);
+    await testkit.execute(operation);
     expect(calledExtendedValidationRule).toEqual(true);
   });
   it('subscribe does result in extended validation phase errors', async () => {

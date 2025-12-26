@@ -1,6 +1,4 @@
 import { createTestkit } from '@envelop/testing';
-import { envelop } from '../src/index.js';
-import { useEnvelop } from '../src/plugins/use-envelop.js';
 import { query, schema } from './common.js';
 
 describe('plugin init', () => {

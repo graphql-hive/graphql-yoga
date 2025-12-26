@@ -141,7 +141,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     const iterator = response.body![Symbol.asyncIterator]();
     // first we will always get a ping/keep alive for flushed headers
     const next = await iterator.next();
-    expect(Buffer.from(next.value).toString('utf-8')).toMatchInlineSnapshot(`
+    expect(next.value).toBeDefined();
+    expect(Buffer.from(next.value!).toString('utf-8')).toMatchInlineSnapshot(`
 ":
 
 "
@@ -149,7 +150,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
 
     const next$ = iterator.next().then(({ done, value }) => {
       // in case it resolves, parse the buffer to string for easier debugging.
-      return { done, value: Buffer.from(value).toString('utf-8') };
+      expect(value).toBeDefined();
+      return { done, value: Buffer.from(value!).toString('utf-8') };
     });
     await rootResolverGotInvokedD.promise;
 
@@ -244,12 +246,14 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     // Shitty wait condition, but it works lol
     while (payload.split('\r\n').length < 6 || !payload.endsWith('---')) {
       const next = await iterator.next();
-      payload += Buffer.from(next.value).toString('utf-8');
+      expect(next.value).toBeDefined();
+      payload += Buffer.from(next.value!).toString('utf-8');
     }
 
     const next$ = iterator.next().then(({ done, value }) => {
       // in case it resolves, parse the buffer to string for easier debugging.
-      return { done, value: Buffer.from(value).toString('utf-8') };
+      expect(value).toBeDefined();
+      return { done, value: Buffer.from(value!).toString('utf-8') };
     });
 
     await aResolverGotInvokedD.promise;

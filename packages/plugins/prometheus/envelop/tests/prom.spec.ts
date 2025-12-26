@@ -1,4 +1,4 @@
-import { ASTNode, buildSchema, print as graphQLPrint } from 'graphql';
+import { buildSchema, print as graphQLPrint, type ASTNode } from 'graphql';
 import { Registry } from 'prom-client';
 import { useExtendContext, type Plugin } from '@envelop/core';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
@@ -12,8 +12,8 @@ import type {
 import {
   createCounter,
   createHistogram,
-  PrometheusTracingPluginConfig,
   usePrometheus,
+  type PrometheusTracingPluginConfig,
 } from '../src/index.js';
 import { createSummary, registerHistogram, type FillLabelsFnParams } from '../src/utils.js';
 
@@ -864,7 +864,7 @@ describe('Prom Metrics plugin', () => {
     // });
 
     it('should trace timing even if an error occurs', async () => {
-      const { execute, metricCount, metricString } = prepare({
+      const { execute, metricCount } = prepare({
         metrics: {
           graphql_envelop_phase_execute: true,
         },
@@ -1067,7 +1067,7 @@ describe('Prom Metrics plugin', () => {
     });
     it('should allow to use custom name', async () => {
       const registry = new Registry();
-      const { execute, metricCount, metricString } = prepare(
+      const { execute, metricCount } = prepare(
         {
           metrics: {
             graphql_envelop_error_result: 'test_error',
@@ -1111,7 +1111,7 @@ describe('Prom Metrics plugin', () => {
 
     it('should allow custom metric options', async () => {
       const registry = new Registry();
-      const { execute, metricCount, metricString, allMetrics } = prepare(
+      const { execute, metricCount, metricString } = prepare(
         {
           metrics: {
             graphql_envelop_execute_resolver: createHistogram({
@@ -1187,7 +1187,7 @@ describe('Prom Metrics plugin', () => {
       );
       assertSingleExecutionValue(result);
 
-      const metricStr = await allMetrics();
+      await allMetrics();
 
       expect(result.errors).toBeUndefined();
       expect(await metricCount('graphql_envelop_deprecated_field')).toBe(1);
@@ -1470,8 +1470,6 @@ function metricDisabledTestCases(
 type MetricNames<V = any> = {
   [K in keyof MetricsConfig]-?: [V] extends [MetricsConfig[K]] ? K : never;
 }[keyof MetricsConfig];
-
-type H = MetricNames<HistogramMetricOption<any>>;
 
 type TestCase = {
   name: string;

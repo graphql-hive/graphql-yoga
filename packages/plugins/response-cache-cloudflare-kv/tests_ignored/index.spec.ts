@@ -1,8 +1,8 @@
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import type { ExecutionContext, KVNamespace } from '@cloudflare/workers-types';
 import type { Cache } from '@envelop/response-cache';
 import { buildOperationKey } from '../src/cache-key.js';
-import { createKvCache, type KvCacheConfig } from '../src/index.js';
+import { createKvCache } from '../src/index.js';
 
 type Env = {
   ENVIRONMENT: 'testing' | 'development' | 'production';
