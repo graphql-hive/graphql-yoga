@@ -39,7 +39,7 @@
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true bun run test:integration --detectLeaks"
   },
-  "workspaces": ["packages/**", "!packages/**/dist", "benchmark", "website", "e2e"],
+  "workspaces": ["packages/**", "!packages/**/dist", "!packages/**/dist/**", "benchmark", "website", "e2e"],
   "devDependencies": {
     "@babel/core": "7.28.5",
     "@babel/plugin-proposal-decorators": "7.28.0",
@@ -91,7 +91,9 @@
     "@changesets/assemble-release-plan@5.2.3": "patches/@changesets__assemble-release-plan@5.2.3.patch",
     "jest-leak-detector": "patches/jest-leak-detector.patch",
     "package-up": "patches/package-up.patch",
-    "jest-environment-node": "patches/jest-environment-node.patch"
+    "jest-environment-node": "patches/jest-environment-node.patch",
+    "@n1ru4l/push-pull-async-iterable-iterator@3.2.0": "patches/@n1ru4l%2Fpush-pull-async-iterable-iterator@3.2.0.patch",
+    "graphql-modules@3.0.0": "patches/graphql-modules@3.0.0.patch"
   },
   "overrides": {
     "axios": "1.13.2",

@@ -23,7 +23,7 @@ describe('instrumentation', () => {
         instrument = chain(instrument, other);
       }
 
-      instrument.execute({}, () => {});
+      instrument['execute']!({}, () => {});
       expect(result).toEqual([1, 2, 3, 4, 4, 3, 2, 1]);
     });
 
@@ -48,7 +48,7 @@ describe('instrumentation', () => {
         instrument = chain(instrument, other);
       }
 
-      await instrument.execute({}, () => new Promise(r => setTimeout(r, 10)));
+      await instrument['execute']!({}, () => new Promise(r => setTimeout(r, 10)));
       expect(result).toEqual([1, 2, 3, 4, 4, 3, 2, 1]);
     });
 

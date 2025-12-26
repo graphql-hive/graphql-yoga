@@ -102,7 +102,7 @@ export const useApolloTracing = (): Plugin<{
 
           return handleStreamOrSingleExecutionResult(payload, ({ result }) => {
             result.extensions = result.extensions || {};
-            result.extensions.tracing = tracing;
+            result.extensions['tracing'] = tracing;
           });
         },
       };

@@ -151,7 +151,7 @@ export const vercelDeployment: DeploymentConfiguration<{
         },
       },
       projectSettings: {
-        framework: null,
+        framework: '',
       },
     });
 

@@ -90,7 +90,7 @@ describe('Auth Directives', () => {
           useGenericAuth({
             mode: 'protect-granular',
             resolveUserFn(context) {
-              return context?.auth;
+              return context?.['auth'];
             },
             rejectUnauthenticated: false,
           }),
@@ -184,7 +184,7 @@ describe('Auth Directives', () => {
           useGenericAuth({
             mode: 'protect-granular',
             resolveUserFn(context) {
-              return context?.auth;
+              return context?.['auth'];
             },
             rejectUnauthenticated: false,
           }),
@@ -297,7 +297,7 @@ describe('Auth Directives', () => {
           useGenericAuth({
             mode: 'protect-granular',
             resolveUserFn(context) {
-              return context?.auth;
+              return context?.['auth'];
             },
             rejectUnauthenticated: false,
           }),

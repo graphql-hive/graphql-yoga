@@ -8,7 +8,8 @@ describe('useDataLoader', () => {
     typeDefs: `type Query { test: String! }`,
     resolvers: {
       Query: {
-        test: (root, args, context: { test: DataLoader<string, string> }) => context.test.load('1'),
+        test: (_root, _args, context: { test: DataLoader<string, string> }) =>
+          context.test.load('1'),
       },
     },
   });

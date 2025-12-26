@@ -137,7 +137,7 @@ describe('useGraphQlJit', () => {
     assertStreamExecutionValue(result);
     const values = await collectAsyncIteratorValues(result);
     for (let i = 0; i < 10; i++) {
-      expect(values[i].data?.count).toBe(i);
+      expect(values[i]?.data?.count).toBe(i);
     }
   });
 

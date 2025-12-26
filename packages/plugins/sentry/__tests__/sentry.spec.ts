@@ -46,7 +46,7 @@ describe('sentry', () => {
 
     const reports = sentryTestkit.reports();
     expect(reports).toHaveLength(1);
-    expect(reports[0].error).toMatchObject({
+    expect(reports[0]!.error).toMatchObject({
       message: 'Unexpected Error, ok?',
       name: 'Error',
     });
@@ -132,7 +132,7 @@ describe('sentry', () => {
     const reports = sentryTestkit.reports();
     console.log(sentryTestkit.transactions());
     expect(reports).toHaveLength(1);
-    expect(reports[0].error).toMatchObject({
+    expect(reports[0]!.error).toMatchObject({
       message: 'Unexpected Error, ok?',
       name: 'Error',
     });
@@ -204,7 +204,7 @@ describe('sentry', () => {
 
     assertSingleExecutionValue(result);
 
-    expect(result.errors?.[0].extensions).toEqual({
+    expect(result.errors?.[0]?.extensions).toEqual({
       sentryEventId: expect.any(String),
     });
   });
@@ -246,7 +246,7 @@ describe('sentry', () => {
 
     const reports = sentryTestkit.reports();
     expect(reports).toHaveLength(1);
-    expect(reports[0].error).toMatchObject({
+    expect(reports[0]!.error).toMatchObject({
       message: 'Cannot return null for non-nullable field Query.hello.',
       name: 'Error',
     });

@@ -53,7 +53,7 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
 
   const extractFn =
     options.extractTokenFn ||
-    ((ctx: Record<string, any> = {}): string | null => {
+    ((ctx: Record<string, any> = {}): string | null | undefined => {
       const req = ctx['req'] || ctx['request'] || {};
       const headers = req.headers || ctx['headers'] || null;
 
@@ -97,9 +97,10 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
         { kid?: string }
       >) || {};
 
-    if (decodedToken && decodedToken.header && decodedToken.header.kid) {
+    if (decodedToken && decodedToken['header'] && decodedToken['header'].kid) {
+      const { kid } = decodedToken['header'];
       return handleMaybePromise(
-        () => jkwsClient.getSigningKey(decodedToken.header.kid),
+        () => jkwsClient.getSigningKey(kid),
         secret => {
           const signingKey = secret.getPublicKey();
           const decoded = verify(token, signingKey, {

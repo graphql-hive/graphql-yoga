@@ -526,7 +526,7 @@ describe('useResourceLimitations', () => {
       },
     });
     expect(result.errors).toBeDefined();
-    expect(result.errors?.[0].message).toEqual(
+    expect(result.errors?.[0]?.message).toEqual(
       'Cannot request more than 20 nodes in a single document. Please split your operation into multiple sub operations or reduce the amount of requested nodes.',
     );
   });

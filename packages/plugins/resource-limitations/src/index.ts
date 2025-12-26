@@ -120,7 +120,7 @@ export const ResourceLimitationValidationRule =
               } else if (hasFirst === true || hasLast === true) {
                 if (
                   ('first' in argumentValues === false && 'last' in argumentValues === false) ||
-                  (argumentValues.first === null && argumentValues.last === null)
+                  (argumentValues['first'] === null && argumentValues['last'] === null)
                 ) {
                   context.reportError(
                     new GraphQLError(
@@ -132,10 +132,10 @@ export const ResourceLimitationValidationRule =
                       fieldNode,
                     ),
                   );
-                } else if ('first' in argumentValues && !argumentValues.last) {
+                } else if ('first' in argumentValues && !argumentValues['last']) {
                   if (
-                    argumentValues.first < paginationArgumentMinimum ||
-                    argumentValues.first > paginationArgumentMaximum
+                    argumentValues['first'] < paginationArgumentMinimum ||
+                    argumentValues['first'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
                       new GraphQLError(
@@ -152,10 +152,10 @@ export const ResourceLimitationValidationRule =
                     // eslint-disable-next-line dot-notation
                     nodeCost = argumentValues['first'] as number;
                   }
-                } else if (!argumentValues.first && 'last' in argumentValues) {
+                } else if (!argumentValues['first'] && 'last' in argumentValues) {
                   if (
-                    argumentValues.last < paginationArgumentMinimum ||
-                    argumentValues.last > paginationArgumentMaximum
+                    argumentValues['last'] < paginationArgumentMinimum ||
+                    argumentValues['last'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
                       new GraphQLError(

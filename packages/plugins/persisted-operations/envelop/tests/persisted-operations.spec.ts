@@ -51,7 +51,7 @@ describe('usePersistedOperations', () => {
 
     const result = await testInstance.execute(`persisted_1`);
     assertSingleExecutionValue(result);
-    expect(result.errors![0].message).toBe(`Unable to match operation with id 'persisted_1'`);
+    expect(result.errors?.[0]?.message).toBe(`Unable to match operation with id 'persisted_1'`);
   });
 
   it('Should fail when persisted operation is not available and `onlyPersisted` is true', async () => {
@@ -69,7 +69,7 @@ describe('usePersistedOperations', () => {
 
     const result = await testInstance.execute(`persisted_2`);
     assertSingleExecutionValue(result);
-    expect(result.errors![0].message).toBe(`Unable to match operation with id 'persisted_2'`);
+    expect(result.errors?.[0]?.message).toBe(`Unable to match operation with id 'persisted_2'`);
   });
 
   it('Should allow standard query parsing when `onlyPersisted` is false and source is invalid', async () => {
@@ -87,7 +87,7 @@ describe('usePersistedOperations', () => {
 
     const result = await testInstance.execute(`invalid`);
     assertSingleExecutionValue(result);
-    expect(result.errors![0].message).toBe(`Syntax Error: Unexpected Name "invalid".`);
+    expect(result.errors?.[0]?.message).toBe(`Syntax Error: Unexpected Name "invalid".`);
   });
 
   it('Should allow standard query parsing when `onlyPersisted` is false and source is valid', async () => {
@@ -124,7 +124,7 @@ describe('usePersistedOperations', () => {
 
     const result = await testInstance.execute(`query { foo }`);
     assertSingleExecutionValue(result);
-    expect(result.errors![0].message).toBe('Must provide operation id');
+    expect(result.errors?.[0]?.message).toBe('Must provide operation id');
   });
 
   it('Should fail when no store is returned and only `onlyPersisted` is true', async () => {
@@ -141,7 +141,7 @@ describe('usePersistedOperations', () => {
 
     const result = await testInstance.execute('persisted_1');
     assertSingleExecutionValue(result);
-    expect(result.errors![0].message).toBe('Must provide store for persisted-operations!');
+    expect(result.errors?.[0]?.message).toBe('Must provide store for persisted-operations!');
   });
 
   it('Should allow store function to return actual persisted operations store, using context value', async () => {
@@ -152,7 +152,7 @@ describe('usePersistedOperations', () => {
       [
         usePersistedOperations({
           onlyPersisted: true,
-          store: context => (context.storeId === 'custom' ? customStore : globalStore),
+          store: context => (context['storeId'] === 'custom' ? customStore : globalStore),
         }),
       ],
       testSchema,

@@ -20,7 +20,7 @@ describe('schemaChange', () => {
     const pluginA = { onSchemaChange: jest.fn() };
     const pluginB = { onSchemaChange: jest.fn() };
 
-    let setSchemaFn = (newSchema: GraphQLSchema) => {};
+    let setSchemaFn = (_newSchema: GraphQLSchema) => {};
 
     const pluginTrigger: Plugin = {
       onSchemaChange: jest.fn(),
@@ -40,7 +40,7 @@ describe('schemaChange', () => {
   });
 
   it('should not trigger if the schema is the same', async () => {
-    let setSchemaFn: (newSchema: GraphQLSchema) => void = (newSchema: GraphQLSchema) => {
+    let setSchemaFn: (newSchema: GraphQLSchema) => void = () => {
       throw new Error('setSchemaFn not initialized');
     };
     const setSchemaPlugin: Plugin = {

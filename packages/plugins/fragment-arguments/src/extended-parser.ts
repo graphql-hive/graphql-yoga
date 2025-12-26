@@ -31,7 +31,7 @@ export class FragmentArgumentCompatibleParser extends Parser {
     return undefined;
   }
 
-  parseFragment() {
+  override parseFragment() {
     const start = this.getLexer().token;
     this.expectToken(TokenKind.SPREAD);
     const hasTypeCondition = this.expectOptionalKeyword('on');
@@ -66,7 +66,7 @@ export class FragmentArgumentCompatibleParser extends Parser {
     } as InlineFragmentNode;
   }
 
-  parseFragmentDefinition() {
+  override parseFragmentDefinition() {
     const start = this.getLexer().token;
     this.expectKeyword('fragment');
     const name = this.parseFragmentName();

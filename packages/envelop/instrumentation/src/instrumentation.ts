@@ -16,8 +16,8 @@ export function chain<First extends GenericInstrumentation, Next extends Generic
   const merged: GenericInstrumentation = { ...next, ...first };
 
   for (const key of Object.keys(merged)) {
-    if (key in first && key in next) {
-      merged[key] = (payload, wrapped) => first[key](payload, () => next[key](payload, wrapped));
+    if (key in first && first[key] && key in next && next[key]) {
+      merged[key] = (payload, wrapped) => first[key]!(payload, () => next[key]!(payload, wrapped));
     }
   }
   return merged as First & Next;

@@ -49,8 +49,8 @@ describe('useParserCache', () => {
     const r2 = await testInstance.execute(`FAILED\ { foo }`);
     assertSingleExecutionValue(r2);
     expect(testParser).toHaveBeenCalledTimes(1);
-    expect(r1.errors![0].message).toBe(`Syntax Error: Unexpected Name "FAILED".`);
-    expect(r2.errors![0].message).toBe(`Syntax Error: Unexpected Name "FAILED".`);
+    expect(r1.errors?.[0]?.message).toBe(`Syntax Error: Unexpected Name "FAILED".`);
+    expect(r2.errors?.[0]?.message).toBe(`Syntax Error: Unexpected Name "FAILED".`);
     expect(r1).toEqual(r2);
   });
 

@@ -24,19 +24,19 @@ describe('useGenericAuth', () => {
     `,
     resolvers: {
       Query: {
-        test: (root, args, context) => context.currentUser?.name || '',
+        test: (_root, _args, context) => context.currentUser?.name || '',
       },
     },
   });
 
-  const validresolveUserFn: ResolveUserFn<UserType> = async context => {
+  const validresolveUserFn: ResolveUserFn<UserType> = async () => {
     return {
       id: 1,
       name: 'Dotan',
     };
   };
 
-  const invalidresolveUserFn: ResolveUserFn<UserType> = async context => {
+  const invalidresolveUserFn: ResolveUserFn<UserType> = async () => {
     return null;
   };
 
@@ -53,8 +53,8 @@ describe('useGenericAuth', () => {
       ],
       resolvers: {
         Query: {
-          test: (root, args, context) => context.currentUser?.name || '',
-          public: (root, args, context) => 'public',
+          test: (_root, _args, context) => context.currentUser?.name || '',
+          public: () => 'public',
         },
       },
     });
@@ -295,9 +295,9 @@ describe('useGenericAuth', () => {
       ],
       resolvers: {
         Query: {
-          protected: (root, args, context) => context.currentUser.name,
-          public: (root, args, context) => 'public',
-          person: (root, args, context) => ({
+          protected: (_root, _args, context) => context.currentUser.name,
+          public: () => 'public',
+          person: (_root, _args, context) => ({
             name: 'John',
             email: context.currentUser?.email,
           }),
@@ -376,7 +376,7 @@ describe('useGenericAuth', () => {
       const result = await testInstance.execute(`query { protected }`);
       assertSingleExecutionValue(result);
       expect(result.errors?.length).toBe(1);
-      expect(result.errors?.[0].message).toBe(`Unauthorized field or type`);
+      expect(result.errors?.[0]!.message).toBe(`Unauthorized field or type`);
     });
 
     it('Should prevent field execution when user is not authenticated correctly but continue execution for public fields', async () => {
@@ -575,9 +575,9 @@ describe('useGenericAuth', () => {
         }
 
         if (params.fieldAuthArgs) {
-          if (params.fieldAuthArgs.role !== params.user.role) {
+          if (params.fieldAuthArgs['role'] !== params.user.role) {
             return createGraphQLError(
-              `Missing permissions for accessing field '${schemaCoordinate}'. Requires role '${params.fieldAuthArgs.role}'. Request is authenticated with role '${params.user.role}'.`,
+              `Missing permissions for accessing field '${schemaCoordinate}'. Requires role '${params.fieldAuthArgs['role']}'. Request is authenticated with role '${params.user.role}'.`,
               { nodes: [params.fieldNode] },
             );
           }
@@ -586,7 +586,7 @@ describe('useGenericAuth', () => {
         return undefined;
       };
 
-      const invalidRoleResolveUserFn: ResolveUserFn<UserTypeWithRole> = async context => {
+      const invalidRoleResolveUserFn: ResolveUserFn<UserTypeWithRole> = async () => {
         return {
           id: 1,
           name: 'Dotan',
@@ -594,7 +594,7 @@ describe('useGenericAuth', () => {
         };
       };
 
-      const validRoleResolveUserFn: ResolveUserFn<UserTypeWithRole> = async context => {
+      const validRoleResolveUserFn: ResolveUserFn<UserTypeWithRole> = async () => {
         return {
           id: 1,
           name: 'Dotan',
@@ -619,9 +619,9 @@ describe('useGenericAuth', () => {
         `,
         resolvers: {
           Query: {
-            protected: (root, args, context) => context.currentUser.name,
-            public: (root, args, context) => 'public',
-            admin: (root, args, context) => 'admin',
+            protected: (_root, _args, context) => context.currentUser.name,
+            public: () => 'public',
+            admin: () => 'admin',
           },
         },
       });
@@ -641,7 +641,7 @@ describe('useGenericAuth', () => {
         const result = await testInstance.execute(`query { admin }`);
         assertSingleExecutionValue(result);
         expect(result.errors?.length).toBe(1);
-        expect(result.errors?.[0].message).toBe(
+        expect(result.errors?.[0]!.message).toBe(
           `Missing permissions for accessing field 'Query.admin'. Requires role 'ADMIN'. Request is authenticated with role 'USER'.`,
         );
       });

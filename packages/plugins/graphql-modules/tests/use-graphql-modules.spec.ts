@@ -45,14 +45,14 @@ function createApp(onDestroy: () => void) {
         providers: [TestProvider],
         resolvers: {
           Query: {
-            foo: (root: never, args: never, { injector }: GraphQLModules.Context) =>
+            foo: (_root: never, _args: never, { injector }: GraphQLModules.Context) =>
               injector.get(TestProvider).getFoo(),
           },
           Subscription: {
             bar: {
               subscribe: async function* (
-                root: never,
-                args: never,
+                _root: never,
+                _args: never,
                 { injector }: GraphQLModules.Context,
               ) {
                 yield injector.get(TestProvider).getBar();

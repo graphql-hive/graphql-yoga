@@ -222,7 +222,7 @@ describe('useOperationPermissions', () => {
     assertSingleExecutionValue(result);
     expect(result.errors).toBeDefined();
     const [error] = result.errors!;
-    expect(error.nodes).toBeDefined();
+    expect(error?.nodes).toBeDefined();
   });
   it('allows introspection with permissions', async () => {
     const kit = createTestkit(

@@ -17,7 +17,7 @@ describe('Test the testkit', () => {
         Query: {
           foo: () => '1',
           bar: () => '2',
-          fromContext: (root, args, context) => context.replaced,
+          fromContext: (_root, _args, context) => context.replaced,
         },
       },
     });
@@ -45,7 +45,7 @@ describe('Test the testkit', () => {
     assertSingleExecutionValue(result);
     expect(result.data).not.toBeDefined();
     expect(result.errors!.length).toBe(1);
-    expect(result.errors![0].message).toBe('test');
+    expect(result.errors![0]!.message).toBe('test');
     expect(neverCalled.onValidate).not.toHaveBeenCalled();
   });
 
@@ -81,7 +81,7 @@ describe('Test the testkit', () => {
       onValidate: jest.fn().mockReturnValue(undefined),
     };
     const testkit = createTestkit([], createSchema());
-    testkit.modifyPlugins(plugins => [addedPlugin]);
+    testkit.modifyPlugins(() => [addedPlugin]);
     const result = await testkit.execute('query test { foo }');
     assertSingleExecutionValue(result);
     expect(addedPlugin.onParse).toHaveBeenCalled();

@@ -43,16 +43,16 @@ describe('useApolloServerErrors', () => {
     const query = `query test { test }`;
     const results = await executeBoth(schema, query, false);
     assertSingleExecutionValue(results.envelop);
-    expect(results.apollo.data!.test).toBeNull();
+    expect(results.apollo.data!['test']).toBeNull();
     expect(results.envelop.data!.test).toBeNull();
-    expect(results.envelop.errors![0].locations).toEqual(results.apollo.errors![0].locations);
-    expect(results.envelop.errors![0].path).toEqual(results.apollo.errors![0].path);
-    expect(results.envelop.errors![0].message).toEqual(results.apollo.errors![0].message);
-    expect(Object.keys(results.envelop.errors![0].extensions!)).toEqual(
-      Object.keys(results.apollo.errors![0].extensions!),
+    expect(results.envelop.errors?.[0]?.locations).toEqual(results.apollo.errors?.[0]?.locations);
+    expect(results.envelop.errors?.[0]?.path).toEqual(results.apollo.errors?.[0]?.path);
+    expect(results.envelop.errors?.[0]?.message).toEqual(results.apollo.errors?.[0]?.message);
+    expect(Object.keys(results.envelop.errors?.[0]?.extensions!)).toEqual(
+      Object.keys(results.apollo.errors?.[0]?.extensions!),
     );
-    expect(results.envelop.errors![0].extensions!.code).toEqual(
-      results.apollo.errors![0].extensions!.code,
+    expect(results.envelop.errors?.[0]?.extensions?.['code']).toEqual(
+      results.apollo.errors?.[0]?.extensions!['code'],
     );
   });
 
@@ -71,16 +71,16 @@ describe('useApolloServerErrors', () => {
     const query = `query test { test }`;
     const results = await executeBoth(schema, query, true);
     assertSingleExecutionValue(results.envelop);
-    expect(results.apollo.data!.test).toBeNull();
+    expect(results.apollo.data!['test']).toBeNull();
     expect(results.envelop.data!.test).toBeNull();
-    expect(results.envelop.errors![0].locations).toEqual(results.apollo.errors![0].locations);
-    expect(results.envelop.errors![0].path).toEqual(results.apollo.errors![0].path);
-    expect(results.envelop.errors![0].message).toEqual(results.apollo.errors![0].message);
-    expect(Object.keys(results.envelop.errors![0].extensions!)).toEqual(
-      Object.keys(results.apollo.errors![0].extensions!),
+    expect(results.envelop.errors?.[0]?.locations).toEqual(results.apollo.errors?.[0]?.locations);
+    expect(results.envelop.errors?.[0]?.path).toEqual(results.apollo.errors?.[0]?.path);
+    expect(results.envelop.errors?.[0]?.message).toEqual(results.apollo.errors?.[0]?.message);
+    expect(Object.keys(results.envelop.errors?.[0]?.extensions!)).toEqual(
+      Object.keys(results.apollo.errors?.[0]?.extensions!),
     );
-    expect(results.envelop.errors![0].extensions!.code).toEqual(
-      results.apollo.errors![0].extensions!.code,
+    expect(results.envelop.errors?.[0]?.extensions!['code']).toEqual(
+      results.apollo.errors?.[0]?.extensions!['code'],
     );
   });
 });
