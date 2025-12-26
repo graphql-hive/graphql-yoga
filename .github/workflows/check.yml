@@ -43,7 +43,7 @@ jobs:
           node-version-file: .node-version
           install-command: bun install --frozen-lockfile
       - name: Check
-        run: bun run check:lint
+        run: bun run --verbose check:lint
 
   types:
     name: Types
