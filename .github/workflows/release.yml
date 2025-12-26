@@ -12,7 +12,9 @@ env:
 
 jobs:
   dependencies:
-    if: github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release Changes'
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release
+      Changes'
     name: Dependencies
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-dependencies
@@ -69,7 +71,8 @@ jobs:
     with:
       node-version-file: .node-version
       npmTag: ${{ needs.snapshot-npm-tag.outputs.value }}
-      restoreDeletedChangesets: ${{ github.event.pull_request.title == 'Upcoming Release Changes' && true || false }}
+      restoreDeletedChangesets:
+        ${{ github.event.pull_request.title == 'Upcoming Release Changes' && true || false }}
       buildScript: build
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
@@ -91,4 +94,3 @@ jobs:
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
       npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
-

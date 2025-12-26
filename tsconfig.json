@@ -9,18 +9,13 @@
     "target": "esnext",
     // TODO: Enable it once it is enabled in `graphql-tools` and `whatwg-node`
     "exactOptionalPropertyTypes": false,
-    // For GraphiQL 
+    // For GraphiQL
     "jsx": "preserve",
     // Required by Nest
     "experimentalDecorators": true,
     "paths": {
-      "graphql-yoga": [
-        "./packages/graphql-yoga/src/index.ts"
-      ],
-      "@graphql-yoga/*": [
-        "./packages/*/src/index.ts",
-        "./packages/client/*/src/index.ts"
-      ],
+      "graphql-yoga": ["./packages/graphql-yoga/src/index.ts"],
+      "@graphql-yoga/*": ["./packages/*/src/index.ts", "./packages/client/*/src/index.ts"],
       "@graphql-yoga/plugin-*": [
         "./packages/plugins/*/src/index.ts",
         "./packages/plugins/*/yoga/src/index.ts"
@@ -31,9 +26,7 @@
       "@graphql-yoga/redis-event-target": [
         "./packages/event-target/redis-event-target/src/index.ts"
       ],
-      "@envelop/testing": [
-        "./packages/testing/src/index.ts"
-      ],
+      "@envelop/testing": ["./packages/testing/src/index.ts"],
       "@envelop/*": [
         "./packages/envelop/*/src/index.ts",
         "./packages/plugins/*/src/index.ts",
@@ -41,9 +34,7 @@
       ]
     }
   },
-  "include": [
-    "packages"
-  ],
+  "include": ["packages"],
   "exclude": [
     "**/dist",
     "**/node_modules",

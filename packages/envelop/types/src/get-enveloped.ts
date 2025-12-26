@@ -1,4 +1,9 @@
-import type { ExecuteFunction, ParseFunction, SubscribeFunction, ValidateFunction } from './graphql.js';
+import type {
+  ExecuteFunction,
+  ParseFunction,
+  SubscribeFunction,
+  ValidateFunction,
+} from './graphql.js';
 import type { Plugin } from './plugin.js';
 import type { ArbitraryObject, PromiseOrValue, Spread } from './utils.js';
 

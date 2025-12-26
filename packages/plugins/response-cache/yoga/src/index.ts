@@ -1,4 +1,4 @@
-import { type ExecutionResult, print } from 'graphql';
+import { print, type ExecutionResult } from 'graphql';
 import type { Maybe, Plugin, PromiseOrValue, YogaInitialContext, YogaLogger } from 'graphql-yoga';
 import { getDocumentString } from '@envelop/core';
 import {
