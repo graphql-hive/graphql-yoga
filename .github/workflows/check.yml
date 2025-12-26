@@ -51,14 +51,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
-      - name: Set up env
-        uses: the-guild-org/shared-config/setup@v1
-        with:
-          node-version-file: .node-version
-          install-command: bun ci
+      - name: Bun setup
+        uses: oven-sh/setup-bun@v2
       - name: 'Generate HTML in TS files'
         run: bun run --verbose generate-html-ts
-      - name: Check
+      - name: Check Types
         run: bun run check:types
 
   # This is not possible with Bun. TODO: find an alternative
