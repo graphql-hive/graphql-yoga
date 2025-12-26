@@ -27,7 +27,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun install --frozen-lockfile --verbose
       - name: Check
         run: bun run check:format
 
@@ -55,7 +55,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun install --frozen-lockfile --verbose
       - name: Check
         run: bun run check:types
 
