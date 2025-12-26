@@ -24,7 +24,7 @@ jobs:
           node-version-file: .node-version
 
       - name: Build Packages
-        run: pnpm build
+        run: bun run build
 
       - name: Setup K6
         run: |
@@ -35,7 +35,7 @@ jobs:
       - name: Start Yoga Server
         working-directory: ./benchmark
         run: |
-          pnpm test
+          bun run test
         env:
           NODE_NO_WARNINGS: true
           NODE_ENV: production

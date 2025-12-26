@@ -1,0 +1,23 @@
+diff --git a/node_modules/graphql-modules/.bun-tag-c65eb4687fd2c99b b/.bun-tag-c65eb4687fd2c99b
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/package.json b/package.json
+index bf1e289b9fc77d184e3eb071d5977e166d6ee183..7ecfafc3974a9070a98c68041fe82623714888be 100644
+--- a/package.json
++++ b/package.json
+@@ -30,11 +30,13 @@
+   "exports": {
+     ".": {
+       "require": "./index.js",
+-      "import": "./index.mjs"
++      "import": "./index.mjs",
++      "types": "./index.d.ts"
+     },
+     "./*": {
+       "require": "./*.js",
+-      "import": "./*.mjs"
++      "import": "./*.mjs",
++      "types": "./*.djs"
+     },
+     "./package.json": "./package.json"
+   }

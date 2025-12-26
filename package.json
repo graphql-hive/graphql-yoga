@@ -17,36 +17,37 @@
   ],
   "license": "MIT",
   "private": true,
-  "packageManager": "pnpm@10.20.0",
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=9.1.3"
-  },
-  "keywords": [
-    "graphql",
-    "server",
-    "api",
-    "graphql-server",
-    "apollo"
+  "workspaces": [
+    "packages/**",
+    "!packages/**/dist",
+    "!packages/**/dist/**",
+    "benchmark",
+    "website",
+    "e2e"
   ],
+  "packageManager": "bun@1.3.5",
+  "engines": {
+    "bun": ">=1.3.5",
+    "node": ">=18.0.0"
+  },
+  "keywords": ["graphql", "server", "api", "graphql-server", "apollo"],
   "scripts": {
-    "build": "pnpm --filter=@graphql-yoga/graphiql run build && pnpm --filter=@graphql-yoga/render-graphiql run build && pnpm --filter=graphql-yoga run generate-graphiql-html && bob build && pnpm --filter=graphql-yoga run inject-version",
-    "build-website": "pnpm build && cd website && pnpm build",
-    "changeset": "changeset",
-    "check": "pnpm -r run check",
+    "build": "bun build:graphiql && bob build && bun --filter=graphql-yoga run inject-version",
+    "build:graphiql": "bun --filter=@graphql-yoga/graphiql run build && bun --filter=@graphql-yoga/render-graphiql run build && bun --filter=graphql-yoga run generate-graphiql-html",
+    "build:website": "bun run build && cd website && bun run build",
+    "check:format": "prettier --check .",
+    "check:lint": "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --ext ts,js,tsx,jsx .",
     "check:types": "tsc --pretty --noEmit",
-    "lint": "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --ext ts,js,tsx,jsx .",
-    "postchangeset": "pnpm install --no-frozen-lockfile",
-    "postinstall": "husky",
+    "format": "bun run check:format --write ",
     "prebuild": "rimraf packages/*/dist",
-    "prettier": "prettier --ignore-path .prettierignore --write --list-different .",
-    "prettier:check": "prettier --ignore-path .prettierignore --check .",
-    "release": "pnpm build && changeset publish",
-    "start:docs": "pnpm --filter=website dev",
+    "precheck:types": "bun run generate-html-ts",
+    "release": "bun run build && bun changeset publish",
+    "start:docs": "bun run --filter=website dev",
+    "test": "bun test tests/",
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
-    "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
-    "test:unit": "jest --detectOpenHandles",
-    "test:unit:leaks": "cross-env LEAKS_TEST=true pnpm run test:unit --detectLeaks"
+    "test:integration:leaks": "cross-env LEAKS_TEST=true bun run test:integration --detectLeaks",
+    "test:node": "jest --detectOpenHandles",
+    "test:node:leaks": "cross-env LEAKS_TEST=true bun run test:unit --detectLeaks"
   },
   "devDependencies": {
     "@babel/core": "7.28.5",
@@ -60,7 +61,7 @@
     "@playwright/browser-chromium": "^1.49.1",
     "@theguild/eslint-config": "0.13.4",
     "@theguild/prettier-config": "3.0.1",
-    "@tsconfig/strictest": "^2.0.5",
+    "@tsconfig/strictest": "^2.0.8",
     "@types/babel__core": "7.20.5",
     "@types/babel__preset-env": "7.10.0",
     "@types/html-minifier-terser": "^7.0.2",
@@ -76,7 +77,6 @@
     "cross-env": "10.1.0",
     "eslint": "9.39.1",
     "graphql": "16.12.0",
-    "husky": "9.1.7",
     "jest": "30.2.0",
     "lint-staged": "16.2.6",
     "playwright": "^1.49.1",
@@ -90,55 +90,53 @@
     "typescript": "5.9.3",
     "wrangler": "4.46.0"
   },
+  "overrides": {
+    "@changesets/assemble-release-plan": "5.2.3",
+    "@types/react": "19.2.2",
+    "axios": "1.13.2",
+    "body-parser": "2.2.1",
+    "cookie": "1.0.2",
+    "esbuild": "0.25.12",
+    "eslint-plugin-unicorn": "56.0.1",
+    "estree-util-value-to-estree": "3.5.0",
+    "glob": "11.1.0",
+    "graphql": "16.12.0",
+    "koa": "3.1.1",
+    "multer": "2.0.2",
+    "node-forge": "1.3.2",
+    "on-headers": "1.1.0",
+    "tmp": "0.2.5"
+  },
   "lint-staged": {
-    "packages/**/src/**/*.{ts,tsx}": [
-      "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"
-    ],
+    "packages/**/src/**/*.{ts,tsx}": ["cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"],
     "**/*.{ts,tsx,graphql,yml,yaml,md,json,html,mdx,prettierignore,eslintignore,js,mjs,cjs,md}": [
       "prettier --write"
     ]
   },
-  "pnpm": {
-    "patchedDependencies": {
-      "@changesets/assemble-release-plan@5.2.3": "patches/@changesets__assemble-release-plan@5.2.3.patch",
-      "jest-leak-detector": "patches/jest-leak-detector.patch",
-      "package-up": "patches/package-up.patch",
-      "jest-environment-node": "patches/jest-environment-node.patch"
-    },
-    "overrides": {
-      "axios": "1.13.2",
-      "body-parser": "2.2.1",
-      "estree-util-value-to-estree": "3.5.0",
-      "eslint-plugin-unicorn": "56.0.1",
-      "esbuild": "0.25.12",
-      "cookie": "1.0.2",
-      "graphql": "16.12.0",
-      "glob": "11.1.0",
-      "koa": "3.1.1",
-      "node-forge": "1.3.2",
-      "@changesets/assemble-release-plan": "5.2.3",
-      "@types/react": "19.2.2",
-      "multer": "2.0.2",
-      "on-headers": "1.1.0",
-      "tmp": "0.2.5"
-    },
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "@playwright/browser-chromium",
-      "@prisma/client",
-      "@prisma/engines",
-      "@pulumi/aws-native",
-      "@pulumi/docker",
-      "@pulumi/docker-build",
-      "@sveltejs/kit",
-      "@swc/core",
-      "bun",
-      "egg-bin",
-      "esbuild",
-      "netlify-cli",
-      "prisma",
-      "svelte-preprocess",
-      "workerd"
-    ]
+  "onlyBuiltDependencies": [
+    "@nestjs/core",
+    "@playwright/browser-chromium",
+    "@prisma/client",
+    "@prisma/engines",
+    "@pulumi/aws-native",
+    "@pulumi/docker",
+    "@pulumi/docker-build",
+    "@sveltejs/kit",
+    "@swc/core",
+    "bun",
+    "egg-bin",
+    "esbuild",
+    "netlify-cli",
+    "prisma",
+    "svelte-preprocess",
+    "workerd"
+  ],
+  "patchedDependencies": {
+    "@changesets/assemble-release-plan@5.2.3": "patches/@changesets__assemble-release-plan@5.2.3.patch",
+    "jest-leak-detector": "patches/jest-leak-detector.patch",
+    "package-up": "patches/package-up.patch",
+    "jest-environment-node": "patches/jest-environment-node.patch",
+    "@n1ru4l/push-pull-async-iterable-iterator@3.2.0": "patches/@n1ru4l%2Fpush-pull-async-iterable-iterator@3.2.0.patch",
+    "graphql-modules@3.0.0": "patches/graphql-modules@3.0.0.patch"
   }
 }
