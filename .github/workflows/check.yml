@@ -43,7 +43,7 @@ jobs:
           node-version-file: .node-version
           install-command: bun install --frozen-lockfile
       - name: Check
-        run: bun run --verbose check:lint
+        run: bun run check:lint
 
   types:
     name: Types
@@ -56,6 +56,8 @@ jobs:
         with:
           node-version-file: .node-version
           install-command: bun install --frozen-lockfile
+      - name: 'Generate HTML in TS files'
+        run: bun run --verbose generate-html-ts
       - name: Check
         run: bun run check:types
 
