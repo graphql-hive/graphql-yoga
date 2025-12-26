@@ -26,8 +26,8 @@ jobs:
         with:
           node-version-file: .node-version
           install-command: bun ci
-      - name: Generate Yoga HTML in TS files
-        run: echo $(pwd) && bun run generate-html-ts
+      - name: 'Generate GraphiQL files'
+        run: bun run build:graphiql
       - name: Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -54,8 +54,8 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           install-command: bun ci
-      - name: Generate Yoga HTML in TS files
-        run: bun run generate-html-ts
+      - name: 'Generate GraphiQL files'
+        run: bun run build:graphiql
       - name: Test
         run: bun run test:node
 
@@ -79,8 +79,8 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           install-command: bun ci
-      - name: Generate Yoga HTML in TS files
-        run: bun run generate-html-ts
+      - name: 'Generate GraphiQL files'
+        run: bun run build:graphiql
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
