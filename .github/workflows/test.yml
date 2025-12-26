@@ -25,7 +25,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Generate Yoga HTML in TS files
         run: echo $(pwd) && bun run generate-html-ts
       - name: Tests
@@ -53,7 +53,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Generate Yoga HTML in TS files
         run: bun run generate-html-ts
       - name: Test
@@ -78,7 +78,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Generate Yoga HTML in TS files
         run: bun run generate-html-ts
       - name: Test
@@ -105,7 +105,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -134,7 +134,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -155,7 +155,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Build Packages
         run: bun run build
       - name: Bundle Apollo Federation Subgraph Example
@@ -216,6 +216,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+          install-command: bun ci
       - name: Build Packages
         run: bun run build
       - name: Install pulumi

@@ -27,7 +27,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Check
         run: bun run check:format
 
@@ -41,7 +41,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Check
         run: bun run check:lint
 
@@ -55,7 +55,7 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: 'Generate HTML in TS files'
         run: bun run --verbose generate-html-ts
       - name: Check
@@ -85,6 +85,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun install --frozen-lockfile
+          install-command: bun ci
       - name: Check
         run: bun run build
