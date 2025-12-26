@@ -70,6 +70,7 @@ jobs:
       node-version-file: .node-version
       npmTag: ${{ needs.snapshot-npm-tag.outputs.value }}
       restoreDeletedChangesets: ${{ github.event.pull_request.title == 'Upcoming Release Changes' && true || false }}
+      buildScript: build
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
       npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
