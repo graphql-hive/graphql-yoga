@@ -40,10 +40,11 @@
     "graphql-server"
   ],
   "scripts": {
+    "build": "tsdown",
     "check": "tsc --pretty --noEmit",
     "generate-graphiql-html": "bun scripts/generate-graphiql-html.js",
     "inject-version": "bun scripts/inject-version.js",
-    "prepack": "bob prepack"
+    "prepack": "bun run build"
   },
   "peerDependencies": {
     "graphql": "^15.2.0 || ^16.0.0"
@@ -87,6 +88,9 @@
     "access": "public"
   },
   "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
     "definition": "dist/typings/index.d.ts"
   }

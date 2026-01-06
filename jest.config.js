@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { resolve } = require('node:path');
-const { pathsToModuleNameMapper } = require('ts-jest');
 const CI = !!process.env.CI;
 
 const ROOT_DIR = __dirname;
-const TSCONFIG = resolve(ROOT_DIR, 'tsconfig.json');
-const tsconfig = require(TSCONFIG);
 
 process.env.LC_ALL = 'en_US';
 
@@ -25,6 +22,7 @@ if (process.env.INTEGRATION_TEST === 'true') {
   testMatch.push(
     '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',
     '!**/__integration-tests__/**',
+    '!**/tests_ignored/**',
   );
 }
 
@@ -52,12 +50,41 @@ module.exports = {
   restoreMocks: true,
   reporters: ['default'],
   modulePathIgnorePatterns: ['dist'],
-  moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
-    prefix: `${ROOT_DIR}/`,
-  }),
+  moduleNameMapper: {
+    // graphql-yoga main package
+    '^graphql-yoga$': `${ROOT_DIR}/packages/graphql-yoga/src/index.ts`,
+    // @graphql-yoga plugins (in packages/plugins/)
+    '^@graphql-yoga/plugin-([^/]+)$': [
+      `${ROOT_DIR}/packages/plugins/$1/src/index.ts`,
+      `${ROOT_DIR}/packages/plugins/$1/yoga/src/index.ts`,
+    ],
+    // @graphql-yoga/redis-event-target is in packages/event-target/
+    '^@graphql-yoga/redis-event-target$': `${ROOT_DIR}/packages/event-target/redis-event-target/src/index.ts`,
+    // @graphql-yoga/* - covers other packages under packages/
+    '^@graphql-yoga/(.*)$': `${ROOT_DIR}/packages/$1/src/index.ts`,
+    // @envelop/testing is in packages/testing/ (not under packages/envelop/) - put before general pattern
+    '^@envelop/testing$': `${ROOT_DIR}/packages/testing/src/index.ts`,
+    // @envelop/* - covers envelop core packages and plugins with envelop source
+    '^@envelop/(.*)$': [
+      `${ROOT_DIR}/packages/envelop/$1/src/index.ts`,
+      `${ROOT_DIR}/packages/plugins/$1/src/index.ts`,
+      `${ROOT_DIR}/packages/plugins/$1/envelop/src/index.ts`,
+    ],
+    // Remove .js extension from imports
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.json',
+        useESM: true,
+      },
+    ],
+  },
   collectCoverage: false,
   cacheDirectory: resolve(ROOT_DIR, `${CI ? '' : 'node_modules/'}.cache/jest`),
   testMatch,
   testTimeout,
-  resolver: 'bob-the-bundler/jest-resolver',
 };

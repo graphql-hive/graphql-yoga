@@ -41,8 +41,8 @@
     "apollo"
   ],
   "scripts": {
-    "build": "yarn build:graphiql && bob build && yarn --filter=graphql-yoga run inject-version",
-    "build:graphiql": "bun --filter=@graphql-yoga/graphiql run build && bun --filter=@graphql-yoga/render-graphiql run build && bun --filter=graphql-yoga run generate-graphiql-html",
+    "build": "rimraf packages/*/dist && bun --cwd packages/graphql-yoga run generate-graphiql-html && bun run tsdown && bun run build:graphiql && bun run --filter=graphql-yoga inject-version",
+    "build:graphiql": "bun --filter=@graphql-yoga/graphiql run build && bun --filter=@graphql-yoga/render-graphiql run build",
     "build:website": "bun run build && cd website && bun run build",
     "check:format": "prettier --check .",
     "check:lint": "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --ext ts,js,tsx,jsx .",
@@ -56,7 +56,7 @@
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true bun run test:integration --detectLeaks",
     "test:node": "jest --detectOpenHandles",
-    "test:node:leaks": "cross-env LEAKS_TEST=true bun run test:unit --detectLeaks"
+    "test:node:leaks": "cross-env LEAKS_TEST=true bun run test:node --detectLeaks"
   },
   "devDependencies": {
     "@babel/core": "7.28.5",
@@ -81,7 +81,6 @@
     "babel-jest": "^30.0.0",
     "babel-plugin-parameter-decorator": "1.0.16",
     "babel-plugin-transform-typescript-metadata": "0.4.0",
-    "bob-the-bundler": "7.0.1",
     "bun": "^1.2.8",
     "cross-env": "10.1.0",
     "eslint": "9.39.1",
@@ -96,6 +95,7 @@
     "rimraf": "6.1.0",
     "supertest": "7.1.4",
     "ts-jest": "29.4.5",
+    "tsdown": "^0.17.3",
     "typescript": "5.9.3",
     "wrangler": "4.48.0"
   },

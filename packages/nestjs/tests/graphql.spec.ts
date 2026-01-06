@@ -70,10 +70,10 @@ it('should return query result', async () => {
     body: JSON.stringify({
       query: /* GraphQL */ `
         {
-          getCats {
+          getDogs {
             id
-            color
-            weight
+            name
+            breed
           }
         }
       `,
@@ -82,11 +82,11 @@ it('should return query result', async () => {
   await expect(res.json()).resolves.toMatchInlineSnapshot(`
     {
       "data": {
-        "getCats": [
+        "getDogs": [
           {
-            "color": "black",
-            "id": 1,
-            "weight": 5,
+            "breed": "Dalmatian",
+            "id": "1",
+            "name": "Bingo",
           },
         ],
       },
