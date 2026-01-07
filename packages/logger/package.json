@@ -50,6 +50,8 @@
     "logger"
   ],
   "scripts": {
+    "build": "tsdown",
+    "watch": "tsdown --watch",
     "check": "tsc --pretty --noEmit"
   },
   "dependencies": {
@@ -60,6 +62,9 @@
     "access": "public"
   },
   "sideEffects": true,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
     "definition": "dist/typings/index.d.ts"
   }

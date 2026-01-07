@@ -40,6 +40,8 @@
     "subscription"
   ],
   "scripts": {
+    "build": "tsdown",
+    "watch": "tsdown --watch",
     "check": "tsc --pretty --noEmit"
   },
   "peerDependencies": {
@@ -59,6 +61,9 @@
     "access": "public"
   },
   "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
     "definition": "dist/typings/index.d.ts"
   }

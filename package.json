@@ -41,7 +41,8 @@
     "apollo"
   ],
   "scripts": {
-    "build": "rimraf packages/*/dist && yarn --cwd packages/graphql-yoga run generate-graphiql-html && yarn run tsdown && yarn run build:graphiql && yarn run --filter=graphql-yoga inject-version",
+    "build": "yarn workspaces foreach --all --topological --exclude @graphql-yoga/graphiql --exclude @graphql-yoga/render-graphiql --exclude hello-world-benchmark --exclude website run build",
+    "build:watch": "yarn workspaces foreach --all --topological run watch",
     "build:graphiql": "yarn --filter=@graphql-yoga/graphiql run build && yarn --filter=@graphql-yoga/render-graphiql run build",
     "build:website": "yarn run build && cd website && yarn run build",
     "check:format": "prettier --check .",

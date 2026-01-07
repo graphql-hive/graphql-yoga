@@ -44,6 +44,8 @@
     "federation"
   ],
   "scripts": {
+    "build": "tsdown",
+    "watch": "tsdown --watch",
     "check": "echo \"No checks specified\"; exit 0"
   },
   "peerDependencies": {
@@ -71,6 +73,9 @@
     "access": "public"
   },
   "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
     "definition": "dist/typings/index.d.ts"
   }

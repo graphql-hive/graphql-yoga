@@ -49,6 +49,10 @@
     },
     "./package.json": "./package.json"
   },
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit"
+  },
   "peerDependencies": {
     "@cloudflare/workers-types": "^4.20231121.0",
     "@envelop/response-cache": "workspace:^",
