@@ -124,10 +124,10 @@ before you get started off.
 For this project in particular, to get started on `stage/2-failing-test`:
 
 1. Install [Node.js](https://nodejs.org/)
-2. Install [Bun](https://bun.com/docs/installation#installation)
-3. Run in your terminal: `bun install && bun build`
+2. Install [Yarn](https://yarnpkg.com/getting-started/install)
+3. Run in your terminal: `yarn install && yarn build`
 4. Add tests to `packages/graphql-yoga/tests` using [Jest](https://jestjs.io/docs/api) APIs
-5. Run the tests with `bun run test`
+5. Run the tests with `yarn run test`
 
 Feel free to open issues and pull requests. We're always welcome support from the community.
 

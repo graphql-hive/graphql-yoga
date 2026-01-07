@@ -9,7 +9,7 @@ npm start
 # or
 yarn start
 # or
-pnpm start
+yarn start
 ```
 
 Navigate to [http://localhost:3000](http://localhost:3000) to see the Next.js app running. You can

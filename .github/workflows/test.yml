@@ -16,7 +16,7 @@ env:
 
 jobs:
   unit:
-    name: Unit / Bun
+    name: Unit / Node
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,15 +25,15 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: 'Generate GraphiQL files'
-        run: bun run build:graphiql
+        run: yarn run build:graphiql
       - name: Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test
+          command: yarn run test
 
   unit-node:
     strategy:
@@ -53,11 +53,11 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun ci
+          install-command: yarn install
       - name: 'Generate GraphiQL files'
-        run: bun run build:graphiql
+        run: yarn run build:graphiql
       - name: Test
-        run: bun run test:node
+        run: yarn run test:node
 
   unit-node-leaks:
     strategy:
@@ -78,15 +78,15 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun ci
+          install-command: yarn install
       - name: 'Generate GraphiQL files'
-        run: bun run build:graphiql
+        run: yarn run build:graphiql
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:node:leaks
+          command: yarn run test:node:leaks
 
   integration-node:
     name: Integration / Node v${{ matrix.node-version }}
@@ -105,17 +105,17 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun ci
+          install-command: yarn install
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
-        run: bun run build
+        run: yarn run build
       - name: Run Integration Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:integration --ci
+          command: yarn run test:integration --ci
 
   integration-node-leaks:
     name: Integration Leaks / Node v${{ matrix.node-version }}
@@ -134,17 +134,17 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: bun ci
+          install-command: yarn install
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
-        run: bun run build
+        run: yarn run build
       - name: Run Leak Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: bun run test:integration:leaks --ci
+          command: yarn run test:integration:leaks --ci
 
   apollo-federation-compatibility:
     runs-on: ubuntu-latest
@@ -155,11 +155,11 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: Build Packages
-        run: bun run build
+        run: yarn run build
       - name: Bundle Apollo Federation Subgraph Example
-        run: bun run --filter=example-apollo-federation-compatibility build
+        run: yarn run --filter=example-apollo-federation-compatibility build
       - name: Install Rover
         run: curl -sSL https://rover.apollo.dev/nix/latest | sh
       - name: Add Rover to PATH
@@ -216,9 +216,9 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: Build Packages
-        run: bun run build
+        run: yarn run build
       - name: Install pulumi
         uses: pulumi/setup-pulumi@b374ceb6168550de27c6eba92e01c1a774040e11 # v2
       - name: Set outputs
@@ -234,12 +234,12 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 10
-          command: cd e2e && bun run start
+          command: cd e2e && yarn run start
           retry_wait_seconds: 30
       - name: Ensure Deletion
         working-directory: e2e
         if: ${{ always() }}
-        run: bun run start
+        run: yarn run start
         env:
           ENSURE_DELETION: 1
           TEST_PLAN_NAME: ${{ matrix.plan }}

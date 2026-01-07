@@ -42,9 +42,9 @@
   "scripts": {
     "build": "tsdown",
     "check": "tsc --pretty --noEmit",
-    "generate-graphiql-html": "bun scripts/generate-graphiql-html.js",
-    "inject-version": "bun scripts/inject-version.js",
-    "prepack": "bun run build"
+    "generate-graphiql-html": "node scripts/generate-graphiql-html.js",
+    "inject-version": "node scripts/inject-version.js",
+    "prepack": "yarn run build"
   },
   "peerDependencies": {
     "graphql": "^15.2.0 || ^16.0.0"

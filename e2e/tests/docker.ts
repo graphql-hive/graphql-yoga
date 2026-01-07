@@ -10,7 +10,7 @@ export const dockerDeployment = (
   endpoint: string;
 }> => ({
   prerequisites: async () => {
-    await execPromise('bun run build', {
+    await execPromise('yarn run build', {
       cwd: '../examples/node-ts',
     });
   },

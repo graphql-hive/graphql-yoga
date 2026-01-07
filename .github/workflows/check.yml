@@ -27,9 +27,9 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: Check
-        run: bun run check:format
+        run: yarn run check:format
 
   lint:
     name: Lint
@@ -41,9 +41,9 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: Check
-        run: bun run check:lint
+        run: yarn run check:lint
 
   types:
     name: Types
@@ -51,14 +51,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
-      - name: Bun setup
-        uses: oven-sh/setup-bun@v2
-      - name: Install dependencies
-        run: bun ci
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+          install-command: yarn install
       - name: 'Generate GraphiQL files'
-        run: bun run build:graphiql
+        run: yarn run build:graphiql
       - name: Check Types
-        run: bun run check:types
+        run: yarn run check:types
 
   # This is not possible with Bun. TODO: find an alternative
   # missing-peer-deps:
@@ -84,6 +85,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: bun ci
+          install-command: yarn install
       - name: Check
-        run: bun run build
+        run: yarn run build

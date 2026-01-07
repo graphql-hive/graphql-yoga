@@ -5,7 +5,7 @@ Run Apollo Managed Federation supergraph using GraphQL Yoga.
 Start Gateway:
 
 ```bash
-pnpm start
+yarn start
 ```
 
 Then visit `http://localhost:4000`

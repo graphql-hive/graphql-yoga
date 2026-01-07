@@ -8,7 +8,7 @@ import { useApolloServerErrors } from '../src/index.js';
 // Fix compat by mocking broken function
 // we can remove this once apollo fixed legacy usages of execute(schema, ...args)
 // aka when https://github.com/apollographql/apollo-server/pull/5662 or rather https://github.com/apollographql/apollo-server/pull/5664 has been released
-jest.mock('../node_modules/apollo-server-core/dist/utils/schemaHash', () => ({
+jest.mock('apollo-server-core/dist/utils/schemaHash', () => ({
   generateSchemaHash: () => 'noop',
 }));
 

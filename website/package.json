@@ -9,7 +9,7 @@
     "check": "exit 0",
     "dev": "next --turbopack",
     "pagefind": "pagefind --site .next/server/app --output-path out/_pagefind",
-    "postbuild": "next-sitemap && tsx scripts/sitemap-ci && bun pagefind",
+    "postbuild": "next-sitemap && tsx scripts/sitemap-ci && yarn pagefind",
     "start": "next start",
     "test:e2e": "playwright test"
   },

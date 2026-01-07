@@ -22,7 +22,7 @@ describe('NextJS Legacy Pages', () => {
     rimrafSync(path.join(__dirname, '..', '.next'));
     const signal = AbortSignal.timeout(30_000);
     port = await getAvailablePort();
-    serverProcess = await spawn('pnpm', ['dev'], {
+    serverProcess = await spawn('yarn', ['dev'], {
       signal,
       env: { PORT: String(port) },
       cwd: path.join(__dirname, '..'),

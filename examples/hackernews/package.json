@@ -11,8 +11,8 @@
     "codegen": "graphql-codegen",
     "dev": "cross-env NODE_ENV=development ts-node-dev --exit-child --respawn src/main.ts",
     "migrate": "prisma migrate dev",
-    "postinstall": "pnpm run prisma:generate && pnpm run codegen",
-    "precheck": "pnpm run codegen",
+    "postinstall": "yarn run prisma:generate && yarn run codegen",
+    "precheck": "yarn run codegen",
     "prisma:generate": "prisma generate",
     "start": "ts-node src/main.ts"
   },

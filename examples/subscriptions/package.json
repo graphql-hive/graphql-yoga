@@ -5,8 +5,8 @@
   "scripts": {
     "check": "tsc --pretty --noEmit",
     "codegen": "graphql-codegen --config codegen.yml",
-    "postinstall": "pnpm run codegen",
-    "precheck": "pnpm run codegen",
+    "postinstall": "yarn run codegen",
+    "precheck": "yarn run codegen",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {

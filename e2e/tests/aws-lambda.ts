@@ -18,7 +18,7 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
 
     // Build and bundle the worker
     console.info('\t\tℹ️ Bundling the AWS Lambda Function....');
-    await execPromise('bun run bundle', {
+    await execPromise('yarn run bundle', {
       cwd: '../examples/aws-lambda',
     });
     if (existsSync('../examples/aws-lambda/dist/index.js')) {

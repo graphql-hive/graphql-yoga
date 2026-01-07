@@ -56,7 +56,7 @@ export const azureFunctionDeployment: DeploymentConfiguration<{
 
     // Build and bundle the worker
     console.info('\t\tℹ️ Bundling the Azure Function....');
-    await execPromise('bun run build', {
+    await execPromise('yarn run build', {
       cwd: '../examples/azure-function',
     });
   },

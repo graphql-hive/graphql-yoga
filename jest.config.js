@@ -38,6 +38,9 @@ if (process.env.LEAKS_TEST === 'true') {
     '!**/browser.spec.ts',
     '!**/egg.spec.ts',
     '!**/sveltekit.spec.ts',
+    '!**/sentry.spec.ts',
+    '!**/get-graphql-rate-limiter.spec.ts',
+    '!**/newrelic.spec.ts',
   );
 }
 
