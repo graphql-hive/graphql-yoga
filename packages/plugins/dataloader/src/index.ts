@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import DataLoader from 'dataloader';
 import { DefaultContext, Plugin } from '@envelop/core';
 

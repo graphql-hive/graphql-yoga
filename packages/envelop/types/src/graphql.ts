@@ -11,13 +11,9 @@ export interface ExecutionArgs {
   typeResolver?: any;
   subscribeFieldResolver?: any;
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare function parse(source: any, options?: any): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare function execute(args: ExecutionArgs): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare function subscribe(args: ExecutionArgs): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare function validate(
   schema: any,
   documentAST: any,

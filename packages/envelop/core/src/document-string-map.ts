@@ -2,12 +2,14 @@ export const documentStringMap = new WeakMap<any, string>();
 
 function getDocumentString<TDocumentNode>(
   document: TDocumentNode,
-  print: (doc: TDocumentNode) => string,
+  print: (documentNode: TDocumentNode) => string,
 ): string;
+
 function getDocumentString<TDocumentNode>(document: TDocumentNode): string | undefined;
+
 function getDocumentString<TDocumentNode>(
   document: TDocumentNode,
-  print?: (doc: TDocumentNode) => string,
+  print?: (documentNode: TDocumentNode) => string,
 ): string | undefined {
   let documentSource = documentStringMap.get(document);
   if (!documentSource && print) {

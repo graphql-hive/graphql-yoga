@@ -115,7 +115,6 @@ export const ResourceLimitationValidationRule =
                 params.paginationArgumentTypes,
               );
               if (hasFirst === false && hasLast === false) {
-                // eslint-disable-next-line no-console
                 console.warn('Encountered paginated field without pagination arguments.');
               } else if (hasFirst === true || hasLast === true) {
                 if (
@@ -149,7 +148,6 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    // eslint-disable-next-line dot-notation
                     nodeCost = argumentValues['first'] as number;
                   }
                 } else if (!argumentValues['first'] && 'last' in argumentValues) {
@@ -169,7 +167,6 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    // eslint-disable-next-line dot-notation
                     nodeCost = argumentValues['last'] as number;
                   }
                 } else {

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Repeater } from '@repeaterjs/repeater';
 
 /** Parse SSE event stream and yield data pieces. */

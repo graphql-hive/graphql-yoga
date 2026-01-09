@@ -12,19 +12,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * @param {string} str
  */
 async function minify(str) {
-  return (
-    (
-      await minifyT(str, {
-        minifyJS: true,
-        useShortDoctype: false,
-        removeAttributeQuotes: true,
-        collapseWhitespace: true,
-        minifyCSS: true,
-      })
-    )
-      // @ts-expect-error
-      .toString('utf-8')
-  );
+  return await minifyT(str, {
+    minifyJS: true,
+    useShortDoctype: false,
+    removeAttributeQuotes: true,
+    collapseWhitespace: true,
+    minifyCSS: true,
+  });
+  // @ts-expect-error - toString is not typed in the return type but exists at runtime
 }
 
 async function minifyGraphiQLHTML() {

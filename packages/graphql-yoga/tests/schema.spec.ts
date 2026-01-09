@@ -84,7 +84,6 @@ describe('schema', () => {
 
   it('fails if factory function does not return a schema', async () => {
     const schemaFactory = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return null as any;
     };
 

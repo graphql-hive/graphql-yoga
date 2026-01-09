@@ -74,13 +74,13 @@ type EnvelopOrchestratorOptions = {
 };
 
 function throwEngineFunctionError(name: string) {
-  throw Error(`No \`${name}\` function found! Register it using "useEngine" plugin.`);
+  throw new Error(`No \`${name}\` function found! Register it using "useEngine" plugin.`);
 }
 
 export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>({
   plugins,
 }: EnvelopOrchestratorOptions): EnvelopOrchestrator<any, PluginsContext> {
-  let schema: any | undefined | null = null;
+  let schema: any | undefined = undefined;
   let initDone = false;
 
   const parse: ParseFunction = () => throwEngineFunctionError('parse');

@@ -69,7 +69,6 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setObjectKeyPath(object: any, keyPath: string, value: any): void {
   const keys = keyPath.split('.');
   let current = object;

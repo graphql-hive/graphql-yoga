@@ -1,7 +1,8 @@
-import { execute, SubscriptionArgs } from 'graphql';
+import { SubscriptionArgs } from 'graphql';
 import { DefaultContext, makeExecute, Plugin, PromiseOrValue } from '@envelop/core';
+import { normalizedExecutor } from '@graphql-tools/executor';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
-import { subscribe } from './subscribe.js';
+import { subscribe } from './subscribe';
 
 export type ContextFactoryOptions = {
   /** The arguments with which the subscription was set up. */
@@ -32,7 +33,7 @@ export const useExtendContextValuePerExecuteSubscriptionEvent = <
           context =>
             handleMaybePromise(
               () =>
-                execute({
+                normalizedExecutor({
                   ...executionArgs,
                   // GraphQL.js 16 changed the type of contextValue to unknown
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

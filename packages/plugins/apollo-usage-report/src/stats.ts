@@ -1,5 +1,4 @@
 // Copied from https://github.com/apollographql/apollo-server/blob/8c6579e5b61276b62dc7e30e6fac9a4242e24daa/packages/server/src/plugin/usageReporting/stats.ts
-/* eslint-disable */
 
 import type { NonFtv1ErrorPath } from '@apollo/server-gateway-interface';
 import {

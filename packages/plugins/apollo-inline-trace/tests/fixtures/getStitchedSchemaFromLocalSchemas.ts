@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { GraphQLSchema } from 'graphql';
 import { createDefaultExecutor } from '@graphql-tools/delegate';
 import { getStitchedSchemaFromSupergraphSdl } from '@graphql-tools/federation';

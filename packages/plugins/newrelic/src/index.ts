@@ -62,7 +62,6 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
   options.isResolverArgsRegex = options.includeResolverArgs instanceof RegExp;
   const instrumentationApi = rawOptions?.shim || newRelic?.shim;
   if (!instrumentationApi?.agent) {
-    // eslint-disable-next-line no-console
     console.warn(
       'Agent unavailable. Please check your New Relic Agent configuration and ensure New Relic is enabled.',
     );

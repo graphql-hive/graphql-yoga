@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { GraphQLSchema, parse } from 'graphql';
 import { createGraphQLError } from 'graphql-yoga';
 

@@ -3,7 +3,6 @@ import { useDisableIntrospection } from '@envelop/disable-introspection';
 import { createGraphQLError, createSchema, createYoga } from '../src/index.js';
 
 function createTestSchema() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return createSchema<any>({
     typeDefs: /* GraphQL */ `
       type Query {

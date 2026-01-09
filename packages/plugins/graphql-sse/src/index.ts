@@ -6,7 +6,6 @@ import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface GraphQLSSEPluginOptions
   extends Omit<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     HandlerOptions<Request, RequestContext, any>,
     'validate' | 'execute' | 'subscribe' | 'schema' | 'onSubscribe'
   > {
@@ -25,7 +24,7 @@ export interface GraphQLSSEPluginOptions
  */
 export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<YogaInitialContext> {
   const { endpoint = '/graphql/stream', ...handlerOptions } = options;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const ctxForReq = new WeakMap<Request, any>();
   let handler!: (request: Request) => Promise<Response>;
   return {

@@ -45,7 +45,6 @@ expect.extend({
 });
 
 declare global {
-  // eslint-disable-next-line no-redeclare
   namespace jest {
     interface Matchers<R, T> {
       /**

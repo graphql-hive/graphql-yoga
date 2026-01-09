@@ -17,12 +17,7 @@ function isGraphQLSchema(schemaDef: unknown): schemaDef is GraphQLSchema {
   return schemaDef?.[Symbol.toStringTag] === 'GraphQLSchema';
 }
 
-export const useSchema = <
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  TServerContext = {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  TUserContext = {},
->(
+export const useSchema = <TServerContext = {}, TUserContext = {}>(
   schemaDef?: YogaSchemaDefinition<TServerContext, TUserContext>,
 ): Plugin<YogaInitialContext & TServerContext> => {
   if (schemaDef == null) {

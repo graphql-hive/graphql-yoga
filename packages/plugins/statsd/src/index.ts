@@ -116,7 +116,6 @@ export const useStatsD = (options: StatsDPluginOptions): Plugin<PluginInternalCo
           const latency = Date.now() - args.contextValue[statsDPluginExecutionStartTimeSymbol];
 
           if (isAsyncIterable(result)) {
-            // eslint-disable-next-line no-console
             console.warn(
               `Plugin "statsd" encountered a AsyncIterator which is not supported yet, so tracing data is not available for the operation.`,
             );

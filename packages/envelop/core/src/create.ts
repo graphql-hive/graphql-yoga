@@ -11,14 +11,14 @@ import { createEnvelopOrchestrator, EnvelopOrchestrator } from './orchestrator.j
 type ExcludeFalsy<TArray extends any[]> = Exclude<TArray[0], null | undefined | false>[];
 
 function notEmpty<T>(value: Optional<T>): value is T {
-  return value != null;
+  return value !== undefined && value !== null;
 }
 
 export function envelop<PluginsType extends Optional<Plugin<any>>[]>(options: {
   plugins: PluginsType;
   enableInternalTracing?: boolean;
 }): GetEnvelopedFn<ComposeContext<ExcludeFalsy<PluginsType>>> {
-  const plugins = options.plugins.filter(notEmpty);
+  const plugins = options.plugins.filter(value => notEmpty(value));
   const orchestrator = createEnvelopOrchestrator<ComposeContext<ExcludeFalsy<PluginsType>>>({
     plugins,
   });

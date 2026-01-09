@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-
-/* eslint-disable dot-notation */
 import jwtPkg, { DecodeOptions, VerifyOptions } from 'jsonwebtoken';
 import * as JwksRsa from 'jwks-rsa';
 import { Plugin } from '@envelop/core';

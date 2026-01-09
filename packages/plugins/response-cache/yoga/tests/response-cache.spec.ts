@@ -903,7 +903,6 @@ it('should allow to create the cache outside of the plugin', async () => {
 });
 
 describe('shouldCacheResult', () => {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   let yoga: YogaServerInstance<{}, {}>;
   let shouldCacheResultFn: ShouldCacheResultFunction | undefined;
   const logging = {
@@ -1160,7 +1159,6 @@ describe('shouldCacheResult', () => {
 });
 
 it('response has "servedFromResponseCache" symbol', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const results: Array<any> = [];
   const yoga = createYoga({
     plugins: [
@@ -1266,11 +1264,7 @@ it('gets the context in "session" and "buildResponseCacheKey"', async () => {
 });
 
 it('should work correctly with batching and async race conditions', async () => {
-  const store = new Map<
-    string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  >();
+  const store = new Map<string, any>();
   const yoga = createYoga({
     maskedErrors: false,
     schema: createSchema({
@@ -1473,7 +1467,7 @@ it('should work correctly with batching and async race conditions', async () => 
 });
 
 // Cache types compatibility tests
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 useResponseCache({ cache: createInMemoryCache(), session: () => null });
 useResponseCache({ cache: createRedisCache({} as any), session: () => null });
 useResponseCache({ cache: createKvCache({} as any)({} as any), session: () => null });

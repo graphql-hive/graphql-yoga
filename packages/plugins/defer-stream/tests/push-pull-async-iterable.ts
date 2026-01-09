@@ -1,5 +1,4 @@
 import { Repeater } from 'graphql-yoga';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { createDeferredPromise } from '@whatwg-node/server';
 
 export const createPushPullAsyncIterable = <T>(): {

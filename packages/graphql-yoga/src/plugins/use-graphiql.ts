@@ -146,7 +146,7 @@ export const renderGraphiQL = (opts: GraphiQLOptions) =>
 
 export type GraphiQLOptionsFactory<TServerContext> = (
   request: Request,
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+
   ...args: {} extends TServerContext
     ? [serverContext?: TServerContext | undefined]
     : [serverContext: TServerContext]
@@ -166,10 +166,8 @@ export interface GraphiQLPluginConfig<TServerContext> {
 
 export type GraphiQLRenderer = (options: GraphiQLOptions) => PromiseOrValue<BodyInit>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useGraphiQL<TServerContext extends Record<string, any>>(
   config: GraphiQLPluginConfig<TServerContext>,
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 ): Plugin<{}, TServerContext> {
   const logger = config.logger ?? console;
   let graphiqlOptionsFactory: GraphiQLOptionsFactory<TServerContext>;

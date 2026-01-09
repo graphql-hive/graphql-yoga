@@ -46,11 +46,6 @@
     },
     "./package.json": "./package.json"
   },
-  "scripts": {
-    "build": "tsdown",
-    "watch": "tsdown --watch",
-    "check": "tsc --pretty --noEmit"
-  },
   "keywords": [
     "gql",
     "graphql",
@@ -60,6 +55,11 @@
     "nodejs",
     "typescript"
   ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit",
+    "watch": "tsdown --watch"
+  },
   "dependencies": {
     "@envelop/instrumentation": "workspace:^",
     "@envelop/types": "workspace:^",

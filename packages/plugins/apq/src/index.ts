@@ -54,7 +54,7 @@ export interface APQOptions {
 
 export interface APQStore {
   get(key: string): PromiseOrValue<string | null | undefined>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   set(key: string, query: string): PromiseOrValue<any>;
 }
 

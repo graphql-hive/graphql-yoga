@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Plugin } from '@envelop/types';
 import { envelopIsIntrospectionSymbol, isIntrospectionOperationString } from '../utils.js';
 

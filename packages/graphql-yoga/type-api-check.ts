@@ -3,9 +3,8 @@ import type { GraphQLSchema } from 'graphql';
 import { IResolvers } from '@graphql-tools/utils';
 import { createSchema, createYoga, YogaInitialContext } from './src/index.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const schema: GraphQLSchema = null as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const request: Request = null as any;
 
 /**
@@ -14,7 +13,6 @@ const request: Request = null as any;
 
 // none results in optional context
 {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   const server = createYoga<{}>({
     schema,
   });
@@ -36,7 +34,7 @@ const request: Request = null as any;
   const server = createYoga<{ req: ClientRequest }>({
     schema,
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const clientRequest: ClientRequest = null as any;
   server.handleRequest(request, { req: clientRequest });
 }
@@ -53,7 +51,6 @@ const request: Request = null as any;
       resolvers: {
         Query: {
           foo: (_: unknown, __: unknown, context) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             context.iAmHere;
           },
         },
@@ -64,7 +61,6 @@ const request: Request = null as any;
 
 // context can be accessed from within resolvers
 {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   createYoga<{}>({
     schema: createSchema({
       typeDefs: ``,
@@ -72,7 +68,7 @@ const request: Request = null as any;
         Query: {
           foo: (_: unknown, __: unknown, context) => {
             // @ts-expect-error Property 'iAmHere' does not exist on type 'YogaInitialContext'.ts(2339)
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+
             context.iAmHere;
           },
         },
@@ -90,7 +86,6 @@ const request: Request = null as any;
   const resolvers: IResolvers<unknown, YogaInitialContext & Context> = {
     Query: {
       foo: (_: unknown, __: unknown, context) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         context.brrt;
       },
     },
@@ -107,7 +102,6 @@ const request: Request = null as any;
 
 // fetch usage optional serverContext
 {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   const server = createYoga<{}>({
     schema,
   });

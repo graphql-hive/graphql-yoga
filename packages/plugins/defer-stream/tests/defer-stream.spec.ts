@@ -475,7 +475,6 @@ Content-Length: 17
       });
 
       const result = await executor({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
         // @ts-ignore
         document: parse(/* GraphQL */ `
           query {
@@ -513,7 +512,6 @@ Content-Length: 17
       });
 
       const result = await executor({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
         // @ts-ignore
         document: parse(/* GraphQL */ `
           query {

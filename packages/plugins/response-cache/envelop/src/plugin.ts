@@ -186,7 +186,6 @@ export const defaultBuildResponseCacheKey = (params: {
  */
 export const defaultShouldCacheResult: ShouldCacheResultFunction = (params): boolean => {
   if (params.result.errors) {
-    // eslint-disable-next-line no-console
     console.warn('[useResponseCache] Failed to cache due to errors');
     return false;
   }
@@ -316,8 +315,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   shouldCacheResult = defaultShouldCacheResult,
   onTtl,
   includeExtensionMetadata = typeof process !== 'undefined'
-    ? // eslint-disable-next-line dot-notation
-      process.env['NODE_ENV'] === 'development' || !!process.env['DEBUG']
+    ? process.env['NODE_ENV'] === 'development' || !!process.env['DEBUG']
     : false,
 }: UseResponseCacheParameter<PluginContext>): Plugin<PluginContext> {
   const cacheFactory = typeof cache === 'function' ? memoize1(cache) : () => cache;
@@ -328,7 +326,6 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   // never cache Introspections
   ttlPerSchemaCoordinate = { 'Query.__schema': 0, ...ttlPerSchemaCoordinate };
   if (ttlPerType) {
-    // eslint-disable-next-line no-console
     console.warn(
       '[useResponseCache] `ttlForType` is deprecated. To migrate, merge it with `ttlForSchemaCoordinate` option',
     );
@@ -437,7 +434,6 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         return {
           onExecuteDone(params) {
             if (!executed) {
-              // eslint-disable-next-line no-console
               console.warn(
                 '[useResponseCache] The cached execute function was not called, another plugin might have overwritten it. Please check your plugin order.',
               );
@@ -507,7 +503,6 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
 
         const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
         if (cacheInstance == null) {
-          // eslint-disable-next-line no-console
           console.warn(
             '[useResponseCache] Cache instance is not available for the context. Skipping invalidation.',
           );
@@ -568,7 +563,6 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         cacheKey => {
           const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
           if (cacheInstance == null) {
-            // eslint-disable-next-line no-console
             console.warn(
               '[useResponseCache] Cache instance is not available for the context. Skipping cache lookup.',
             );

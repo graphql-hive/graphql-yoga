@@ -1,4 +1,3 @@
-/* eslint-disable promise/param-names */
 import type { Store } from './store.js';
 import type { Identity } from './types.js';
 
@@ -34,7 +33,7 @@ class RedisStore implements Store {
     return new Promise<readonly number[]>((res, rej): void => {
       this.store.get(
         this.generateNamedSpacedKey(identity),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         (err: Error | null, obj: any): void => {
           if (err) {
             return rej(err);

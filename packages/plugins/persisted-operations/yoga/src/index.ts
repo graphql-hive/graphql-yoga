@@ -94,10 +94,7 @@ export type CustomPersistedQueryErrors = {
   keyNotFound?: CustomErrorFactory;
 };
 
-export function usePersistedOperations<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TPluginContext extends Record<string, any>,
->({
+export function usePersistedOperations<TPluginContext extends Record<string, any>>({
   allowArbitraryOperations = false,
   extractPersistedOperationId = defaultExtractPersistedOperationId,
   getPersistedOperation,

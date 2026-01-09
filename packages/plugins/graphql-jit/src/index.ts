@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { DocumentNode, ExecutionArgs, ExecutionResult } from 'graphql';
 import { CompiledQuery, compileQuery, CompilerOptions, isCompiledQuery } from 'graphql-jit';
 import { getDocumentString, makeExecute, makeSubscribe, Plugin } from '@envelop/core';

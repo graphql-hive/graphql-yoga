@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHmac } from 'node:crypto';
 import { createServer, Server } from 'node:http';
 import { AddressInfo } from 'node:net';
@@ -676,7 +675,7 @@ describe('jwt plugin', () => {
           return args;
         },
       },
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
       // @ts-ignore - Typings are wrong
       wss,
     );

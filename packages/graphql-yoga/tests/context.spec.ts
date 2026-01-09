@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-
 import { Plugin } from '../src/plugins/types';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';

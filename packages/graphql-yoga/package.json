@@ -41,11 +41,11 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "watch": "tsdown --watch",
     "check": "tsc --pretty --noEmit",
     "generate-graphiql-html": "node scripts/generate-graphiql-html.js",
     "inject-version": "node scripts/inject-version.js",
-    "prepack": "yarn run build"
+    "prepack": "yarn run build",
+    "watch": "tsdown --watch"
   },
   "peerDependencies": {
     "graphql": "^15.2.0 || ^16.0.0"

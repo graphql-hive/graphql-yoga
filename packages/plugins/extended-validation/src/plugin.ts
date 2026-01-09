@@ -150,7 +150,6 @@ function buildHandler(
             }
             setResultAndStopExecution(result);
           } else {
-            // eslint-disable-next-line no-inner-declarations
             function onResult({
               result,
               setResult,

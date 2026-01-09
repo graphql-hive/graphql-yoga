@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { resolve } = require('node:path');
 const CI = !!process.env.CI;
 

@@ -98,7 +98,6 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
   const fetcher = useMemo(() => {
     if (props.fetcher) {
       if (props.endpoint) {
-        // eslint-disable-next-line no-console
         console.warn(
           'You are using a custom fetcher and an endpoint. The endpoint will be ignored.',
         );
@@ -122,9 +121,7 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
         graphQLParams.operationName ?? undefined,
       );
       return executor({
-        document:
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          document as any,
+        document: document as any,
         operationName: graphQLParams.operationName ?? undefined,
         variables: graphQLParams.variables,
         extensions: {

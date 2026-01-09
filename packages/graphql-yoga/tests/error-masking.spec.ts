@@ -6,7 +6,6 @@ import { eventStream } from './utilities.js';
 
 describe('error masking', () => {
   function createTestSchema() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return createSchema<any>({
       typeDefs: /* GraphQL */ `
         type Query {

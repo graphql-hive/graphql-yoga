@@ -1,5 +1,5 @@
 const { resolve } = require('path');
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 const { pathsToModuleNameMapper } = require('ts-jest');
 
 const CI = !!process.env.CI;

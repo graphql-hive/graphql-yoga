@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { GraphQLError } from 'graphql';
 import { describe, expect, it, jest } from '@jest/globals';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src';

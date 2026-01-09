@@ -11,9 +11,5 @@ export default defineConfig({
   minify: false,
   platform: 'node',
   target: 'es2022',
-  external: [
-    'newrelic',
-    'typescript',
-    'tslib',
-  ],
+  external: ['newrelic', 'typescript', 'tslib'],
 });

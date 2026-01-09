@@ -40,7 +40,6 @@ export type PhaseReplacementParams =
       fn: () => any | Promise<any>;
     };
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createSpiedPlugin() {
   const afterResolver = jest.fn();
 

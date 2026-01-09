@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/export
 export * from '@envelop/types';
 export * from '@envelop/instrumentation';
 export * from './create.js';

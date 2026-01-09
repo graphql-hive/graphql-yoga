@@ -52,7 +52,6 @@ it('supports custom JSON serializer', async () => {
 });
 
 it('works with the custom serializer of GraphQL JIT', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let stringifyFn: any;
   const yoga = createYoga({
     schema: createSchema({

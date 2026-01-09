@@ -59,7 +59,6 @@ export async function generateMetadata(props: NextPageProps<'...slug'>) {
 
 const { wrapper: Wrapper, ...components } = useMDXComponents();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 const remarkRemoveUpdatedDependency = () => (ast: any) => {
   visitParents(ast, 'text', (node, ancestors) => {
     if (
