@@ -159,7 +159,7 @@ describe('Prom Metrics plugin', () => {
         },
       });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>([
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>([
       {
         name: 'given a buckets list',
         config: { metrics: { [metricName]: [0.5, 1, 5, 10] } },
@@ -178,7 +178,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).toContain(`operationType="query"`);
     });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>(
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>(
       metricDisabledTestCases(metricName, histogramFactory),
     )('should not monitor parse timing when $name', async ({ config }) => {
       const { execute, metricCount } = prepare(config, config.registry);
@@ -190,7 +190,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount(metricName, 'count')).toBe(0);
     });
 
-    it('should not contain operationName and operationType if disabled', async () => {
+    it.concurrent('should not contain operationName and operationType if disabled', async () => {
       const { execute, metricString } = prepare({
         metrics: {
           [metricName]: true,
@@ -210,7 +210,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).not.toContain('operationType="query"');
     });
 
-    it('should allow to use a custom name', async () => {
+    it.concurrent('should allow to use a custom name', async () => {
       const { execute, metricCount } = prepare({ metrics: { [metricName]: 'metric_test' } });
 
       const result = await execute('query { regularField }');
@@ -220,7 +220,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test', 'count')).toBe(1);
     });
 
-    it('should allow to use a custom name within a custom config', async () => {
+    it.concurrent('should allow to use a custom name within a custom config', async () => {
       const registry = new Registry();
       const { execute, metricCount } = prepare(
         {
@@ -249,7 +249,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test', 'count')).toBe(1);
     });
 
-    it('should allow to use custom labelNames', async () => {
+    it.concurrent('should allow to use custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -295,7 +295,7 @@ describe('Prom Metrics plugin', () => {
         },
       });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>(
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>(
       metricEnabledTestCases(metricName, phases, summaryFactory),
     )(`should monitor timing when $name`, async ({ config }) => {
       const { execute, metricCount, metricString } = prepare(config, config.registry);
@@ -310,7 +310,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).toContain(`operationType="query"`);
     });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>(
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>(
       metricDisabledTestCases(metricName, summaryFactory),
     )('should not monitor parse timing when $name', async ({ config }) => {
       const { execute, metricCount } = prepare(config, config.registry);
@@ -322,7 +322,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount(metricName, 'count')).toBe(0);
     });
 
-    it('should not contain operationName and operationType if disabled', async () => {
+    it.concurrent('should not contain operationName and operationType if disabled', async () => {
       const { execute, metricString } = prepare({
         metrics: {
           [metricName]: true,
@@ -342,7 +342,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).not.toContain('operationType="query"');
     });
 
-    it('should allow to use a custom name', async () => {
+    it.concurrent('should allow to use a custom name', async () => {
       const { execute, metricCount } = prepare({ metrics: { [metricName]: 'metric_test' } });
 
       const result = await execute('query { regularField }');
@@ -352,7 +352,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test', 'count')).toBe(1);
     });
 
-    it('should allow to use a custom name within a custom config', async () => {
+    it.concurrent('should allow to use a custom name within a custom config', async () => {
       const registry = new Registry();
       const { execute, metricCount } = prepare(
         {
@@ -381,7 +381,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test', 'count')).toBe(1);
     });
 
-    it('should allow to use custom labelNames', async () => {
+    it.concurrent('should allow to use custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -428,7 +428,7 @@ describe('Prom Metrics plugin', () => {
         },
       });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>(
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>(
       metricEnabledTestCases(metricName, phases, counterFactory),
     )(`should monitor timing when $name`, async ({ config }) => {
       const { execute, metricCount, metricString } = prepare(config, config.registry);
@@ -443,7 +443,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).toContain(`operationType="query"`);
     });
 
-    it.each<{ name: string; config: PrometheusTracingPluginConfig }>(
+    it.concurrent.each<{ name: string; config: PrometheusTracingPluginConfig }>(
       metricDisabledTestCases(metricName, counterFactory),
     )('should not monitor parse timing when $name', async ({ config }) => {
       const { execute, metricCount } = prepare(config, config.registry);
@@ -455,7 +455,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount(metricName)).toBe(0);
     });
 
-    it('should not contain operationName and operationType if disabled', async () => {
+    it.concurrent('should not contain operationName and operationType if disabled', async () => {
       const { execute, metricString } = prepare({
         metrics: {
           [metricName]: true,
@@ -475,7 +475,7 @@ describe('Prom Metrics plugin', () => {
       expect(metricReport).not.toContain('operationType="query"');
     });
 
-    it('should allow to use a custom name', async () => {
+    it.concurrent('should allow to use a custom name', async () => {
       const { execute, metricCount } = prepare({ metrics: { [metricName]: 'metric_test' } });
 
       const result = await execute(query);
@@ -485,7 +485,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test')).toBe(1);
     });
 
-    it('should allow to use a custom name within a custom config', async () => {
+    it.concurrent('should allow to use a custom name within a custom config', async () => {
       const registry = new Registry();
       const { execute, metricCount } = prepare(
         {
@@ -514,7 +514,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('metric_test')).toBe(1);
     });
 
-    it('should allow to use custom labelNames', async () => {
+    it.concurrent('should allow to use custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -545,7 +545,7 @@ describe('Prom Metrics plugin', () => {
     });
   }
 
-  it('integration', async () => {
+  it.concurrent('integration', async () => {
     const { execute, allMetrics } = prepare({
       metrics: {
         graphql_envelop_error_result: true,
@@ -572,7 +572,7 @@ describe('Prom Metrics plugin', () => {
     expect(metricsStr).not.toContain('graphql_envelop_error_result{');
   });
 
-  it(`should limit its impact on perf by not adding unnecessary hooks`, () => {
+  it.concurrent(`should limit its impact on perf by not adding unnecessary hooks`, () => {
     const plugin = usePrometheus({
       metrics: {},
     });
@@ -586,7 +586,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('parse', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_phase_parse: [] } }),
@@ -595,7 +595,7 @@ describe('Prom Metrics plugin', () => {
 
     // testHistogram('graphql_envelop_phase_parse', ['parse']);
 
-    it('should allow to use custom Histogram and custom labelNames', async () => {
+    it.concurrent('should allow to use custom Histogram and custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -629,7 +629,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('validate', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_phase_validate: [] } }),
@@ -638,7 +638,7 @@ describe('Prom Metrics plugin', () => {
 
     // testHistogram('graphql_envelop_phase_validate', ['validate']);
 
-    it('should allow to use custom Histogram and custom labelNames', async () => {
+    it.concurrent('should allow to use custom Histogram and custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -670,7 +670,7 @@ describe('Prom Metrics plugin', () => {
       );
     });
 
-    it('should trace timing even when an error occurs', async () => {
+    it.concurrent('should trace timing even when an error occurs', async () => {
       const { execute, metricCount } = prepare({
         metrics: {
           graphql_envelop_phase_validate: true,
@@ -685,7 +685,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('contextBuilding', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_phase_context: [] } }),
@@ -694,7 +694,7 @@ describe('Prom Metrics plugin', () => {
 
     testHistogram('graphql_envelop_phase_context', ['context']);
 
-    it('should allow to use custom Histogram and custom labelNames', async () => {
+    it.concurrent('should allow to use custom Histogram and custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -726,7 +726,7 @@ describe('Prom Metrics plugin', () => {
       );
     });
 
-    it('should trace timing even when an error occurs', async () => {
+    it.concurrent('should trace timing even when an error occurs', async () => {
       const registry = new Registry();
       const { execute, metricValue } = prepare(
         {
@@ -790,7 +790,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('execute', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_phase_execute: [] } }),
@@ -799,7 +799,7 @@ describe('Prom Metrics plugin', () => {
 
     testHistogram('graphql_envelop_phase_execute', ['execute']);
 
-    it('should allow to use custom Histogram and custom labelNames', async () => {
+    it.concurrent('should allow to use custom Histogram and custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -863,7 +863,7 @@ describe('Prom Metrics plugin', () => {
     //   expect(await metricCount('graphql_envelop_error_result')).toBe(2);
     // });
 
-    it('should trace timing even if an error occurs', async () => {
+    it.concurrent('should trace timing even if an error occurs', async () => {
       const { execute, metricCount } = prepare({
         metrics: {
           graphql_envelop_phase_execute: true,
@@ -878,7 +878,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('errors', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_error_result: [] } }),
@@ -901,7 +901,7 @@ describe('Prom Metrics plugin', () => {
       });
 
     describe('parse errors', () => {
-      it.each(
+      it.concurrent.each(
         metricEnabledTestCases('graphql_envelop_error_result', ['parse'], errorMetricFactory),
       )('should count errors when $name', async ({ config }) => {
         const { execute, metricCount, metricString } = prepare(config, config.registry);
@@ -913,7 +913,7 @@ describe('Prom Metrics plugin', () => {
         expect(await metricString('graphql_envelop_error_result')).toContain('phase="parse"');
       });
 
-      it.each(
+      it.concurrent.each(
         metricDisabledTestCases('graphql_envelop_error_result', errorMetricFactory, [
           'validate',
           'context',
@@ -931,7 +931,7 @@ describe('Prom Metrics plugin', () => {
     });
 
     describe('validate errors', () => {
-      it.each(
+      it.concurrent.each(
         metricEnabledTestCases('graphql_envelop_error_result', ['validate'], errorMetricFactory),
       )('should count errors when $name', async ({ config }) => {
         const { execute, metricCount, metricString } = prepare(config, config.registry);
@@ -944,7 +944,7 @@ describe('Prom Metrics plugin', () => {
         expect(errorReport).toContain('phase="validate"');
       });
 
-      it.each(
+      it.concurrent.each(
         metricDisabledTestCases('graphql_envelop_error_result', errorMetricFactory, [
           'parse',
           'context',
@@ -962,7 +962,7 @@ describe('Prom Metrics plugin', () => {
     });
 
     describe('context errors', () => {
-      it.each(
+      it.concurrent.each(
         metricEnabledTestCases('graphql_envelop_error_result', ['context'], errorMetricFactory),
       )('should count errors when $name', async ({ config }) => {
         const { execute, metricCount, metricString } = prepare(config, config.registry, [
@@ -978,7 +978,7 @@ describe('Prom Metrics plugin', () => {
         expect(errorReport).toContain('phase="context"');
       });
 
-      it.each(
+      it.concurrent.each(
         metricDisabledTestCases('graphql_envelop_error_result', errorMetricFactory, [
           'parse',
           'validate',
@@ -997,7 +997,7 @@ describe('Prom Metrics plugin', () => {
     });
 
     describe('execute errors', () => {
-      it.each(
+      it.concurrent.each(
         metricEnabledTestCases('graphql_envelop_error_result', ['execute'], errorMetricFactory),
       )('should count errors when $name', async ({ config }) => {
         const { execute, metricCount, metricString } = prepare(
@@ -1016,7 +1016,7 @@ describe('Prom Metrics plugin', () => {
         expect(errorReport).toContain('operationType="query"');
       });
 
-      it.each(
+      it.concurrent.each(
         metricDisabledTestCases('graphql_envelop_error_result', errorMetricFactory, [
           'parse',
           'validate',
@@ -1033,7 +1033,7 @@ describe('Prom Metrics plugin', () => {
       });
     });
 
-    it('should allow to use custom Counter and custom labelNames', async () => {
+    it.concurrent('should allow to use custom Counter and custom labelNames', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -1065,7 +1065,7 @@ describe('Prom Metrics plugin', () => {
         `test_error{opText=\"{\\n  errorField\\n}\",errorMessage=\"error\"} 1`,
       );
     });
-    it('should allow to use custom name', async () => {
+    it.concurrent('should allow to use custom name', async () => {
       const registry = new Registry();
       const { execute, metricCount } = prepare(
         {
@@ -1084,7 +1084,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('resolvers', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_error_result: [] } }),
@@ -1093,7 +1093,7 @@ describe('Prom Metrics plugin', () => {
 
     testHistogram('graphql_envelop_execute_resolver', ['execute']);
 
-    it('should trace all resolvers times correctly', async () => {
+    it.concurrent('should trace all resolvers times correctly', async () => {
       const { execute, metricCount, metricString } = prepare({
         metrics: {
           graphql_envelop_execute_resolver: true,
@@ -1109,7 +1109,7 @@ describe('Prom Metrics plugin', () => {
       );
     });
 
-    it('should allow custom metric options', async () => {
+    it.concurrent('should allow custom metric options', async () => {
       const registry = new Registry();
       const { execute, metricCount, metricString } = prepare(
         {
@@ -1139,26 +1139,29 @@ describe('Prom Metrics plugin', () => {
       );
     });
 
-    it('should trace only specified resolvers when resolversWhitelist is used', async () => {
-      const { execute, metricCount, metricString } = prepare({
-        metrics: {
-          graphql_envelop_execute_resolver: true,
-        },
-        resolversWhitelist: ['Query.regularField'],
-      });
-      const result = await execute('query { regularField longField }');
-      assertSingleExecutionValue(result);
+    it.concurrent(
+      'should trace only specified resolvers when resolversWhitelist is used',
+      async () => {
+        const { execute, metricCount, metricString } = prepare({
+          metrics: {
+            graphql_envelop_execute_resolver: true,
+          },
+          resolversWhitelist: ['Query.regularField'],
+        });
+        const result = await execute('query { regularField longField }');
+        assertSingleExecutionValue(result);
 
-      expect(result.errors).toBeUndefined();
-      expect(await metricCount('graphql_envelop_execute_resolver', 'count')).toBe(1);
-      expect(await metricString('graphql_envelop_execute_resolver')).toContain(
-        'graphql_envelop_execute_resolver_count{operationName="Anonymous",operationType="query",fieldName="regularField",typeName="Query",returnType="String!"} 1',
-      );
-    });
+        expect(result.errors).toBeUndefined();
+        expect(await metricCount('graphql_envelop_execute_resolver', 'count')).toBe(1);
+        expect(await metricString('graphql_envelop_execute_resolver')).toContain(
+          'graphql_envelop_execute_resolver_count{operationName="Anonymous",operationType="query",fieldName="regularField",typeName="Query",returnType="String!"} 1',
+        );
+      },
+    );
   });
 
   describe('deprecation', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_deprecated_field: [] } }),
@@ -1167,7 +1170,7 @@ describe('Prom Metrics plugin', () => {
 
     testCounter('graphql_envelop_deprecated_field', ['parse'], 'query { deprecatedField }');
 
-    it('should track deprecated arguments in mutation', async () => {
+    it.concurrent('should track deprecated arguments in mutation', async () => {
       const { execute, metricCount, allMetrics, metricString } = prepare({
         metrics: {
           graphql_envelop_deprecated_field: true,
@@ -1200,7 +1203,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('requestCount', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_request: [] } }),
@@ -1209,7 +1212,7 @@ describe('Prom Metrics plugin', () => {
 
     testCounter('graphql_envelop_request', ['execute', 'subscribe']);
 
-    it('should not count requests when execute phase is disabled', async () => {
+    it.concurrent('should not count requests when execute phase is disabled', async () => {
       const { execute, metricCount } = prepare({
         metrics: {
           graphql_envelop_request: ['subscribe'],
@@ -1222,7 +1225,7 @@ describe('Prom Metrics plugin', () => {
       expect(await metricCount('graphql_envelop_request')).toBe(0);
     });
 
-    it('should trace all successful requests, with multiple req', async () => {
+    it.concurrent('should trace all successful requests, with multiple req', async () => {
       const { execute, metricValue } = prepare({
         metrics: {
           graphql_envelop_request: true,
@@ -1240,7 +1243,7 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('requestSummary', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_request_time_summary: [] } }),
@@ -1251,14 +1254,14 @@ describe('Prom Metrics plugin', () => {
   });
 
   describe('schema', () => {
-    it('should not allow empty arrays', () => {
+    it.concurrent('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
         () => usePrometheus({ metrics: { graphql_envelop_schema_change: [] } }),
       ).toThrow();
     });
 
-    it('should capture graphql schema changing', async () => {
+    it.concurrent('should capture graphql schema changing', async () => {
       const registry = new Registry();
       createTestkit(
         [
@@ -1296,7 +1299,7 @@ describe('Prom Metrics plugin', () => {
     });
   });
 
-  it('should be able to be initialized multiple times', async () => {
+  it.concurrent('should be able to be initialized multiple times', async () => {
     const registry = new Registry();
     const allMetrics: PrometheusTracingPluginConfig = {
       metrics: {
@@ -1324,17 +1327,20 @@ describe('Prom Metrics plugin', () => {
     expect(result.errors).toBeUndefined();
   });
 
-  it('should be able to register the same histogram for multiple different registries', async () => {
-    const registry1 = new Registry();
-    const registry2 = new Registry();
+  it.concurrent(
+    'should be able to register the same histogram for multiple different registries',
+    async () => {
+      const registry1 = new Registry();
+      const registry2 = new Registry();
 
-    const h1 = registerHistogram(registry1, { name: 'h', help: 'This is a test' });
-    const h2 = registerHistogram(registry2, { name: 'h', help: 'This is a test' });
+      const h1 = registerHistogram(registry1, { name: 'h', help: 'This is a test' });
+      const h2 = registerHistogram(registry2, { name: 'h', help: 'This is a test' });
 
-    expect(h1 === h2).toBe(false);
-  });
+      expect(h1 === h2).toBe(false);
+    },
+  );
 
-  it('should allow to clear the registry between initializations', async () => {
+  it.concurrent('should allow to clear the registry between initializations', async () => {
     const registry = new Registry();
 
     prepare({ metrics: { graphql_envelop_phase_parse: true } }, registry); // fake initialization to make sure it doesn't break

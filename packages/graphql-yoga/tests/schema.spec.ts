@@ -31,7 +31,7 @@ describe('schema', () => {
           extensions: {
             /** This error is raised by Graphql.js */
             originalError: {
-              message: 'Expected null to be a GraphQL schema.',
+              message: 'Expected undefined to be a GraphQL schema.',
             },
           },
         },
