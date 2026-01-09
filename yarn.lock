@@ -3040,7 +3040,7 @@ __metadata:
   dependencies:
     "@envelop/core": "workspace:^"
     "@graphql-tools/executor": "npm:^1.5.1"
-    "@n1ru4l/push-pull-async-iterable-iterator": "npm:3.2.0"
+    "@n1ru4l/push-pull-async-iterable-iterator": "patch:@n1ru4l/push-pull-async-iterable-iterator@npm%3A3.2.0#~/.yarn/patches/@n1ru4l-push-pull-async-iterable-iterator-npm-3.2.0-ad204d66f0.patch"
     "@whatwg-node/promise-helpers": "npm:^1.2.1"
     graphql: "npm:16.12.0"
     tslib: "npm:^2.5.0"
@@ -3164,7 +3164,7 @@ __metadata:
   dependencies:
     "@envelop/core": "workspace:^"
     graphql: "npm:16.12.0"
-    graphql-modules: "npm:3.0.0"
+    graphql-modules: "patch:graphql-modules@npm%3A3.0.0#~/.yarn/patches/graphql-modules-npm-3.0.0-27f60c3f79.patch"
     reflect-metadata: "npm:0.2.2"
     tslib: "npm:^2.5.0"
     typescript: "npm:5.9.3"
@@ -6588,10 +6588,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@n1ru4l/push-pull-async-iterable-iterator@npm:3.2.0, @n1ru4l/push-pull-async-iterable-iterator@npm:^3.1.0":
+"@n1ru4l/push-pull-async-iterable-iterator@npm:3.2.0":
   version: 3.2.0
   resolution: "@n1ru4l/push-pull-async-iterable-iterator@npm:3.2.0"
   checksum: 10c0/c1fbfa49f631a4b95899b0d6c13ab7310e849bbfbcbdb4fabbcc8faa2d9e36fffdd05740746814641220235cfaac7440ee54c313edd32b4c1af37887d0046175
+  languageName: node
+  linkType: hard
+
+"@n1ru4l/push-pull-async-iterable-iterator@patch:@n1ru4l/push-pull-async-iterable-iterator@npm%3A3.2.0#~/.yarn/patches/@n1ru4l-push-pull-async-iterable-iterator-npm-3.2.0-ad204d66f0.patch":
+  version: 3.2.0
+  resolution: "@n1ru4l/push-pull-async-iterable-iterator@patch:@n1ru4l/push-pull-async-iterable-iterator@npm%3A3.2.0#~/.yarn/patches/@n1ru4l-push-pull-async-iterable-iterator-npm-3.2.0-ad204d66f0.patch::version=3.2.0&hash=840a0b"
+  checksum: 10c0/402a321d63b2aac29d929102594014f0792013af1df70f386abcd797abe0c207b034a0678526d6bf9022b11654e5c9c7c32ce303e1158503cd2171fec37b96dc
   languageName: node
   linkType: hard
 
@@ -17914,6 +17921,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"graphql-modules@patch:graphql-modules@npm%3A3.0.0#~/.yarn/patches/graphql-modules-npm-3.0.0-27f60c3f79.patch":
+  version: 3.0.0
+  resolution: "graphql-modules@patch:graphql-modules@npm%3A3.0.0#~/.yarn/patches/graphql-modules-npm-3.0.0-27f60c3f79.patch::version=3.0.0&hash=52c4c0"
+  dependencies:
+    "@graphql-tools/schema": "npm:^10.0.0"
+    "@graphql-tools/wrap": "npm:^10.0.0"
+    "@graphql-typed-document-node/core": "npm:^3.1.0"
+    ramda: "npm:^0.30.0"
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 10c0/6509c28f6fa98da2cb28d612724eeb85fbe21924d6c14186f4e6a771f533d237e64e57fbf84c65edbfcf3af58e805349d05e7911cf4482fdc30b310256f807a3
+  languageName: node
+  linkType: hard
+
 "graphql-scalars@npm:1.25.0, graphql-scalars@npm:^1.22.2":
   version: 1.25.0
   resolution: "graphql-scalars@npm:1.25.0"
@@ -19745,6 +19766,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-environment-node@patch:jest-environment-node@npm%3A30.2.0#~/.yarn/patches/jest-environment-node-npm-30.2.0-b72db4433a.patch":
+  version: 30.2.0
+  resolution: "jest-environment-node@patch:jest-environment-node@npm%3A30.2.0#~/.yarn/patches/jest-environment-node-npm-30.2.0-b72db4433a.patch::version=30.2.0&hash=c1cf3a"
+  dependencies:
+    "@jest/environment": "npm:30.2.0"
+    "@jest/fake-timers": "npm:30.2.0"
+    "@jest/types": "npm:30.2.0"
+    "@types/node": "npm:*"
+    jest-mock: "npm:30.2.0"
+    jest-util: "npm:30.2.0"
+    jest-validate: "npm:30.2.0"
+  checksum: 10c0/597ccc258cc08296d65d07875fccb08ddbe92c7f6662c8bb5068d1ea249f9274fd26abfb1422895a72591ea9e86026e49fc9ab761af778ff21b9de2a070a4113
+  languageName: node
+  linkType: hard
+
 "jest-haste-map@npm:30.2.0":
   version: 30.2.0
   resolution: "jest-haste-map@npm:30.2.0"
@@ -19774,6 +19810,16 @@ __metadata:
     "@jest/get-type": "npm:30.1.0"
     pretty-format: "npm:30.2.0"
   checksum: 10c0/68e2822aabe302983b65a08b19719a2444259af8a23ff20a6e2b6ce7759f55730f51c7cf16c65cb6be930c80a6cc70a4820239c84e8f333c9670a8e3a4a21801
+  languageName: node
+  linkType: hard
+
+"jest-leak-detector@patch:jest-leak-detector@npm%3A30.2.0#~/.yarn/patches/jest-leak-detector-npm-30.2.0-cd6d6aa191.patch":
+  version: 30.2.0
+  resolution: "jest-leak-detector@patch:jest-leak-detector@npm%3A30.2.0#~/.yarn/patches/jest-leak-detector-npm-30.2.0-cd6d6aa191.patch::version=30.2.0&hash=410e92"
+  dependencies:
+    "@jest/get-type": "npm:30.1.0"
+    pretty-format: "npm:30.2.0"
+  checksum: 10c0/6252f199badb14254791ff1da9e0bbfd1729f3f1013ae779dc2795420ddce3047bc99953346ab8e6e3147621f8514611f456a36c901aaebe5cb1a89adb1790ed
   languageName: node
   linkType: hard
 

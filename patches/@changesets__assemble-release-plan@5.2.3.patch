@@ -1,0 +1,166 @@
+diff --git a/dist/assemble-release-plan.cjs.dev.js b/dist/assemble-release-plan.cjs.dev.js
+index 3a37c62c975518f975c22e1b4b3974d9b325a5da..6f0e2a47086cf09fc5bf853571bef78927eed4a3 100644
+--- a/dist/assemble-release-plan.cjs.dev.js
++++ b/dist/assemble-release-plan.cjs.dev.js
+@@ -75,7 +75,7 @@ function incrementVersion(release, preInfo) {
+     // because semver.inc with prereleases is confusing and this seems easier
+ 
+ 
+-    version += `-${preInfo.state.tag}.${preVersion}`;
++    version += `-next.${preVersion}`;
+   }
+ 
+   return version;
+@@ -130,38 +130,30 @@ function determineDependents({
+           depType,
+           versionRange
+         } of dependencyVersionRanges) {
+-          if (nextRelease.type === "none") {
+-            continue;
+-          } else if (shouldBumpMajor({
+-            dependent,
+-            depType,
+-            versionRange,
+-            releases,
+-            nextRelease,
+-            preInfo,
+-            onlyUpdatePeerDependentsWhenOutOfRange: config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange
+-          })) {
+-            type = "major";
+-          } else if ((!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semver__default['default'].satisfies(incrementVersion(nextRelease, preInfo), versionRange))) {
+-            switch (depType) {
+-              case "dependencies":
+-              case "optionalDependencies":
+-              case "peerDependencies":
+-                if (type !== "major" && type !== "minor") {
+-                  type = "patch";
+-                }
+-
+-                break;
+-
+-              case "devDependencies":
+-                {
+-                  // We don't need a version bump if the package is only in the devDependencies of the dependent package
+-                  if (type !== "major" && type !== "minor" && type !== "patch") {
+-                    type = "none";
++          if (['patch', 'minor', 'major'].indexOf(nextRelease.type) > ['patch', 'minor', 'major'].indexOf(type)) {
++            type = nextRelease.type
++          } else if ( // TODO validate this - I don't think it's right anymore
++            (!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semver__default['default'].satisfies(incrementVersion(nextRelease, preInfo), versionRange))) {
++              switch (depType) {
++                case "dependencies":
++                case "optionalDependencies":
++                case "peerDependencies":
++                  if (type !== "major" && type !== "minor") {
++                    type = "patch";
+                   }
+-                }
++
++                  break;
++
++                case "devDependencies":
++                  {
++                    // We don't need a version bump if the package is only in the devDependencies of the dependent package
++                    if (type !== "major" && type !== "minor" && type !== "patch") {
++                      type = "none";
++                    }
++                  }
++              }
+             }
+-          }
++
+         }
+       }
+ 
+@@ -174,22 +166,31 @@ function determineDependents({
+         type,
+         pkgJSON: dependentPackage.packageJson
+       };
+-    }).filter(dependentItem => !!dependentItem.type).forEach(({
++    }).filter(({
++      type
++    }) => type).forEach( // @ts-ignore - I don't know how to make typescript understand that the filter above guarantees this and I got sick of trying
++    ({
+       name,
+       type,
+       pkgJSON
+     }) => {
+-      // At this point, we know if we are making a change
+-      updated = true;
+       const existing = releases.get(name); // For things that are being given a major bump, we check if we have already
+       // added them here. If we have, we update the existing item instead of pushing it on to search.
+       // It is safe to not add it to pkgsToSearch because it should have already been searched at the
+       // largest possible bump type.
+ 
+-      if (existing && type === "major" && existing.type !== "major") {
+-        existing.type = "major";
+-        pkgsToSearch.push(existing);
++      if (existing) {
++        const index = ["patch", "minor", "major"].indexOf(existing.type)
++        if (type === "major") {
++            existing.type = "major";
++        } else if (type === "minor" && index < 1) {
++            existing.type = "minor";
++        } else if (type === "patch" && index < 0) {
++            existing.type = "patch";
++       }
++        // pkgsToSearch.push(existing);
+       } else {
++        updated = true;
+         let newDependent = {
+           name,
+           type,
+@@ -307,20 +308,15 @@ function getHighestReleaseType(releases) {
+   let highestReleaseType = "none";
+ 
+   for (let release of releases) {
+-    switch (release.type) {
+-      case "major":
++      console.log(release, release.type)
++      if (release.type === "major") {
+         return "major";
+-
+-      case "minor":
++      } else if (release.type === "minor") {
+         highestReleaseType = "minor";
+-        break;
+-
+-      case "patch":
++      } else if (release.type === "patch") {
+         if (highestReleaseType === "none") {
+           highestReleaseType = "patch";
+         }
+-
+-        break;
+     }
+   }
+ 
+diff --git a/dist/assemble-release-plan.cjs.js b/dist/assemble-release-plan.cjs.js
+index f3beb3187f56b512830d4b4ed2724fcdeca8b7d4..42d129091a4a77599e1c6b14ccd5bd8596fbd6c3 100644
+--- a/dist/assemble-release-plan.cjs.js
++++ b/dist/assemble-release-plan.cjs.js
+@@ -1,7 +1,7 @@
+ 'use strict';
+ 
+-if (process.env.NODE_ENV === "production") {
+-  module.exports = require("./assemble-release-plan.cjs.prod.js");
+-} else {
++// if (process.env.NODE_ENV === "production") {
++//   module.exports = require("./assemble-release-plan.cjs.prod.js");
++// } else {
+   module.exports = require("./assemble-release-plan.cjs.dev.js");
+-}
++// }
+diff --git a/dist/assemble-release-plan.cjs.prod.js b/dist/assemble-release-plan.cjs.prod.js
+index 87b4c104bf3fa53ba498ced6f81eda0ed4c86436..80a63646dc93d097a73acc68213ec87579a78a97 100644
+--- a/dist/assemble-release-plan.cjs.prod.js
++++ b/dist/assemble-release-plan.cjs.prod.js
+@@ -130,7 +130,7 @@ function getDependencyVersionRanges(dependentPkgJSON, dependencyRelease) {
+ }
+ 
+ function shouldBumpMajor({dependent: dependent, depType: depType, versionRange: versionRange, releases: releases, nextRelease: nextRelease, preInfo: preInfo, onlyUpdatePeerDependentsWhenOutOfRange: onlyUpdatePeerDependentsWhenOutOfRange}) {
+-  return "peerDependencies" === depType && "none" !== nextRelease.type && "patch" !== nextRelease.type && (!onlyUpdatePeerDependentsWhenOutOfRange || !semver__default.default.satisfies(incrementVersion(nextRelease, preInfo), versionRange)) && (!releases.has(dependent) || releases.has(dependent) && "major" !== releases.get(dependent).type);
++  return "peerDependencies" === depType && "none" !== nextRelease.type && "patch" !== nextRelease.type && !onlyUpdatePeerDependentsWhenOutOfRange && (!releases.has(dependent) || releases.has(dependent) && "major" !== releases.get(dependent).type);
+ }
+ 
+ function flattenReleases(changesets, packagesByName, ignoredPackages) {
