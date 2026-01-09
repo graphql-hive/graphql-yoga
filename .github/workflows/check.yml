@@ -27,9 +27,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: Check
-        run: yarn run check:format
+        run: yarn check:format
 
   lint:
     name: Lint
@@ -41,9 +40,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: Check
-        run: yarn run check:lint
+        run: yarn check:lint
 
   types:
     name: Types
@@ -55,25 +53,23 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: 'Generate GraphiQL files'
-        run: yarn run build:graphiql
+        run: yarn build:graphiql
       - name: Check Types
-        run: yarn run check:types
+        run: yarn check:types
 
-  # This is not possible with Bun. TODO: find an alternative
-  # missing-peer-deps:
-  #   name: Missing peer deps
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
-  #     - name: Set up env
-  #       uses: the-guild-org/shared-config/setup@v1
-  #       with:
-  #         node-version-file: .node-version
-  #     - name: Check
-  #       run: bun run check:missing-peer-deps
+  missing-peer-deps:
+    name: Missing peer deps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Check
+        run: yarn check:missing-peer-deps
 
   build: # making sure build works so it doesn't fail on us during release
     name: Build
@@ -85,6 +81,5 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: Check
-        run: yarn run build
+        run: yarn build

@@ -47,7 +47,7 @@
     "precheck:types": "yarn run generate-html-ts",
     "release": "yarn run build && yarn changeset publish",
     "start:docs": "yarn run --filter=website dev",
-    "test": "bun test **/tests/**",
+    "test": "bun test packages/**/tests/**",
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true yarn run test:integration --detectLeaks",
     "test:node": "jest --detectOpenHandles",
