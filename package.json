@@ -33,13 +33,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": [
-    "graphql",
-    "server",
-    "api",
-    "graphql-server",
-    "apollo"
-  ],
+  "keywords": ["graphql", "server", "api", "graphql-server", "apollo"],
   "scripts": {
     "build": "yarn workspaces foreach --all --topological --exclude @graphql-yoga/graphiql --exclude @graphql-yoga/render-graphiql --exclude hello-world-benchmark --exclude website run build",
     "build:watch": "yarn workspaces foreach --all --topological run watch",
@@ -53,7 +47,7 @@
     "precheck:types": "yarn run generate-html-ts",
     "release": "yarn run build && yarn changeset publish",
     "start:docs": "yarn run --filter=website dev",
-    "test": "yarn test tests/",
+    "test": "bun test **/tests/**",
     "test:integration": "cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true yarn run test:integration --detectLeaks",
     "test:node": "jest --detectOpenHandles",
@@ -117,9 +111,7 @@
     "tmp": "0.2.5"
   },
   "lint-staged": {
-    "packages/**/src/**/*.{ts,tsx}": [
-      "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"
-    ],
+    "packages/**/src/**/*.{ts,tsx}": ["cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"],
     "**/*.{ts,tsx,graphql,yml,yaml,md,json,html,mdx,prettierignore,eslintignore,js,mjs,cjs,md}": [
       "prettier --write"
     ]
