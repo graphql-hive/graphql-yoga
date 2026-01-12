@@ -1,3 +1,4 @@
+import type { URLPattern } from '@whatwg-node/fetch';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { FetchAPI } from '../types.js';
 import { Plugin } from './types.js';
@@ -35,7 +36,7 @@ export function useReadinessCheck({
   endpoint = '/ready',
   check,
 }: ReadinessCheckPluginOptions): Plugin {
-  let urlPattern: URLPattern;
+  let urlPattern: typeof URLPattern;
   return {
     onYogaInit({ yoga }) {
       urlPattern = new yoga.fetchAPI.URLPattern({ pathname: endpoint });
