@@ -21,30 +21,30 @@
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/typings/index.d.cts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       }
     },
     "./*": {
       "require": {
-        "types": "./dist/typings/*.d.cts",
-        "default": "./dist/cjs/*.js"
+        "types": "./dist/*.d.cts",
+        "default": "./dist/*.cjs"
       },
       "import": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
       },
       "default": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
       }
     },
     "./package.json": "./package.json"
