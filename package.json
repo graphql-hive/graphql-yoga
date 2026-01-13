@@ -41,10 +41,9 @@
     "apollo"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website --exclude @envelop/newrelic run build",
-    "build:graphiql": "yarn workspace @graphql-yoga/graphiql run build && yarn workspace @graphql-yoga/render-graphiql run build",
-    "build:watch": "yarn workspaces foreach --all --topological run watch",
-    "build:website": "yarn run build && cd website && yarn run build",
+    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website run build",
+    "build:graphiql": "yarn workspaces foreach --recursive --topological-dev --parallel --from @graphql-yoga/render-graphiql run build",
+    "build:website": "yarn build && yarn workspace website run build",
     "check:format": "prettier --check .",
     "check:lint": "eslint --ext ts,js,tsx,jsx .",
     "check:types": "tsc --pretty --noEmit",
@@ -106,6 +105,7 @@
   },
   "resolutions": {
     "@changesets/assemble-release-plan": "5.2.3",
+    "@n1ru4l/push-pull-async-iterable-iterator@npm:^3.1.0": "patch:@n1ru4l/push-pull-async-iterable-iterator@npm%3A3.2.0#~/.yarn/patches/@n1ru4l-push-pull-async-iterable-iterator-npm-3.2.0-ad204d66f0.patch",
     "@types/react": "19.2.2",
     "axios": "1.13.2",
     "body-parser": "2.2.1",
@@ -115,14 +115,13 @@
     "estree-util-value-to-estree": "3.5.0",
     "glob": "11.1.0",
     "graphql": "16.12.0",
+    "jest-environment-node@npm:30.2.0": "patch:jest-environment-node@npm%3A30.2.0#~/.yarn/patches/jest-environment-node-npm-30.2.0-b72db4433a.patch",
+    "jest-leak-detector@npm:30.2.0": "patch:jest-leak-detector@npm%3A30.2.0#~/.yarn/patches/jest-leak-detector-npm-30.2.0-cd6d6aa191.patch",
     "koa": "3.1.1",
     "multer": "2.0.2",
     "node-forge": "1.3.2",
     "on-headers": "1.1.0",
-    "tmp": "0.2.5",
-    "@n1ru4l/push-pull-async-iterable-iterator@npm:^3.1.0": "patch:@n1ru4l/push-pull-async-iterable-iterator@npm%3A3.2.0#~/.yarn/patches/@n1ru4l-push-pull-async-iterable-iterator-npm-3.2.0-ad204d66f0.patch",
-    "jest-environment-node@npm:30.2.0": "patch:jest-environment-node@npm%3A30.2.0#~/.yarn/patches/jest-environment-node-npm-30.2.0-b72db4433a.patch",
-    "jest-leak-detector@npm:30.2.0": "patch:jest-leak-detector@npm%3A30.2.0#~/.yarn/patches/jest-leak-detector-npm-30.2.0-cd6d6aa191.patch"
+    "tmp": "0.2.5"
   },
   "lint-staged": {
     "packages/**/src/**/*.{ts,tsx}": [
