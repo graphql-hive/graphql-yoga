@@ -20,13 +20,8 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "graphql",
-    "graphiql"
-  ],
+  "files": ["dist"],
+  "keywords": ["graphql", "graphiql"],
   "scripts": {
     "build": "BUILD=true vite build",
     "check": "tsc --pretty --noEmit",
@@ -48,6 +43,8 @@
     "@types/react": "19.2.4",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
+    "@envelop/core": "workspace:^",
+    "tsdown": "^0.20.0-beta.1",
     "vite": "7.2.2",
     "vite-plugin-monaco-editor": "1.1.0"
   },

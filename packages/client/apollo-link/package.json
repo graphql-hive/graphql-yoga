@@ -13,9 +13,9 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
@@ -55,7 +55,8 @@
   },
   "devDependencies": {
     "@apollo/client": "4.0.9",
-    "graphql-yoga": "workspace:*"
+    "graphql-yoga": "workspace:*",
+    "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
     "directory": "dist",
@@ -65,6 +66,6 @@
     "input": "./src/index.ts"
   },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }

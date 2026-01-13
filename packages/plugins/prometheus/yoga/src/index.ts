@@ -35,6 +35,8 @@ export {
   type SummaryMetricOption,
 };
 
+export type * from '@graphql-yoga/types';
+
 export type PrometheusTracingPluginConfig = Omit<
   EnvelopPrometheusTracingPluginConfig,
   'metrics'

@@ -13,9 +13,9 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
@@ -57,11 +57,10 @@
     "build": "node scripts/yoga-bundle-string.mjs",
     "check": "tsc --pretty --noEmit"
   },
-  "peerDependencies": {
-    "graphql-yoga": "workspace:^"
-  },
   "devDependencies": {
-    "graphql-yoga": "workspace:^"
+    "@graphql-yoga/graphiql": "workspace:^",
+    "@graphql-yoga/types": "workspace:^",
+    "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
     "directory": "dist",
@@ -72,6 +71,6 @@
     "input": "./src/index.ts"
   },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }

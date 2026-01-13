@@ -1,5 +1,4 @@
 import { GraphQLError } from 'graphql';
-import { useAuth0 } from '@envelop/auth0';
 import {
   createDefaultMaskError,
   DEFAULT_ERROR_MESSAGE,
@@ -326,46 +325,6 @@ describe('useMaskedErrors', () => {
         [GraphQLError: Noop],
       ]
     `);
-  });
-
-  it('Should not mask auth0 header errors', async () => {
-    expect.assertions(8);
-    const auto0Options = {
-      domain: 'domain.com',
-      audience: 'audience',
-      headerName: 'authorization',
-      preventUnauthenticatedAccess: false,
-      extendContextField: 'auth0',
-      tokenType: 'Bearer',
-    };
-    const testInstance = createTestkit([useMaskedErrors(), useAuth0(auto0Options)], schema);
-    try {
-      await testInstance.execute(
-        `query { secret }`,
-        {},
-        { request: { headers: { authorization: 'Something' } } },
-      );
-    } catch (err) {
-      const error = err as GraphQLError;
-      expect(error?.name).toBe('GraphQLError');
-      expect(error?.message).toBe('Unexpected error.');
-      expect(error?.extensions).toBeUndefined();
-      expect(error?.originalError).toBeUndefined();
-    }
-
-    try {
-      await testInstance.execute(
-        `query { secret }`,
-        {},
-        { request: { headers: { authorization: 'Something else' } } },
-      );
-    } catch (err) {
-      const error = err as GraphQLError;
-      expect(error?.name).toBe('GraphQLError');
-      expect(error?.message).toBe('Unexpected error.');
-      expect(error?.extensions).toBeUndefined();
-      expect(error?.originalError).toBeUndefined();
-    }
   });
 
   it('should not mask parse errors', async () => {

@@ -15,9 +15,9 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
@@ -70,6 +70,7 @@
     "@envelop/response-cache": "workspace:^",
     "jest-environment-miniflare": "^2.14.1",
     "ts-jest": "29.4.6",
+    "tsdown": "^0.20.0-beta.1",
     "typescript": "^5.2.2"
   },
   "publishConfig": {
@@ -82,6 +83,6 @@
     "input": "./src/index.ts"
   },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }
