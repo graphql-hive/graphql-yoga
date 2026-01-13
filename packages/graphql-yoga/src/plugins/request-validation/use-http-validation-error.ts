@@ -1,4 +1,4 @@
-import type { Plugin } from '../types.js';
+import type { Plugin } from '@graphql-yoga/types';
 
 export function useHTTPValidationError<
   PluginContext extends Record<string, any> = {},

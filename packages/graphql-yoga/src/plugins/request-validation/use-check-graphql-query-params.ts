@@ -1,6 +1,5 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { GraphQLParams } from '../../types.js';
-import type { Plugin } from '../types.js';
+import type { GraphQLParams, Plugin } from '@graphql-yoga/types';
 
 const expectedParameters = new Set(['query', 'variables', 'operationName', 'extensions']);
 

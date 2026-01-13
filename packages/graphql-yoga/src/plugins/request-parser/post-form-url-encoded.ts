@@ -1,4 +1,4 @@
-import { GraphQLParams } from '../../types.js';
+import { GraphQLParams } from '@graphql-yoga/types';
 import { isContentTypeMatch, parseURLSearchParams } from './utils.js';
 
 export function isPOSTFormUrlEncodedRequest(request: Request) {

@@ -1,5 +1,5 @@
+import { GraphQLParams } from '@graphql-yoga/types';
 import { URLSearchParams } from '@whatwg-node/fetch';
-import { GraphQLParams } from '../../types.js';
 
 export function handleURLSearchParams(searchParams: URLSearchParams): GraphQLParams {
   const operationName = searchParams.get('operationName') || undefined;

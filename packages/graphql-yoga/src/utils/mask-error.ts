@@ -1,6 +1,6 @@
 import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
+import { MaskError } from '@graphql-yoga/types';
 import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
-import { MaskError } from '../types.js';
 
 function serializeError(error: unknown) {
   if (isGraphQLError(error)) {

@@ -33,17 +33,12 @@
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "graphql",
-    "server",
-    "api",
-    "graphql-server"
-  ],
+  "keywords": ["graphql", "server", "api", "graphql-server"],
   "scripts": {
     "build": "yarn generate-graphiql-html && tsdown",
     "check": "tsc --pretty --noEmit",
-    "generate-graphiql-html": "bun scripts/generate-graphiql-html.js",
-    "inject-version": "bun scripts/inject-version.js",
+    "generate-graphiql-html": "bun run scripts/generate-graphiql-html.js",
+    "inject-version": "bun run scripts/inject-version.js",
     "prepack": "yarn run build",
     "watch": "tsdown --watch"
   },

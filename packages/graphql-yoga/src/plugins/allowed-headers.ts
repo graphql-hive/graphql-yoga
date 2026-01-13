@@ -1,4 +1,4 @@
-import { Plugin } from './types.js';
+import { Plugin } from '@graphql-yoga/types';
 
 export function useAllowedResponseHeaders(allowedHeaders: string[]): Plugin {
   return {

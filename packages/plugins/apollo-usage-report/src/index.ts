@@ -2,7 +2,6 @@ import { DocumentNode, getOperationAST, GraphQLSchema, Kind } from 'graphql';
 import {
   isAsyncIterable,
   YogaLogger,
-  YogaServer,
   type Maybe,
   type Plugin,
   type PromiseOrValue,
@@ -19,6 +18,7 @@ import {
   ApolloInlineTracePluginOptions,
   useApolloInstrumentation,
 } from '@graphql-yoga/plugin-apollo-inline-trace';
+import { YogaServer } from '@graphql-yoga/types';
 import { MaybePromise } from '@whatwg-node/promise-helpers';
 import { getEnvVar, Reporter } from './reporter.js';
 

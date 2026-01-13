@@ -1,15 +1,14 @@
 import type { PromiseOrValue } from '@envelop/core';
 import { YogaLogger } from '@graphql-yoga/logger';
 import {
+  FetchAPI,
   GraphiQLOptions,
   GraphiQLOptionsFactory,
   GraphiQLOptionsOrFactory,
+  Plugin,
 } from '@graphql-yoga/types';
-import type { URLPattern } from '@whatwg-node/fetch';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
-import { FetchAPI } from '../types.js';
-import { Plugin } from './types.js';
 
 export function shouldRenderGraphiQL({ headers, method }: Request): boolean {
   return method === 'GET' && !!headers?.get('accept')?.includes('text/html');
@@ -50,7 +49,7 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
   }
 
   const renderer = config?.render ?? renderGraphiQL;
-  let urlPattern: typeof URLPattern;
+  let urlPattern: URLPattern;
   const getUrlPattern = ({ URLPattern }: FetchAPI) => {
     urlPattern ||= new URLPattern({
       pathname: config.graphqlEndpoint,

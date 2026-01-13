@@ -1,11 +1,10 @@
 import { isAsyncIterable } from '@graphql-tools/utils';
+import { FetchAPI, ResultProcessorInput } from '@graphql-yoga/types';
 import {
   areGraphQLErrors,
   getResponseInitByRespectingErrors,
   isGraphQLError,
 } from '../../error.js';
-import { FetchAPI } from '../../types.js';
-import { ResultProcessorInput } from '../types.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function processRegularResult(

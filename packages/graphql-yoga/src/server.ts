@@ -10,7 +10,25 @@ import {
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import { createLogger, YogaLogger } from '@graphql-yoga/logger';
-import { YogaServer as YogaServerI, YogaServerOptions } from '@graphql-yoga/types';
+import {
+  FetchAPI,
+  GraphQLParams,
+  Instrumentation,
+  MaskError,
+  OnExecutionResultHook,
+  OnParamsHook,
+  OnRequestParseDoneHook,
+  OnRequestParseHook,
+  OnResultProcess,
+  ParamsHandler,
+  Plugin,
+  RequestParser,
+  ResultProcessorInput,
+  YogaInitialContext,
+  YogaMaskedErrorOpts,
+  YogaServer as YogaServerI,
+  YogaServerOptions,
+} from '@graphql-yoga/types';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import {
   fakePromise,
@@ -49,18 +67,6 @@ import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
-import {
-  Instrumentation,
-  OnExecutionResultHook,
-  OnParamsHook,
-  OnRequestParseDoneHook,
-  OnRequestParseHook,
-  OnResultProcess,
-  ParamsHandler,
-  Plugin,
-  RequestParser,
-  ResultProcessorInput,
-} from './plugins/types.js';
 import { useGraphiQL } from './plugins/use-graphiql.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
 import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
@@ -69,13 +75,6 @@ import { useResultProcessors } from './plugins/use-result-processor.js';
 import { useSchema } from './plugins/use-schema.js';
 import { useUnhandledRoute } from './plugins/use-unhandled-route.js';
 import { processRequest as processGraphQLParams, processResult } from './process-request.js';
-import {
-  FetchAPI,
-  GraphQLParams,
-  MaskError,
-  YogaInitialContext,
-  YogaMaskedErrorOpts,
-} from './types.js';
 import { maskError } from './utils/mask-error.js';
 
 /**

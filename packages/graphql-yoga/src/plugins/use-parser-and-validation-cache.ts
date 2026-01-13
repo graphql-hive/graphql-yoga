@@ -1,8 +1,7 @@
 import type { DocumentNode, GraphQLError, GraphQLSchema, ValidationRule } from 'graphql';
 import type { AfterValidateHook } from '@envelop/core';
-import { ParserAndValidationCacheOptions } from '@graphql-yoga/types';
+import { ParserAndValidationCacheOptions, Plugin } from '@graphql-yoga/types';
 import { _createLRUCache } from '../utils/create-lru-cache.js';
-import type { Plugin } from './types.js';
 
 export function useParserAndValidationCache({
   documentCache = _createLRUCache(),

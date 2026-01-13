@@ -147,6 +147,7 @@ export interface YogaServer<
   logger: YogaLogger;
   readonly graphqlEndpoint: string;
   fetchAPI: FetchAPI;
+  readonly version: string;
 
   handleParams: ParamsHandler<TServerContext>;
 

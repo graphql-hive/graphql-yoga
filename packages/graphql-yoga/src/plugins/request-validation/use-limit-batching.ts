@@ -1,5 +1,5 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { Plugin } from '../types.js';
+import type { Plugin } from '@graphql-yoga/types';
 
 export function useLimitBatching(limit?: number): Plugin {
   return {
