@@ -1,8 +1,8 @@
 import { google, Report, ReportHeader } from '@apollo/usage-reporting-protobuf';
 import { YogaLogger } from '@graphql-yoga/logger';
 import { YogaServer } from '@graphql-yoga/types';
-import { OurReport } from './stats.js';
 import type { ApolloUsageReportOptions } from './index';
+import { OurReport } from './stats.js';
 
 const DEFAULT_REPORTING_ENDPOINT =
   'https://usage-reporting.api.apollographql.com/api/ingress/traces';
