@@ -33,7 +33,13 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["graphql", "server", "api", "graphql-server", "apollo"],
+  "keywords": [
+    "graphql",
+    "server",
+    "api",
+    "graphql-server",
+    "apollo"
+  ],
   "scripts": {
     "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website run build",
     "build:graphiql": "yarn workspaces foreach --recursive --topological-dev --parallel --from @graphql-yoga/render-graphiql run build && yarn workspace graphql-yoga generate-graphiql-html",
@@ -118,7 +124,9 @@
     "tmp": "0.2.5"
   },
   "lint-staged": {
-    "packages/**/src/**/*.{ts,tsx}": ["cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"],
+    "packages/**/src/**/*.{ts,tsx}": [
+      "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --fix"
+    ],
     "**/*.{ts,tsx,graphql,yml,yaml,md,json,html,mdx,prettierignore,eslintignore,js,mjs,cjs,md}": [
       "prettier --write"
     ]
