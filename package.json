@@ -46,6 +46,7 @@
     "build:website": "yarn build && yarn workspace website run build",
     "check:format": "prettier --check .",
     "check:lint": "eslint --ext ts,js,tsx,jsx .",
+    "check:missing-peer-deps": "yarn install | grep YN0002 && exit 1 || exit 0",
     "check:types": "tsc --pretty --noEmit",
     "format": "yarn run check:format --write ",
     "prebuild": "rimraf packages/*/dist",
