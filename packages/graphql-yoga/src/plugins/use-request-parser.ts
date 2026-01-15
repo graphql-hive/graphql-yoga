@@ -1,5 +1,6 @@
 import type { PromiseOrValue } from '@envelop/core';
-import { GraphQLParams, Plugin } from '@graphql-yoga/types';
+import { GraphQLParams } from '../types.js';
+import { Plugin } from './types.js';
 
 interface RequestParserPluginOptions {
   match?(request: Request): boolean;

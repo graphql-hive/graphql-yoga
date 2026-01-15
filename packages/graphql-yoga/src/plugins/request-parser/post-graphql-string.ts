@@ -1,4 +1,4 @@
-import { GraphQLParams } from '@graphql-yoga/types';
+import { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
 export function isPOSTGraphQLStringRequest(request: Request) {

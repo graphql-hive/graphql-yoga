@@ -5062,7 +5062,6 @@ __metadata:
     "@graphql-tools/utils": "npm:^10.11.0"
     "@graphql-yoga/logger": "workspace:^"
     "@graphql-yoga/plugin-apollo-inline-trace": "workspace:^"
-    "@graphql-yoga/types": "workspace:^"
     "@whatwg-node/fetch": "npm:^0.10.6"
     "@whatwg-node/promise-helpers": "npm:^1.3.2"
     graphql: "npm:16.12.0"
@@ -5282,8 +5281,8 @@ __metadata:
   resolution: "@graphql-yoga/render-graphiql@workspace:packages/render-graphiql"
   dependencies:
     "@graphql-yoga/graphiql": "workspace:^"
-    "@graphql-yoga/types": "workspace:^"
     graphql: "npm:^16.12.0"
+    graphql-yoga: "workspace:^"
     tsdown: "npm:^0.20.0-beta.1"
   languageName: unknown
   linkType: soft
@@ -5312,26 +5311,6 @@ __metadata:
     "@repeaterjs/repeater": "npm:^3.0.4"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@graphql-yoga/types@workspace:^, @graphql-yoga/types@workspace:packages/types":
-  version: 0.0.0-use.local
-  resolution: "@graphql-yoga/types@workspace:packages/types"
-  dependencies:
-    "@envelop/core": "workspace:^"
-    "@graphql-tools/utils": "npm:^10.11.0"
-    "@graphql-yoga/logger": "workspace:^"
-    "@types/node": "npm:24"
-    "@whatwg-node/fetch": "npm:^0.10.6"
-    "@whatwg-node/promise-helpers": "npm:^1.3.2"
-    "@whatwg-node/server": "npm:^0.10.14"
-    graphql: "npm:16.12.0"
-    tsdown: "npm:^0.20.0-beta.1"
-    tslib: "npm:^2.8.1"
-    typescript: "npm:5.9.3"
-  peerDependencies:
-    graphql: ^15.2.0 || ^16.0.0
   languageName: unknown
   linkType: soft
 
@@ -17935,7 +17914,6 @@ __metadata:
     "@graphql-yoga/graphiql": "workspace:^"
     "@graphql-yoga/logger": "workspace:^"
     "@graphql-yoga/subscription": "workspace:^"
-    "@graphql-yoga/types": "workspace:^"
     "@jest/globals": "npm:^30.0.0"
     "@n1ru4l/in-memory-live-query-store": "npm:0.10.0"
     "@repeaterjs/repeater": "npm:^3.0.4"

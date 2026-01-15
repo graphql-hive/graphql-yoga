@@ -1,12 +1,19 @@
 export * from '@graphql-yoga/logger';
-export type { GraphiQLPluginConfig, GraphiQLRenderer } from './plugins/use-graphiql.js';
+export type {
+  GraphiQLOptions,
+  GraphiQLPluginConfig,
+  GraphiQLOptionsOrFactory,
+  GraphiQLRenderer,
+} from './plugins/use-graphiql.js';
 export { renderGraphiQL, shouldRenderGraphiQL } from './plugins/use-graphiql.js';
 export { useReadinessCheck } from './plugins/use-readiness-check.js';
 export { type YogaSchemaDefinition, useSchema } from './plugins/use-schema.js';
 export * from './schema.js';
 export * from './server.js';
 export * from './subscription.js';
+export * from './types.js';
 export { maskError } from './utils/mask-error.js';
+export { type OnParamsEventPayload, type Plugin, type Instrumentation } from './plugins/types.js';
 export { _createLRUCache, createLRUCache } from './utils/create-lru-cache.js';
 export { mergeSchemas } from '@graphql-tools/schema';
 export {
@@ -45,29 +52,9 @@ export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
 export { useErrorCoordinate } from './plugins/use-error-coordinate.js';
+export {
+  type LandingPageRenderer,
+  type LandingPageRendererOpts,
+} from './plugins/use-unhandled-route.js';
 export { DisposableSymbols } from '@whatwg-node/server';
 export * from '@envelop/instrumentation';
-export type {
-  // Do not re-export YogaServer interface, as it is just a supertype of actual YogaServer
-  Plugin,
-  Instrumentation,
-  OnParamsEventPayload,
-  GraphQLSchemaWithContext,
-  GraphQLParams,
-  YogaInitialContext,
-  CORSOptions,
-  FetchAPI,
-  FetchEvent,
-  YogaMaskedErrorOpts,
-  MaskError,
-  MaybeArray,
-  GraphQLHTTPExtensions,
-  GraphiQLOptions,
-  GraphiQLOptionsFactory,
-  GraphiQLOptionsOrFactory,
-  YogaServerOptions,
-  BatchingOptions,
-  ParserAndValidationCacheOptions,
-  LandingPageRenderer,
-  LandingPageRendererOpts,
-} from '@graphql-yoga/types';

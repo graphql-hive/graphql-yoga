@@ -1,5 +1,5 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { Plugin } from '@graphql-yoga/types';
+import type { Plugin } from '../types.js';
 
 export function isValidMethodForGraphQL(method: string): method is 'GET' | 'POST' {
   return method === 'GET' || method === 'POST';

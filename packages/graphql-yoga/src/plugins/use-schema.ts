@@ -1,7 +1,8 @@
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
-import type { GraphQLSchemaWithContext, Plugin, YogaInitialContext } from '@graphql-yoga/types';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
+import type { Plugin } from './types.js';
 
 export type YogaSchemaDefinition<TServerContext, TUserContext> =
   | PromiseOrValue<GraphQLSchemaWithContext<TServerContext & YogaInitialContext & TUserContext>>

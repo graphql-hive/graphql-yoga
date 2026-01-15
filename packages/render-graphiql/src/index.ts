@@ -1,4 +1,4 @@
-import type { GraphiQLOptions } from '@graphql-yoga/types';
+import type { GraphiQLOptions } from 'graphql-yoga';
 import { css, editorWorkerService, favicon, graphqlWorker, js, jsonWorker } from './graphiql.js';
 
 export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `

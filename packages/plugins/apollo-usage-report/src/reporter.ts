@@ -1,6 +1,5 @@
+import { YogaLogger, YogaServer } from 'graphql-yoga';
 import { google, Report, ReportHeader } from '@apollo/usage-reporting-protobuf';
-import { YogaLogger } from '@graphql-yoga/logger';
-import { YogaServer } from '@graphql-yoga/types';
 import type { ApolloUsageReportOptions } from './index';
 import { OurReport } from './stats.js';
 

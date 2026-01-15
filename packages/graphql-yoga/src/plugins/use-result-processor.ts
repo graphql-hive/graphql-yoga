@@ -1,9 +1,9 @@
 import { isAsyncIterable } from '@envelop/core';
-import { Plugin, ResultProcessor } from '@graphql-yoga/types';
 import { getMediaTypesForRequestInOrder, isMatchingMediaType } from './result-processor/accept.js';
 import { processMultipartResult } from './result-processor/multipart.js';
 import { processRegularResult } from './result-processor/regular.js';
 import { getSSEProcessor } from './result-processor/sse.js';
+import { Plugin, ResultProcessor } from './types.js';
 
 interface ResultProcessorConfig {
   processResult: ResultProcessor;

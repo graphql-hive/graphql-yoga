@@ -1,9 +1,10 @@
 import { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
-import { FetchAPI, MaybeArray, ResultProcessor, ResultProcessorInput } from '@graphql-yoga/types';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
+import { FetchAPI, MaybeArray } from '../../types.js';
+import { ResultProcessor, ResultProcessorInput } from '../types.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function getSSEProcessor(): ResultProcessor {

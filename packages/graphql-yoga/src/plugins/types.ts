@@ -14,14 +14,14 @@ import {
   type ServerAdapterInitialContext,
   type Instrumentation as ServerAdapterInstrumentation,
 } from '@whatwg-node/server';
+import { YogaServer } from '../server.js';
 import {
   FetchAPI,
   GraphQLHTTPExtensions,
   GraphQLParams,
   MaybeArray,
   YogaInitialContext,
-  YogaServer,
-} from './yoga.js';
+} from '../types.js';
 
 export type Plugin<
   PluginContext extends Record<string, any> = {},

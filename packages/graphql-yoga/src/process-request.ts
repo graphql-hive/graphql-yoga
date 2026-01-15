@@ -1,15 +1,10 @@
 import { getOperationAST } from 'graphql';
 import { GetEnvelopedFn } from '@envelop/core';
 import { ExecutionArgs } from '@graphql-tools/executor';
-import {
-  FetchAPI,
-  GraphQLParams,
-  OnResultProcess,
-  ResultProcessor,
-  ResultProcessorInput,
-} from '@graphql-yoga/types';
 import { handleMaybePromise, iterateAsync, MaybePromise } from '@whatwg-node/promise-helpers';
 import { ServerAdapterInitialContext } from '@whatwg-node/server';
+import { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
+import { FetchAPI, GraphQLParams } from './types.js';
 
 export function processResult<TServerContext>({
   request,

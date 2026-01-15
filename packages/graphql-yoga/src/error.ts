@@ -2,11 +2,8 @@ import { STATUS_CODES } from 'node:http';
 import { GraphQLError } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaLogger } from '@graphql-yoga/logger';
-import type {
-  GraphQLHTTPExtensions,
-  ResultProcessorInput,
-  YogaMaskedErrorOpts,
-} from '@graphql-yoga/types';
+import type { ResultProcessorInput } from './plugins/types.js';
+import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
 declare module 'graphql' {
   interface GraphQLErrorExtensions {

@@ -1,12 +1,21 @@
 import type { PromiseOrValue } from '@envelop/core';
 import { isPromise } from '@graphql-tools/utils';
-import {
-  FetchAPI,
-  LandingPageRenderer,
-  LandingPageRendererOpts,
-  Plugin,
-} from '@graphql-yoga/types';
+import type { URLPattern } from '@whatwg-node/fetch';
 import landingPageBody from '../landing-page-html.js';
+import { FetchAPI } from '../types.js';
+import type { Plugin } from './types.js';
+
+export interface LandingPageRendererOpts {
+  request: Request;
+  fetchAPI: FetchAPI;
+  url: URL;
+  graphqlEndpoint: string;
+  // Not sure why the global `URLPattern` causes errors with the ponyfill typings
+  // So instead we use this which points to the same type
+  urlPattern: InstanceType<FetchAPI['URLPattern']>;
+}
+
+export type LandingPageRenderer = (opts: LandingPageRendererOpts) => PromiseOrValue<Response>;
 
 export const defaultRenderLandingPage: LandingPageRenderer = function defaultRenderLandingPage(
   opts: LandingPageRendererOpts,
@@ -30,7 +39,7 @@ export function useUnhandledRoute(args: {
   landingPageRenderer?: LandingPageRenderer;
   showLandingPage: boolean;
 }): Plugin {
-  let urlPattern: URLPattern;
+  let urlPattern: typeof URLPattern;
   function getUrlPattern({ URLPattern }: FetchAPI) {
     urlPattern ||= new URLPattern({
       pathname: args.graphqlEndpoint,

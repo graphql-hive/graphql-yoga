@@ -6,29 +6,11 @@ import {
   useExtendContext,
   useMaskedErrors,
   type GetEnvelopedFn,
+  type PromiseOrValue,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
-import { createLogger, YogaLogger } from '@graphql-yoga/logger';
-import {
-  FetchAPI,
-  GraphQLParams,
-  Instrumentation,
-  MaskError,
-  OnExecutionResultHook,
-  OnParamsHook,
-  OnRequestParseDoneHook,
-  OnRequestParseHook,
-  OnResultProcess,
-  ParamsHandler,
-  Plugin,
-  RequestParser,
-  ResultProcessorInput,
-  YogaInitialContext,
-  YogaMaskedErrorOpts,
-  YogaServer as YogaServerI,
-  YogaServerOptions,
-} from '@graphql-yoga/types';
+import { createLogger, LogLevel, YogaLogger } from '@graphql-yoga/logger';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import {
   fakePromise,
@@ -42,7 +24,9 @@ import {
 import {
   createServerAdapter,
   ServerAdapter,
+  ServerAdapterBaseObject,
   ServerAdapterInitialContext,
+  ServerAdapterOptions,
   ServerAdapterRequestHandler,
   useCORS,
 } from '@whatwg-node/server';
@@ -67,24 +51,174 @@ import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
-import { useGraphiQL } from './plugins/use-graphiql.js';
+import {
+  Instrumentation,
+  OnExecutionResultHook,
+  OnParamsHook,
+  OnRequestParseDoneHook,
+  OnRequestParseHook,
+  OnResultProcess,
+  ParamsHandler,
+  Plugin,
+  RequestParser,
+  ResultProcessorInput,
+} from './plugins/types.js';
+import { GraphiQLOptions, GraphiQLOptionsOrFactory, useGraphiQL } from './plugins/use-graphiql.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
-import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
+import {
+  ParserAndValidationCacheOptions,
+  useParserAndValidationCache,
+} from './plugins/use-parser-and-validation-cache.js';
 import { useRequestParser } from './plugins/use-request-parser.js';
 import { useResultProcessors } from './plugins/use-result-processor.js';
-import { useSchema } from './plugins/use-schema.js';
-import { useUnhandledRoute } from './plugins/use-unhandled-route.js';
+import { useSchema, YogaSchemaDefinition } from './plugins/use-schema.js';
+import { LandingPageRenderer, useUnhandledRoute } from './plugins/use-unhandled-route.js';
 import { processRequest as processGraphQLParams, processResult } from './process-request.js';
+import {
+  FetchAPI,
+  GraphQLParams,
+  MaskError,
+  YogaInitialContext,
+  YogaMaskedErrorOpts,
+} from './types.js';
 import { maskError } from './utils/mask-error.js';
+
+/**
+ * Configuration options for the server
+ */
+export type YogaServerOptions<TServerContext, TUserContext> = Omit<
+  ServerAdapterOptions<TServerContext>,
+  'plugins'
+> & {
+  /**
+   * Enable/disable logging or provide a custom logger.
+   * @default true
+   */
+  logging?: boolean | YogaLogger | LogLevel | undefined;
+  /**
+   * Prevent leaking unexpected errors to the client. We highly recommend enabling this in production.
+   * If you throw `EnvelopError`/`GraphQLError` within your GraphQL resolvers then that error will be sent back to the client.
+   *
+   * You can lean more about this here:
+   * @see https://the-guild.dev/graphql/yoga-server/docs/features/error-masking
+   *
+   * @default true
+   */
+  maskedErrors?: boolean | Partial<YogaMaskedErrorOpts> | undefined;
+  /**
+   * Context
+   */
+  context?:
+    | ((
+        initialContext: YogaInitialContext & TServerContext,
+      ) => Promise<TUserContext> | TUserContext)
+    | Promise<TUserContext>
+    | TUserContext
+    | undefined;
+
+  cors?: Parameters<typeof useCORS>[0] | undefined;
+
+  /**
+   * GraphQL endpoint
+   * So you need to define it explicitly if GraphQL API lives in a different path other than `/graphql`
+   *
+   * @default "/graphql"
+   */
+  graphqlEndpoint?: string | undefined;
+
+  /**
+   * Readiness check endpoint
+   *
+   * @default "/health"
+   */
+  healthCheckEndpoint?: string | undefined;
+
+  /**
+   * Whether the landing page should be shown.
+   */
+  landingPage?: boolean | LandingPageRenderer | undefined;
+
+  /**
+   * GraphiQL options
+   *
+   * @default true
+   */
+  graphiql?: GraphiQLOptionsOrFactory<TServerContext> | undefined;
+
+  renderGraphiQL?: ((options: GraphiQLOptions) => PromiseOrValue<BodyInit>) | undefined;
+
+  schema?: YogaSchemaDefinition<TServerContext, TUserContext> | undefined;
+
+  /**
+   * Envelop Plugins
+   * @see https://envelop.dev/plugins
+   */
+  plugins?:
+    | Array<Plugin<TUserContext & TServerContext & YogaInitialContext> | Plugin | {}>
+    | undefined;
+
+  parserAndValidationCache?: boolean | ParserAndValidationCacheOptions | undefined;
+  fetchAPI?: Partial<Record<keyof FetchAPI, any>> | undefined;
+  /**
+   * GraphQL Multipart Request spec support
+   *
+   * @see https://github.com/jaydenseric/graphql-multipart-request-spec
+   *
+   * @default true
+   */
+  multipart?: boolean | undefined;
+  id?: string | undefined;
+  /**
+   * Batching RFC Support configuration
+   *
+   * @see https://github.com/graphql/graphql-over-http/blob/main/rfcs/Batching.md
+   *
+   * @default false
+   */
+  batching?: BatchingOptions | undefined;
+
+  /**
+   * By default, GraphQL Yoga does not allow parameters in the request body except `query`, `variables`, `extensions`, and `operationName`.
+   *
+   * This option allows you to specify additional parameters that are allowed in the request body.
+   *
+   * @default []
+   *
+   * @example ['doc_id', 'id']
+   */
+  extraParamNames?: string[] | undefined;
+
+  /**
+   * Allowed headers. Headers not part of this list will be striped out.
+   */
+  allowedHeaders?: {
+    /** Allowed headers for outgoing responses */
+    response?: string[] | undefined;
+    /** Allowed headers for ingoing requests */
+    request?: string[] | undefined;
+  };
+};
+
+export type BatchingOptions =
+  | boolean
+  | {
+      /**
+       * You can limit the number of batched operations per request.
+       *
+       * @default 10
+       */
+      limit?: number;
+    };
 
 /**
  * Base class that can be extended to create a GraphQL server with any HTTP server framework.
  * @internal
  */
+
 export class YogaServer<
   TServerContext extends Record<string, any>,
   TUserContext extends Record<string, any>,
-> implements YogaServerI<TServerContext, TUserContext>
+> implements ServerAdapterBaseObject<TServerContext>
 {
   /**
    * Instance of envelop

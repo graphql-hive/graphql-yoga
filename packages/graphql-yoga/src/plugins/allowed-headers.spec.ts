@@ -1,7 +1,7 @@
-import { Plugin } from '@graphql-yoga/types';
 import { createSchema } from '../schema';
 import { createYoga } from '../server';
 import { useAllowedResponseHeaders } from './allowed-headers';
+import { Plugin } from './types';
 
 describe('useAllowedHeaders', () => {
   it('should strip headers from responses', async () => {

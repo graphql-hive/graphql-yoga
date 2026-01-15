@@ -1,5 +1,5 @@
 import { ExecutionArgs } from '@graphql-tools/executor';
-import { Plugin } from '@graphql-yoga/types';
+import { Plugin } from './types.js';
 
 export function useErrorCoordinate(): Plugin {
   return {

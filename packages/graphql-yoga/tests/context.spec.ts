@@ -1,6 +1,7 @@
-import { Plugin, YogaInitialContext } from '@graphql-yoga/types';
+import { Plugin } from '../src/plugins/types';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
+import { YogaInitialContext } from '../src/types';
 
 describe('Context', () => {
   interface UserContext {
