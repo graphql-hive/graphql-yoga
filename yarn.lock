@@ -3146,9 +3146,11 @@ __metadata:
   dependencies:
     "@envelop/core": "workspace:^"
     "@envelop/testing": "workspace:^"
+    "@envelop/types": "workspace:^"
     "@graphql-tools/schema": "npm:^10.0.31"
     "@types/jsonwebtoken": "npm:9.0.10"
     "@whatwg-node/promise-helpers": "npm:^1.2.4"
+    graphql: "npm:^16.12.0"
     jsonwebtoken: "npm:^9.0.0"
     jwks-rsa: "npm:^3.0.1"
     tsdown: "npm:^0.20.0-beta.1"
@@ -3520,6 +3522,7 @@ __metadata:
   dependencies:
     "@envelop/core": "workspace:^"
     "@envelop/testing": "workspace:^"
+    "@envelop/types": "workspace:^"
     "@graphql-tools/schema": "npm:10.0.30"
     graphql: "npm:16.12.0"
     tsdown: "npm:^0.20.0-beta.1"
@@ -3614,7 +3617,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@envelop/response-cache-cloudflare-kv@workspace:packages/plugins/response-cache-cloudflare-kv"
   dependencies:
+    "@envelop/core": "workspace:^"
     "@envelop/response-cache": "workspace:^"
+    graphql: "npm:^16.12.0"
+    jest: "npm:^30.2.0"
     jest-environment-miniflare: "npm:^2.14.1"
     ts-jest: "npm:29.4.6"
     tsdown: "npm:^0.20.0-beta.1"
@@ -3622,6 +3628,7 @@ __metadata:
     typescript: "npm:^5.2.2"
   peerDependencies:
     "@cloudflare/workers-types": ^4.20231121.0
+    "@envelop/core": "workspace:^"
     "@envelop/response-cache": "workspace:^"
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
   peerDependenciesMeta:
@@ -3637,6 +3644,8 @@ __metadata:
     "@envelop/core": "workspace:^"
     "@envelop/response-cache": "workspace:^"
     "@graphql-tools/schema": "npm:10.0.30"
+    "@types/ioredis": "npm:^5.0.0"
+    "@types/ioredis-mock": "npm:^8.2.6"
     "@whatwg-node/promise-helpers": "npm:^1.2.4"
     graphql: "npm:16.12.0"
     ioredis: "npm:^5.4.2"
@@ -3655,11 +3664,13 @@ __metadata:
     "@graphql-tools/executor": "npm:^1.3.1"
     "@graphql-tools/schema": "npm:10.0.30"
     "@graphql-tools/utils": "npm:^10.0.3"
+    "@types/ioredis-mock": "npm:^8.2.6"
     "@whatwg-node/fetch": "npm:^0.10.0"
     "@whatwg-node/promise-helpers": "npm:^1.2.4"
     fast-json-stable-stringify: "npm:^2.1.0"
     graphql: "npm:16.12.0"
     graphql-scalars: "npm:1.25.0"
+    ioredis: "npm:^5.9.1"
     ioredis-mock: "npm:8.13.1"
     lru-cache: "npm:^11.0.0"
     tsdown: "npm:^0.20.0-beta.1"
@@ -4260,7 +4271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphiql/react@npm:^0.37.1":
+"@graphiql/react@npm:^0.37.1, @graphiql/react@npm:^0.37.3":
   version: 0.37.3
   resolution: "@graphiql/react@npm:0.37.3"
   dependencies:
@@ -4867,12 +4878,15 @@ __metadata:
     "@apollo/client": "npm:4.0.9"
     "@graphql-tools/executor-apollo-link": "npm:^2.0.0"
     "@graphql-tools/executor-http": "npm:^3.0.0"
+    graphql: "npm:^16.12.0"
     graphql-yoga: "workspace:*"
+    rxjs: "npm:^7.8.2"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
   peerDependencies:
     "@apollo/client": ^4.0.4
     graphql: ^15.2.0 || ^16.0.0
+    rxjs: "*"
   languageName: unknown
   linkType: soft
 
@@ -4917,6 +4931,7 @@ __metadata:
   dependencies:
     "@envelop/core": "workspace:^"
     "@graphiql/plugin-explorer": "npm:5.1.1"
+    "@graphiql/react": "npm:^0.37.3"
     "@graphiql/toolkit": "npm:0.11.3"
     "@graphql-tools/url-loader": "npm:9.0.4"
     "@types/react": "npm:19.2.4"
@@ -4925,8 +4940,11 @@ __metadata:
     graphiql: "npm:5.2.0"
     graphql: "npm:16.12.0"
     json-bigint-patch: "npm:0.0.8"
+    monaco-editor: "npm:^0.52.0"
     monaco-graphql: "npm:^1.7.3"
+    prettier: "npm:^3.8.0"
     react: "npm:19.2.0"
+    react-compiler-runtime: "npm:^1.0.0"
     react-dom: "npm:19.2.0"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:2.8.1"
@@ -4958,6 +4976,8 @@ __metadata:
     "@nestjs/core": "npm:^11.0.0"
     "@nestjs/graphql": "npm:^13.0.0"
     graphql: "npm:16.12.0"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.2"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
   peerDependencies:
@@ -4965,6 +4985,8 @@ __metadata:
     "@nestjs/core": ^11.0.0
     "@nestjs/graphql": ^13.0.0
     graphql: ^15.0.0 || ^16.0.0
+    reflect-metadata: ^0.1.12 || ^0.2.0
+    rxjs: ^7.1.0
   languageName: unknown
   linkType: soft
 
@@ -5035,6 +5057,7 @@ __metadata:
     "@apollo/server-gateway-interface": "npm:^2.0.0"
     "@apollo/usage-reporting-protobuf": "npm:^4.1.1"
     "@apollo/utils.usagereporting": "npm:^2.1.0"
+    "@envelop/core": "workspace:^"
     "@envelop/on-resolve": "workspace:^"
     "@graphql-tools/utils": "npm:^10.11.0"
     "@graphql-yoga/logger": "workspace:^"
@@ -5047,6 +5070,7 @@ __metadata:
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
   peerDependencies:
+    "@envelop/core": "workspace:^"
     graphql: ^15.2.0 || ^16.0.0
     graphql-yoga: "workspace:^"
   languageName: unknown
@@ -5059,10 +5083,14 @@ __metadata:
     "@apollo/client": "npm:4.0.9"
     "@whatwg-node/promise-helpers": "npm:^1.3.2"
     crypto-hash: "npm:4.0.0"
+    graphql: "npm:^16.12.0"
     graphql-yoga: "workspace:*"
+    rxjs: "npm:^7.8.2"
     tsdown: "npm:^0.20.0-beta.1"
   peerDependencies:
+    graphql: ^15.2.0 || ^16.0.0
     graphql-yoga: "workspace:^"
+    rxjs: ^7.3.0
   languageName: unknown
   linkType: soft
 
@@ -5070,10 +5098,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@graphql-yoga/plugin-csrf-prevention@workspace:packages/plugins/csrf-prevention"
   dependencies:
+    graphql: "npm:^16.12.0"
     graphql-yoga: "workspace:*"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
   peerDependencies:
+    graphql: ^15.2.0 || ^16.0.0
     graphql-yoga: "workspace:^"
   languageName: unknown
   linkType: soft
@@ -5116,6 +5146,7 @@ __metadata:
   resolution: "@graphql-yoga/plugin-graphql-sse@workspace:packages/plugins/graphql-sse"
   dependencies:
     "@whatwg-node/promise-helpers": "npm:^1.3.2"
+    graphql: "npm:^16.12.0"
     graphql-sse: "npm:^2.0.0"
     graphql-yoga: "workspace:*"
     tsdown: "npm:^0.20.0-beta.1"
@@ -5169,6 +5200,7 @@ __metadata:
   dependencies:
     "@envelop/prometheus": "workspace:^"
     "@types/ws": "npm:^8.5.13"
+    graphql: "npm:^16.12.0"
     graphql-ws: "npm:^6.0.0"
     graphql-yoga: "workspace:*"
     prom-client: "npm:15.1.3"
@@ -5206,6 +5238,7 @@ __metadata:
   dependencies:
     "@graphql-tools/utils": "npm:^10.11.0"
     "@whatwg-node/promise-helpers": "npm:^1.3.2"
+    graphql: "npm:^16.12.0"
     graphql-yoga: "workspace:*"
     sofa-api: "npm:^0.18.8"
     tsdown: "npm:^0.20.0-beta.1"
@@ -5250,6 +5283,7 @@ __metadata:
   dependencies:
     "@graphql-yoga/graphiql": "workspace:^"
     "@graphql-yoga/types": "workspace:^"
+    graphql: "npm:^16.12.0"
     tsdown: "npm:^0.20.0-beta.1"
   languageName: unknown
   linkType: soft
@@ -5264,6 +5298,7 @@ __metadata:
     "@types/ioredis-mock": "npm:8.2.6"
     "@whatwg-node/events": "npm:^0.1.0"
     "@whatwg-node/server": "npm:^0.10.14"
+    ioredis: "npm:^5.9.1"
     ioredis-mock: "npm:8.13.1"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
@@ -5307,6 +5342,7 @@ __metadata:
     "@graphql-tools/executor-http": "npm:^3.0.0"
     "@graphql-tools/executor-urql-exchange": "npm:^1.0.4"
     "@urql/core": "npm:6.0.1"
+    graphql: "npm:^16.12.0"
     graphql-yoga: "workspace:*"
     tsdown: "npm:^0.20.0-beta.1"
     tslib: "npm:^2.8.1"
@@ -11218,12 +11254,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis-mock@npm:8.2.6":
+"@types/ioredis-mock@npm:8.2.6, @types/ioredis-mock@npm:^8.2.6":
   version: 8.2.6
   resolution: "@types/ioredis-mock@npm:8.2.6"
   peerDependencies:
     ioredis: ">=5"
   checksum: 10c0/e83aba9c6a22892e679cd46b0a530447ca31aeb896a78a4e3079b9b5da5a324f741bb58efe3e1f9e616f51d45d9b331514e37579f69415dc3aa5cd86e486d7b3
+  languageName: node
+  linkType: hard
+
+"@types/ioredis@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@types/ioredis@npm:5.0.0"
+  dependencies:
+    ioredis: "npm:*"
+  checksum: 10c0/e52ce4239f0334701fc95fb5aaf1753d75f7582099fdf152743192f49d9ee4a88478b339d015e50cb5e111e38925846cf20668355f4046af7855021d2be181f0
   languageName: node
   linkType: hard
 
@@ -18677,6 +18722,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ioredis@npm:*, ioredis@npm:^5.9.1":
+  version: 5.9.1
+  resolution: "ioredis@npm:5.9.1"
+  dependencies:
+    "@ioredis/commands": "npm:1.5.0"
+    cluster-key-slot: "npm:^1.1.0"
+    debug: "npm:^4.3.4"
+    denque: "npm:^2.1.0"
+    lodash.defaults: "npm:^4.2.0"
+    lodash.isarguments: "npm:^3.1.0"
+    redis-errors: "npm:^1.2.0"
+    redis-parser: "npm:^3.0.0"
+    standard-as-callback: "npm:^2.1.0"
+  checksum: 10c0/0993372ac380332d487e329882f247254a77dbf2d6f746e67c2211b50dda8067c0bce16c120b77ffe1eb693766dc4f36fac8cf5679231ab0c27671e34ef13449
+  languageName: node
+  linkType: hard
+
 "ioredis@npm:5.8.2":
   version: 5.8.2
   resolution: "ioredis@npm:5.8.2"
@@ -19829,7 +19891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:30.2.0":
+"jest@npm:30.2.0, jest@npm:^30.2.0":
   version: 30.2.0
   resolution: "jest@npm:30.2.0"
   dependencies:
@@ -22201,7 +22263,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:0.52.2":
+"monaco-editor@npm:0.52.2, monaco-editor@npm:^0.52.0":
   version: 0.52.2
   resolution: "monaco-editor@npm:0.52.2"
   checksum: 10c0/5a92da64f1e2ab375c0ce99364137f794d057c97bed10ecc65a08d6e6846804b8ecbd377eacf01e498f7dfbe1b21e8be64f728256681448f0484df90e767b435
@@ -24041,6 +24103,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:^3.8.0":
+  version: 3.8.0
+  resolution: "prettier@npm:3.8.0"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 10c0/8926e9c9941a293b76c2d799089d038e9f6d84fb37702fc370bedd03b3c70d7fcf507e2e3c4f151f222d81820a3b74cac5e692c955cfafe34dd0d02616ce8327
+  languageName: node
+  linkType: hard
+
 "pretty-bytes@npm:^5.6.0":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
@@ -24351,6 +24422,15 @@ __metadata:
   peerDependencies:
     react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
   checksum: 10c0/7bb644339464e0193dba15ac4f5324d10f31dcd1e1807d7fd156355154f5fa360b59b4ffd07dc1138c493c1eebf9ef27d695d833ebe1b1030b3a9201a99e0698
+  languageName: node
+  linkType: hard
+
+"react-compiler-runtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "react-compiler-runtime@npm:1.0.0"
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+  checksum: 10c0/e081192380ae32d18bebaf341071ae8aecf80f4401b188f80e4b77e8d8995bb4c7175b8c3f75e8307019eac2015edf45c7999f788dcfcd99fdbe2ba9a2d465a4
   languageName: node
   linkType: hard
 
@@ -28742,6 +28822,7 @@ __metadata:
     next: "npm:16.0.10"
     next-sitemap: "npm:4.2.3"
     pagefind: "npm:1.4.0"
+    postcss: "npm:^8.5.6"
     postcss-import: "npm:16.1.1"
     postcss-lightningcss: "npm:1.0.2"
     react: "npm:19.2.0"
