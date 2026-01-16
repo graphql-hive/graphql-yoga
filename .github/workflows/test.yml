@@ -26,7 +26,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: 'Generate GraphiQL files'
         run: yarn run build:graphiql
       - name: Tests
@@ -55,7 +54,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: yarn install
       - name: 'Generate GraphiQL files'
         run: yarn run build:graphiql
       - name: Test
@@ -81,7 +79,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: yarn install
       - name: 'Generate GraphiQL files'
         run: yarn run build:graphiql
       - name: Test
@@ -109,7 +106,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: yarn install
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -139,7 +135,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
-          install-command: yarn install
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
       - name: Build Packages
@@ -161,7 +156,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: Build Packages
         run: yarn run build
       - name: Bundle Apollo Federation Subgraph Example
@@ -223,7 +217,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-          install-command: yarn install
       - name: Build Packages
         run: yarn run build
       - name: Install pulumi
