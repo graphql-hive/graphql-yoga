@@ -1,6 +1,5 @@
 import type { PromiseOrValue } from '@envelop/core';
 import { isPromise } from '@graphql-tools/utils';
-import type { URLPattern } from '@whatwg-node/fetch';
 import landingPageBody from '../landing-page-html.js';
 import { FetchAPI } from '../types.js';
 import type { Plugin } from './types.js';
@@ -39,7 +38,7 @@ export function useUnhandledRoute(args: {
   landingPageRenderer?: LandingPageRenderer;
   showLandingPage: boolean;
 }): Plugin {
-  let urlPattern: typeof URLPattern;
+  let urlPattern: URLPattern;
   function getUrlPattern({ URLPattern }: FetchAPI) {
     urlPattern ||= new URLPattern({
       pathname: args.graphqlEndpoint,

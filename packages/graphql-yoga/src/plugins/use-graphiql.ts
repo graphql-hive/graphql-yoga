@@ -1,6 +1,5 @@
 import type { PromiseOrValue } from '@envelop/core';
 import { YogaLogger } from '@graphql-yoga/logger';
-import type { URLPattern } from '@whatwg-node/fetch';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
 import { FetchAPI } from '../types.js';
@@ -183,7 +182,7 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
   }
 
   const renderer = config?.render ?? renderGraphiQL;
-  let urlPattern: typeof URLPattern;
+  let urlPattern: URLPattern;
   const getUrlPattern = ({ URLPattern }: FetchAPI) => {
     urlPattern ||= new URLPattern({
       pathname: config.graphqlEndpoint,
