@@ -124,7 +124,8 @@ module.exports = [
       'import/no-unresolved': 'error',
       'import/no-unused-modules': 'off',
       'import/no-useless-path-segments': 'error',
-      'import/order': 'error',
+      // Disabled because it is already controlled by prettier
+      'import/order': 'off',
       'import/prefer-default-export': 'off',
       // Custom rules
       'import/no-default-export': 'off',
