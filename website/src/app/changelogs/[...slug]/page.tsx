@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import fg from 'fast-glob';
 import { visitParents } from 'unist-util-visit-parents';
 import { NextPageProps } from '@theguild/components';
+import {Mermaid} from '@theguild/remark-mermaid/mermaid'
 import {
   compileMdx,
   convertToPageMap,
@@ -88,7 +89,7 @@ export default async function Page(props: NextPageProps<'...slug'>) {
       // remarkPlugins: [remarkRemoveUpdatedDependency],
     },
   });
-  const { default: MDXContent, toc, metadata } = evaluate(rawJs, components);
+  const { default: MDXContent, toc, metadata } = evaluate(rawJs, {...components, Mermaid});
 
   return (
     <Wrapper

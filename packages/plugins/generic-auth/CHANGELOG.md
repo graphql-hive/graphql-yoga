@@ -445,7 +445,7 @@
 
 - [#1528](https://github.com/n1ru4l/envelop/pull/1528)
   [`50f214a2`](https://github.com/n1ru4l/envelop/commit/50f214a26cb6595f8ef4dda43cd32dd28d7fc67d)
-  Thanks [@{](https://github.com/{)! - give access to execute args in `validateUser` function.
+  Thanks [--](https://github.com/--)! - give access to execute args in `validateUser` function.
 
   This is useful in conjunction with the `fieldAuthExtension` parameter to achieve custom per field
   validation:
