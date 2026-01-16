@@ -17,10 +17,6 @@ export interface ApolloSandboxOptions {
    */
   endpointIsEditable?: boolean;
   /**
-   * You can set `includeCookies` to `true` if you instead want Sandbox to pass `{ credentials: 'include' }` for its requests.If you pass the `handleRequest` option, this option is ignored.Read more about the `fetch` API and credentials [here](https://developer.mozilla.org/en-US/docs/Web/API/fetch#credentials).This config option is deprecated in favor of using the connection settings cookie toggle in Sandbox and setting the default value via `initialState.includeCookies`.
-   */
-  includeCookies?: boolean;
-  /**
    * An object containing additional options related to the state of the embedded Sandbox on page load.
    */
   initialState?: InitialState;
@@ -126,7 +122,6 @@ export function renderApolloSandbox(sandboxOpts?: ApolloSandboxOptions): GraphiQ
       ? JSON.stringify(graphiqlOpts.endpoint)
       : 'location.pathname';
     const finalOpts: ApolloSandboxOptions = {
-      includeCookies,
       ...sandboxOpts,
       initialState,
     };
