@@ -33,6 +33,9 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "check": "tsc --pretty --noEmit",
@@ -56,7 +59,6 @@
     "tslib": "^2.8.1"
   },
   "publishConfig": {
-    "directory": "dist",
     "access": "public"
   },
   "sideEffects": false,

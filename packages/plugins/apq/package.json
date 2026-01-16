@@ -33,6 +33,9 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "check": "tsc --pretty --noEmit",
@@ -55,7 +58,6 @@
     "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
-    "directory": "dist",
     "access": "public"
   },
   "sideEffects": false,
