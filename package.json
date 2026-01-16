@@ -42,9 +42,9 @@
   ],
   "scripts": {
     "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website run build",
+    "build:benchmark": "yarn build && yarn workspace hello-world-benchmark run build",
     "build:graphiql": "yarn workspaces foreach --recursive --topological-dev --parallel --from @graphql-yoga/render-graphiql run build && yarn workspace graphql-yoga generate-graphiql-html",
     "build:website": "yarn build && yarn workspace website run build",
-    "build:benchmark": "yarn build && yarn workspace hello-world-benchmark run build",
     "check:format": "prettier --check .",
     "check:lint": "eslint --ext ts,js,tsx,jsx .",
     "check:missing-peer-deps": "yarn install | grep YN0002 && exit 1 || exit 0",
