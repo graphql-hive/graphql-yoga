@@ -15,7 +15,9 @@ concurrency:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
+    if:
+      github.event.pull_request.head.repo.full_name == github.repository || github.event_name ==
+      'push'
     steps:
       - name: checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -29,7 +31,9 @@ jobs:
         name: build and deploy website
         env:
           NEXT_BASE_PATH: ${{ github.ref == 'refs/heads/main' && '/graphql/yoga-server' || '' }}
-          SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://the-guild.dev/graphql/yoga-server' || '' }}
+          SITE_URL:
+            ${{ github.ref == 'refs/heads/main' && 'https://the-guild.dev/graphql/yoga-server' || ''
+            }}
         with:
           cloudflareApiToken: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
           cloudflareAccountId: ${{ secrets.WEBSITE_CLOUDFLARE_ACCOUNT_ID }}
