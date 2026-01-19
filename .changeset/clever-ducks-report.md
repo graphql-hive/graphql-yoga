@@ -1,6 +1,7 @@
 ---
-'@graphql-yoga/render-apollo-sandbox': patch
+'@graphql-yoga/render-apollo-sandbox': minor
 ---
 
-Avoid passing deprecated includeCookies option to Apollo Embedded Sandbox; use
-initialState.includeCookies
+Breaking;
+
+`includeCookies` in the options has been removed, use `initialState.includeCookies` instead.
