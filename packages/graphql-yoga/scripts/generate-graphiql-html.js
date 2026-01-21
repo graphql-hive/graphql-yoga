@@ -5,9 +5,6 @@ import { minify as minifyT } from 'html-minifier-terser';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// TODO review if this function is still needed.
-// The types suggest that minifyT is already returning a string.
-// And toString does not accept an argument.
 /**
  * @param {string} str
  */
@@ -19,7 +16,6 @@ async function minify(str) {
     collapseWhitespace: true,
     minifyCSS: true,
   });
-  // @ts-expect-error - toString is not typed in the return type but exists at runtime
 }
 
 async function minifyGraphiQLHTML() {
@@ -37,6 +33,7 @@ async function minifyGraphiQLHTML() {
     path.join(__dirname, '../src/graphiql-html.ts'),
     `export default ${JSON.stringify(minified)}`,
   );
+  console.log('  ✓ GraphiQL HTML minified and saved to graphiql-html.ts');
 }
 
 async function minifyLandingPageHTML() {
@@ -48,10 +45,16 @@ async function minifyLandingPageHTML() {
     path.join(__dirname, '../src/landing-page-html.ts'),
     `export default ${JSON.stringify(minified)}`,
   );
+  console.log('  ✓ Landing page HTML minified and saved to landing-page-html.ts');
 }
 
 async function main() {
+  console.log('\n📝 Generating GraphiQL HTML...');
   await Promise.all([minifyGraphiQLHTML(), minifyLandingPageHTML()]);
+  console.log('✅ GraphiQL HTML generation completed successfully.\n');
 }
 
-main();
+main().catch((error) => {
+  console.error('\n❌ Error during GraphiQL HTML generation:', error);
+  process.exit(1);
+});
