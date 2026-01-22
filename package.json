@@ -1,5 +1,6 @@
 {
   "name": "graphql-yoga-monorepo",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphql-hive/graphql-yoga.git"
@@ -17,7 +18,6 @@
   ],
   "license": "MIT",
   "private": true,
-  "type": "module",
   "workspaces": [
     "packages/*",
     "packages/client/*",
@@ -28,7 +28,8 @@
     "packages/plugins/*/yoga",
     "benchmark",
     "website",
-    "e2e"
+    "e2e",
+    "examples/*"
   ],
   "packageManager": "yarn@4.12.0",
   "engines": {
@@ -42,7 +43,7 @@
     "apollo"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website run build && yarn workspace graphql-yoga generate-graphiql-html",
+    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website --exclude 'examples/*' run build && yarn workspace graphql-yoga generate-graphiql-html",
     "build:benchmark": "yarn build && yarn workspace hello-world-benchmark run build",
     "build:website": "yarn build && yarn workspace website run build",
     "check:format": "prettier --check .",

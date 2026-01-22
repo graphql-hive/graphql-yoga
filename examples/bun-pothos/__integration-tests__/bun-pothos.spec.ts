@@ -16,7 +16,7 @@ skipIf(versionInfo.major < 16)('Bun Pothos', () => {
   it('handles cookies correctly', async () => {
     const signal = AbortSignal.timeout(10_000);
     const port = await getAvailablePort();
-    proc = await spawn('pnpm', ['bun', join(__dirname, '..', 'src', 'index.ts')], {
+    proc = await spawn('bun', [join(__dirname, '..', 'src', 'index.ts')], {
       env: {
         PORT: String(port),
       },

@@ -4,7 +4,6 @@ import { execute } from '@graphql-tools/executor';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { subscribe } from './subscribe';
 
-
 export type ContextFactoryOptions = {
   /** The arguments with which the subscription was set up. */
   args: ExecutionArgs;

@@ -54,7 +54,7 @@ async function main() {
   console.log('✅ GraphiQL HTML generation completed successfully.\n');
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error('\n❌ Error during GraphiQL HTML generation:', error);
   process.exit(1);
 });

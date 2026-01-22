@@ -22,7 +22,6 @@ module.exports = [
       '**/.yarn/**',
       '**/.cache/**',
       '**/coverage/**',
-      '**/pnpm-lock.yaml',
       '**/yarn.lock',
       '**/package-lock.json',
       '.*',

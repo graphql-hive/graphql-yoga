@@ -1,6 +1,10 @@
-const { resolve } = require('node:path');
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const CI = !!process.env.CI;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const ROOT_DIR = __dirname;
 
 process.env.LC_ALL = 'en_US';
@@ -45,13 +49,16 @@ if (process.env.LEAKS_TEST === 'true') {
 
 testMatch.push('!**/dist/**', '!**/.bob/**');
 
-module.exports = {
+export default {
   prettierPath: null,
   testEnvironment: 'node',
   rootDir: ROOT_DIR,
   restoreMocks: true,
   reporters: ['default'],
   modulePathIgnorePatterns: ['dist'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(package-up|find-up-simple)/)',
+  ],
   moduleNameMapper: {
     // graphql-yoga main package
     '^graphql-yoga$': `${ROOT_DIR}/packages/graphql-yoga/src/index.ts`,
@@ -82,6 +89,12 @@ module.exports = {
       {
         tsconfig: 'tsconfig.json',
         useESM: true,
+      },
+    ],
+    '^.+\\.m?jsx?$': [
+      'babel-jest',
+      {
+        presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
       },
     ],
   },
