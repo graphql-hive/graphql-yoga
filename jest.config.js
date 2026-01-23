@@ -56,9 +56,7 @@ export default {
   restoreMocks: true,
   reporters: ['default'],
   modulePathIgnorePatterns: ['dist'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(package-up|find-up-simple)/)',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(package-up|find-up-simple)/)'],
   moduleNameMapper: {
     // graphql-yoga main package
     '^graphql-yoga$': `${ROOT_DIR}/packages/graphql-yoga/src/index.ts`,

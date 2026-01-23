@@ -7,7 +7,7 @@ const inputPath = path.resolve(directoryName, '..', '..', 'graphiql', 'dist');
 const jsFile = path.resolve(inputPath, 'index.umd.js');
 const cssFile = path.resolve(inputPath, 'index.css');
 const faviconFile = path.resolve(directoryName, '../../../website/src/app/favicon.ico');
-const editorWorkerServiceFile = path.resolve( inputPath, 'monacoeditorwork', 'editor.worker.js');
+const editorWorkerServiceFile = path.resolve(inputPath, 'monacoeditorwork', 'editor.worker.js');
 const jsonWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'json.worker.js');
 const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker.js');
 
