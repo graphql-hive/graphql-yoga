@@ -43,7 +43,7 @@
     "apollo"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website --exclude 'examples/*' run build && yarn workspace graphql-yoga generate-graphiql-html",
+    "build": "yarn workspaces foreach --all --topological-dev --parallel --exclude hello-world-benchmark --exclude website --exclude 'examples/*' run build",
     "build:benchmark": "yarn build && yarn workspace hello-world-benchmark run build",
     "build:website": "yarn build && yarn workspace website run build",
     "check:format": "prettier --check .",

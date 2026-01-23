@@ -10,7 +10,7 @@
     <link
       crossorigin
       rel="stylesheet"
-      href="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/graphiql.css"
+      href="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/index.css"
     />
   </head>
   <body id="body" class="no-focus-outline">
@@ -24,10 +24,10 @@
       const workers = {};
       const workerUrls = {
         editorWorkerService:
-          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/editor.worker.bundle.js',
-        json: 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/json.worker.bundle.js',
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/editor.worker.js',
+        json: 'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/json.worker.js',
         graphql:
-          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/graphql.worker..bundle.js',
+          'https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/monacoeditorwork/graphql.worker.js',
       };
       function prepareWorkers() {
         return Promise.all(
@@ -45,7 +45,7 @@
         },
       };
     </script>
-    <script src="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/yoga-graphiql.umd.js"></script>
+    <script src="https://unpkg.com/@graphql-yoga/graphiql@__GRAPHIQL_VERSION__/dist/index.umd.js"></script>
     <script>
       prepareWorkers().finally(() => {
         YogaGraphiQL.renderYogaGraphiQL(root, __OPTS__);

@@ -4,7 +4,7 @@ import { YogaGraphiQL, YogaGraphiQLProps } from './YogaGraphiQL.js';
 
 export function renderYogaGraphiQL(element: Element, opts?: YogaGraphiQLProps) {
   const root = createRoot(element);
-  root.render(<YogaGraphiQL {...opts} />);
+  root.render(React.createElement(YogaGraphiQL, opts));
 }
 
 globalThis.React = React;

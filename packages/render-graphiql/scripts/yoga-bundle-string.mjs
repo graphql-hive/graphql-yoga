@@ -4,16 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const directoryName = path.dirname(fileURLToPath(import.meta.url));
 const inputPath = path.resolve(directoryName, '..', '..', 'graphiql', 'dist');
-const jsFile = path.resolve(inputPath, 'yoga-graphiql.umd.js');
-const cssFile = path.resolve(inputPath, 'graphiql.css');
+const jsFile = path.resolve(inputPath, 'index.umd.js');
+const cssFile = path.resolve(inputPath, 'index.css');
 const faviconFile = path.resolve(directoryName, '../../../website/src/app/favicon.ico');
-const editorWorkerServiceFile = path.resolve(
-  inputPath,
-  'monacoeditorwork',
-  'editor.worker.bundle.js',
-);
-const jsonWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'json.worker.bundle.js');
-const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker..bundle.js');
+const editorWorkerServiceFile = path.resolve( inputPath, 'monacoeditorwork', 'editor.worker.js');
+const jsonWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'json.worker.js');
+const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker.js');
 
 const outFile = path.resolve(directoryName, '..', 'src', 'graphiql.ts');
 
