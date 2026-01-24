@@ -5,7 +5,7 @@
   "scripts": {
     "check": "tsc --pretty --noEmit",
     "codegen": "graphql-codegen --config codegen.yml",
-    "postinstall": "yarn run codegen",
+    "DISABLED_postinstall": "yarn run codegen",
     "precheck": "yarn run codegen",
     "start": "ts-node src/index.ts"
   },
