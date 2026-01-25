@@ -1,5 +1,15 @@
 # @graphql-yoga/render-apollo-sandbox
 
+## 0.4.0
+
+### Minor Changes
+
+- [#4327](https://github.com/graphql-hive/graphql-yoga/pull/4327)
+  [`8998d9b`](https://github.com/graphql-hive/graphql-yoga/commit/8998d9b118e4ed6bb4f0807ecf4825860cf3a6ae)
+  Thanks [@mario-jerkovic](https://github.com/mario-jerkovic)! - Breaking;
+
+  `includeCookies` in the options has been removed, use `initialState.includeCookies` instead.
+
 ## 0.3.0
 
 ### Patch Changes
