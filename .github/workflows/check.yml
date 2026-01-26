@@ -41,6 +41,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+      - name: Build Yoga
+        run: yarn workspaces foreach --topological-dev --include graphql-yoga run build
       - name: Check
         run: yarn check:lint
 
@@ -55,6 +57,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+      - name: Build Yoga
+        run: yarn workspaces foreach --topological-dev --include graphql-yoga run build
       - name: Check Types
         run: yarn check:types
 
