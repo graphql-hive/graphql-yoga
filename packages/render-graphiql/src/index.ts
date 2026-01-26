@@ -1,5 +1,5 @@
 import type { GraphiQLOptions } from 'graphql-yoga';
-import { css, editorWorkerService, favicon, graphqlWorker, js, jsonWorker } from './graphiql.js';
+import { css, editorWorkerService, favicon, graphqlWorker, js, jsonWorker } from './graphiql';
 
 export const renderGraphiQL = (opts?: GraphiQLOptions) => /* HTML */ `
   <!doctype html>

@@ -1,4 +1,4 @@
-declare module 'graphiql/index.css' {
+declare module 'graphiql/graphiql.css' {
   export default string;
 }
 

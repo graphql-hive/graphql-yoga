@@ -14,9 +14,9 @@
   "module": "dist/index.mjs",
   "exports": {
     ".": {
-      "require": "./dist/index.umd.js",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
+      "require": "./dist/yoga-graphiql.umd.js",
+      "import": "./dist/yoga-graphiql.es.js",
+      "default": "./dist/yoga-graphiql.es.js"
     },
     "./package.json": "./package.json"
   },
@@ -28,7 +28,7 @@
     "graphiql"
   ],
   "scripts": {
-    "build": "tsdown && mkdir -p dist/monacoeditorwork && cp ../../node_modules/monaco-editor/esm/vs/editor/editor.worker.js dist/monacoeditorwork/ && cp ../../node_modules/monaco-editor/esm/vs/language/json/json.worker.js dist/monacoeditorwork/ && cp ./node_modules/monaco-graphql/esm/graphql.worker.js dist/monacoeditorwork/",
+    "build": "tsdown && mv dist/index.mjs dist/yoga-graphiql.es.js && mv dist/index.umd.js dist/yoga-graphiql.umd.js && mv dist/index.css dist/graphiql.css && mkdir -p dist/monacoeditorwork && cp ../../node_modules/monaco-editor/esm/vs/editor/editor.worker.js dist/monacoeditorwork/editor.worker.bundle.js && cp ../../node_modules/monaco-editor/esm/vs/language/json/json.worker.js dist/monacoeditorwork/json.worker.bundle.js && cp ./node_modules/monaco-graphql/esm/graphql.worker.js dist/monacoeditorwork/graphql.worker.bundle.js",
     "check": "tsc --pretty --noEmit",
     "start": "tsdown --watch"
   },
