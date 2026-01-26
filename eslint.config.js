@@ -1,7 +1,7 @@
-const tseslintParser = require('@typescript-eslint/parser');
+import tseslintParser from '@typescript-eslint/parser';
 
 /** @type {import('eslint').Linter.Config[]} */
-module.exports = [
+export default [
   {
     ignores: [
       // Files from old .eslintignore
@@ -55,8 +55,10 @@ module.exports = [
   {
     files: ['**/*.{ts,tsx,js,jsx,cjs,mjs}'],
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
-      import: require('eslint-plugin-import').fixupPluginRules || require('eslint-plugin-import'),
+      '@typescript-eslint': (await import('@typescript-eslint/eslint-plugin')).default,
+      import:
+        (await import('eslint-plugin-import')).default.fixupPluginRules ||
+        (await import('eslint-plugin-import')).default,
     },
     languageOptions: {
       parser: tseslintParser,

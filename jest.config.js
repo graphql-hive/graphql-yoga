@@ -83,5 +83,5 @@ export default {
   collectCoverage: false,
   cacheDirectory: resolve(ROOT_DIR, `${CI ? '' : 'node_modules/'}.cache/jest`),
   testMatch,
-  testTimeout
+  testTimeout,
 };
