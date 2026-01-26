@@ -72,7 +72,7 @@ export default {
     // @envelop/testing is in packages/testing/ (not under packages/envelop/) - put before general pattern
     '^@envelop/testing$': `${ROOT_DIR}/packages/testing/src/index.ts`,
     // @envelop/* - covers envelop core packages and plugins with envelop source
-    '^@envelop/(.*)$': [
+    '^@envelop/(?!instrumentation$)(.*)$': [
       `${ROOT_DIR}/packages/envelop/$1/src/index.ts`,
       `${ROOT_DIR}/packages/plugins/$1/src/index.ts`,
       `${ROOT_DIR}/packages/plugins/$1/envelop/src/index.ts`,
@@ -80,24 +80,8 @@ export default {
     // Remove .js extension from imports
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
-  transform: {
-    '^.+\\.tsx?$': [
-      'ts-jest',
-      {
-        tsconfig: 'tsconfig.json',
-        useESM: true,
-      },
-    ],
-    '^.+\\.m?jsx?$': [
-      'babel-jest',
-      {
-        presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
-      },
-    ],
-  },
   collectCoverage: false,
   cacheDirectory: resolve(ROOT_DIR, `${CI ? '' : 'node_modules/'}.cache/jest`),
   testMatch,
-  testTimeout,
+  testTimeout
 };
