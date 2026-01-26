@@ -41,8 +41,10 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-      - name: Build Yoga
-        run: yarn workspaces foreach --all --topological-dev --include "graphql-yoga" run build
+      - name: Build GraphiQL
+        run:
+          yarn workspaces foreach --all --topological-dev --include graphql-yoga --include
+          @graphql-yoga/graphiql --include @graphql-yoga/render-graphiql run build
       - name: Check
         run: yarn check:lint
 
@@ -57,8 +59,10 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-      - name: Build Yoga
-        run: yarn workspaces foreach --all --topological-dev --include "graphql-yoga" run build
+      - name: Build GraphiQL
+        run:
+          yarn workspaces foreach --all --topological-dev --include graphql-yoga --include
+          @graphql-yoga/graphiql --include @graphql-yoga/render-graphiql run build
       - name: Check Types
         run: yarn check:types
 
