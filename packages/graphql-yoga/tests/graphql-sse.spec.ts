@@ -168,7 +168,7 @@ describe('GraphQL over SSE', () => {
       });
 
       try {
-        await new Promise((resolve, reject) => {
+        await new Promise((_resolve, reject) => {
           client.subscribe(
             {
               query: 'query TestQuery { nope }',
