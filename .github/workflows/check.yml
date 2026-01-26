@@ -41,8 +41,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-      - name: 'Generate GraphiQL files'
-        run: yarn build:graphiql
       - name: Check
         run: yarn check:lint
 
@@ -57,8 +55,6 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
-      - name: 'Generate GraphiQL files'
-        run: yarn build:graphiql
       - name: Check Types
         run: yarn check:types
 
