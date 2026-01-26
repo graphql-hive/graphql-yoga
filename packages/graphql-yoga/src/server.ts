@@ -734,18 +734,20 @@ export class YogaServer<
   };
 }
 
+export type ContextBase = {
+  [key: Exclude<string, keyof YogaInitialContext>]: unknown;
+} & Partial<YogaInitialContext>;
+
 /* eslint-disable */
 export type YogaServerInstance<
-  TServerContext extends Record<string, any>,
-  TUserContext extends Record<string, any>,
+  TServerContext extends ContextBase,
+  TUserContext extends ContextBase,
 > = ServerAdapter<TServerContext, YogaServer<TServerContext, TUserContext>>;
 
 export function createYoga<
-  TServerContext extends Record<string, any> = {},
-  TUserContext extends Record<string, any> = {},
->(
-  options: YogaServerOptions<TServerContext, TUserContext>,
-): YogaServerInstance<TServerContext, TUserContext> {
+  TServerContext extends ContextBase = {},
+  TUserContext extends ContextBase = {},
+>(options: YogaServerOptions<TServerContext, TUserContext>) {
   const server = new YogaServer<TServerContext, TUserContext>(options);
   return createServerAdapter<TServerContext, YogaServer<TServerContext, TUserContext>>(server, {
     fetchAPI: server.fetchAPI,

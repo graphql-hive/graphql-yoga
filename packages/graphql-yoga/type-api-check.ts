@@ -1,7 +1,7 @@
 import { ClientRequest } from 'node:http';
 import type { GraphQLSchema } from 'graphql';
 import { IResolvers } from '@graphql-tools/utils';
-import { createSchema, createYoga, YogaInitialContext } from './src/index.js';
+import { createSchema, createYoga, GraphQLParams, YogaInitialContext } from './src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const schema: GraphQLSchema = null as any;
@@ -39,6 +39,54 @@ const request: Request = null as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const clientRequest: ClientRequest = null as any;
   server.handleRequest(request, { req: clientRequest });
+}
+
+// Do not allow reserved context keys
+{
+  // @ts-expect-error ServerContext type cannot contain reserved key 'request'.
+  createYoga<{}, { request: { myParam: string } }>({
+    schema,
+  });
+}
+{
+  // @ts-expect-error ServerContext type cannot contain reserved key 'params'.
+  createYoga<{}, { params: { myParam: string } }>({
+    schema,
+  });
+}
+{
+  // @ts-expect-error ServerContext type cannot contain reserved key 'request'.
+  createYoga<{}, { request: { myParam: string } }>({
+    schema,
+  });
+}
+{
+  // @ts-expect-error ServerContext type cannot contain reserved key 'params'.
+  createYoga<{ params: { myParam: string } }>({
+    schema,
+  });
+}
+// Allow reserved context keys if they match in ServerContext
+{
+  createYoga<{ request: Request }>({
+    schema,
+  });
+}
+{
+  createYoga<{ params: GraphQLParams }>({
+    schema,
+  });
+}
+// Allow reserved context keys if they match in UserContext
+{
+  createYoga<{}, { request: Request }>({
+    schema,
+  });
+}
+{
+  createYoga<{}, { params: GraphQLParams }>({
+    schema,
+  });
 }
 
 /**
