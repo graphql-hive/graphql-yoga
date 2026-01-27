@@ -26,6 +26,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
       - name: Tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -51,6 +53,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
       - name: Test
         run: yarn run test:node
 
@@ -73,6 +77,8 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version: ${{matrix.node-version}}
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -148,7 +154,9 @@ jobs:
       - name: Build Packages
         run: yarn run build
       - name: Bundle Apollo Federation Subgraph Example
-        run: yarn run --filter=example-apollo-federation-compatibility build
+        run:
+          yarn workspaces foreach --all --topological-dev --include
+          example-apollo-federation-compatibility run build
       - name: Install Rover
         run: curl -sSL https://rover.apollo.dev/nix/latest | sh
       - name: Add Rover to PATH

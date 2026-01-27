@@ -12,7 +12,6 @@ export class AppModule {
       module: AppModule,
       providers: [HttpAdapterHost],
       imports: [
-        HttpAdapterHost,
         CatsModule,
         GraphQLModule.forRoot<YogaDriverConfig>({
           ...options,

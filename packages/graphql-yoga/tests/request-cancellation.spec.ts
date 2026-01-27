@@ -81,7 +81,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     ]);
   });
 
-  it.only('request cancellation stops invocation of subsequent resolvers (GraphQL over SSE with Subscription)', async () => {
+  it('request cancellation stops invocation of subsequent resolvers (GraphQL over SSE with Subscription)', async () => {
     const rootResolverGotInvokedD = createDeferredPromise();
     const requestGotCancelledD = createDeferredPromise();
     let aResolverGotInvoked = false;
