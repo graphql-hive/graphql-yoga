@@ -24,6 +24,10 @@ describeIf(versionInfo.major >= 16)('Inline Trace - Yoga gateway', () => {
     });
   });
 
+  afterAll(async () => {
+    await yoga.dispose();
+  });
+
   function expectTrace(trace: Trace) {
     const expectedTrace: Partial<Trace> = {
       root: {

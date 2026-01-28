@@ -3,6 +3,10 @@ import { assertSingleExecutionValue, createSpiedPlugin, createTestkit } from '@e
 import { query, schema } from './common.js';
 
 describe('parse', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('Should call before parse and after parse correctly', async () => {
     const spiedPlugin = createSpiedPlugin();
     const teskit = createTestkit([spiedPlugin.plugin], schema);
