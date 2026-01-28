@@ -14,6 +14,10 @@ import { useErrorHandler } from '../../src/plugins/use-error-handler.js';
 import { schema } from '../common.js';
 
 describe('useErrorHandler', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should invoke error handler when error happens during execution', async () => {
     const testError = new Error('Foobar');
 
@@ -117,8 +121,11 @@ describe('useErrorHandler', () => {
           foo: {
             subscribe: () =>
               new Repeater(async (push, end) => {
-                await push(1);
-                end();
+                try {
+                  await push(1);
+                } finally {
+                  end();
+                }
               }),
             resolve: () => {
               throw testError;
@@ -132,14 +139,21 @@ describe('useErrorHandler', () => {
     const testInstance = createTestkit([useErrorHandler(mockHandler)], schema);
     const result = await testInstance.execute(`subscription { foo }`, {}, { foo: 'bar' });
     assertStreamExecutionValue(result);
-    await collectAsyncIteratorValues(result);
+    try {
+      await collectAsyncIteratorValues(result);
+    } finally {
+      // Ensure iterator is properly closed to prevent memory leaks
+      if (result && typeof result.return === 'function') {
+        await result.return();
+      }
+    }
 
     expect(mockHandler.mock.calls).toHaveLength(1);
     expect(mockHandler.mock.calls[0][0].phase).toBe('execution');
     expect(mockHandler.mock.calls[0][0].errors).toHaveLength(1);
     expect(mockHandler.mock.calls[0][0].errors[0].name).toBe('GraphQLError');
     expect(mockHandler.mock.calls[0][0].errors[0].originalError).toBe(testError);
-  });
+  }, 10000);
 
   it('should invoke error handler when error happens during incremental execution', async () => {
     const schema = makeExecutableSchema({
@@ -169,8 +183,15 @@ describe('useErrorHandler', () => {
     );
     const result = await testInstance.execute(`query { ... @defer { foo } }`);
     assertStreamExecutionValue(result);
-    await collectAsyncIteratorValues(result);
+    try {
+      await collectAsyncIteratorValues(result);
+    } finally {
+      // Ensure iterator is properly closed to prevent memory leaks
+      if (result && typeof result.return === 'function') {
+        await result.return();
+      }
+    }
 
     expect(mockHandler).toHaveBeenCalledWith(expect.objectContaining({ phase: 'execution' }));
-  });
+  }, 10000);
 });

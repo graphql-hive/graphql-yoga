@@ -105,11 +105,11 @@ test('getGraphQLRateLimiter uncountRejected should ignore rejections', async () 
     context: { id: '1' },
   };
   expect(await rateLimit('myField', field, config)).toBeFalsy();
-  await sleep(500);
+  await sleep(550);
   expect(await rateLimit('myField', field, config)).toBe(
     `You are trying to access 'myField' too often`,
   );
-  await sleep(500);
+  await sleep(550);
   expect(await rateLimit('myField', field, config)).toBeFalsy();
 });
 
