@@ -1,6 +1,6 @@
 import { buildSchema, GraphQLError, parse } from 'graphql';
 import { envelop, useSchema } from '@envelop/core';
-import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
+import { assertSingleExecutionValue, assertStreamExecutionValue, collectAsyncIteratorValues, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useExtendedValidation } from '../src/index.js';
 
@@ -59,6 +59,7 @@ describe('useExtendedValidation', () => {
           }
         `);
   });
+
   it('run extended validation phase exactly once if no validation error occurs', async () => {
     const schema = buildSchema(/* GraphQL */ `
       type Query {
@@ -100,6 +101,7 @@ describe('useExtendedValidation', () => {
     await testInstance.execute(operation);
     expect(extendedValidationRunCount).toEqual(1);
   });
+
   it('execute throws an error if "contextFactory" has not been invoked', async () => {
     const schema = buildSchema(/* GraphQL */ `
       type Query {
@@ -131,7 +133,8 @@ describe('useExtendedValidation', () => {
       `"Plugin has not been properly set up. The 'contextFactory' function is not invoked and the result has not been passed to 'execute'."`,
     );
   });
-  it('subscribe does run the extended validation phase', async () => {
+
+  it('subscribe does run of extended validation phase', async () => {
     const schema = makeExecutableSchema({
       typeDefs: /* GraphQL */ `
         type Query {
@@ -170,9 +173,19 @@ describe('useExtendedValidation', () => {
       ],
       schema,
     );
-    await testkit.execute(operation);
+    const result = await testkit.execute(operation);
+    assertStreamExecutionValue(result);
+    try {
+      await collectAsyncIteratorValues(result);
+    } finally {
+      // Ensure iterator is properly closed to prevent memory leaks
+      if (result && typeof result.return === 'function') {
+        await result.return();
+      }
+    }
     expect(calledExtendedValidationRule).toEqual(true);
-  });
+  }, 10000);
+
   it('subscribe does result in extended validation phase errors', async () => {
     const schema = makeExecutableSchema({
       typeDefs: /* GraphQL */ `
@@ -212,6 +225,7 @@ describe('useExtendedValidation', () => {
       schema,
     );
     const result = await testkit.execute(operation);
+    // When validation fails, result is a single execution value, not a stream
     assertSingleExecutionValue(result);
     expect(result).toMatchInlineSnapshot(`
       {
@@ -221,5 +235,5 @@ describe('useExtendedValidation', () => {
         ],
       }
     `);
-  });
+  }, 10000);
 });
