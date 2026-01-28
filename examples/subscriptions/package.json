@@ -3,7 +3,7 @@
   "version": "0.13.6",
   "private": true,
   "scripts": {
-    "DISABLED_postinstall": "yarn run codegen",
+    "postinstall": "yarn run codegen",
     "check": "tsc --pretty --noEmit",
     "codegen": "graphql-codegen --config codegen.yml",
     "precheck": "yarn run codegen",

@@ -19,8 +19,8 @@ if (process.env.INTEGRATION_TEST === 'true') {
   if (parseInt(process.versions.node.split('.')[0]) <= 14) {
     testMatch.push('!**/examples/sveltekit/**', '!**/examples/fastify*/**');
   }
+  // Exclude all bun examples from Node integration tests (they require Bun runtime)
   testMatch.push('!**/examples/bun*/**');
-  testMatch.push('**/examples/bun-pothos/__integration-tests__/bun-pothos.spec.ts');
 } else {
   testMatch.push(
     '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',
