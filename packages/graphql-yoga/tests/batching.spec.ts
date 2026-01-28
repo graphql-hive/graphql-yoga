@@ -16,11 +16,11 @@ describe('Batching', () => {
       },
     },
   });
-  const yoga = createYoga({
-    schema,
-    batching: true,
-  });
   it('should support batching for JSON requests', async () => {
+    const yoga = createYoga({
+      schema,
+      batching: true,
+    });
     const query1 = /* GraphQL */ `
       query {
         hello
@@ -42,6 +42,10 @@ describe('Batching', () => {
     expect(result).toEqual([{ data: { hello: 'hello' } }, { data: { bye: 'bye' } }]);
   });
   it('should support batching for multipart requests', async () => {
+    const yoga = createYoga({
+      schema,
+      batching: true,
+    });
     const query1 = /* GraphQL */ `
       query {
         hello
@@ -62,7 +66,11 @@ describe('Batching', () => {
     const result = await response.json();
     expect(result).toEqual([{ data: { hello: 'hello' } }, { data: { bye: 'bye' } }]);
   });
-  it('should throw if the default limit is exceeded', async () => {
+  it('should throw if default limit is exceeded', async () => {
+    const yoga = createYoga({
+      schema,
+      batching: true,
+    });
     const query1 = /* GraphQL */ `
       query {
         hello
