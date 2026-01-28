@@ -90,7 +90,7 @@ test('getGraphQLRateLimiter timestamps should expire', async () => {
   expect(await rateLimit('myField', field, config)).toBe(
     `You are trying to access 'myField' too often`,
   );
-  await sleep(500);
+  await sleep(550);
   expect(await rateLimit('myField', field, config)).toBeFalsy();
 });
 

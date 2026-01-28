@@ -5,6 +5,10 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useExtendedValidation } from '../src/index.js';
 
 describe('useExtendedValidation', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('supports usage of multiple useExtendedValidation in different plugins', async () => {
     const schema = buildSchema(/* GraphQL */ `
       type Query {

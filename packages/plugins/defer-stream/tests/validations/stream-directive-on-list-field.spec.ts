@@ -10,6 +10,10 @@ function expectValid(queryStr: string) {
 }
 
 describe('Validate: Stream directive on list field', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('Stream on list field', () => {
     expectValid(`
       fragment objectFieldSelection on Human {
