@@ -8,15 +8,16 @@
   ],
   "scripts": {
     "check": "exit 0",
-    "start": "concurrently \"pnpm start:service\" \"pnpm start:gateway\"",
-    "start:gateway": "cd gateway && pnpm start",
-    "start:service": "cd service && pnpm start"
+    "start": "concurrently \"yarn start:service\" \"yarn start:gateway\"",
+    "start:gateway": "cd gateway && yarn start",
+    "start:service": "cd service && yarn start"
   },
   "dependencies": {
     "concurrently": "^9.0.0"
   },
   "devDependencies": {
     "@apollo/gateway": "2.12.0",
-    "@whatwg-node/fetch": "^0.10.1"
+    "@whatwg-node/fetch": "^0.10.1",
+    "graphql": "16.12.0"
   }
 }

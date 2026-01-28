@@ -114,7 +114,7 @@ export abstract class AbstractYogaDriver<
       constructor(context: string) {
         super(context);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       info(message: any, ...args: any[]) {
         this.log(message, ...args);
       }
@@ -218,7 +218,7 @@ export abstract class AbstractYogaDriver<
       context: TContext,
     ) => boolean | Promise<boolean>,
     // disable next error, the original function in @nestjs/graphql is also untyped
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+
     createSubscribeContext: Function,
   ) {
     return async (...args: [TPayload, TVariables, TContext]) => {

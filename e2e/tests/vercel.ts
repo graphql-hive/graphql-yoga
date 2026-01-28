@@ -123,7 +123,7 @@ export const vercelDeployment: DeploymentConfiguration<{
   prerequisites: async () => {
     // Build and bundle the function
     console.info('\t\tℹ️ Bundling the Vercel Function....');
-    await execPromise('pnpm bundle', {
+    await execPromise('yarn run bundle', {
       cwd: '../examples/nextjs-legacy-pages',
     });
   },
@@ -151,7 +151,7 @@ export const vercelDeployment: DeploymentConfiguration<{
         },
       },
       projectSettings: {
-        framework: null,
+        framework: '',
       },
     });
 

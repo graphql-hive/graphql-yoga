@@ -25,10 +25,10 @@ describeIf(process.versions.node.startsWith('2'))('SvelteKit integration', () =>
 		} catch (error) {}
 
 		// Build svelteKit
-		execSync('pnpm --filter example-sveltekit build');
+		execSync('yarn workspace example-sveltekit build');
 
 		// Start sveltekit
-		sveltekitProcess = spawn('pnpm', ['--filter', 'example-sveltekit', 'preview']);
+		sveltekitProcess = spawn('yarn', ['workspace', 'example-sveltekit', 'preview']);
 
 		// Wait for sveltekit to start
 		await setTimeout$(timings.setup.waitAfterPreview);

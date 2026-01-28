@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { createSchema } from 'graphql-yoga';
 import { faker } from '@faker-js/faker';
 

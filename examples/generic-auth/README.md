@@ -3,7 +3,7 @@
 Showcase of doing authentication for Query, Mutation and Subscription operations.
 
 ```bash
-pnpm --filter example-generic-auth dev
+yarn --filter example-generic-auth dev
 ```
 
 Provide the authentication token `aaa` or `bbb` via the `x-authorization` header or the

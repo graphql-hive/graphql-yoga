@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-
 export const ansiCodes = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',

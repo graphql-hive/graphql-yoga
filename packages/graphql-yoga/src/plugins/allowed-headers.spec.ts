@@ -52,7 +52,7 @@ describe('useAllowedHeaders', () => {
         ...plugins,
       ],
     });
-    return yoga.fetch('/graphql', {
+    return yoga.fetch('http://yoga/graphql', {
       body: JSON.stringify({ query: '{ __typename }' }),
       method: 'POST',
       headers: {

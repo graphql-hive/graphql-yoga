@@ -22,9 +22,10 @@ jobs:
         uses: the-guild-org/shared-config/setup@v1
         with:
           node-version-file: .node-version
+          install-command: yarn install
 
       - name: Build Packages
-        run: pnpm build
+        run: yarn run build:benchmark
 
       - name: Setup K6
         run: |
@@ -35,7 +36,7 @@ jobs:
       - name: Start Yoga Server
         working-directory: ./benchmark
         run: |
-          pnpm test
+          yarn test
         env:
           NODE_NO_WARNINGS: true
           NODE_ENV: production

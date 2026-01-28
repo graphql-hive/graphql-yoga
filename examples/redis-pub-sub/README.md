@@ -11,8 +11,8 @@ docker run -p "6379:6379" redis:7.0.2
 Start two server instances running on different ports
 
 ```bash
-PORT=4000 pnpm --filter example-redis-pub-sub start
-PORT=4001 pnpm --filter example-redis-pub-sub start
+PORT=4000 yarn --filter example-redis-pub-sub start
+PORT=4001 yarn --filter example-redis-pub-sub start
 ```
 
 Visit and set up the subscription by pressing the Play button.

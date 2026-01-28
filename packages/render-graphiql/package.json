@@ -13,40 +13,43 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/typings/index.d.cts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       }
     },
     "./*": {
       "require": {
-        "types": "./dist/typings/*.d.cts",
-        "default": "./dist/cjs/*.js"
+        "types": "./dist/*.d.cts",
+        "default": "./dist/*.cjs"
       },
       "import": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
       },
       "default": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
       }
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "graphql",
     "server",
@@ -54,20 +57,23 @@
     "graphql-server"
   ],
   "scripts": {
-    "build": "node scripts/yoga-bundle-string.mjs",
+    "build": "node scripts/yoga-bundle-string.mjs && tsdown",
     "check": "tsc --pretty --noEmit"
   },
-  "peerDependencies": {
-    "graphql-yoga": "workspace:^"
+  "devDependencies": {
+    "@graphql-yoga/graphiql": "workspace:^",
+    "graphql": "^16.12.0",
+    "graphql-yoga": "workspace:^",
+    "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
-    "directory": "dist",
     "access": "public"
   },
+  "bob": false,
   "buildOptions": {
     "input": "./src/index.ts"
   },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }

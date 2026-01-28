@@ -1,15 +1,12 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.1.0/schema.json",
-  "changelog": [
-    "@changesets/changelog-github",
-    { "repo": "graphql-hive/graphql-yoga" }
-  ],
+  "changelog": ["@changesets/changelog-github", { "repo": "graphql-hive/graphql-yoga" }],
   "commit": false,
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["website", "example-*"],
+  "ignore": ["website"],
   "snapshot": {
     "useCalculatedVersion": true,
     "prereleaseTemplate": "{tag}-{datetime}-{commit}"

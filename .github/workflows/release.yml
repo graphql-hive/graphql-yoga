@@ -1,25 +1,96 @@
-name: Stable Release
+name: Release
+
 on:
   push:
     branches:
-      - 'main'
+      - main
+  pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  NODE_NO_WARNINGS: 1
+  CI: true
 
 jobs:
-  stable:
-    permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
-      issues: write
-    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
+  dependencies:
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release
+      Changes'
+    name: Dependencies
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-dependencies
+      cancel-in-progress: true
+    uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
     with:
-      releaseScript: release
       node-version-file: .node-version
     secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+  snapshot-npm-tag:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Choose snapshot NPM tag
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-snapshot-npm-tag
+      cancel-in-progress: true
+    outputs:
+      value: ${{ steps.choose-tag.outputs.result }}
+    steps:
+      - name: Choose NPM Tag
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v7
+        id: choose-tag
+        with:
+          result-encoding: string
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            // having #snapshot-npm-tag "next" in the PR body will set the npm tag to "next"
+            const npmTagFromPrBody = prBody.match(/#snapshot-npm-tag\s+"([^"]+)"/)?.[1];
+            if (npmTagFromPrBody) {
+              console.log(`Detected npm tag from PR body "${npmTagFromPrBody}"`);
+              return npmTagFromPrBody;
+            }
+            const prTitle = context.payload.pull_request.title;
+            const prAuthor = context.payload.pull_request.user.login;
+            if (prAuthor === 'theguild-bot' && prTitle === 'Upcoming Release Changes') {
+              console.log('Using "rc" tag for upcoming release');
+              return 'rc';
+            }
+            console.log('Using "alpha" tag for snapshot release');
+            return 'alpha';
+
+  snapshot:
+    needs: [snapshot-npm-tag]
+    name: Snapshot
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-release-snapshot
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
+    with:
+      node-version-file: .node-version
+      npmTag: ${{ needs.snapshot-npm-tag.outputs.value }}
+      restoreDeletedChangesets:
+        ${{ github.event.pull_request.title == 'Upcoming Release Changes' && true || false }}
+      buildScript: build
+    secrets:
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
+      npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
+
+  stable:
+    if: github.ref == 'refs/heads/main'
+    concurrency: ${{ github.workflow }}-${{ github.ref }}-release-stable
+    name: Stable
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
+    with:
+      node-version-file: .node-version
+      releaseScript: changeset publish
+      versionScript: changeset version
+    secrets:
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
       npmToken: ${{ secrets.NODE_AUTH_TOKEN }}

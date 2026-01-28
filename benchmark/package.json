@@ -4,15 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "check": "exit 0",
+    "build": "tsdown *.ts --format esm",
+    "check": "tsc --no-emit",
     "loadtest": "k6 -e GITHUB_PR=$GITHUB_PR -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run k6.js",
-    "pretest": "npm run build",
-    "start": "node dist/start-server.js",
+    "start": "node dist/start-server.mjs",
     "test": "start-server-and-test start http://127.0.0.1:4000/ping loadtest"
   },
   "dependencies": {
-    "@envelop/graphql-jit": "11.1.0",
+    "@envelop/core": "workspace:*",
+    "@envelop/graphql-jit": "workspace:*",
     "@faker-js/faker": "10.1.0",
     "@graphql-yoga/plugin-response-cache": "workspace:*",
     "graphql": "16.12.0",
@@ -20,6 +20,7 @@
     "uWebSockets.js": "uNetworking/uWebSockets.js#semver:^20"
   },
   "devDependencies": {
-    "start-server-and-test": "2.1.2"
+    "start-server-and-test": "2.1.2",
+    "tsdown": "^0.20.0-beta.1"
   }
 }

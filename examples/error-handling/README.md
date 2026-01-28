@@ -14,8 +14,8 @@ cd graphql-yoga/examples/error-masking
 **Install dependencies and run the app:**
 
 ```sh
-pnpm install # or npm install
-pnpm start   # or npm start
+yarn install # or npm install
+yarn start   # or npm start
 ```
 
 ## Testing

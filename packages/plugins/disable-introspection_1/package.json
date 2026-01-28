@@ -1,0 +1,80 @@
+{
+  "name": "@envelop/disable-introspection",
+  "version": "9.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphql-hive/graphql-yoga",
+    "directory": "packages/plugins/disable-introspection"
+  },
+  "author": "Dotan Simha <dotansimha@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "default": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "./*": {
+      "require": {
+        "types": "./dist/*.d.cts",
+        "default": "./dist/*.cjs"
+      },
+      "import": {
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
+      },
+      "default": {
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit",
+    "watch": "tsdown --watch"
+  },
+  "peerDependencies": {
+    "@envelop/core": "workspace:*",
+    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "@envelop/core": "workspace:*",
+    "graphql": "16.12.0",
+    "tsdown": "^0.20.0-beta.1",
+    "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
+  "typescript": {
+    "definition": "dist/index.d.mts"
+  }
+}

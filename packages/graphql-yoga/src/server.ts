@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExecutionResult, parse, specifiedRules, validate } from 'graphql';
 import {
   envelop,
-  GetEnvelopedFn,
   isAsyncIterable,
-  PromiseOrValue,
   useEngine,
   useExtendContext,
   useMaskedErrors,
+  type GetEnvelopedFn,
+  type PromiseOrValue,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
@@ -155,12 +154,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * @see https://envelop.dev/plugins
    */
   plugins?:
-    | Array<
-        | Plugin<TUserContext & TServerContext & YogaInitialContext>
-        | Plugin
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        | {}
-      >
+    | Array<Plugin<TUserContext & TServerContext & YogaInitialContext> | Plugin | {}>
     | undefined;
 
   parserAndValidationCache?: boolean | ParserAndValidationCacheOptions | undefined;
@@ -734,7 +728,6 @@ export class YogaServer<
   };
 }
 
-/* eslint-disable */
 export type YogaServerInstance<
   TServerContext extends Record<string, any>,
   TUserContext extends Record<string, any>,

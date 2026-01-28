@@ -1,9 +1,18 @@
-<div align="center"><img src="https://raw.githubusercontent.com/graphql-hive/graphql-yoga/refs/heads/main/website/public/cover.png" width="720" /></div>
+<div align="center">
+  <img
+    src="https://raw.githubusercontent.com/graphql-hive/graphql-yoga/refs/heads/main/website/public/cover.png"
+    width="720"
+  />
+</div>
 
 <div align="center">
   <h3>GraphQL Yoga</h3>
-  <h6>Fully-featured GraphQL Server with focus on easy setup, performance & great developer experience</h6>
-  <a href="https://www.the-guild.dev/graphql/yoga-server/docs"><b>Go to documentation</b></a>
+  <h6>
+    Fully-featured GraphQL Server with focus on easy setup, performance & great developer experience
+  </h6>
+  <a href="https://www.the-guild.dev/graphql/yoga-server/docs">
+    <b>Go to documentation</b>
+  </a>
 </div>
 
 <br />
@@ -23,7 +32,7 @@
 ### Install
 
 ```sh
-pnpm add graphql-yoga graphql
+npm add graphql-yoga graphql
 ```
 
 ### Start
@@ -115,9 +124,10 @@ before you get started off.
 For this project in particular, to get started on `stage/2-failing-test`:
 
 1. Install [Node.js](https://nodejs.org/)
-2. Run in your terminal: `npm i -g pnpm@8 && pnpm install && pnpm build`
-3. Add tests to `packages/graphql-yoga/__tests__` using [Jest](https://jestjs.io/docs/api) APIs
-4. Run the tests with `pnpm test`
+2. Install [Yarn](https://yarnpkg.com/getting-started/install)
+3. Run in your terminal: `yarn install && yarn build`
+4. Add tests to `packages/graphql-yoga/tests` using [Jest](https://jestjs.io/docs/api) APIs
+5. Run the tests with `yarn run test`
 
 Feel free to open issues and pull requests. We're always welcome support from the community.
 

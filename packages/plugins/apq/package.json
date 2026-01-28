@@ -13,31 +13,38 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/typings/index.d.cts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       }
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "check": "tsc --pretty --noEmit"
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit",
+    "watch": "tsdown --watch"
   },
   "peerDependencies": {
-    "graphql-yoga": "workspace:^"
+    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql-yoga": "workspace:^",
+    "rxjs": "^7.3.0"
   },
   "dependencies": {
     "@whatwg-node/promise-helpers": "^1.3.2"
@@ -45,13 +52,19 @@
   "devDependencies": {
     "@apollo/client": "4.0.9",
     "crypto-hash": "4.0.0",
-    "graphql-yoga": "workspace:*"
+    "graphql": "^16.12.0",
+    "graphql-yoga": "workspace:*",
+    "rxjs": "^7.8.2",
+    "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
-    "directory": "dist",
     "access": "public"
   },
+  "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }
