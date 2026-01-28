@@ -1,0 +1,13 @@
+diff --git a/build/index.js b/build/index.js
+index 212058b2cba00cb35d68de6b51a42440be48af97..3bb359260961be5dd6ba5630d8f5d2de30aefb97 100644
+--- a/build/index.js
++++ b/build/index.js
+@@ -501,7 +501,7 @@ function deleteProperty(obj, key) {
+     return Reflect.deleteProperty(obj, key);
+   }
+   const originalGetter = descriptor.get ?? (() => descriptor.value);
+-  const originalSetter = descriptor.set ?? (value => Reflect.set(obj, key, value));
++  const originalSetter = descriptor.set ?? (value => { Object.defineProperty(obj, key, { value, configurable: true, enumerable: descriptor.enumerable, writable: true }); });
+   return Reflect.defineProperty(obj, key, {
+     configurable: true,
+     enumerable: descriptor.enumerable,
