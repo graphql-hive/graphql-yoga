@@ -3,9 +3,9 @@
   "version": "0.13.6",
   "private": true,
   "scripts": {
-    "postinstall": "yarn run codegen",
     "check": "tsc --pretty --noEmit",
     "codegen": "graphql-codegen --config codegen.yml",
+    "generate": "yarn run codegen",
     "precheck": "yarn run codegen",
     "start": "ts-node src/index.ts"
   },

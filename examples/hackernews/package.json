@@ -7,10 +7,10 @@
   "private": true,
   "keywords": [],
   "scripts": {
-    "postinstall": "yarn run prisma:generate && yarn run codegen",
     "check": "tsc --pretty --noEmit",
     "codegen": "graphql-codegen",
     "dev": "cross-env NODE_ENV=development ts-node-dev --exit-child --respawn src/main.ts",
+    "generate": "yarn run prisma:generate && yarn run codegen",
     "migrate": "prisma migrate dev",
     "precheck": "yarn run codegen",
     "prisma:generate": "prisma generate",
