@@ -45,7 +45,7 @@ export function createCFDeployment(
 
       // Read file content as an output to avoid gRPC serialization issues with large files
       const content = pulumi.output(
-        fsPromises.readFile(`../examples/${projectName}/dist/index.js`, 'utf-8')
+        fsPromises.readFile(`../examples/${projectName}/dist/index.js`, 'utf-8'),
       );
 
       // Deploy CF script as Worker

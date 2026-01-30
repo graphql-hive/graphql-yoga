@@ -2,15 +2,15 @@ import { createServer, IncomingMessage, ServerResponse, STATUS_CODES } from 'nod
 import { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { ExecutionResult } from 'graphql';
-import { fetch } from '@whatwg-node/fetch';
-import { createDeferredPromise } from '@whatwg-node/server';
 import {
   createGraphQLError,
   createSchema,
   createYoga,
   Plugin,
   useExecutionCancellation,
-} from '../src/index.js';
+} from 'graphql-yoga';
+import { fetch } from '@whatwg-node/fetch';
+import { createDeferredPromise } from '@whatwg-node/server';
 
 describe('node-http', () => {
   it('should expose Node req and res objects in the context', async () => {
