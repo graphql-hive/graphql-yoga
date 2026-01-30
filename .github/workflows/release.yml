@@ -76,7 +76,7 @@ jobs:
       buildScript: build
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
-      npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
+      npmToken: ${{ secrets.NPM_TOKEN }}
 
   stable:
     if: github.ref == 'refs/heads/main'
@@ -93,4 +93,4 @@ jobs:
       versionScript: changeset version
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
-      npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
+      npmToken: ${{ secrets.NPM_TOKEN }}
