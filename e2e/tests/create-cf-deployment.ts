@@ -43,12 +43,9 @@ export function createCFDeployment(
       const stackName = pulumi.getStack();
       const workerUrl = `e2e.graphql.yoga/${stackName}`;
 
-      // Read file content as an output to avoid gRPC serialization issues with large files
-      const content = pulumi.interpolate`${fsPromises.readFile(`../examples/${projectName}/dist/index.js`, 'utf-8')}`;
-
       // Deploy CF script as Worker
       const workerScript = new cf.WorkerScript('worker', {
-        content,
+        content: await fsPromises.readFile(`../examples/${projectName}/dist/index.js`, 'utf-8'),
         module: isModule,
         plainTextBindings: [
           {
