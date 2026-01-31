@@ -8,6 +8,44 @@ import { Stack } from '@pulumi/pulumi/automation';
 import type { DeploymentConfiguration } from '../types';
 import { assertGraphiQL, assertQuery, env, execPromise } from '../utils';
 
+async function waitForLambdaUrl(url: string, maxRetries = 30, delayMs = 5000): Promise<void> {
+  console.log(`⏳ Waiting for Lambda Function URL to be accessible: ${url}`);
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { accept: 'text/html' },
+      });
+
+      // If we get a 403, IAM permissions haven't propagated yet
+      if (response.status === 403) {
+        console.log(
+          `  Attempt ${attempt}/${maxRetries}: Got 403 Forbidden, IAM permissions still propagating...`,
+        );
+      } else if (response.status === 200) {
+        console.log(`  ✅ Lambda Function URL is accessible after ${attempt} attempts`);
+        return;
+      } else {
+        console.log(
+          `  Attempt ${attempt}/${maxRetries}: Got status ${response.status}, retrying...`,
+        );
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.log(
+        `  Attempt ${attempt}/${maxRetries}: Error connecting (${errorMessage}), retrying...`,
+      );
+    }
+
+    if (attempt < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw new Error(`Lambda Function URL did not become accessible after ${maxRetries} attempts`);
+}
+
 export const awsLambdaDeployment: DeploymentConfiguration<{
   functionUrl: string;
 }> = {
@@ -112,6 +150,10 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
   test: async ({ functionUrl }) => {
     console.log(`ℹ️ AWS Lambda Function deployed to URL: ${functionUrl.value}`);
     const graphqlUrl = new URL('/graphql', functionUrl.value).toString();
+
+    // Wait for IAM permissions to propagate before running tests
+    await waitForLambdaUrl(graphqlUrl);
+
     const assertions = await Promise.allSettled([
       assertQuery(graphqlUrl),
       assertGraphiQL(graphqlUrl),
