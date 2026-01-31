@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
-import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
 import * as pulumi from '@pulumi/pulumi';
 import { Stack } from '@pulumi/pulumi/automation';
@@ -51,23 +50,19 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       }),
     });
 
-    const lambdaRolePolicy = new aws.iam.RolePolicy(
-      'role-policy',
-      {
-        role: lambdaRole.id,
-        policy: {
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Effect: 'Allow',
-              Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-              Resource: 'arn:aws:logs:*:*:*',
-            },
-          ],
-        },
+    const lambdaRolePolicy = new aws.iam.RolePolicy('role-policy', {
+      role: lambdaRole,
+      policy: {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+            Resource: 'arn:aws:logs:*:*:*',
+          },
+        ],
       },
-      { dependsOn: lambdaRole },
-    );
+    });
 
     const func = new aws.lambda.Function(
       'func',
@@ -84,26 +79,18 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       { dependsOn: lambdaRolePolicy },
     );
 
-    const lambdaPermission = new aws.lambda.Permission(
-      'streaming-permission',
-      {
-        action: 'lambda:InvokeFunctionUrl',
-        function: func.name,
-        principal: '*',
-        functionUrlAuthType: 'NONE',
-      },
-      { dependsOn: func },
-    );
+    const lambdaPermission = new aws.lambda.Permission('streaming-permission', {
+      action: 'lambda:InvokeFunctionUrl',
+      function: func,
+      principal: '*',
+      functionUrlAuthType: 'NONE',
+    });
 
-    const lambdaGw = new awsNative.lambda.Url(
-      'streaming-url',
-      {
-        authType: 'NONE',
-        targetFunctionArn: func.arn,
-        invokeMode: 'RESPONSE_STREAM',
-      },
-      { dependsOn: lambdaPermission },
-    );
+    const lambdaGw = new aws.lambda.FunctionUrl('streaming-url', {
+      authorizationType: 'NONE',
+      functionName: func.name,
+      invokeMode: 'RESPONSE_STREAM',
+    });
 
     return {
       functionUrl: lambdaGw.functionUrl,
