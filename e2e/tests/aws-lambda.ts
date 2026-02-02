@@ -50,19 +50,23 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       }),
     });
 
-    const lambdaRolePolicy = new aws.iam.RolePolicy('role-policy', {
-      role: lambdaRole,
-      policy: {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
-            Resource: 'arn:aws:logs:*:*:*',
-          },
-        ],
+    const lambdaRolePolicy = new aws.iam.RolePolicy(
+      'role-policy',
+      {
+        role: lambdaRole,
+        policy: {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+              Resource: 'arn:aws:logs:*:*:*',
+            },
+          ],
+        },
       },
-    });
+      { dependsOn: lambdaRole },
+    );
 
     const func = new aws.lambda.Function(
       'func',
@@ -76,21 +80,25 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
           ),
         }),
       },
-      { dependsOn: lambdaRolePolicy },
+      { dependsOn: [lambdaRole, lambdaRolePolicy] },
     );
 
-    const lambdaPermission = new aws.lambda.Permission('streaming-permission', {
+    new aws.lambda.Permission('streaming-permission', {
       action: 'lambda:InvokeFunctionUrl',
       function: func,
       principal: '*',
       functionUrlAuthType: 'NONE',
     });
 
-    const lambdaGw = new aws.lambda.FunctionUrl('streaming-url', {
-      authorizationType: 'NONE',
-      functionName: func.name,
-      invokeMode: 'RESPONSE_STREAM',
-    });
+    const lambdaGw = new aws.lambda.FunctionUrl(
+      'streaming-url',
+      {
+        authorizationType: 'NONE',
+        functionName: func.name,
+        invokeMode: 'RESPONSE_STREAM',
+      },
+      { dependsOn: func },
+    );
 
     return {
       functionUrl: lambdaGw.functionUrl,
@@ -99,7 +107,6 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
   test: async ({ functionUrl }) => {
     console.log(`ℹ️ AWS Lambda Function deployed to URL: ${functionUrl.value}`);
     const graphqlUrl = new URL('/graphql', functionUrl.value).toString();
-
     const assertions = await Promise.allSettled([
       assertQuery(graphqlUrl),
       assertGraphiQL(graphqlUrl),
