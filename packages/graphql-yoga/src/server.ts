@@ -676,18 +676,24 @@ export class YogaServer<
                 return tracedHandler(payload, context);
               }
             : this.getResultForParams;
+          // Wrap each batched operation to catch individual errors
+          const safeGetResultForParams = async (
+            params: GraphQLParams,
+            ctx: TServerContext,
+          ): Promise<ExecutionResult | AsyncIterable<ExecutionResult>> => {
+            try {
+              return await getResultForParams({ params, request }, ctx);
+            } catch (error) {
+              const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+              return { errors };
+            }
+          };
           return handleMaybePromise(
             () =>
               (Array.isArray(requestParserResult)
                 ? Promise.all(
                     requestParserResult.map(params =>
-                      getResultForParams(
-                        {
-                          params,
-                          request,
-                        },
-                        Object.create(serverContext),
-                      ),
+                      safeGetResultForParams(params, Object.create(serverContext)),
                     ),
                   )
                 : getResultForParams(
