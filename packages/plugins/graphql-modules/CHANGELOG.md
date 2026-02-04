@@ -1,5 +1,18 @@
 # @envelop/graphql-modules
 
+## 9.1.0
+
+### Patch Changes
+
+- [#2843](https://github.com/graphql-hive/envelop/pull/2843)
+  [`ab49fa2`](https://github.com/graphql-hive/envelop/commit/ab49fa259a51d976c437e084114e070b99720ba9)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Bind context to async execution avoiding
+  race-conditions
+
+- Updated dependencies
+  [[`d3d83bc`](https://github.com/graphql-hive/envelop/commit/d3d83bca20ba03e6c145fbd6449d5b56602627af)]:
+  - @envelop/core@5.5.0
+
 ## 9.0.0
 
 ### Patch Changes
