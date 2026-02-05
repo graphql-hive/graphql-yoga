@@ -1,5 +1,5 @@
-import { GraphQLSchema } from 'graphql';
-import { PromiseOrValue } from '@envelop/core';
+import type { GraphQLSchema } from 'graphql';
+import type { PromiseOrValue } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
 import type { Plugin } from './types.js';
@@ -17,12 +17,7 @@ function isGraphQLSchema(schemaDef: unknown): schemaDef is GraphQLSchema {
   return schemaDef?.[Symbol.toStringTag] === 'GraphQLSchema';
 }
 
-export const useSchema = <
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  TServerContext = {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  TUserContext = {},
->(
+export const useSchema = <TServerContext = {}, TUserContext = {}>(
   schemaDef?: YogaSchemaDefinition<TServerContext, TUserContext>,
 ): Plugin<YogaInitialContext & TServerContext> => {
   if (schemaDef == null) {

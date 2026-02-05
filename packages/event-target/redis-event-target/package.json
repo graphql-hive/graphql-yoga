@@ -13,26 +13,29 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/typings/index.d.cts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       }
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "pubsub",
     "graphql",
@@ -40,7 +43,9 @@
     "subscription"
   ],
   "scripts": {
-    "check": "tsc --pretty --noEmit"
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit",
+    "watch": "tsdown --watch"
   },
   "peerDependencies": {
     "ioredis": "^5.0.6"
@@ -51,15 +56,18 @@
   },
   "devDependencies": {
     "@types/ioredis-mock": "8.2.6",
-    "ioredis": "5.8.2",
-    "ioredis-mock": "8.13.1"
+    "ioredis": "^5.9.2",
+    "ioredis-mock": "8.13.1",
+    "tsdown": "^0.20.0-beta.1"
   },
   "publishConfig": {
-    "directory": "dist",
     "access": "public"
   },
   "sideEffects": false,
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.mts"
   }
 }

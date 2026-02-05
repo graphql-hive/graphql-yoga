@@ -5,7 +5,7 @@ Run Apollo Federation Subgraphs and Gateways using GraphQL Yoga.
 Start Gateway and Services:
 
 ```bash
-pnpm start
+yarn start
 ```
 
 Then visit `http://localhost:4000`

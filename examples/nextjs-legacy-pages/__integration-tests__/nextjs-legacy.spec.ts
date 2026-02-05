@@ -22,7 +22,7 @@ describe('NextJS Legacy Pages', () => {
     rimrafSync(path.join(__dirname, '..', '.next'));
     const signal = AbortSignal.timeout(30_000);
     port = await getAvailablePort();
-    serverProcess = await spawn('pnpm', ['dev'], {
+    serverProcess = await spawn('yarn', ['dev', '--webpack'], {
       signal,
       env: { PORT: String(port) },
       cwd: path.join(__dirname, '..'),
@@ -51,7 +51,6 @@ describe('NextJS Legacy Pages', () => {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        connection: 'close',
       },
       body: JSON.stringify({
         query: 'query { greetings }',

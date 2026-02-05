@@ -17,9 +17,9 @@ Run the following commands
 
 ```sh
 # run migrations
-pnpm run --filter example-hackernews migrate
+yarn run migrate
 # start dev server
-pnpm run --filter example-hackernews dev
+yarn dev
 ```
 
 Then visit `http://localhost:4000/`.

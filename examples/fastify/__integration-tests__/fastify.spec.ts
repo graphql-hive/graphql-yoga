@@ -1,8 +1,8 @@
 import request from 'supertest';
 import { createDeferred } from '@graphql-tools/utils';
 import { fetch } from '@whatwg-node/fetch';
-import { eventStream } from '../../../packages/graphql-yoga/__tests__/utilities.js';
-import { buildApp } from '../src/app.js';
+import { eventStream } from '../../../packages/graphql-yoga/tests/utilities';
+import { buildApp } from '../src/app';
 
 describe('fastify example integration', () => {
   let app: ReturnType<typeof buildApp>[0];

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { createServer, type RequestListener } from 'http';
 import { createYoga } from 'graphql-yoga';
 import { App } from 'uWebSockets.js';

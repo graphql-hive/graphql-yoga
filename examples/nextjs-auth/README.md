@@ -11,7 +11,7 @@ Afterwards, you must copy the `.env.sample` to `.env` (`cp .env.sample .env`) an
 environment variables (`GITHUB_ID` and `GITHUB_SECRET`) you received from your GitHub OAuth
 application.
 
-Run the app with `pnpm dev`.
+Run the app with `yarn dev`.
 
 You can log in on `http://localhost:3000`.
 
@@ -40,7 +40,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with
 First, run the development server:
 
 ```bash
-pnpm dev
+yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

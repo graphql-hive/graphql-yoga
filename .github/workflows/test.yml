@@ -1,0 +1,246 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_NO_WARNINGS: 1
+  CI: true
+
+jobs:
+  unit:
+    name: Unit / Bun
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
+      - name: Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: yarn run test
+
+  unit-node:
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 20
+          - 22
+          - 24
+          - 25
+    name: Unit / Node v${{matrix.node-version}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
+      - name: Test
+        run: yarn run test:node
+
+  unit-node-leaks:
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 20
+          - 22
+          - 24
+          - 25
+    name: Leaks / Node v${{matrix.node-version}}
+    needs: [unit] # leak tests run unit tests but check for leaks; if unit tests fail, leaks will fail too - avoid confusion by running them in series
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: Generate GraphiQL HTML
+        run: yarn workspace graphql-yoga run generate-graphiql-html
+      - name: Test
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: yarn run test:node:leaks
+
+  integration-node:
+    name: Integration / Node v${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 20
+          - 22
+          - 24
+          - 25
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: Install Playwright Binaries
+        uses: ./.github/actions/install-playwright-binaries
+      - name: Build Packages
+        run: yarn run build
+      - name: Generate code for examples
+        run: yarn workspaces foreach --all --include 'example-*' run generate
+      - name: Run Integration Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: yarn run test:integration --ci
+
+  integration-node-leaks:
+    name: Integration Leaks / Node v${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 20
+          - 22
+          - 24
+          - 25
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: Install Playwright Binaries
+        uses: ./.github/actions/install-playwright-binaries
+      - name: Build Packages
+        run: yarn run build
+      - name: Generate code for examples
+        run: yarn workspaces foreach --all --include 'example-*' run generate
+      - name: Run Leak Tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: yarn run test:integration:leaks --ci
+
+  apollo-federation-compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Build Packages
+        run: yarn run build
+      - name: Bundle Apollo Federation Subgraph Example
+        run:
+          yarn workspaces foreach --all --topological-dev --include
+          example-apollo-federation-compatibility run build
+      - name: Install Rover
+        run: curl -sSL https://rover.apollo.dev/nix/latest | sh
+      - name: Add Rover to PATH
+        run: echo "$HOME/.rover/bin" >> $GITHUB_PATH
+      - name: Apollo Federation Subgraph Compatibility
+        uses: apollographql/federation-subgraph-compatibility@b6981fd83d24450a7cbd2d7727196e0ba57614e0 # v2
+        with:
+          workingDirectory: examples/apollo-federation-compatibility
+          compose: docker-compose.yaml
+          schema: schema.graphql
+          path: /graphql
+          token: ${{ secrets.GITHUB_TOKEN }}
+          failOnWarning: true
+          failOnRequired: true
+          debug: true
+
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        plan:
+          - 'aws-lambda'
+          # - 'azure-function'
+          - 'cf-worker'
+          # - 'vercel-function' # Disabled because vercel API is not actually documented
+          - 'docker-node'
+          - 'cf-modules'
+    name: e2e / ${{ matrix.plan }}
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      # CloudFlare
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      # Azure
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      # AWS
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      # Vercel
+      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Build Packages
+        run: yarn run build
+      - name: Install pulumi
+        uses: pulumi/setup-pulumi@b374ceb6168550de27c6eba92e01c1a774040e11 # v2
+      - name: Set outputs
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "docker_host=$(docker context inspect --format '{{.Endpoints.docker.Host}}')" >> $GITHUB_OUTPUT
+      - name: Provision & Test
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        env:
+          TEST_PLAN_NAME: ${{ matrix.plan }}
+          COMMIT_ID: ${{ steps.vars.outputs.sha_short }}
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          command: cd e2e && yarn run start
+          retry_wait_seconds: 30
+      - name: Ensure Deletion
+        working-directory: e2e
+        if: ${{ always() }}
+        run: yarn run start
+        env:
+          ENSURE_DELETION: 1
+          TEST_PLAN_NAME: ${{ matrix.plan }}
+          COMMIT_ID: ${{ steps.vars.outputs.sha_short }}

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-default-export */
 /* eslint-env node */
 
 /** @type {import('next-sitemap').IConfig} */

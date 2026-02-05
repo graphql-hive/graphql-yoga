@@ -1,4 +1,4 @@
-import { createGraphQLError, createLRUCache, Plugin, PromiseOrValue } from 'graphql-yoga';
+import { createGraphQLError, createLRUCache, type Plugin, type PromiseOrValue } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export function hashSHA256(
@@ -54,7 +54,7 @@ export interface APQOptions {
 
 export interface APQStore {
   get(key: string): PromiseOrValue<string | null | undefined>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   set(key: string, query: string): PromiseOrValue<any>;
 }
 

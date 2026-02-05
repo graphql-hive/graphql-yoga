@@ -2,20 +2,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createSchema, createYoga } from 'graphql-yoga';
 
-// Docs: https://vercel.com/docs/concepts/functions/serverless-functions
-
-export const config = {
-  api: {
-    // Disable body parsing (required for file uploads)
-    bodyParser: false,
-  },
-};
-
 export default createYoga<{
   req: NextApiRequest;
   res: NextApiResponse;
 }>({
   graphqlEndpoint: '/api/graphql',
+  maskedErrors: false,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
@@ -28,11 +20,4 @@ export default createYoga<{
       },
     },
   }),
-  plugins: [
-    {
-      onValidate({ setResult }) {
-        setResult([]);
-      },
-    },
-  ],
 });

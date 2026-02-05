@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
-import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
 import * as pulumi from '@pulumi/pulumi';
 import { Stack } from '@pulumi/pulumi/automation';
@@ -18,7 +17,7 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
 
     // Build and bundle the worker
     console.info('\t\tℹ️ Bundling the AWS Lambda Function....');
-    await execPromise('pnpm bundle', {
+    await execPromise('yarn run bundle', {
       cwd: '../examples/aws-lambda',
     });
     if (existsSync('../examples/aws-lambda/dist/index.js')) {
@@ -54,7 +53,7 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
     const lambdaRolePolicy = new aws.iam.RolePolicy(
       'role-policy',
       {
-        role: lambdaRole.id,
+        role: lambdaRole,
         policy: {
           Version: '2012-10-17',
           Statement: [
@@ -81,28 +80,24 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
           ),
         }),
       },
-      { dependsOn: lambdaRolePolicy },
+      { dependsOn: [lambdaRole, lambdaRolePolicy] },
     );
 
-    const lambdaPermission = new aws.lambda.Permission(
-      'streaming-permission',
-      {
-        action: 'lambda:InvokeFunctionUrl',
-        function: func.arn,
-        principal: '*',
-        functionUrlAuthType: 'NONE',
-      },
-      { dependsOn: func },
-    );
+    new aws.lambda.Permission('streaming-permission', {
+      action: 'lambda:InvokeFunctionUrl',
+      function: func,
+      principal: '*',
+      functionUrlAuthType: 'NONE',
+    });
 
-    const lambdaGw = new awsNative.lambda.Url(
+    const lambdaGw = new aws.lambda.FunctionUrl(
       'streaming-url',
       {
-        authType: 'NONE',
-        targetFunctionArn: func.arn,
+        authorizationType: 'NONE',
+        functionName: func.name,
         invokeMode: 'RESPONSE_STREAM',
       },
-      { dependsOn: lambdaPermission },
+      { dependsOn: func },
     );
 
     return {

@@ -10,8 +10,8 @@
   },
   "author": "Laurin Quast <laurinquast@googlemail.com>",
   "license": "MIT",
-  "main": "dist/yoga-graphiql.umd.js",
-  "module": "dist/yoga-graphiql.es.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
       "require": "./dist/yoga-graphiql.umd.js",
@@ -28,9 +28,9 @@
     "graphiql"
   ],
   "scripts": {
-    "build": "BUILD=true vite build",
+    "build": "tsdown && mv dist/index.mjs dist/yoga-graphiql.es.js && mv dist/index.umd.js dist/yoga-graphiql.umd.js && mv dist/index.css dist/graphiql.css && mkdir -p dist/monacoeditorwork && cp ../../node_modules/monaco-editor/esm/vs/editor/editor.worker.js dist/monacoeditorwork/editor.worker.bundle.js && cp ../../node_modules/monaco-editor/esm/vs/language/json/json.worker.js dist/monacoeditorwork/json.worker.bundle.js && cp ./node_modules/monaco-graphql/esm/graphql.worker.js dist/monacoeditorwork/graphql.worker.bundle.js",
     "check": "tsc --pretty --noEmit",
-    "start": "vite"
+    "start": "tsdown --watch"
   },
   "dependencies": {
     "@graphiql/plugin-explorer": "5.1.1",
@@ -39,16 +39,20 @@
     "graphiql": "5.2.0",
     "graphql": "16.12.0",
     "json-bigint-patch": "0.0.8",
+    "monaco-graphql": "^1.7.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tslib": "2.8.1"
   },
   "devDependencies": {
+    "@envelop/core": "workspace:*",
+    "@graphiql/react": "^0.37.3",
     "@types/react": "19.2.4",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "vite": "7.2.2",
-    "vite-plugin-monaco-editor": "1.1.0"
+    "monaco-editor": "^0.52.0",
+    "prettier": "^3.8.0",
+    "react-compiler-runtime": "^1.0.0",
+    "tsdown": "^0.20.0-beta.1"
   },
   "sideEffects": false,
   "bob": false

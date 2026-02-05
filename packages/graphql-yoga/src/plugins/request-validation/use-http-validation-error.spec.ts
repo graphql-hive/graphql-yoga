@@ -24,11 +24,7 @@ describe('useHTTPValidationError', () => {
         plugins: [
           {
             onValidate() {
-              return ({
-                valid,
-                result,
-              }: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              AfterValidateEventPayload<Record<string, any>>) => {
+              return ({ valid, result }: AfterValidateEventPayload<Record<string, any>>) => {
                 if (!valid) {
                   for (const error of result) {
                     error.extensions.http = {

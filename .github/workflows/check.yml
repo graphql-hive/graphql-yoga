@@ -1,0 +1,91 @@
+name: Check
+
+# TODO: check whether runtime generated landing page html has changed
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_NO_WARNINGS: 1
+  CI: true
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Check
+        run: yarn check:format
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Build GraphiQL
+        run:
+          yarn workspaces foreach --all --topological-dev --include graphql-yoga --include
+          @graphql-yoga/graphiql --include @graphql-yoga/render-graphiql run build
+      - name: Check
+        run: yarn check:lint
+
+  types:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Build GraphiQL
+        run:
+          yarn workspaces foreach --all --topological-dev --include graphql-yoga --include
+          @graphql-yoga/graphiql --include @graphql-yoga/render-graphiql run build
+      - name: Check Types
+        run: yarn check:types
+
+  missing-peer-deps:
+    name: Missing peer deps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Check
+        run: yarn check:missing-peer-deps
+
+  build: # making sure build works so it doesn't fail on us during release
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Set up env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: .node-version
+      - name: Check
+        run: yarn build

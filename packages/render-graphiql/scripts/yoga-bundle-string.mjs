@@ -13,7 +13,7 @@ const editorWorkerServiceFile = path.resolve(
   'editor.worker.bundle.js',
 );
 const jsonWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'json.worker.bundle.js');
-const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker..bundle.js');
+const graphqlWorkerFile = path.resolve(inputPath, 'monacoeditorwork', 'graphql.worker.bundle.js');
 
 const outFile = path.resolve(directoryName, '..', 'src', 'graphiql.ts');
 

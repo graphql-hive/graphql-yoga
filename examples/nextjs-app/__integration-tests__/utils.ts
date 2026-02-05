@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { fetch } from '@whatwg-node/fetch';
 
 export interface Proc {
   waitForExit: Promise<void>;
@@ -17,7 +18,7 @@ export function spawn(
     signal,
     env,
     cwd = path.join(module.path, '..'),
-  }: { signal: AbortSignal; env?: Record<string, string>; cwd: string },
+  }: { signal: AbortSignal; env?: Record<string, string>; cwd?: string },
 ): Promise<Proc> {
   const proc = cp.spawn(cmd, args, {
     // ignore stdin because we're not feeding the process anything, pipe stdout and stderr

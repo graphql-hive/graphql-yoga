@@ -9,8 +9,8 @@
 ## Setup
 
 1. Use corepack: `corepack enable`
-2. Install packages: `pnpm install`
-3. Build packages: `pnpm build`
+2. Install packages: `yarn install`
+3. Build packages: `yarn build`
 
 ## Tests
 

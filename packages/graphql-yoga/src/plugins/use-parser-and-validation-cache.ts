@@ -18,8 +18,7 @@ export function useParserAndValidationCache({
   documentCache = _createLRUCache(),
   errorCache = _createLRUCache(),
   validationCache = true,
-}: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-ParserAndValidationCacheOptions): Plugin<{}> {
+}: ParserAndValidationCacheOptions): Plugin<{}> {
   const validationCacheByRules =
     _createLRUCache<WeakMap<GraphQLSchema, WeakMap<DocumentNode, GraphQLError[]>>>();
   return {
@@ -47,7 +46,6 @@ ParserAndValidationCacheOptions): Plugin<{}> {
     onValidate({
       params: { schema, documentAST, rules },
       setResult,
-      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     }): void | AfterValidateHook<{}> {
       /** No schema no cache */
       if (schema == null) {

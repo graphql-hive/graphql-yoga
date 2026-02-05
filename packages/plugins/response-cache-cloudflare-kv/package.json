@@ -1,0 +1,94 @@
+{
+  "name": "@envelop/response-cache-cloudflare-kv",
+  "version": "6.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphql-hive/graphql-yoga",
+    "directory": "packages/plugins/response-cache-cloudflare-kv"
+  },
+  "author": {
+    "name": "Adishwar Rishi",
+    "url": "https://github.com/AdiRishi"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.mts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "default": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "./*": {
+      "require": {
+        "types": "./dist/*.d.cts",
+        "default": "./dist/*.cjs"
+      },
+      "import": {
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
+      },
+      "default": {
+        "types": "./dist/*.d.mts",
+        "default": "./dist/*.mjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --pretty --noEmit"
+  },
+  "peerDependencies": {
+    "@cloudflare/workers-types": "^4.20231121.0",
+    "@envelop/core": "workspace:*",
+    "@envelop/response-cache": "workspace:*",
+    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@cloudflare/workers-types": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@envelop/core": "workspace:*",
+    "@envelop/response-cache": "workspace:*",
+    "graphql": "^16.12.0",
+    "jest": "^30.2.0",
+    "jest-environment-miniflare": "^2.14.1",
+    "ts-jest": "29.4.6",
+    "tsdown": "^0.20.0-beta.1",
+    "typescript": "^5.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "bob": {},
+  "buildOptions": {
+    "input": "./src/index.ts"
+  },
+  "typescript": {
+    "definition": "dist/index.d.mts"
+  }
+}

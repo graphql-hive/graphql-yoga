@@ -1,7 +1,7 @@
 /* eslint-env node */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, n/no-unpublished-require
 const fs = require('node:fs');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, n/no-unpublished-require
 const path = require('node:path');
 
 // supply the wished graphql version as first argument of script
@@ -11,12 +11,12 @@ const pkgPath = path.resolve(__dirname, '..', 'package.json');
 const pkgFile = fs.readFileSync(pkgPath);
 
 const pkg = JSON.parse(pkgFile.toString());
-if (pkg?.pnpm?.overrides?.graphql === graphqlVersion) {
+if (pkg?.yarn?.protocols?.graphql === graphqlVersion) {
   console.log(`graphql version is already set to ${graphqlVersion}, skipping...`);
-  process.exit(0);
+  return;
 }
-pkg.pnpm.overrides = {
-  ...pkg.pnpm.overrides,
+pkg.yarn.protocols = {
+  ...pkg.yarn?.protocols,
   graphql: graphqlVersion,
 };
 

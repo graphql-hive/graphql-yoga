@@ -1,13 +1,10 @@
 import { createYoga, YogaInitialContext } from 'graphql-yoga';
 import SchemaBuilder from '@pothos/core';
-import AuthzPlugin from '@pothos/plugin-authz';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
 
 const builder = new SchemaBuilder<{
   Context: YogaInitialContext;
-}>({
-  plugins: [AuthzPlugin],
-});
+}>({});
 
 builder.mutationType();
 builder.queryType();

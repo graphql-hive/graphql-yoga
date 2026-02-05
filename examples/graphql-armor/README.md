@@ -6,7 +6,7 @@ security middleware for [Envelop](https://github.com/n1ru4l/envelop) servers.
 ## Usage
 
 ```bash
-pnpm --filter example-graphql-armor start
+yarn --filter example-graphql-armor start
 ```
 
 ## Installation snippet

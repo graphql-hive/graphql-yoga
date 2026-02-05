@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
 import type { createFetch } from '@whatwg-node/fetch';
@@ -41,9 +40,10 @@ export type CORSOptions =
   | false;
 
 declare global {
-  interface ReadableStream<R = any> {
-    [Symbol.asyncIterator]: () => AsyncIterator<R>;
-  }
+  // TODO: Is this still necessary ?
+  // interface ReadableStream<R = any> {
+  //   [Symbol.asyncIterator]: () => AsyncIterator<R>;
+  // }
 }
 
 export type FetchAPI = ReturnType<typeof createFetch>;

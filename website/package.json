@@ -9,7 +9,7 @@
     "check": "exit 0",
     "dev": "next --turbopack",
     "pagefind": "pagefind --site .next/server/app --output-path out/_pagefind",
-    "postbuild": "next-sitemap && tsx scripts/sitemap-ci && pnpm pagefind",
+    "postbuild": "next-sitemap && tsx scripts/sitemap-ci && yarn pagefind",
     "start": "next start",
     "test:e2e": "playwright test"
   },
@@ -26,14 +26,16 @@
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@theguild/tailwind-config": "0.6.4",
-    "@types/node": "24.10.1",
+    "@types/node": "24",
     "@types/react": "19.2.4",
     "cross-env": "10.1.0",
     "fast-xml-parser": "5.3.1",
     "pagefind": "1.4.0",
+    "postcss": "^8.5.6",
     "postcss-import": "16.1.1",
     "postcss-lightningcss": "1.0.2",
     "tailwindcss": "3.4.18",
+    "tsdown": "^0.20.0-beta.1",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   }
