@@ -8,7 +8,7 @@ import { vercelDeployment } from './tests/vercel';
 import { DeploymentConfiguration } from './types';
 import { env, getCommitId } from './utils';
 
-const AVAILABLE_TEST_PLANS = {
+const AVAILABLE_TEST_PLANS: Record<string, DeploymentConfiguration<any> | undefined> = {
   'cf-worker': cloudFlareDeployment,
   'cf-modules': cfModulesDeployment,
   'azure-function': azureFunctionDeployment,
@@ -21,7 +21,7 @@ async function main() {
   const commitId = await getCommitId();
   const testPlaneName = env('TEST_PLAN_NAME');
   const identifier = `yoga-${testPlaneName}-e2e-${commitId}`;
-  const testPlan: DeploymentConfiguration = AVAILABLE_TEST_PLANS[testPlaneName];
+  const testPlan = AVAILABLE_TEST_PLANS[testPlaneName];
 
   if (!testPlan) {
     throw new Error(`Test plan ${testPlaneName} not found`);
