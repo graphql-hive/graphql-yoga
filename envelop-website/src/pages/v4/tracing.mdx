@@ -1,0 +1,43 @@
+import { Callout } from '@theguild/components'
+
+# Tracing
+
+`envelop` comes with a self-measuring tracing tool, for providing you some insights on the
+performance of each stage.
+
+If you wish to enable it, pass `enableInternalTracing: true` to your envelop instance:
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS)
+    // ...
+  ],
+  enableInternalTracing: true
+})
+```
+
+This way, on each executed request, you'll get the following object with metrics (measured in `ms`)
+added to your `result.extensions`:
+
+```json
+{
+  "extensions": {
+    "_envelopTracing": {
+      "parse": 0.1,
+      "validate": 0.1,
+      "context": 0.1,
+      "execute": 0.1,
+      "subscribe": 0.1
+    }
+  }
+}
+```
+
+<Callout>
+  The measured time represents the entire execution, of all plugins, in each phase, including
+  before/after of all plugins, and the actual GraphQL function.
+</Callout>

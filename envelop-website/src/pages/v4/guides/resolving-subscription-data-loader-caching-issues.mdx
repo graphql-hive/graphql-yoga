@@ -1,0 +1,81 @@
+# Resolving Subscription DataLoader Caching Issues
+
+DataLoader is a great utility for reducing database read and HTTP requests to third-party services.
+
+Unfortunately, there is a flaw when using DataLoader with GraphQL subscriptions.
+
+The context object on which all the DataLoader instances should be attached upon is not created per
+emitted subscription event, but only once when setting up the subscription.
+
+This can lead to huge memory footprints for long-living subscriptions with lots of values being
+emitted and even worse to sending stale data to the clients as the DataLoader cache is hit although
+the underlying database record might have changed.
+
+This is a known issue that still has no solution in GraphQL.js core, although, many community
+members tried to
+[propose solutions with working pull requests](https://github.com/graphql/graphql-js/issues/894)
+that alter the `subscribe` function.
+
+Previous workarounds have been to disable the DataLoader caching completely or manually calling the
+[`DataLoader.clearAll`](https://github.com/graphql/dataloader#clearall) within the mapping of the
+event values.
+
+```ts
+import { GraphQLObjectType } from 'graphql'
+import pipe from 'lodash/fp/pipe'
+import { GraphQLNonNull, GraphQLUserListUpdate } from './GraphQLUserListUpdate'
+
+const mapAsyncIterable = <T, O>(map: (input: T) => Promise<O> | O) =>
+  async function* mapGenerator(asyncIterable: AsyncIterableIterator<T>) {
+    for await (const value of asyncIterable) {
+      yield map(value)
+    }
+  }
+
+const GraphQLSubscriptionType = new GraphQLObjectType({
+  name: 'Subscription',
+  fields: {
+    something: {
+      type: GraphQLNonNull(GraphQLUserListUpdate),
+      resolve: (_, __, context) =>
+        pipe(
+          context.pubSub.subscribe('userUpdate'),
+          mapAsyncIterable(event => {
+            context.loader.userLoader.clearAll()
+            return event
+          })
+        )
+    }
+  }
+})
+```
+
+As your project scales this, however, can become a tedious task. With the
+`useContextValuePerExecuteSubscriptionEvent` plugin we abstracted this away by having a generic
+solution for extending the original context with a new part before the subscription event is being
+executed.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+import { useContextValuePerExecuteSubscriptionEvent } from '@envelop/execute-subscription-event'
+import { createContext, createDataLoaders } from './context'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    // ... other plugins ...
+    useContext(() => createContext()),
+    useContextValuePerExecuteSubscriptionEvent(() => ({
+      // Existing context is merged with this context partial
+      contextPartial: {
+        loader: createDataLoaders()
+      }
+    }))
+  ]
+})
+```
+
+With this easy fix, new DataLoader instances are used for every published value!
+
+[Learn more on Plugin Hub](/plugins/use-context-value-per-execute-subscription-event).

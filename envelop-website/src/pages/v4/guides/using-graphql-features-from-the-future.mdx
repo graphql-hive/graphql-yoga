@@ -1,0 +1,307 @@
+import { Callout } from '@theguild/components'
+
+# Using GraphQL Features from the Future
+
+Envelop allows to hook into and extend all phases of the GraphQL execution pipeline. Because of that
+envelop can be used to implement features that are not yet available in the GraphQL.js core and are
+only proposed as RFC candidates.
+
+## OneOf Input Objects and OneOf Fields
+
+Unions and Interfaces are essential primitives for building scalable GraphQL schemas. But they
+cannot be used for describing polymorphic input types.
+
+The following is illegal. Only object types can be `union` members:
+
+```graphql
+type Rectangle {
+  width: Float!
+  height: Float!
+}
+
+type Circle {
+  radius: Float!
+}
+
+union Geometry = Rectangle | Circle
+
+input RectangleCreateInput {
+  width: Float!
+  height: Float!
+}
+
+input CircleCreateInput {
+  radius: Float!
+}
+
+union GeometryCreateInput = RectangleCreateInput | CircleCreateInput
+
+type Mutation {
+  geometryCreate(input: GeometryCreateInput!): Geometry
+}
+```
+
+The community expressed their needs for a way of describing such polymorphic inputs and three RFCs
+popped up:
+
+- [Input Objects accepting exactly @oneField](https://github.com/graphql/graphql-spec/pull/586)
+- [Tagged type](https://github.com/graphql/graphql-spec/pull/733)
+- [Oneof Input Objects and Oneof Fields](https://github.com/graphql/graphql-spec/pull/825)
+
+All of them are proposed by the awesome [`@benjie`](https://github.com/benjie)!
+
+Envelop supports the latest of those proposals "Oneof Input Objects and Oneof Fields".
+
+The invalid syntax from above can be correctly described with the `@oneOf` directive.
+
+```graphql
+type Rectangle {
+  width: Float!
+  height: Float!
+}
+
+type Circle {
+  radius: Float!
+}
+
+union Geometry = Rectangle | Circle
+
+type RectangleCreateInput {
+  width: Float!
+  height: Float!
+}
+
+type CircleCreateInput {
+  radius: Float!
+}
+
+input GeometryCreateInput @oneOf {
+  rectangle: RectangleCreateInput
+  circle: RectangleCreateInput
+}
+
+type Mutation {
+  geometryCreate(input: GeometryCreateInput!): Geometry
+}
+```
+
+Which means for the following operation:
+
+```graphql
+mutation GeometryCreateMutation($input: GeometryCreateInput!) {
+  geometryCreate(input: $input) {
+    ... on Rectangle {
+      width
+      height
+    }
+    ... on Circle {
+      radius
+    }
+  }
+}
+```
+
+The following variable input would be legit:
+
+```json
+{
+  "input": {
+    "rectangle": {
+      "width": 10,
+      "height": 20
+    }
+  }
+}
+```
+
+```json
+{
+  "input": {
+    "circle": {
+      "radius": 10
+    }
+  }
+}
+```
+
+While the following input would be invalid and not pass the validation phase:
+
+```json
+{
+  "input": {
+    "rectangle": {
+      "width": 10,
+      "height": 20
+    },
+    "circle": {
+      "radius": 10
+    }
+  }
+}
+```
+
+Adding support to the existing envelop setup is straight-forward:
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+import { OneOfInputObjectsRule, useExtendedValidation } from '@envelop/extended-validation'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    // ... other plugins
+    useExtendedValidation({
+      rules: [OneOfInputObjectsRule]
+    })
+  ]
+})
+```
+
+As there are developers using either the SDL first or code first approach envelop supports both
+ways.
+
+SDL first via the `@oneOf` directive.
+
+```graphql
+directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION
+
+type RectangleCreateInput {
+  width: Float!
+  height: Float!
+}
+
+type CircleCreateInput {
+  radius: Float!
+}
+
+input GeometryCreateInput @oneOf {
+  rectangle: RectangleCreateInput
+  circle: RectangleCreateInput
+}
+```
+
+Code-first via the `oneOf` extension.
+
+```ts
+import { GraphQLFloat, GraphQLInputObjectType, GraphQLNonNull } from 'graphql'
+
+const GraphQLRectangleCreateInput = new GraphQLInputObjectType({
+  name: 'RectangleCreateInput',
+  fields: {
+    width: {
+      type: GraphQLNonNull(GraphQLFloat)
+    },
+    height: {
+      type: GraphQLNonNull(GraphQLFloat)
+    }
+  }
+})
+
+const GraphQLCircleCreateInput = new GraphQLInputObjectType({
+  name: 'CircleCreateInput',
+  fields: {
+    radius: {
+      type: GraphQLNonNull(GraphQLFloat)
+    }
+  }
+})
+
+const GraphQLGeometryCreateInput = new GraphQLInputObjectType({
+  name: 'GeometryCreateInput',
+  fields: {
+    rectangle: {
+      type: GraphQLRectangleCreateInput
+    },
+    circle: {
+      type: GraphQLCircleCreateInput
+    }
+  },
+  extensions: {
+    oneOf: true
+  }
+})
+```
+
+[You can learn more in the plugin documentations](/plugins/use-extended-validation#union-inputs-oneof).
+
+## Fragment Arguments
+
+Mutations, Subscriptions and Queries can have variable definitions today. For fragments a way of
+passing down variables in a capsulated way is impossible. If you use variables in fragments today
+they always refer to the global variables object, which limits flexibility.
+
+```graphql
+fragment UserAvatar on User {
+  id
+  avatar(size: $size) {
+    url
+  }
+}
+```
+
+```graphql
+query UserProfile {
+  me {
+    id
+    ...UserAvatar
+    fiends {
+      id
+      name
+      ...UserAvatar
+    }
+  }
+}
+```
+
+It is impossible to reuse the `UserAvatar` with different values for the `$size` variable.
+
+Fragment arguments allow doing exactly that!
+
+```graphql
+fragment UserAvatar($size: Size!) on User {
+  id
+  avatar(size: $size) {
+    url
+  }
+}
+```
+
+```graphql
+query UserProfile {
+  me {
+    id
+    ...UserAvatar(size: "large")
+    fiends {
+      id
+      name
+      ...UserAvatar(size: "small")
+    }
+  }
+}
+```
+
+Frameworks such as relay allow doing similar via directives today. It is time this becomes part of
+the GraphQL specification and is officially supported!
+
+<Callout>
+  There is a [PR for `graphql-js`](https://github.com/graphql/graphql-js/pull/3152) and [issue
+  discussing the matter (from 5 years ago!)](https://github.com/graphql/graphql-spec/issues/204).
+</Callout>
+
+Envelop already allows using fragment arguments by extending the GraphQL parser. We don't recommend
+using this for production usage! Please only use it for research or learning purposes!
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+import { useFragmentArguments } from '@envelop/fragment-arguments'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    // ... other plugins ...
+    useFragmentArguments()
+  ]
+})
+```

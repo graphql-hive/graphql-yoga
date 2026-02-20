@@ -1,0 +1,99 @@
+# Building Plugins
+
+When getting started with Envelop, you may not have to build your own plugins. There is a high
+probability the functionality you seek has already been implemented and is available on the
+[Envelop Plugin Hub](/plugins).
+
+Specific logic related to your organizations' business needs, might require you to implement your
+own plugin from scratch. The simple Envelop plugin API allows you to solve your problems in a
+structured and reusable way.
+
+## The Plugin Interface
+
+Envelop plugins are objects with handler functions that provide a contextual implementation for
+running logic before and after each phase, with a flexible API.
+
+If you are using TypeScript, you can import the `Plugin` interface from `@envelop/core` package, for
+getting full type safety while building envelop plugins.
+
+All plugins share the common plugin interface that can be found on GitHub.
+
+https://github.com/graphql-hive/envelop/blob/main/packages/types/src/plugin.ts
+
+## Building Your First Plugin
+
+Here's a simple example that allows you to print the execution and parsing parameters.
+
+```ts
+import type { Plugin } from '@envelop/core'
+
+const myPlugin: Plugin = {
+  onParse({ params }) {
+    console.log('Parse started!', { params })
+
+    return result => {
+      console.log('Parse done!', { result })
+    }
+  },
+  onExecute({ args }) {
+    console.log('Execution started!', { args })
+
+    return {
+      onExecuteDone({ result }) {
+        console.log('Execution done!', { result })
+      }
+    }
+  }
+}
+
+const getEnveloped = envelop({
+  plugins: [
+    // ... other plugins
+    myPlugin
+  ]
+})
+```
+
+## Adding Config Options to Your Plugin
+
+Often plugins require additional configuration. A common pattern for doing this is by creating a
+factor function that returns a `Plugin`.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+
+const myPlugin = (shouldPrintResult: boolean): Plugin => {
+  return {
+    onExecute({ args }) {
+      console.log('Execution started!', { args })
+
+      if (shouldPrintResult) {
+        return {
+          onExecuteDone: ({ result }) => {
+            console.log('Execution done!', { result })
+          }
+        }
+      }
+    }
+  }
+}
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    // ... other plugins
+    myPlugin(true)
+  ]
+})
+```
+
+## Sharing Envelop Plugins
+
+In case you want to publish a standalone envelop plugin as an npm package we recommend using
+`@envelop/core` as a `peerDependency`. By doing so we can reduce the likelihood of `@envelop/core`
+being instantiated multiple times due a version mismatch and leading to unexpected behaviours.
+
+The existing envelop plugins within the envelop monorepo serve as a good example. The
+[`@envelop/preload-assets` plugin](https://github.com/graphql-hive/envelop/tree/main/packages/plugins/preload-assets)
+is a simple example on how to setup a plugin package.
