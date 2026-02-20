@@ -8,8 +8,9 @@ overrides:
   '@isaacs/brace-expansion': 5.0.1
   minimatch: 10.2.1
   axios: 1.13.5
-  fastify: 5.7.2
+  fastify: 5.7.3
   lodash: 4.17.23
+  lodash-es: 4.17.23
   markdown-it: 14.1.1
   body-parser: 2.2.1
   estree-util-value-to-estree: 3.5.0
@@ -36,7 +37,7 @@ overrides:
   js-yaml: 3.14.2
   diff: 8.0.3
   '@apollo/composition': 2.12.1
-  webpack: 5.104.0
+  webpack: 5.104.1
 
 patchedDependencies:
   '@changesets/assemble-release-plan@5.2.3':
@@ -437,13 +438,13 @@ importers:
     devDependencies:
       ts-loader:
         specifier: 9.5.4
-        version: 9.5.4(typescript@5.9.3)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17)))
+        version: 9.5.4(typescript@5.9.3)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17)))
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.0
-        version: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))
+        specifier: 5.104.1
+        version: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))
       wrangler:
         specifier: 4.59.1
         version: 4.59.1(@cloudflare/workers-types@4.20251111.0)
@@ -611,8 +612,8 @@ importers:
         specifier: ^0.10.1
         version: 0.10.13
       fastify:
-        specifier: 5.7.2
-        version: 5.7.2
+        specifier: 5.7.3
+        version: 5.7.3
       graphql-yoga:
         specifier: workspace:*
         version: link:../../packages/graphql-yoga/dist
@@ -639,8 +640,8 @@ importers:
         specifier: 7.0.1
         version: 7.0.1(graphql@16.12.0)
       fastify:
-        specifier: 5.7.2
-        version: 5.7.2
+        specifier: 5.7.3
+        version: 5.7.3
       graphql-modules:
         specifier: 3.1.1
         version: 3.1.1(graphql@16.12.0)
@@ -1820,8 +1821,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       fastify:
-        specifier: 5.7.2
-        version: 5.7.2
+        specifier: 5.7.3
+        version: 5.7.3
       glob:
         specifier: 11.1.0
         version: 11.1.0
@@ -11101,8 +11102,8 @@ packages:
   fastify-plugin@5.1.0:
     resolution: {integrity: sha512-FAIDA8eovSt5qcDgcBvDuX/v0Cjz0ohGhENZ/wpc3y+oZCY2afZ9Baqql3g/lC+OHRnciQol4ww7tuthOb9idw==}
 
-  fastify@5.7.2:
-    resolution: {integrity: sha512-dBJolW+hm6N/yJVf6J5E1BxOBNkuXNl405nrfeR8SpvGWG3aCC2XDHyiFBdow8Win1kj7sjawQc257JlYY6M/A==}
+  fastify@5.7.3:
+    resolution: {integrity: sha512-QHzWSmTNUg9Ba8tNXzb92FTH77K+c8yeQPH80EeSIc9wyZj85jbPisMP0rwmyKv8oJwUFPe1UpN8HkNIXwCnUQ==}
 
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
@@ -11277,7 +11278,7 @@ packages:
     engines: {node: '>=14.21.3'}
     peerDependencies:
       typescript: '>3.6.0'
-      webpack: 5.104.0
+      webpack: 5.104.1
 
   form-data-encoder@1.9.0:
     resolution: {integrity: sha512-rahaRMkN8P8d/tgK/BLPX+WBVM27NbvdXBxqQujBtkDAIFspaRqN7Od7lfdGQA6KAD+f82fYCLBq1ipvcu8qLw==}
@@ -13062,8 +13063,8 @@ packages:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+  lodash-es@4.17.23:
+    resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
 
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
@@ -16220,7 +16221,7 @@ packages:
       '@swc/core': '*'
       esbuild: '*'
       uglify-js: '*'
-      webpack: 5.104.0
+      webpack: 5.104.1
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -16410,7 +16411,7 @@ packages:
     engines: {node: '>=12.0.0'}
     peerDependencies:
       typescript: '*'
-      webpack: 5.104.0
+      webpack: 5.104.1
 
   ts-log@2.2.7:
     resolution: {integrity: sha512-320x5Ggei84AxzlXp91QkIGSw5wgaLT6GeAH0KsqDmRZdVWW2OiSeVvElVoatk3f7nicwXlElXsoFkARiGE2yg==}
@@ -17112,8 +17113,8 @@ packages:
     resolution: {integrity: sha512-7tP1PdV4vF+lYPnkMR0jMY5/la2ub5Fc/8VQrrU+lXkiM6C4TjVfGw7iKfyhnTQOsD+6Q/iKw0eFciziRgD58Q==}
     engines: {node: '>=10.13.0'}
 
-  webpack@5.104.0:
-    resolution: {integrity: sha512-5DeICTX8BVgNp6afSPYXAFjskIgWGlygQH58bcozPOXgo2r/6xx39Y1+cULZ3gTxUYQP88jmwLj2anu4Xaq84g==}
+  webpack@5.104.1:
+    resolution: {integrity: sha512-Qphch25abbMNtekmEGJmeRUhLDbe+QfiWTiqpKYkpCOWY64v9eyl+KRRLmqOFA2AvKPpc9DC6+u2n76tQLBoaA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -19120,12 +19121,12 @@ snapshots:
     dependencies:
       '@chevrotain/gast': 11.0.3
       '@chevrotain/types': 11.0.3
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
 
   '@chevrotain/gast@11.0.3':
     dependencies:
       '@chevrotain/types': 11.0.3
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
 
   '@chevrotain/regexp-to-ast@11.0.3': {}
 
@@ -21626,7 +21627,7 @@ snapshots:
       chokidar: 4.0.3
       cli-table3: 0.6.5
       commander: 4.1.1
-      fork-ts-checker-webpack-plugin: 9.1.0(typescript@5.8.3)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0))
+      fork-ts-checker-webpack-plugin: 9.1.0(typescript@5.8.3)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0))
       glob: 11.1.0
       node-emoji: 1.11.0
       ora: 5.4.1
@@ -21634,7 +21635,7 @@ snapshots:
       tsconfig-paths: 4.2.0
       tsconfig-paths-webpack-plugin: 4.2.0
       typescript: 5.8.3
-      webpack: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
+      webpack: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
       webpack-node-externals: 3.0.0
     optionalDependencies:
       '@swc/core': 1.15.0(@swc/helpers@0.5.17)
@@ -21752,7 +21753,7 @@ snapshots:
       '@nestjs/common': 11.1.8(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.8(@nestjs/common@11.1.8(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.1.8)(@nestjs/platform-express@11.1.8)(@nestjs/websockets@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       fast-querystring: 1.1.2
-      fastify: 5.7.2
+      fastify: 5.7.3
       fastify-plugin: 5.1.0
       find-my-way: 9.3.0
       light-my-request: 6.6.0
@@ -26031,7 +26032,7 @@ snapshots:
   chevrotain-allstar@0.3.1(chevrotain@11.0.3):
     dependencies:
       chevrotain: 11.0.3
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
 
   chevrotain@11.0.3:
     dependencies:
@@ -26040,7 +26041,7 @@ snapshots:
       '@chevrotain/regexp-to-ast': 11.0.3
       '@chevrotain/types': 11.0.3
       '@chevrotain/utils': 11.0.3
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
 
   chokidar@3.6.0:
     dependencies:
@@ -26725,7 +26726,7 @@ snapshots:
   dagre-d3-es@7.0.13:
     dependencies:
       d3: 7.9.0
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
 
   damerau-levenshtein@1.0.8: {}
 
@@ -28461,7 +28462,7 @@ snapshots:
 
   fastify-plugin@5.1.0: {}
 
-  fastify@5.7.2:
+  fastify@5.7.3:
     dependencies:
       '@fastify/ajv-compiler': 4.0.5
       '@fastify/error': 4.2.0
@@ -28687,7 +28688,7 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  fork-ts-checker-webpack-plugin@9.1.0(typescript@5.8.3)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)):
+  fork-ts-checker-webpack-plugin@9.1.0(typescript@5.8.3)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)):
     dependencies:
       '@babel/code-frame': 7.27.1
       chalk: 4.1.2
@@ -28702,7 +28703,7 @@ snapshots:
       semver: 7.7.4
       tapable: 2.3.0
       typescript: 5.8.3
-      webpack: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
+      webpack: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
 
   form-data-encoder@1.9.0: {}
 
@@ -31006,7 +31007,7 @@ snapshots:
     dependencies:
       p-locate: 6.0.0
 
-  lodash-es@4.17.21: {}
+  lodash-es@4.17.23: {}
 
   lodash.camelcase@4.3.0: {}
 
@@ -31468,7 +31469,7 @@ snapshots:
       dompurify: 3.3.0
       katex: 0.16.25
       khroma: 2.1.0
-      lodash-es: 4.17.21
+      lodash-es: 4.17.23
       marked: 16.4.2
       roughjs: 4.6.6
       stylis: 4.3.6
@@ -32146,7 +32147,7 @@ snapshots:
       express-logging: 1.1.1
       extract-zip: 2.0.1
       fastest-levenshtein: 1.0.16
-      fastify: 5.7.2
+      fastify: 5.7.3
       find-up: 7.0.0
       folder-walker: 3.2.0
       fuzzy: 0.1.3
@@ -35079,26 +35080,26 @@ snapshots:
       ansi-escapes: 7.1.1
       supports-hyperlinks: 3.2.0
 
-  terser-webpack-plugin@5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)):
+  terser-webpack-plugin@5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
+      webpack: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)
     optionalDependencies:
       '@swc/core': 1.15.0(@swc/helpers@0.5.17)
       esbuild: 0.27.0
 
-  terser-webpack-plugin@5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))):
+  terser-webpack-plugin@5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))
+      webpack: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))
     optionalDependencies:
       '@swc/core': 1.15.0(@swc/helpers@0.5.17)
 
@@ -35261,7 +35262,7 @@ snapshots:
       babel-jest: 30.2.0(@babel/core@7.28.5)
       jest-util: 30.2.0
 
-  ts-loader@9.5.4(typescript@5.9.3)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))):
+  ts-loader@9.5.4(typescript@5.9.3)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.18.3
@@ -35269,7 +35270,7 @@ snapshots:
       semver: 7.7.3
       source-map: 0.7.6
       typescript: 5.9.3
-      webpack: 5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))
+      webpack: 5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))
 
   ts-log@2.2.7: {}
 
@@ -36060,7 +36061,7 @@ snapshots:
 
   webpack-sources@3.3.4: {}
 
-  webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17)):
+  webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17)):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -36084,7 +36085,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17)))
+      terser-webpack-plugin: 5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17)))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
@@ -36092,7 +36093,7 @@ snapshots:
       - esbuild
       - uglify-js
 
-  webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0):
+  webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -36116,7 +36117,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)(webpack@5.104.0(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0))
+      terser-webpack-plugin: 5.3.16(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0)(webpack@5.104.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(esbuild@0.27.0))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
