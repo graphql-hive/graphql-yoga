@@ -681,13 +681,24 @@ export class YogaServer<
               (Array.isArray(requestParserResult)
                 ? Promise.all(
                     requestParserResult.map(params =>
-                      getResultForParams(
-                        {
-                          params,
-                          request,
-                        },
-                        Object.create(serverContext),
-                      ),
+                      fakePromise()
+                        .then(() =>
+                          getResultForParams(
+                            {
+                              params,
+                              request,
+                            },
+                            Object.create(serverContext),
+                          ),
+                        )
+                        // eslint-disable-next-line promise/no-nesting
+                        .catch(error => {
+                          const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+
+                          return {
+                            errors,
+                          };
+                        }),
                     ),
                   )
                 : getResultForParams(
