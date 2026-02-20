@@ -1,0 +1,13 @@
+diff --git a/dist/src/index.js b/dist/src/index.js
+index 7ddf4006f00f2e8a236a893572f5ea498ebe1ecd..47c52230707f2975ddd68974cbe726f605913281 100644
+--- a/dist/src/index.js
++++ b/dist/src/index.js
+@@ -699,7 +699,7 @@ var DecompressionStream = class extends import_web2.TransformStream {
+ 
+ // packages/core/src/standards/http.ts
+ var import_undici2 = __toModule(require("undici"));
+-var fetchSymbols = require("undici/lib/fetch/symbols.js");
++var fetchSymbols = require("undici/lib/core/symbols.js");
+ var inspect = Symbol.for("nodejs.util.inspect.custom");
+ var nonEnumerable = Object.create(null);
+ nonEnumerable.enumerable = false;

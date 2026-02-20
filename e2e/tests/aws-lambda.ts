@@ -84,26 +84,22 @@ export const awsLambdaDeployment: DeploymentConfiguration<{
       { dependsOn: lambdaRolePolicy },
     );
 
-    const lambdaPermission = new aws.lambda.Permission(
+    new aws.lambda.Permission(
       'streaming-permission',
       {
         action: 'lambda:InvokeFunctionUrl',
-        function: func.arn,
+        function: func,
         principal: '*',
         functionUrlAuthType: 'NONE',
       },
       { dependsOn: func },
     );
 
-    const lambdaGw = new awsNative.lambda.Url(
-      'streaming-url',
-      {
-        authType: 'NONE',
-        targetFunctionArn: func.arn,
-        invokeMode: 'RESPONSE_STREAM',
-      },
-      { dependsOn: lambdaPermission },
-    );
+    const lambdaGw = new aws.lambda.FunctionUrl('streaming-url', {
+      authorizationType: 'NONE',
+      functionName: func.name,
+      invokeMode: 'RESPONSE_STREAM',
+    });
 
     return {
       functionUrl: lambdaGw.functionUrl,

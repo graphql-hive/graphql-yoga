@@ -42,3 +42,36 @@ jobs:
           GITHUB_PR: ${{ github.event.number }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  envelop:
+    name: envelop benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup env
+        uses: the-guild-org/shared-config/setup@v1
+        with:
+          node-version-file: '.node-version'
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Setup K6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: GraphQL API
+        run: |
+          pnpm run --filter @envelop/benchmark loadtest:start-server &
+          pnpm wait-on tcp:3000
+
+      - name: Run Benchmark
+        run:
+          k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=${{ github.sha }} -e
+          GITHUB_TOKEN=${{secrets.GH_API_TOKEN}} -e GRAPHQL_HOSTNAME="[::1]" run
+          ./benchmark/envelop/k6.js
