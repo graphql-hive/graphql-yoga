@@ -35,8 +35,8 @@ jobs:
           SITE_URL:
             ${{ github.ref == 'refs/heads/main' && 'https://the-guild.dev/graphql/envelop' || '' }}
         with:
-          cloudflareApiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          cloudflareAccountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          cloudflareApiToken: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
+          cloudflareAccountId: ${{ secrets.WEBSITE_CLOUDFLARE_ACCOUNT_ID }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           projectName: envelop
           prId: ${{ github.event.pull_request.number }}
