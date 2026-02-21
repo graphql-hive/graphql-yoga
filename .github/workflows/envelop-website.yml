@@ -37,5 +37,5 @@ jobs:
           projectName: envelop
           prId: ${{ github.event.pull_request.number }}
           websiteDirectory: ./
-          buildScript: cd envelop-website && npm i && npm run build
+          buildScript: cd envelop-website && npm i --force && npm run build
           artifactDir: envelop-website/out
