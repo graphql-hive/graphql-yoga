@@ -1,0 +1,21 @@
+{
+  "name": "@envelop-examples/with-esm",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsup-node src/index.ts --format esm --watch src --onSuccess \"node dist/index.mjs\"",
+    "start": "tsup-node src/index.ts --format esm --onSuccess \"node dist/index.mjs\""
+  },
+  "dependencies": {
+    "@envelop/core": "*",
+    "@graphql-tools/schema": "10.0.31",
+    "fastify": "5.7.4",
+    "graphql": "16.12.0",
+    "graphql-helix": "1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.13",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3"
+  }
+}
