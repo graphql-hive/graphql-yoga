@@ -1,0 +1,78 @@
+# Introduction
+
+Envelop is a lightweight JavaScript (TypeScript) library for customizing the GraphQL execution
+layer, allowing developers to build, share and compose plugins that enhance the capabilities of your
+GraphQL server.
+
+Envelop eases by adding features such as logging, monitoring, caching, rate-limiting and error
+handling to your GraphQL setup, without being opinionated about your GraphQL Transport or framework.
+
+## Key Concepts
+
+### Plugins
+
+An Envelop plugin is a small, reusable and shareable piece of code that can easily be copy-pasted
+from one project to another or shipped as an NPM package.
+
+Plugins allow hooking into all GraphQL phases such as `parse`, `validate`, `execute` and
+`subscribe`. Envelop plugins are composable and encourage writing isolated and lightweight code.
+
+| Example Plugin                                    | Description                                                                                               |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [`useLogger`](/plugins/use-logger)                | Hooks into "before" of all phases, and prints the execution parameters to the console using `console.log` |
+| [`useParserCache`](/plugins/use-parser-cache)     | Hooks into "before" and "after" of the `parse` phase and implements caching based on the operation string |
+| [`useOpenTelemetry`](/plugins/use-open-telemetry) | Hooks into all phases, execution and resolvers, and creates Spans for OpenTelemetry performance tracing   |
+
+### Community
+
+Envelop is built by the community, for the community.
+
+As an application developer, you can leverage Envelop plugins for customizing your GraphQL execution
+layer based on your needs, using a wide range of already built community plugins.
+
+As a plugin developer, you have a standardized interface for sharing plugins with others.
+
+Whether within your company or the open-source community, Envelop allows developers to share GraphQL
+functionality between projects with ease.
+
+The Envelop [Plugin Hub](/plugins) already has a vast amount of ready-to-use plugins that solve not
+only common but also very specialized problems.
+
+### Adoption
+
+Envelop has been designed by The Guild for solving recurring problems in the codebases of all our
+customers.
+
+Companies such as Klarna started building their GraphQL server framework using Envelop. Open-Source
+frameworks such as RedwoodJS (The JS App Framework for Startups) use Envelop. Envelop can be used as
+a meta-framework for building high-level frameworks.
+
+### Lightweight and Flexible
+
+The core of Envelop has zero dependencies and will only alter and wrap the GraphQL execution phases
+that your plugins use.
+
+Envelop can be integrated with any GraphQL server that follows
+[the execution phase, as defined in the GraphQL specification](https://spec.graphql.org/June2018/#sec-Executing-Requests)
+and lets you overwrite the core `graphql-js` functions (`parse`, `validate`, `execute` and
+`subscribe`).
+
+Envelop can be used with any environment (Node.js or browser) and any GraphQL workflow
+(client/server, client-side, or server-to-server).
+
+### No Vendor Lock-In
+
+We do not aim to provide a complete, vendor lock-in suite, since we believe that developers should
+be able to adjust and replace any part of their application, at any time, without being blocked by
+upstream dependency issues or refactoring.
+
+The core implementation of Envelop is HTTP server agnostic (in fact you can even use it without an
+HTTP server at all).
+
+You can define your GraphQL schema how you like. Envelop is not your traditional framework that
+tries to own and is opinionated about every aspect of your GraphQL server.
+
+Aside from having the dependency of Envelop core, plugins should be framework-agnostic.
+
+However, if you need plugins that include specific logic for your HTTP server or schema building
+framework, Envelop does not stop you from doing so.

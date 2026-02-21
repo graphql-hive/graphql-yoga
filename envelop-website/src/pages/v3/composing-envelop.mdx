@@ -1,0 +1,35 @@
+# Sharing Envelops
+
+## Sharing / Composing `envelop` Instances
+
+After an `envelop` has been created, you can re-use the envelop and compose it with different
+envelops or plugins. This is useful if you wish to create a predefined layer of plugins and share it
+with others. This allows writing shareable pieces that can be used.
+
+Here's a small example for sharing envelops:
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, useEnvelop, useSchema } from '@envelop/core'
+
+// Somewhere where you wish to create the basics of what you wish to share
+// This defined the base plugins you wish to use as a base.
+const myBaseEnvelop = envelop({
+  plugins: [useOrgAuth(), useOrgTracing(), useOrgLogsCollector()]
+})
+
+// Later, when you create your own Envelop, you can extend that and add custom plugins.
+// You can also specify the schema only at this point
+const myEnvelop = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    useEnvelop(myBaseEnvelop),
+    useSchema(myServerSchema),
+    useMyCustomPlugin()
+  ]
+})
+```
+
+This approach allows developers to create a base Envelop and share it across the organization: you
+can define your monitoring setup, logging, authentication, etc., only once in a shared package and
+share it with others without losing the ability to extend it.

@@ -1,0 +1,176 @@
+import { Callout } from '@theguild/components'
+
+# `@envelop/core`
+
+This is the core package for `envelop`, it comes with the execution pipeline wrapper and some basic
+core plugins you can use for creating your initial Envelop instance.
+
+## Built-In Plugins
+
+### `useSchema`
+
+This plugin is the simplest plugin for specifying your GraphQL schema. You can specify a schema
+created from any tool that emits `GraphQLSchema` object.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, useSchema } from '@envelop/core'
+
+const mySchema = buildSchema(/* ... */)
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    useSchema(mySchema)
+    // ... other plugins
+  ]
+})
+```
+
+### `useErrorHandler`
+
+This plugin invokes a custom function every time execution encounters an error.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, useErrorHandler } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    useErrorHandler(error => {
+      // This callback is called per each GraphQLError emitted during the execution phase
+    })
+    // ... other plugins
+  ]
+})
+```
+
+<Callout>
+  **Note:** The handler is invoked for each error. So an execution result with multiple errors will
+  yield multiple calls.
+</Callout>
+
+### `useExtendContext`
+
+Easily extends the context with custom fields.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, useExtendContext } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    useExtendContext(async contextSoFar => {
+      return {
+        myCustomField: {
+          /* ... */
+        }
+      }
+    })
+    // ... other plugins
+  ]
+})
+```
+
+### `useLogger`
+
+Logs parameters and information about the execution phases. You can easily plug in your custom
+logger.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, useLogger } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    useLogger({
+      logFn(eventName, args) {
+        // Event could be `execute-start` / `execute-end` / `subscribe-start` / `subscribe-end`
+        // `args` will include the arguments passed to execute/subscribe (in case of "start" event) and additional result in case of "end" event.
+      }
+    })
+    // ... other plugins
+  ]
+})
+```
+
+### `usePayloadFormatter`
+
+Allow you to format/modify the execution result payload before returning it to your consumer.
+
+The second argument `executionArgs` provides additional information for your formatter. It consists
+of `contextValue`, `variableValues`, `document`, `operationName`, and other properties.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine, usePayloadFormatter } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    usePayloadFormatter((result, executionArgs) => {
+      // Return a modified result here,
+      // Or `false`y value to keep it as-is.
+    })
+    // ... other plugins
+  ]
+})
+```
+
+### `useEngine`
+
+This plugin can be used to customize the GraphQL Engine.
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS)
+    // ... other plugins
+  ]
+})
+```
+
+### `useMaskedErrors`
+
+Prevent unexpected error messages from leaking to the GraphQL API consumers.
+
+```ts
+import { makeExecutableSchema } from 'graphql'
+import { envelop, EnvelopError, useMaskedErrors, useSchema } from '@envelop/core'
+
+const schema = makeExecutableSchema({
+  typeDefs: /* GraphQL */ `
+    type Query {
+      something: String!
+      somethingElse: String!
+      somethingSpecial: String!
+    }
+  `,
+  resolvers: {
+    Query: {
+      something() {
+        throw new EnvelopError('Error that is propagated to the clients.')
+      },
+      somethingElse() {
+        throw new Error("Unsafe error that will be masked as 'Unexpected Error.'.")
+      },
+      somethingSpecial() {
+        throw new EnvelopError('The error will have an extensions field.', {
+          code: 'ERR_CODE',
+          randomNumber: 123
+        })
+      }
+    }
+  }
+})
+
+const getEnveloped = envelop({
+  plugins: [useSchema(schema), useMaskedErrors()]
+})
+```

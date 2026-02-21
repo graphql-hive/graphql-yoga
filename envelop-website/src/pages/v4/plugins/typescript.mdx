@@ -1,0 +1,49 @@
+# TypeScript Support
+
+If you are using TypeScript with `envelop`, you can leverage the ability to infer types and have
+complete type-safety.
+
+## For Plugin Developers
+
+As a plugin developer, you can define the `context` properties you are contributing. This will make
+sure to follow across the execution of your plugin, and you can leverage type-safety across all
+hooks.
+
+```ts
+export const useMyPlugin = (): Plugin<{ myContext: string }> => {
+  return {
+    onParse({ context }) {
+      // Here, context is typed as { myContext: string }
+    },
+    onExecute({ args }) {
+      // Here, args.contextValue is typed as { myContext: string }
+    }
+  }
+}
+```
+
+## For Plugins Users
+
+As a user of a plugin, you get type-inference based on the plugins that you use, for example:
+
+```ts
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
+
+// At this point, the context known to envelop is `{ pluginA: string, pluginB: string }`
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(GraphQLJS),
+    usePluginA(), // Defined with Plugin<{ pluginA: string }>
+    usePluginB() // Defined with Plugin<{ pluginB: string }>
+  ]
+})
+
+server.on('req', async (req, res) => {
+  // At this point, the context known to envelop is `{ pluginA: string, pluginB: string, req: Http.IncomingRequest }`
+  const { parse, validate, execute, schema, contextFactory } = getEnveloped({ req })
+
+  // At this point, the context known to envelop is `{ pluginA: string, pluginB: string, req: Http.IncomingRequest, extra: boolean }`
+  const context = await contextFactory({ extra: true })
+})
+```
