@@ -247,7 +247,7 @@ jobs:
     runs-on: ubuntu-latest
     if:
       github.event.pull_request.head.repo.full_name == github.repository &&
-      secrets.CLOUDFLARE_ACCOUNT_ID
+      env.CLOUDFLARE_ACCOUNT_ID
     env:
       # CloudFlare
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

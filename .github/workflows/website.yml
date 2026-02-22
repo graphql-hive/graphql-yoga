@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  WEBSITE_CLOUDFLARE_API_TOKEN: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
+
 jobs:
   deployment:
     runs-on: ubuntu-latest
@@ -48,7 +51,7 @@ jobs:
 
       - uses: the-guild-org/shared-config/website-cf@main
         name: build and deploy website
-        if: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
+        if: ${{ env.WEBSITE_CLOUDFLARE_API_TOKEN }}
         env:
           NEXT_BASE_PATH: ${{ github.ref == 'refs/heads/main' && '/graphql/yoga-server' || '' }}
           SITE_URL:

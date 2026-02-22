@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
 jobs:
   alpha:
     permissions:
@@ -16,14 +19,14 @@ jobs:
       id-token: write
       pull-requests: write
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' && secrets.NPM_TOKEN }}
+    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' && env.NPM_TOKEN }}
     with:
       npmTag: alpha
       buildScript: build
       node-version-file: .node-version
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
-      npmToken: ${{ secrets.NPM_TOKEN }}
+      npmToken: ${{ env.NPM_TOKEN }}
 
   release-candidate:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
@@ -35,7 +38,7 @@ jobs:
       node-version-file: .node-version
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
-      npmToken: ${{ secrets.NPM_TOKEN }}
+      npmToken: ${{ env.NPM_TOKEN }}
 
   dependencies:
     uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
