@@ -245,9 +245,7 @@ jobs:
     name: e2e / ${{ matrix.plan }}
 
     runs-on: ubuntu-latest
-    if:
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      env.CLOUDFLARE_ACCOUNT_ID
+    if: github.event.pull_request.head.repo.full_name == github.repository
     env:
       # CloudFlare
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

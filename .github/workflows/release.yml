@@ -16,7 +16,7 @@ jobs:
       pull-requests: write
       issues: write
     uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
+    if: github.event.pull_request.title != 'Upcoming Release Changes'
     with:
       releaseScript: release
       node-version-file: .node-version
