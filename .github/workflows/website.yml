@@ -48,6 +48,7 @@ jobs:
 
       - uses: the-guild-org/shared-config/website-cf@main
         name: build and deploy website
+        if: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
         env:
           NEXT_BASE_PATH: ${{ github.ref == 'refs/heads/main' && '/graphql/yoga-server' || '' }}
           SITE_URL:
@@ -56,7 +57,7 @@ jobs:
         with:
           cloudflareApiToken: ${{ secrets.WEBSITE_CLOUDFLARE_API_TOKEN }}
           cloudflareAccountId: ${{ secrets.WEBSITE_CLOUDFLARE_ACCOUNT_ID }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
           projectName: graphql-yoga
           prId: ${{ github.event.pull_request.number }}
           mainBranch: master
