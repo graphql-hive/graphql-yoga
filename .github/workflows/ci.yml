@@ -226,7 +226,7 @@ jobs:
           compose: docker-compose.yaml
           schema: schema.graphql
           path: /graphql
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
           failOnWarning: true
           failOnRequired: true
           debug: true

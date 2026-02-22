@@ -16,13 +16,13 @@ jobs:
       id-token: write
       pull-requests: write
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
+    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' && secrets.NPM_TOKEN }}
     with:
       npmTag: alpha
       buildScript: build
       node-version-file: .node-version
     secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
       npmToken: ${{ secrets.NPM_TOKEN }}
 
   release-candidate:
@@ -34,14 +34,14 @@ jobs:
       buildScript: build
       node-version-file: .node-version
     secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
       npmToken: ${{ secrets.NPM_TOKEN }}
 
   dependencies:
     uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
     if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
     secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
     with:
       installDependencies: true
       node-version-file: .node-version

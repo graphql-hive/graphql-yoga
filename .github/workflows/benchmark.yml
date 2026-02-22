@@ -41,7 +41,7 @@ jobs:
           NODE_ENV: production
           GITHUB_PR: ${{ github.event.number }}
           GITHUB_SHA: ${{ github.sha }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
   envelop:
     name: envelop benchmarks
     runs-on: ubuntu-latest
