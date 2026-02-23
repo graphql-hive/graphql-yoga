@@ -43,8 +43,7 @@ create a plugin that adds a client to the context add releases it at the end of 
 execution.
 
 ```ts
-import * as GraphQLJS from 'graphql'
-import { isAsyncIterable, useEngine } from '@envelop/core'
+import { isAsyncIterable } from '@envelop/core'
 import { useSchema } from './use-schema'
 
 const pool = new Pool({ maxClients: 10 })
@@ -72,7 +71,7 @@ const resolvers = {
 }
 
 const getEnvelop = envelop({
-  plugins: [useEngine(GraphQLJS), useSchema(/*...*/), databaseClientPlugin]
+  plugins: [useSchema(/*...*/), databaseClientPlugin]
 })
 ```
 

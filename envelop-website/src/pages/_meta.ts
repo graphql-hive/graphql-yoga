@@ -7,7 +7,7 @@ export default {
       layout: 'raw',
     },
   },
-  v4: {
+  docs: {
     title: 'v4 (latest)',
     type: 'page',
   },
@@ -15,7 +15,7 @@ export default {
     title: 'v3',
     type: 'page',
   },
-  docs: {
+  v2: {
     title: 'v2',
     type: 'page',
   },

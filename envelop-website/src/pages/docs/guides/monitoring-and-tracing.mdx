@@ -15,12 +15,14 @@ important information for tracking down the root cause of the error.
 As with any other envelop plugin, the setup is straight forward!
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { useSentry } from '@envelop/sentry'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     useSentry()
   ]
 })
@@ -55,12 +57,14 @@ If you wish to integrate NewRelic for tracing, monitoring and error reporting, y
 As with any other envelop plugin the setup is straight forward!
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { useNewRelic } from '@envelop/newrelic'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     useNewRelic({
       // ...
     })
@@ -78,12 +82,12 @@ it is possible to use apollo-tracing for tracking down slow resolvers with any s
 ```ts
 import * as GraphQLJS from 'graphql'
 import { useApolloTracing } from '@envelop/apollo-tracing'
-import { envelop, envelop, useEngine } from '@envelop/core'
+import { envelop, useEngine } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
     useEngine(GraphQLJS),
-    // ... other plugins
+    // ... other plugins ...
     useApolloTracing()
   ]
 })

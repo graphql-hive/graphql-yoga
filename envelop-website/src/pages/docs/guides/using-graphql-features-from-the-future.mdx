@@ -225,15 +225,6 @@ const GraphQLGeometryCreateInput = new GraphQLInputObjectType({
 
 [You can learn more in the plugin documentations](/plugins/use-extended-validation#union-inputs-oneof).
 
-<Callout type="info">
-  **Note**: If you print the schema using `import {printSchema} from 'graphql/utilities'`, this will
-  **not** include the added `@oneOf` directive as the `GraphQLSchema` object doesn't recognize
-  directives as part of its AST. If you want to print your schema with those directives added to
-  your SDL, use
-  [`printSchemaWithDirectives`](https://the-guild.dev/graphql/tools/docs/api/modules/utils_src#printschemawithdirectives)
-  instead.
-</Callout>
-
 ## Fragment Arguments
 
 Mutations, Subscriptions and Queries can have variable definitions today. For fragments a way of
@@ -302,11 +293,13 @@ Envelop already allows using fragment arguments by extending the GraphQL parser.
 using this for production usage! Please only use it for research or learning purposes!
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { useFragmentArguments } from '@envelop/fragment-arguments'
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     // ... other plugins ...
     useFragmentArguments()
   ]

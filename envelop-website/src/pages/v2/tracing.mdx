@@ -7,13 +7,9 @@ performance of each stage.
 
 If you wish to enable it, pass `enableInternalTracing: true` to your envelop instance:
 
-```ts
-import * as GraphQLJS from 'graphql'
-import { envelop, useEngine } from '@envelop/core'
-
+```ts /enableInternalTracing: true/
 const getEnveloped = envelop({
   plugins: [
-    useEngine(GraphQLJS)
     // ...
   ],
   enableInternalTracing: true

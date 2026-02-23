@@ -28,14 +28,14 @@ function from `graphql`.
 import * as GraphQLJS from 'graphql'
 import { envelop, useEngine, useSchema } from '@envelop/core'
 
-const schema = GraphQLJS.buildSchema(/* GraphQL */ `
+const schema = buildSchema(/* GraphQL */ `
   type Query {
     hello: String
   }
 `)
 
 export const getEnveloped = envelop({
-  plugins: [useEngine(GraphQLJS), useSchema(schema)]
+  plugins: [useSchema(schema)]
 })
 ```
 
@@ -74,7 +74,6 @@ npm i @envelop/parser-cache @envelop/validation-cache
 ```
 
 ```ts
-import * as GraphQLJS from 'graphql'
 import { buildSchema } from 'graphql'
 import { envelop, useEngine, useSchema } from '@envelop/core'
 import { useParserCache } from '@envelop/parser-cache'
@@ -88,7 +87,6 @@ const schema = buildSchema(/* GraphQL */ `
 
 const getEnveloped = envelop({
   plugins: [
-    useEngine(GraphQLJS),
     // all enabled plugins
     useSchema(schema),
     useParserCache(),

@@ -34,6 +34,7 @@ The plugin order specifies the order in which the handlers of each plugin will b
 `onExecute` hook of the plugin at the array index 0 will always be invoked before the plugin at the
 index 1.
 
-Plugins have the option to stop the execution completly and stop calling further plugins `onExecute`
-hooks. The `useResponseCache` plugin is such a plugin. Once a response is served from the cache all
-further `onExecute` are never called and all `onExecuteDone` hooks are never called at all.
+Plugins have the option to stop the execution completely and stop calling further plugins
+`onExecute` hooks. The `useResponseCache` plugin is such a plugin. Once a response is served from
+the cache all further `onExecute` are never called and all `onExecuteDone` hooks are never called at
+all.

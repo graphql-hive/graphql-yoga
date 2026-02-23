@@ -20,7 +20,6 @@ Plugins allow hooking into all GraphQL phases such as `parse`, `validate`, `exec
 | Example Plugin                                    | Description                                                                                               |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | [`useLogger`](/plugins/use-logger)                | Hooks into "before" of all phases, and prints the execution parameters to the console using `console.log` |
-| [`useTiming`](/plugins/use-timing)                | Hooks into "before" and "after" of all phases, measures times, and then prints them                       |
 | [`useParserCache`](/plugins/use-parser-cache)     | Hooks into "before" and "after" of the `parse` phase and implements caching based on the operation string |
 | [`useOpenTelemetry`](/plugins/use-open-telemetry) | Hooks into all phases, execution and resolvers, and creates Spans for OpenTelemetry performance tracing   |
 

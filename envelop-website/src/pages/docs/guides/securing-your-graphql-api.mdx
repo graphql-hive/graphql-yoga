@@ -89,7 +89,7 @@ const store: PersistedOperationsStore = {
 const getEnveloped = envelop({
   plugins: [
     useEngine(GraphQLJS),
-    // ... other plugins
+    // ... other plugins ...
     usePersistedOperations({
       store: myStore,
       // only allow the operations within our persistedOperations object
@@ -101,8 +101,8 @@ const getEnveloped = envelop({
 
 ### Reject Malicious Operation Documents
 
-Parsing a GraphQL operation document is a very expensive and compute intensitive operation that
-blocks the JavaScript event loop. If an attacker sends a very complex operation document with slight
+Parsing a GraphQL operation document is a very expensive and compute intensive operation that blocks
+the JavaScript event loop. If an attacker sends a very complex operation document with slight
 variations over and over again he can easily degrade the performance of the GraphQL server. Because
 of the variations simply having an LRU cache for parsed operation documents is not enough.
 
@@ -137,12 +137,14 @@ You can limit the amount of allowed tokens per operation and automatically abort
 processing of a GraphQL operation document that exceeds the limit with the `maxTokensPlugin`.
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { maxTokensPlugin } from '@escape.tech/graphql-armor-max-tokens'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     maxTokensPlugin({
       maxTokenCount: 1000 // Number of tokens allowed in a document
     })
@@ -159,12 +161,14 @@ The [`maxDepthPlugin`](/plugins/graphql-armor-max-depth) allows a maximum nestin
 is allowed to have.
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     maxDepthPlugin({
       n: 10 // Number of depth allowed
     })
@@ -190,12 +194,14 @@ the flexibility of the graph and the ability to choose what fields to query.
 The [`useRateLimiter`](/plugins/use-rate-limiter) to limit access to resources, by a field level.
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { useRateLimiter } from '@envelop/rate-limiter'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     useRateLimiter({
       // ...
     })
@@ -226,7 +232,7 @@ security issues.
 We recommend using an existing third-party service such as [Auth0](https://auth0.com/) for most
 users. With the `@envelop/auth0` plugin, you can simply bootstrap the authorization process.
 
-```ts
+```tsx
 import * as GraphQLJS from 'graphql'
 import { useAuth0 } from '@envelop/auth0'
 import { envelop, useEngine, useExtendContext, useSchema } from '@envelop/core'
@@ -381,7 +387,7 @@ server! Just add the [`useMaskedErrors`](/plugins/use-masked-errors) plugin and 
 instances for expected errors that should leak to the outside world. You can also add custom
 extension fields that will also be sent to the clients.
 
-```ts
+```tsx
 import * as GraphQLJS from 'graphql'
 import { envelop, EnvelopError, useEngine, useMaskedErrors, useSchema } from '@envelop/core'
 import { makeExecutableSchema } from '@graphql-tools/schema'

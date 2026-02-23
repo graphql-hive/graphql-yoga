@@ -1,5 +1,4 @@
 export default {
-  'migrating-from-v3-to-v4': 'Migrating from v3 to v4',
   'securing-your-graphql-api': 'Securing Your GraphQL API',
   'adding-authentication-with-auth0': 'Adding Authentication with Auth0',
   'monitoring-and-tracing': 'Monitoring and Tracing',

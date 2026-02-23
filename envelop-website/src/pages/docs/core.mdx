@@ -20,30 +20,8 @@ const mySchema = buildSchema(/* ... */)
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     useSchema(mySchema)
-    // ... other plugins
-  ]
-})
-```
-
-### `useAsyncSchema`
-
-This plugin is the simplest plugin for specifying your GraphQL schema but in an async way.
-
-If you are using a framework that creates the schema in an async way, you can either use this
-plugin, or `await` for the schema and then use `useSchema`.
-
-```ts
-import { buildSchema } from 'graphql'
-import { envelop, useAsyncSchema } from '@envelop/core'
-
-const getSchema = async (): Promise<GraphQLSchema> => {
-  // return schema when it's ready
-}
-
-const getEnveloped = envelop({
-  plugins: [
-    useAsyncSchema(getSchema())
     // ... other plugins
   ]
 })
@@ -59,6 +37,7 @@ import { envelop, useEngine, useErrorHandler } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     useErrorHandler(error => {
       // This callback is called per each GraphQLError emitted during the execution phase
     })
@@ -82,6 +61,7 @@ import { envelop, useEngine, useExtendContext } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     useExtendContext(async contextSoFar => {
       return {
         myCustomField: {
@@ -105,6 +85,7 @@ import { envelop, useEngine, useLogger } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     useLogger({
       logFn(eventName, args) {
         // Event could be `execute-start` / `execute-end` / `subscribe-start` / `subscribe-end`
@@ -129,6 +110,7 @@ import { envelop, useEngine, usePayloadFormatter } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
+    useEngine(GraphQLJS),
     usePayloadFormatter((result, executionArgs) => {
       // Return a modified result here,
       // Or `false`y value to keep it as-is.
@@ -138,11 +120,9 @@ const getEnveloped = envelop({
 })
 ```
 
-### `useTiming`
+### `useEngine`
 
-It's a simple time metric collection for every phase in your execution. You can easily customize the
-behavior of each timing measurement. By default, the timing is printed to the log, using
-`console.log`.
+This plugin can be used to customize the GraphQL Engine.
 
 ```ts
 import * as GraphQLJS from 'graphql'
@@ -150,16 +130,7 @@ import { envelop, useEngine } from '@envelop/core'
 
 const getEnveloped = envelop({
   plugins: [
-    useTiming({
-      // All options are optional. By default it just print it to the log.
-      // ResultTiming is an object built with { ms, ns } (milliseconds and nanoseconds)
-      onContextBuildingMeasurement: (timing: ResultTiming) => {},
-      onExecutionMeasurement: (args: ExecutionArgs, timing: ResultTiming) => {},
-      onSubscriptionMeasurement: (args: SubscriptionArgs, timing: ResultTiming) => {},
-      onParsingMeasurement: (source: Source | string, timing: ResultTiming) => {},
-      onValidationMeasurement: (document: DocumentNode, timing: ResultTiming) => {},
-      onResolverMeasurement: (info: GraphQLResolveInfo, timing: ResultTiming) => {}
-    })
+    useEngine(GraphQLJS)
     // ... other plugins
   ]
 })
@@ -201,27 +172,5 @@ const schema = makeExecutableSchema({
 
 const getEnveloped = envelop({
   plugins: [useSchema(schema), useMaskedErrors()]
-})
-```
-
-## Utilities
-
-### `enableIf`
-
-This utility is helpful when you want to enable a plugin only when a certain condition is met.
-
-```ts
-import { enableIf, envelop, useMaskedErrors } from '@envelop/core'
-
-const isProd = process.env.NODE_ENV === 'production'
-
-const getEnveloped = envelop({
-  plugins: [
-    // This plugin is enabled only in production
-    enableIf(isProd, useMaskedErrors()),
-    // you can also pass function
-    enableIf(isProd, () => useMaskedErrors())
-    // ... other plugins
-  ]
 })
 ```

@@ -3,7 +3,7 @@
 /* eslint sort-keys: error */
 import { useRouter } from 'next/router';
 import { PLUGINS } from '@/lib/plugins';
-import { defineConfig, Giscus, PRODUCTS, useTheme } from '@theguild/components';
+import { defineConfig, Giscus, useTheme } from '@theguild/components';
 
 export default defineConfig({
   docsRepositoryBase: 'https://github.com/graphql-hive/graphql-yoga/tree/main/envelop-website',

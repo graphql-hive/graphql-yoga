@@ -18,15 +18,13 @@ getting full type safety while building envelop plugins.
 
 All plugins share the common plugin interface that can be found on GitHub.
 
-https://github.com/graphql-hive/envelop/blob/main/packages/types/src/plugin.ts
+https://github.com/graphql-hive/graphql-yoga/blob/main/packages/envelop/types/src/plugin.ts
 
 ## Building Your First Plugin
 
 Here's a simple example that allows you to print the execution and parsing parameters.
 
 ```ts
-import * as GraphQLJS from 'graphql'
-import { useEngine } from '@envelop/core'
 import type { Plugin } from '@envelop/core'
 
 const myPlugin: Plugin = {
@@ -50,8 +48,7 @@ const myPlugin: Plugin = {
 
 const getEnveloped = envelop({
   plugins: [
-    useEngine(GraphQLJS),
-    /// ... other plugins ...,
+    // ... other plugins
     myPlugin
   ]
 })
@@ -85,7 +82,7 @@ const myPlugin = (shouldPrintResult: boolean): Plugin => {
 const getEnveloped = envelop({
   plugins: [
     useEngine(GraphQLJS),
-    /// ... other plugins ...,
+    // ... other plugins
     myPlugin(true)
   ]
 })

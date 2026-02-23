@@ -24,10 +24,18 @@ To test a plugin in a real GraphQL environment, just create a Testkit Envelop:
 
 ```ts
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 import { useMyPlugin } from './my-plugin'
 
 describe('My Plugin', () => {
-  const mySchema = buildSchema(`type Query { foo: String }`)
+  const mySchema = makeExecutableSchema({
+    typeDefs: `type Query { foo: String }`,
+    resolvers: {
+      Query: {
+        foo: () => 'bar'
+      }
+    }
+  })
 
   it('Should run correctly with no errors', async () => {
     // Create a testkit for the plugin, using the plugin and a dummy schema
@@ -37,7 +45,7 @@ describe('My Plugin', () => {
     // During tests, it's simpler to assume you are dealing with a non-stream responses
     assertSingleExecutionValue(result)
     // Assert that the result is correct
-    expect(result.data).toBeDefined()
+    expect(result.data?.foo).toBe('bar')
   })
 })
 ```
@@ -49,10 +57,18 @@ and run the same testing flow for multiple plugins together:
 
 ```ts
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 import { getEnveloped } from './my-app'
 
 describe('My GQL App', () => {
-  const mySchema = buildSchema(`type Query { foo: String }`)
+  const mySchema = makeExecutableSchema({
+    typeDefs: `type Query { foo: String }`,
+    resolvers: {
+      Query: {
+        foo: () => 'bar'
+      }
+    }
+  })
 
   it('Should run correctly with no errors', async () => {
     // Create a testkit based on the envelop, with a dummy schema
@@ -62,7 +78,7 @@ describe('My GQL App', () => {
     // During tests, it's simpler to assume you are dealing with a non-stream responses
     assertSingleExecutionValue(result)
     // Assert that the result is correct
-    expect(result.data).toBeDefined()
+    expect(result.data?.foo).toBe('bar')
   })
 })
 ```

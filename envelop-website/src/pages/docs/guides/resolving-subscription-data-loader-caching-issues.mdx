@@ -56,13 +56,15 @@ solution for extending the original context with a new part before the subscript
 executed.
 
 ```ts
-import { envelop } from '@envelop/core'
+import * as GraphQLJS from 'graphql'
+import { envelop, useEngine } from '@envelop/core'
 import { useContextValuePerExecuteSubscriptionEvent } from '@envelop/execute-subscription-event'
 import { createContext, createDataLoaders } from './context'
 
 const getEnveloped = envelop({
   plugins: [
-    // ... other plugins
+    useEngine(GraphQLJS),
+    // ... other plugins ...
     useContext(() => createContext()),
     useContextValuePerExecuteSubscriptionEvent(() => ({
       // Existing context is merged with this context partial
