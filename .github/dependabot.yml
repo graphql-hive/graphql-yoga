@@ -1,0 +1,50 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: 'github-actions' # See documentation for possible values
+    directory: '/' # Location of package manifests
+    schedule:
+      interval: 'daily'
+    groups:
+      actions-deps:
+        patterns:
+          - '*'
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/' # Location of package manifests
+    schedule:
+      interval: 'daily'
+    exclude-paths:
+      - 'examples' # the examples are auto-generated from the e2es, whose packages we do auto-update
+    versioning-strategy: increase-if-necessary
+    groups:
+      whatwg-node:
+        patterns:
+          - '@whatwg-node/*'
+        update-types:
+          - 'major'
+          - 'minor'
+          - 'patch'
+      all-minor-patch:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@changesets/*'
+          - 'typescript'
+          - 'typedoc'
+          - '@theguild/*'
+          - '@graphql-inspctor/core'
+          - 'next'
+          - '@envelop/*'
+          - '@whatwg-node/*'
+          - '@graphql-yoga/*'
+          - 'graphql-yoga'
+          - 'lru-cache'
+          - 'sofa-api'
+          - 'husky'
+        update-types:
+          - 'minor'
+          - 'patch'

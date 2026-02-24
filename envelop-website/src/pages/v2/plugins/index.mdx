@@ -1,0 +1,39 @@
+# Introduction
+
+Plugins are the hearth of Envelop. Without adding any plugins, the GraphQL execution layer provided
+by Envelop does not differ from the core GraphQL execution layer provided by GraphQL.js.
+
+## How Do Envelop Plugins Work?
+
+Envelop plugins are based on a simple event-based contract that allows extending and overwriting the
+GraphQL execution logic, by wrapping the functions `parse`, `validate`, `execute` and `subscribe`
+from GraphQL.js.
+
+![Envelop Plugin](/assets/home-communication.png)
+
+Generic logic can be shared as a plugin, that can be distributed via npm.
+
+## What Plugins Can Do?
+
+Plugins are capable of modifying and altering every aspect of the GraphQL execution flow, allowing
+you to hook into the phases before and after `parse`, `validate`, `execute`, `subscribe`, as well as
+building your GraphQL context.
+
+Plugins can also change the GraphQL schema during execution - so if your server has a schema that
+could change dynamically, you can constantly update it. Plugins can listen to schema changes and run
+logic accordingly.
+
+## What Plugins Are Available?
+
+You can find a list of all plugins, their documentation and installation instructions on the
+[Envelop Plugin Hub](/plugins).
+
+## Does the order of plugins matter?
+
+The plugin order specifies the order in which the handlers of each plugin will be invoked. E.g. the
+`onExecute` hook of the plugin at the array index 0 will always be invoked before the plugin at the
+index 1.
+
+Plugins have the option to stop the execution completly and stop calling further plugins `onExecute`
+hooks. The `useResponseCache` plugin is such a plugin. Once a response is served from the cache all
+further `onExecute` are never called and all `onExecuteDone` hooks are never called at all.

@@ -75,6 +75,93 @@
           }
         ]
       }
+    },
+    {
+      "files": ["packages/envelop/**"],
+      "rules": {
+        "no-lonely-if": "error",
+        "no-empty": "off",
+        "no-console": "error",
+        "no-prototype-builtins": "off",
+        "prefer-arrow-callback": [
+          "error",
+          {
+            "allowNamedFunctions": true
+          }
+        ],
+        "no-useless-constructor": "off",
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "args": "none"
+          }
+        ],
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/ban-ts-ignore": "off",
+        "@typescript-eslint/ban-types": "off",
+        "import/no-default-export": "error",
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": ["**/*.test.ts", "**/*.spec.ts", "**/test/**/*.ts"]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "packages/envelop/**/tests/**/*.ts",
+        "packages/envelop/**/graphql-codegen-testing/**/*.ts",
+        "packages/envelop/**/*.spec.ts"
+      ],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    // Disallow `graphql-js` specific things to get re-introduced in agnostic packages.
+    {
+      "files": [
+        "packages/envelop/core/**",
+        "packages/envelop/types/**",
+        "packages/envelop/plugins/apollo-datasources/**",
+        "packages/envelop/plugins/auth0/**",
+        "packages/envelop/plugins/dataloader/**",
+        "packages/envelop/plugins/preload-assets/**"
+      ],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "graphql",
+                "message": "You chose violence. Try to make it work without using GraphQL.js"
+              },
+              {
+                "name": "@graphql-tools/*",
+                "message": "You chose violence. Try to make it work without using `graphql-tools`"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -306,6 +306,79 @@ describe('Batching', () => {
     });
   });
 
+  it('should isolate errors in batched operations when onParams hook throws', async () => {
+    const schema = createSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          hello: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          hello: () => 'world',
+        },
+      },
+    });
+
+    let callCount = 0;
+    const yoga = createYoga({
+      schema,
+      batching: true,
+      plugins: [
+        {
+          onParams({ params }) {
+            callCount++;
+            // Throw an error on the second operation
+            if (params.operationName === 'FailingOp') {
+              throw new Error('Plugin error for this operation');
+            }
+          },
+        },
+      ],
+    });
+
+    const query1 = /* GraphQL */ `
+      query FirstOp {
+        hello
+      }
+    `;
+    const query2 = /* GraphQL */ `
+      query FailingOp {
+        hello
+      }
+    `;
+    const query3 = /* GraphQL */ `
+      query ThirdOp {
+        hello
+      }
+    `;
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([
+        { query: query1, operationName: 'FirstOp' },
+        { query: query2, operationName: 'FailingOp' },
+        { query: query3, operationName: 'ThirdOp' },
+      ]),
+    });
+
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    expect(result).toHaveLength(3);
+    // First operation should succeed
+    expect(result[0]).toEqual({ data: { hello: 'world' } });
+    // Second operation should have an error but not fail the entire batch
+    expect(result[1]).toHaveProperty('errors');
+    expect(result[1].errors[0].message).toContain('Unexpected error');
+    // Third operation should also succeed
+    expect(result[2]).toEqual({ data: { hello: 'world' } });
+    // All three operations should have been attempted
+    expect(callCount).toBe(3);
+  });
+
   it('batching context have different identity and properties are assignments are not shared', async () => {
     let i = 0;
     type Context = {

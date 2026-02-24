@@ -56,7 +56,7 @@
     "@babel/preset-typescript": "7.28.5",
     "@changesets/changelog-github": "0.5.2",
     "@changesets/cli": "2.29.8",
-    "@graphql-hive/laboratory": "^0.0.0",
+    "@graphql-hive/laboratory": "1.0.0-alpha-20260224193414-92a02da385cd5d3be81cf73fe81737e00836eacd",
     "@ianvs/prettier-plugin-sort-imports": "4.7.0",
     "@playwright/browser-chromium": "^1.49.1",
     "@theguild/eslint-config": "0.13.4",
@@ -89,6 +89,7 @@
     "supertest": "7.1.4",
     "ts-jest": "29.4.5",
     "typescript": "5.9.3",
+    "wait-on": "9.0.4",
     "wrangler": "4.59.1"
   },
   "lint-staged": {
@@ -104,10 +105,18 @@
       "@changesets/assemble-release-plan@5.2.3": "patches/@changesets__assemble-release-plan@5.2.3.patch",
       "jest-leak-detector": "patches/jest-leak-detector.patch",
       "package-up": "patches/package-up.patch",
-      "jest-environment-node": "patches/jest-environment-node.patch"
+      "jest-environment-node": "patches/jest-environment-node.patch",
+      "@miniflare/core": "patches/@miniflare__core.patch",
+      "minimatch": "patches/minimatch.patch"
     },
     "overrides": {
-      "axios": "1.13.2",
+      "@isaacs/brace-expansion": "5.0.1",
+      "minimatch": "10.2.1",
+      "axios": "1.13.5",
+      "fastify": "5.7.3",
+      "lodash": "4.17.23",
+      "lodash-es": "4.17.23",
+      "markdown-it": "14.1.1",
       "body-parser": "2.2.1",
       "estree-util-value-to-estree": "3.5.0",
       "eslint-plugin-unicorn": "56.0.1",
@@ -121,9 +130,9 @@
       "@types/react": "19.2.4",
       "multer": "2.0.2",
       "on-headers": "1.1.0",
-      "tar": "7.5.4",
+      "tar": "7.5.8",
       "tmp": "0.2.5",
-      "qs": "6.14.1",
+      "qs": "6.14.2",
       "validator": "13.15.22",
       "jws": "3.2.3",
       "mdast-util-to-hast": "13.2.1",
@@ -132,7 +141,8 @@
       "preact": "10.27.3",
       "js-yaml": "3.14.2",
       "diff": "8.0.3",
-      "@apollo/composition": "2.12.1"
+      "@apollo/composition": "2.12.1",
+      "webpack": "5.104.1"
     },
     "onlyBuiltDependencies": [
       "@nestjs/core",

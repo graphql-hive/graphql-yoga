@@ -3,7 +3,10 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const directoryName = path.dirname(fileURLToPath(import.meta.url));
-const inputPath = path.resolve(directoryName, '../../../node_modules/@graphql-hive/laboratory');
+const inputPath = path.resolve(
+  directoryName,
+  '../../../node_modules/@graphql-hive/laboratory/dist',
+);
 const jsFile = path.resolve(inputPath, 'hive-laboratory.umd.js');
 const cssFile = path.resolve(inputPath, 'laboratory.css');
 const editorWorkerServiceFile = path.resolve(

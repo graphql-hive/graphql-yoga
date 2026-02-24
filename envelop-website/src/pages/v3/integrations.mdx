@@ -1,0 +1,41 @@
+import { Callout } from '@theguild/components'
+
+# Integrations and Examples
+
+Envelop provides a low-level API for integrating it with your server of choice, but a rich API for
+building plugins. It is possible to integrate Envelop with any HTTP server framework and almost any
+GraphQL Server Framework.
+
+<Callout>
+  Our personal recommendation is using [`graphql-yoga`](https://graphql-yoga.com). It is a
+  fully-functional GraphQL server that has the envelop engine built-in! You can find a minimal
+  example of using envelop with yoga [here](https://graphql-yoga.com/docs/features/envelop-plugins).
+</Callout>
+
+## Compatibility Table
+
+Here's a list of integrations and examples. This list here includes integrations with different
+GraphQL servers, different HTTP servers and different GraphQL schema builders. In case you are
+missing your favorite server, feel free to add it!
+
+<Callout>
+  Since Envelop is not an HTTP server, and just a wrapper around the GraphQL request pipeline - it's
+  possible to integrate it with almost any server/framework.
+</Callout>
+
+| Server/Framework                            |                              Fully supported?                              | Example                                                                                                                    |
+| ------------------------------------------- | :------------------------------------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------- |
+| Yoga Server                                 |                                     ✅                                     | [`graphql-yoga`](https://github.com/dotansimha/graphql-yoga/tree/master/examples)                                          |
+| GraphQL-Helix                               |                                     ✅                                     | [`graphql-helix`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/graphql-helix)                   |
+| Node.js HTTP                                |                                     ✅                                     | [`basic-http`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/simple-http)                        |
+| GraphQL-Helix (with `@defer` and `@stream`) |                                     ✅                                     | [`graphql-helix`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/graphql-helix-defer-stream)      |
+| Apollo-Server                               | [Partial](https://github.com/apollographql/apollo-server/discussions/5541) | [`apollo-server`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/apollo-server)                   |
+| GraphQL-WS                                  |                                     ✅                                     | [`graphql-ws`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/graphql-ws)                         |
+| GraphQL-SSE                                 |                                     ✅                                     | [`graphql-sse`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/graphql-sse)                       |
+| Azure Functions                             |                                     ✅                                     | [`azure-functions`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/azure-functions)               |
+| Cloudflare Workers                          |                                     ✅                                     | [`cloudflare-workers`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/cloudflare-workers)         |
+| Google Cloud Functions                      |                                     ✅                                     | [`google-cloud-functions`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/google-cloud-functions) |
+| Lambda AWS                                  |                                     ✅                                     | [`lambda-aws`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/lambda-aws)                         |
+| type-graphql                                |                                     ✅                                     | [`type-graphql`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/typegraphql)                      |
+| nexus                                       |                                     ✅                                     | [`nexus`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/nexus)                                   |
+| express-graphql                             |                                     ✅                                     | [`express-graphql`](https://github.com/graphql-hive/graphql-hive/tree/main/examples/envelop/express-graphql)               |
