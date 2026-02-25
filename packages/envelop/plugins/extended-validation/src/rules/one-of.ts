@@ -102,7 +102,7 @@ function traverseVariables(
     return;
   }
 
-  if (typeof currentValue !== 'object' || currentValue == null) {
+  if (typeof currentValue !== 'object') {
     // in case the value is not an object, the "original" validation phase should complain.
     return;
   }

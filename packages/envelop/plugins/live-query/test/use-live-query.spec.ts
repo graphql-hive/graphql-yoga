@@ -92,10 +92,10 @@ describe('useLiveQuery', () => {
       contextValue,
     );
     assertStreamExecutionValue(result);
-    let current = await result.next();
+    await result.next();
     contextValue.greetings.reverse();
     liveQueryStore.invalidate('Query.greetings');
-    current = await result.next();
+    const current = await result.next();
     expect(current.value).toMatchInlineSnapshot(`
       {
         "patch": {

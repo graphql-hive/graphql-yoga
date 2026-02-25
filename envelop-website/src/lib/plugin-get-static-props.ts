@@ -1,7 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { format } from 'date-fns';
 import { buildDynamicMDX, buildDynamicMeta } from 'nextra/remote';
-import { fetchPackageInfo } from '@theguild/components';
 import { fetchPackageInfoCachedAndRetried } from './fetch-package-info-cached-and-retried';
 import { PLUGINS } from './plugins';
 

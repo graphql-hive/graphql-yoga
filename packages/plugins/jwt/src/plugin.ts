@@ -172,20 +172,18 @@ export function useJWT(options: JwtPluginOptions): Plugin<{
                   throw unauthorizedError(`Unauthenticated`);
                 }
 
-                if (verified) {
-                  // Link the verified payload with the request (see `onContextBuilding` for the reading part)
-                  const pluginPayload: PluginPayload = {
-                    payload: verified,
-                    token: {
-                      value: lookupResult.token,
-                      prefix: lookupResult.prefix,
-                    },
-                  };
-                  if (payload.request) {
-                    payloadByRequest.set(payload.request, pluginPayload);
-                  } else {
-                    payloadByContext.set(payload.serverContext, pluginPayload);
-                  }
+                // Link the verified payload with the request (see `onContextBuilding` for the reading part)
+                const pluginPayload: PluginPayload = {
+                  payload: verified,
+                  token: {
+                    value: lookupResult.token,
+                    prefix: lookupResult.prefix,
+                  },
+                };
+                if (payload.request) {
+                  payloadByRequest.set(payload.request, pluginPayload);
+                } else {
+                  payloadByContext.set(payload.serverContext, pluginPayload);
                 }
               },
               handleError,
@@ -279,7 +277,7 @@ function verify(
   signingKey: string,
   options: VerifyOptions | undefined,
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise<JwtPayload>((resolve, reject) => {
     jsonwebtoken.verify(token, signingKey, options, (err, result) => {
       if (err) {
         logger.warn(`Failed to verify authentication token: `, err);

@@ -103,11 +103,13 @@ export function handleSummary(data) {
 }
 
 export function run() {
-  let url = 'http://localhost:4000/graphql';
+  let url;
   if (__ENV.MODE.startsWith('uws')) {
     url = 'http://localhost:4001/graphql';
-  } else {
+  } else if (__ENV.MODE) {
     url = `http://localhost:4000/${__ENV.MODE}`;
+  } else {
+    url = 'http://localhost:4000/graphql';
   }
   const res = http.post(url, {
     query: /* GraphQL */ `

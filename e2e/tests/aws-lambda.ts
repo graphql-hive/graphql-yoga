@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as aws from '@pulumi/aws';
-import * as awsNative from '@pulumi/aws-native';
 import { version } from '@pulumi/aws/package.json';
 import * as pulumi from '@pulumi/pulumi';
 import { Stack } from '@pulumi/pulumi/automation';

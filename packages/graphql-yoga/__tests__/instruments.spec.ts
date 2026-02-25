@@ -56,7 +56,7 @@ describe('instrumentation', () => {
         subscribe: async (_, w) => {
           result.push(`pre-subscribe-${name}`);
           await w();
-          result.push('post-subscribe-${name}');
+          result.push(`post-subscribe-${name}`);
         },
         validate: (_, w) => {
           result.push(`pre-validate-${name}`);

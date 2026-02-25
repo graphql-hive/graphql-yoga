@@ -672,7 +672,7 @@ describe('browser', () => {
     });
     test('restrict other origins if provided', async () => {
       cors = {
-        origin: ['http://localhost:${port}'],
+        origin: [`http://localhost:${port}`],
       };
       await page.goto(`http://localhost:${anotherOriginPort}`);
       await expect(

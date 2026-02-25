@@ -1,8 +1,8 @@
 import { ExecutionResult } from 'graphql';
-import type { ExecutionContext, KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import type { Cache } from '@envelop/response-cache';
 import { buildOperationKey } from '../src/cache-key.js';
-import { createKvCache, type KvCacheConfig } from '../src/index.js';
+import { createKvCache } from '../src/index.js';
 
 type Env = {
   ENVIRONMENT: 'testing' | 'development' | 'production';
@@ -19,7 +19,7 @@ describe('@envelop/response-cache-cloudflare-kv integration tests', () => {
   };
   const dataKey = '1B9502F92EFA53AFF0AC650794AA79891E4B6900';
   let KV: KVNamespace;
-  let executionContext: ExecutionContext;
+  let executionContext: import('@cloudflare/workers-types').ExecutionContext;
   const keyPrefix = 'vitest';
   const KVName = 'GRAPHQL_RESPONSE_CACHE';
 
@@ -35,7 +35,7 @@ describe('@envelop/response-cache-cloudflare-kv integration tests', () => {
       keyPrefix,
     })({
       GRAPHQL_RESPONSE_CACHE: KV,
-      waitUntil: executionContext.waitUntil.bind(executionContext),
+      waitUntil: executionContext.waitUntil?.bind(executionContext),
     });
   });
 
