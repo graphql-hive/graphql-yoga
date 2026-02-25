@@ -71,8 +71,9 @@ export function handleSummary(data) {
       pr: __ENV.GITHUB_PR,
       org: 'dotansimha',
       repo: 'graphql-yoga',
+      commentKey: 'yoga-benchmark',
       renderTitle({ passes }) {
-        return passes ? '✅ Benchmark Results' : '❌ Benchmark Failed';
+        return passes ? '✅ Yoga Benchmark Results' : '❌ Yoga Benchmark Failed';
       },
       renderMessage({ passes, checks, thresholds }) {
         const result = [];

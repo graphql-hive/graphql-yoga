@@ -1,5 +1,9 @@
-/* eslint-disable no-undef */
+/* eslint-disable */
+// @ts-check
+
+// @ts-expect-error - TS doesn't know this import
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
+// @ts-expect-error - TS doesn't know this import
 import { githubComment } from 'https://raw.githubusercontent.com/dotansimha/k6-github-pr-comment/master/lib.js';
 import { check } from 'k6';
 import { Trend } from 'k6/metrics';
@@ -96,8 +100,9 @@ export function handleSummary(data) {
     pr: __ENV.GITHUB_PR,
     org: 'dotansimha',
     repo: 'envelop',
+    commentKey: 'envelop-benchmark',
     renderTitle({ passes }) {
-      return passes ? '✅ Benchmark Results' : '❌ Benchmark Failed';
+      return passes ? '✅ Envelop Benchmark Results' : '❌ Envelop Benchmark Failed';
     },
     renderMessage({ passes, checks, thresholds }) {
       const result = [];
