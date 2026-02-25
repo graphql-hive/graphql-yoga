@@ -5,6 +5,7 @@ const { useParserCache } = require('@envelop/parser-cache');
 const { useGraphQlJit } = require('@envelop/graphql-jit');
 const { useValidationCache } = require('@envelop/validation-cache');
 const { fastify } = require('fastify');
+// @ts-ignore
 const faker = require('faker');
 const GraphQLJS = require('graphql');
 const { monitorEventLoopDelay } = require('perf_hooks');
@@ -108,8 +109,10 @@ app.route({
   async handler(req, res) {
     try {
       eventLoopMonitor.enable();
+      // @ts-ignore
       const getEnveloped = envelopsMap[req.headers['x-test-scenario']];
       const proxy = getEnveloped({ req });
+      // @ts-ignore
       const document = proxy.parse(req.body.query);
       const errors = proxy.validate(proxy.schema, document);
 
@@ -120,8 +123,10 @@ app.route({
 
       const result = await proxy.execute({
         schema: proxy.schema,
+        // @ts-ignore
         operationName: req.body.operationName,
         document,
+        // @ts-ignore
         variableValues: req.body.variable,
         contextValue: await proxy.contextFactory(),
       });

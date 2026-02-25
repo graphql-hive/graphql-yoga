@@ -4,6 +4,7 @@ import http from 'k6/http';
 
 const graphqlEndpoint = `http://${__ENV.GRAPHQL_HOSTNAME || 'localhost'}:3000/graphql`;
 
+// @ts-ignore
 export function checkNoErrors(resp) {
   try {
     return !('errors' in resp.json());
@@ -13,6 +14,7 @@ export function checkNoErrors(resp) {
   }
 }
 
+// @ts-ignore
 export function graphql({ query, operationName, variables }) {
   return http.post(
     graphqlEndpoint,
