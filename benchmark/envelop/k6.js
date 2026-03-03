@@ -1,9 +1,5 @@
 /* eslint-disable */
-// @ts-check
-
-// @ts-expect-error - TS doesn't know this import
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
-// @ts-expect-error - TS doesn't know this import
 import { githubComment } from 'https://raw.githubusercontent.com/dotansimha/k6-github-pr-comment/master/lib.js';
 import { check } from 'k6';
 import { Trend } from 'k6/metrics';
@@ -93,6 +89,12 @@ export const options = buildOptions({
   },
 });
 
+/**
+ * @param {Object} data
+ * @param {boolean} data.passes
+ * @param {Object} data.checks
+ * @param {Object} data.thresholds
+ */
 export function handleSummary(data) {
   if (__ENV.GITHUB_TOKEN) {
     githubComment(data, {
