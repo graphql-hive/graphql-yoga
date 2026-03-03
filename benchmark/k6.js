@@ -71,8 +71,9 @@ export function handleSummary(data) {
       pr: __ENV.GITHUB_PR,
       org: 'dotansimha',
       repo: 'graphql-yoga',
+      commentKey: 'yoga-benchmark',
       renderTitle({ passes }) {
-        return passes ? '✅ Benchmark Results' : '❌ Benchmark Failed';
+        return passes ? '✅ Yoga Benchmark Results' : '❌ Yoga Benchmark Failed';
       },
       renderMessage({ passes, checks, thresholds }) {
         const result = [];
@@ -103,11 +104,13 @@ export function handleSummary(data) {
 }
 
 export function run() {
-  let url = 'http://localhost:4000/graphql';
+  let url;
   if (__ENV.MODE.startsWith('uws')) {
     url = 'http://localhost:4001/graphql';
-  } else {
+  } else if (__ENV.MODE) {
     url = `http://localhost:4000/${__ENV.MODE}`;
+  } else {
+    url = 'http://localhost:4000/graphql';
   }
   const res = http.post(url, {
     query: /* GraphQL */ `

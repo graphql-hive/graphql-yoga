@@ -1,4 +1,3 @@
-import { GraphQLResolveInfo } from 'graphql';
 import { RedisClient } from 'redis-mock';
 import { RedisStore } from '@envelop/rate-limiter';
 import { getFieldIdentity, getGraphQLRateLimiter } from '../src/get-graphql-rate-limiter.js';

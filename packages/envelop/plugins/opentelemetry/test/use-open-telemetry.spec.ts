@@ -1,4 +1,4 @@
-import { buildSchema, GraphQLError } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as opentelemetry from '@opentelemetry/api';

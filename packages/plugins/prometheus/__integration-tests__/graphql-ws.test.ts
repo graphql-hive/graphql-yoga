@@ -24,9 +24,7 @@ describe('GraphQL WS & Prometheus integration', () => {
   let server: Server | undefined;
   afterEach(async () => {
     registry.clear();
-    if (client) {
-      await client.dispose();
-    }
+    await client?.dispose();
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server?.close(err => {

@@ -73,5 +73,5 @@ jobs:
       - name: Run Benchmark
         run:
           k6 -e GITHUB_PR=${{ github.event.number }} -e GITHUB_SHA=${{ github.sha }} -e
-          GITHUB_TOKEN=${{secrets.GH_API_TOKEN}} -e GRAPHQL_HOSTNAME="[::1]" run
+          GITHUB_TOKEN=${{secrets.BOT_GITHUB_TOKEN}} -e GRAPHQL_HOSTNAME="[::1]" run
           ./benchmark/envelop/k6.js

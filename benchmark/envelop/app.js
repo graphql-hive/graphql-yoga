@@ -1,4 +1,4 @@
-/// @ts-check
+/* eslint-disable */
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { envelop, useSchema, useEngine } = require('@envelop/core');
 const { useParserCache } = require('@envelop/parser-cache');
@@ -122,7 +122,7 @@ app.route({
         schema: proxy.schema,
         operationName: req.body.operationName,
         document,
-        variableValues: req.body.variable,
+        variableValues: req.body.variables,
         contextValue: await proxy.contextFactory(),
       });
       eventLoopMonitor.disable();

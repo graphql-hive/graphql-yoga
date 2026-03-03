@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
+import { Metadata } from 'next/types';
 import fg from 'fast-glob';
-import { visitParents } from 'unist-util-visit-parents';
 import { NextPageProps } from '@theguild/components';
 import {
   compileMdx,
@@ -46,7 +46,7 @@ const changelogsPageMap = mergeMetaWithPageMap(changelogsPages, {
 
 export const pageMap = normalizePageMap(changelogsPageMap);
 
-export async function generateMetadata(props: NextPageProps<'...slug'>) {
+export async function generateMetadata(props: NextPageProps<'...slug'>): Promise<Metadata> {
   const params = await props.params;
   const { name: packageName } = JSON.parse(
     await fs.readFile(`../packages/${params.slug.join('/')}/package.json`, 'utf8'),
@@ -59,23 +59,6 @@ export async function generateMetadata(props: NextPageProps<'...slug'>) {
 
 const { wrapper: Wrapper, ...components } = useMDXComponents();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-const remarkRemoveUpdatedDependency = () => (ast: any) => {
-  visitParents(ast, 'text', (node, ancestors) => {
-    if (
-      node.value.startsWith('Updated dependencies') ||
-      node.value.startsWith('Updated dependency')
-    ) {
-      for (let i = ancestors.length - 1; i >= 0; i--) {
-        if (ancestors[i].type === 'list') {
-          ancestors[i].children = [];
-          break;
-        }
-      }
-    }
-  });
-};
-
 export default async function Page(props: NextPageProps<'...slug'>) {
   const params = await props.params;
   const filePath = `../packages/${params.slug.join('/')}/CHANGELOG.md`;
@@ -84,10 +67,7 @@ export default async function Page(props: NextPageProps<'...slug'>) {
   const rawJs = await compileMdx(rawMd, {
     filePath,
     ...defaultNextraOptions,
-    mdxOptions: {
-      ...defaultNextraOptions.mdxOptions,
-      // remarkPlugins: [remarkRemoveUpdatedDependency],
-    },
+    mdxOptions: defaultNextraOptions.mdxOptions,
   });
   const { default: MDXContent, toc, metadata } = evaluate(rawJs, components);
 
