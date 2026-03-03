@@ -1168,7 +1168,7 @@ describe.skip('Prom Metrics plugin', () => {
     testCounter('graphql_envelop_deprecated_field', ['parse'], 'query { deprecatedField }');
 
     it('should track deprecated arguments in mutation', async () => {
-      const { execute, metricCount, allMetrics, metricString } = prepare({
+      const { execute, metricCount, metricString } = prepare({
         metrics: {
           graphql_envelop_deprecated_field: true,
         },
