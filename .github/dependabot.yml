@@ -17,8 +17,6 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'daily'
-    exclude-paths:
-      - 'examples' # the examples are auto-generated from the e2es, whose packages we do auto-update
     versioning-strategy: increase-if-necessary
     groups:
       whatwg-node:
@@ -36,7 +34,7 @@ updates:
           - 'typescript'
           - 'typedoc'
           - '@theguild/*'
-          - '@graphql-inspctor/core'
+          - '@graphql-inspector/core'
           - 'next'
           - '@envelop/*'
           - '@whatwg-node/*'
