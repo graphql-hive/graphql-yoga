@@ -1,5 +1,28 @@
 # graphql-yoga
 
+## 5.18.1
+
+### Patch Changes
+
+- [#4345](https://github.com/graphql-hive/graphql-yoga/pull/4345)
+  [`9a221c3`](https://github.com/graphql-hive/graphql-yoga/commit/9a221c360c81e8ddda058c1f6a256cbfbe5dd6b9)
+  Thanks [@ardatan](https://github.com/ardatan)! - Fix error isolation in batched GraphQL operations
+
+  When processing batched GraphQL requests, an error in one operation would previously cause the
+  entire batch to fail. This change wraps each batched operation in error handling so that
+  individual operation errors are caught and returned as GraphQL errors for that specific operation,
+  while other operations in the batch continue to execute successfully.
+
+- [#4346](https://github.com/graphql-hive/graphql-yoga/pull/4346)
+  [`f98149a`](https://github.com/graphql-hive/graphql-yoga/commit/f98149a8d79b3882dea3f045079825b26021b53e)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
+  - Updated dependency
+    [`@envelop/core@workspace:^` ↗︎](https://www.npmjs.com/package/@envelop/core/v/workspace:^)
+    (from `^5.3.0`, in `dependencies`)
+  - Updated dependency
+    [`@envelop/instrumentation@workspace:^` ↗︎](https://www.npmjs.com/package/@envelop/instrumentation/v/workspace:^)
+    (from `^1.0.0`, in `dependencies`)
+
 ## 5.18.0
 
 ### Minor Changes
