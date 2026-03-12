@@ -1436,7 +1436,7 @@ function metricDisabledTestCases(
       config: { metrics: { ...allMetrics, [metricName]: false } },
     },
     {
-      name: 'disabled with all metrics',
+      name: 'disabled with all metrics and undefined',
       config: { metrics: { ...allMetrics, [metricName]: undefined } },
     },
     ((registry: Registry) => ({
