@@ -276,7 +276,7 @@ describe('Prom Metrics plugin', () => {
 
       expect(result.errors).toBeUndefined();
       expect(await metricCount(metricName, 'count')).toBe(1);
-      expect(await metricString(metricName)).toContain(`opText="{\n  regularField\n}"`);
+      expect(await metricString(metricName)).toContain(`opText="{\\n  regularField\\n}"`);
     });
   }
 
@@ -408,7 +408,7 @@ describe('Prom Metrics plugin', () => {
 
       expect(result.errors).toBeUndefined();
       expect(await metricCount(metricName, 'count')).toBe(1);
-      expect(await metricString(metricName)).toContain(`opText="{\n  regularField\n}"`);
+      expect(await metricString(metricName)).toContain(`opText="{\\n  regularField\\n}"`);
     });
   }
 
@@ -623,7 +623,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors).toBeUndefined();
       expect(await metricCount('test_parse', 'count')).toBe(1);
       expect(await metricString('test_parse')).toContain(
-        `test_parse_count{opText="{\n  regularField\n}"} 1`,
+        `test_parse_count{opText="{\\n  regularField\\n}"} 1`,
       );
     });
   });
@@ -666,7 +666,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors).toBeUndefined();
       expect(await metricCount('test_validate', 'count')).toBe(1);
       expect(await metricString('test_validate')).toContain(
-        `test_validate_count{opText="{\n  regularField\n}"} 1`,
+        `test_validate_count{opText="{\\n  regularField\\n}"} 1`,
       );
     });
 
@@ -722,7 +722,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors).toBeUndefined();
       expect(await metricCount('test_context', 'count')).toBe(1);
       expect(await metricString('test_context')).toContain(
-        `test_context_count{opText="{\n  regularField\n}"} 1`,
+        `test_context_count{opText="{\\n  regularField\\n}"} 1`,
       );
     });
 
@@ -827,7 +827,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors).toBeUndefined();
       expect(await metricCount('test_execute', 'count')).toBe(1);
       expect(await metricString('test_execute')).toContain(
-        `test_execute_count{opText="{\n  regularField\n}"} 1`,
+        `test_execute_count{opText="{\\n  regularField\\n}"} 1`,
       );
     });
 
@@ -1062,7 +1062,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors?.length).toBe(1);
       expect(await metricCount('test_error')).toBe(1);
       expect(await metricString('test_error')).toContain(
-        `test_error{opText="{\n  errorField\n}",errorMessage="error"} 1`,
+        `test_error{opText="{\\n  errorField\\n}",errorMessage="error"} 1`,
       );
     });
     it('should allow to use custom name', async () => {
@@ -1135,7 +1135,7 @@ describe('Prom Metrics plugin', () => {
       expect(result.errors).toBeUndefined();
       expect(await metricCount('graphql_envelop_execute_resolver', 'count')).toBe(1);
       expect(await metricString('graphql_envelop_execute_resolver')).toContain(
-        'graphql_envelop_execute_resolver_count{opText="{\n  regularField\n}"} 1',
+        'graphql_envelop_execute_resolver_count{opText="{\\n  regularField\\n}"} 1',
       );
     });
 
