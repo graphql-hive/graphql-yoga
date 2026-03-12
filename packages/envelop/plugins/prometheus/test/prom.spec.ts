@@ -1087,7 +1087,7 @@ describe('Prom Metrics plugin', () => {
     it('should not allow empty arrays', () => {
       expect(
         // @ts-expect-error Empty array should be disallowed
-        () => usePrometheus({ metrics: { graphql_envelop_error_result: [] } }),
+        () => usePrometheus({ metrics: { graphql_envelop_execute_resolver: [] } }),
       ).toThrow();
     });
 
