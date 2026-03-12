@@ -18,7 +18,7 @@ import {
 import { createSummary, registerHistogram, type FillLabelsFnParams } from '../src/utils.js';
 
 // Graphql.js 16 and 15 produce different results
-// Graphql.js 16 output has not trailing \n
+// Graphql.js 16 output has no trailing \n
 // In order to produce the same output we remove any trailing white-space
 const print = (ast: ASTNode) => graphQLPrint(ast).replace(/^\s+|\s+$/g, '');
 
@@ -37,7 +37,7 @@ const allMetrics: { [Name in keyof MetricsConfig]-?: true } = {
   graphql_envelop_execute_resolver: true,
 };
 
-describe.skip('Prom Metrics plugin', () => {
+describe('Prom Metrics plugin', () => {
   const schema = makeExecutableSchema({
     typeDefs: /* GraphQL */ `
       type Query {
@@ -98,7 +98,7 @@ describe.skip('Prom Metrics plugin', () => {
       registry,
     });
 
-    const teskit = createTestkit(
+    const testkit = createTestkit(
       [
         plugin,
         useExtendContext(() => new Promise<void>(resolve => setTimeout(resolve, 250))),
@@ -108,7 +108,7 @@ describe.skip('Prom Metrics plugin', () => {
     );
 
     return {
-      execute: teskit.execute,
+      execute: testkit.execute,
       plugin,
       registry,
       async metricString(name: string) {
@@ -1436,7 +1436,7 @@ function metricDisabledTestCases(
       config: { metrics: { ...allMetrics, [metricName]: false } },
     },
     {
-      name: 'disabled with all metrics',
+      name: 'disabled with all metrics and undefined',
       config: { metrics: { ...allMetrics, [metricName]: undefined } },
     },
     ((registry: Registry) => ({
