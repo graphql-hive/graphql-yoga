@@ -18,7 +18,7 @@ import {
 import { createSummary, registerHistogram, type FillLabelsFnParams } from '../src/utils.js';
 
 // Graphql.js 16 and 15 produce different results
-// Graphql.js 16 output has not trailing \n
+// Graphql.js 16 output has no trailing \n
 // In order to produce the same output we remove any trailing white-space
 const print = (ast: ASTNode) => graphQLPrint(ast).replace(/^\s+|\s+$/g, '');
 
