@@ -36,8 +36,11 @@ const { pageMap: _pageMap } = convertToPageMap({
   basePath: 'changelogs',
 });
 
-// @ts-expect-error -- ignore
-const changelogsPages = _pageMap[0].children;
+// `convertToPageMap` returns a tree whose first element is the root node with `children`.
+// We assert this minimal shape here instead of suppressing all type checking.
+type PageNodeWithChildren = { children: unknown };
+
+const changelogsPages = (_pageMap as PageNodeWithChildren[])[0]?.children ?? [];
 
 const changelogsPageMap = mergeMetaWithPageMap(changelogsPages, {
   // Put Yoga at top
