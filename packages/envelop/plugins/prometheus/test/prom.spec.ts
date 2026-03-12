@@ -98,7 +98,7 @@ describe.skip('Prom Metrics plugin', () => {
       registry,
     });
 
-    const teskit = createTestkit(
+    const testkit = createTestkit(
       [
         plugin,
         useExtendContext(() => new Promise<void>(resolve => setTimeout(resolve, 250))),
@@ -108,7 +108,7 @@ describe.skip('Prom Metrics plugin', () => {
     );
 
     return {
-      execute: teskit.execute,
+      execute: testkit.execute,
       plugin,
       registry,
       async metricString(name: string) {
