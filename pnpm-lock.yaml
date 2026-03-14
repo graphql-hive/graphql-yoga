@@ -2276,15 +2276,15 @@ importers:
         specifier: ^2.5.0
         version: 2.8.1
     devDependencies:
+      '@apollo/server':
+        specifier: 4.0.0
+        version: 4.0.0(encoding@0.1.13)(graphql@16.12.0)
       '@envelop/core':
         specifier: workspace:^
         version: link:../../core/dist
       '@graphql-tools/schema':
         specifier: 10.0.31
         version: 10.0.31(graphql@16.12.0)
-      apollo-server-core:
-        specifier: 3.13.0
-        version: 3.13.0(encoding@0.1.13)(graphql@16.12.0)
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
@@ -4020,10 +4020,6 @@ packages:
     resolution: {integrity: sha512-vF+zxhPiLtkwxONs6YanSt1EpwpGilThpneExUN5K3tCymuxNnVq2yojTvnpRjv2QfsEIt/n7ozPIIzBLwGIDQ==}
     hasBin: true
 
-  '@apollo/protobufjs@1.2.6':
-    resolution: {integrity: sha512-Wqo1oSHNUj/jxmsVp4iR3I480p6qdqHikn38lKrFhfzcDJ7lwd7Ck7cHRl4JE81tWNArl77xhnG/OkZhxKBYOw==}
-    hasBin: true
-
   '@apollo/protobufjs@1.2.7':
     resolution: {integrity: sha512-Lahx5zntHPZia35myYDBRuF58tlwPskwHc5CWBZC/4bMKB6siTBWwtMrkqXcsNwQiFSzSx5hKdRPUmemrEp3Gg==}
     hasBin: true
@@ -4051,6 +4047,13 @@ packages:
     peerDependencies:
       graphql: ^16.12.0
 
+  '@apollo/server@4.0.0':
+    resolution: {integrity: sha512-PcIyjVKGkbG3k2kjn/0o/kMfJrdZYma62r/c1YOB362UQwlX0GZNL53ZmRst+wTwi0x10rEnxcCUTnyLjumT9g==}
+    engines: {node: '>=12.0'}
+    deprecated: Apollo Server v4 is end-of-life since January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
+    peerDependencies:
+      graphql: ^16.12.0
+
   '@apollo/server@4.13.0':
     resolution: {integrity: sha512-t4GzaRiYIcPwYy40db6QjZzgvTr9ztDKBddykUXmBb2SVjswMKXbkaJ5nPeHqmT3awr9PAaZdCZdZhRj55I/8A==}
     engines: {node: '>=14.16.0'}
@@ -4066,6 +4069,10 @@ packages:
 
   '@apollo/usage-reporting-protobuf@4.1.1':
     resolution: {integrity: sha512-u40dIUePHaSKVshcedO7Wp+mPiZsaU6xjv9J+VyxpoU/zL6Jle+9zWeG98tr/+SZ0nZ4OXhrbb8SNr0rAPpIDA==}
+
+  '@apollo/utils.createhash@1.1.0':
+    resolution: {integrity: sha512-5fT4ZiW75515OlikWpIQzaVDws1yy9VgYSoHoJCrvI2UH6/7YNKXQjbjT5qVYu6ytch2wBxFMfFfYWMn/2bSCQ==}
+    engines: {node: '>=12.13.0'}
 
   '@apollo/utils.createhash@2.0.2':
     resolution: {integrity: sha512-UkS3xqnVFLZ3JFpEmU/2cM2iKJotQXMoSTgxXsfQgXLC5gR1WaepoXagmYnPSA7Q/2cmnyTYK5OgAgoC4RULPg==}
@@ -4083,6 +4090,9 @@ packages:
     peerDependencies:
       graphql: ^16.12.0
 
+  '@apollo/utils.fetcher@1.1.1':
+    resolution: {integrity: sha512-0vXVznO7kw5VWwxyV5wsDvYEwjDpyZ7vYQAXCseLXqBn2eWEIDViM7qRzi/Hnv4zzAQ05phdimSED99K+lg+SQ==}
+
   '@apollo/utils.fetcher@2.0.1':
     resolution: {integrity: sha512-jvvon885hEyWXd4H6zpWeN3tl88QcWnHp5gWF5OPF34uhvoR+DFqcNxs9vrRaBBSY3qda3Qe0bdud7tz2zGx1A==}
     engines: {node: '>=14'}
@@ -4090,6 +4100,10 @@ packages:
   '@apollo/utils.fetcher@3.1.0':
     resolution: {integrity: sha512-Z3QAyrsQkvrdTuHAFwWDNd+0l50guwoQUoaDQssLOjkmnmVuvXlJykqlEJolio+4rFwBnWdoY1ByFdKaQEcm7A==}
     engines: {node: '>=16'}
+
+  '@apollo/utils.isnodelike@1.1.0':
+    resolution: {integrity: sha512-q/Q82kBUSEcx1ED11JO1TYBY781mWluUnBD8NvhjHVsu1K1C5R9BZVUxShyK/V8XcePcRUB5fdWOcBMGwS0KOA==}
+    engines: {node: '>=12.13.0'}
 
   '@apollo/utils.isnodelike@2.0.1':
     resolution: {integrity: sha512-w41XyepR+jBEuVpoRM715N2ZD0xMD413UiJx8w5xnAZD2ZkSJnMJBoIzauK83kJpSgNuR6ywbV29jG9NmxjK0Q==}
@@ -4181,6 +4195,9 @@ packages:
     peerDependencies:
       graphql: ^16.12.0
 
+  '@apollo/utils.withrequired@1.0.1':
+    resolution: {integrity: sha512-5DYufeISXjz9UqtISIwte86F8ELjTrKVeXcPtdnUnV/PX+4EXUjqIp1FLJTYrCQ1a9OyFAMeCZ2QhUy1D8w7/A==}
+
   '@apollo/utils.withrequired@2.0.1':
     resolution: {integrity: sha512-YBDiuAX9i1lLc6GeTy1m7DGLFn/gMnvXqlalOIMjM7DeOgIacEjjfwPqb0M1CQ2v11HhR15d1NmxJoRCfrNqcA==}
     engines: {node: '>=14'}
@@ -4188,15 +4205,6 @@ packages:
   '@apollo/utils.withrequired@3.0.0':
     resolution: {integrity: sha512-aaxeavfJ+RHboh7c2ofO5HHtQobGX4AgUujXP4CXpREHp9fQ9jPi6K9T1jrAKe7HIipoP0OJ1gd6JamSkFIpvA==}
     engines: {node: '>=16'}
-
-  '@apollographql/apollo-tools@0.5.4':
-    resolution: {integrity: sha512-shM3q7rUbNyXVVRkQJQseXv6bnYM3BUma/eZhwXR4xsuM+bqWnJKvW7SAfRjP7LuSCocrexa5AXhjjawNHrIlw==}
-    engines: {node: '>=8', npm: '>=6'}
-    peerDependencies:
-      graphql: ^16.12.0
-
-  '@apollographql/graphql-playground-html@1.6.29':
-    resolution: {integrity: sha512-xCcXpoz52rI4ksJSdOCxeOCn2DLocxwHf9dVT/Q90Pte1LX+LY+91SFtJF3KXVHH8kEin+g1KKCQPKBjZJfWNA==}
 
   '@ardatan/relay-compiler@13.0.0':
     resolution: {integrity: sha512-ite4+xng5McO8MflWCi0un0YmnorTujsDnfPfhzYzAgoJ+jkI1pZj6jtmTl8Jptyi1H+Pa0zlatJIsxDD++ETA==}
@@ -6516,11 +6524,6 @@ packages:
   '@graphql-tools/merge@9.1.7':
     resolution: {integrity: sha512-Y5E1vTbTabvcXbkakdFUt4zUIzB1fyaEnVmIWN0l0GMed2gdD01TpZWLUm4RNAxpturvolrb24oGLQrBbPLSoQ==}
     engines: {node: '>=16.0.0'}
-    peerDependencies:
-      graphql: ^16.12.0
-
-  '@graphql-tools/mock@8.7.20':
-    resolution: {integrity: sha512-ljcHSJWjC/ZyzpXd5cfNhPI7YljRVvabKHPzKjEs5ElxWu2cdlLGvyNYepApXDsM/OJG/2xuhGM+9GWu5gEAPQ==}
     peerDependencies:
       graphql: ^16.12.0
 
@@ -11119,17 +11122,8 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  apollo-datasource@3.3.2:
-    resolution: {integrity: sha512-L5TiS8E2Hn/Yz7SSnWIVbZw0ZfEIXZCa5VUiVxD9P53JvSrf4aStvsFDlGWPvpIdCR+aly2CfoB79B9/JjKFqg==}
-    engines: {node: '>=12.0'}
-    deprecated: The `apollo-datasource` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-
   apollo-reporting-protobuf@0.8.0:
     resolution: {integrity: sha512-B3XmnkH6Y458iV6OsA7AhfwvTgeZnFq9nPVjbxmLKnvfkEl8hYADtz724uPa0WeBiD7DSFcnLtqg9yGmCkBohg==}
-    deprecated: The `apollo-reporting-protobuf` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/usage-reporting-protobuf` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-
-  apollo-reporting-protobuf@3.4.0:
-    resolution: {integrity: sha512-h0u3EbC/9RpihWOmcSsvTW2O6RXVaD/mPEjfrPkxRPTEPWqncsgOoRJw+wih4OqfH3PvTJvoEIf4LwKrUaqWog==}
     deprecated: The `apollo-reporting-protobuf` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/usage-reporting-protobuf` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
 
   apollo-server-caching@0.7.0:
@@ -11137,21 +11131,9 @@ packages:
     engines: {node: '>=6'}
     deprecated: This package is part of the legacy caching implementation used by Apollo Server v2 and v3, and is no longer maintained. We recommend you switch to the newer Keyv-based implementation (which is compatible with all versions of Apollo Server). See https://www.apollographql.com/docs/apollo-server/v3/performance/cache-backends#legacy-caching-implementation for more details.
 
-  apollo-server-core@3.13.0:
-    resolution: {integrity: sha512-v/g6DR6KuHn9DYSdtQijz8dLOkP78I5JSVJzPkARhDbhpH74QNwrQ2PP2URAPPEDJ2EeZNQDX8PvbYkAKqg+kg==}
-    engines: {node: '>=12.0'}
-    deprecated: The `apollo-server-core` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-    peerDependencies:
-      graphql: ^16.12.0
-
   apollo-server-env@3.2.0:
     resolution: {integrity: sha512-V+kO5e6vUo2JwqV1/Ng71ZE3J6x1hCOC+nID2/++bCYl0/fPY9iLChbBNSgN/uoFcjhgmBchOv+m4o0Nie/TFQ==}
     engines: {node: '>=6'}
-    deprecated: The `apollo-server-env` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/utils.fetcher` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-
-  apollo-server-env@4.2.1:
-    resolution: {integrity: sha512-vm/7c7ld+zFMxibzqZ7SSa5tBENc4B0uye9LTfjJwGoQFY5xsUPH5FpO5j0bMUDZ8YYNbrF9SNtzc5Cngcr90g==}
-    engines: {node: '>=12.0'}
     deprecated: The `apollo-server-env` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/utils.fetcher` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
 
   apollo-server-errors@3.3.1:
@@ -11168,23 +11150,9 @@ packages:
     peerDependencies:
       graphql: ^16.12.0
 
-  apollo-server-plugin-base@3.7.2:
-    resolution: {integrity: sha512-wE8dwGDvBOGehSsPTRZ8P/33Jan6/PmL0y0aN/1Z5a5GcbFhDaaJCjK5cav6npbbGL2DPKK0r6MPXi3k3N45aw==}
-    engines: {node: '>=12.0'}
-    deprecated: The `apollo-server-plugin-base` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-    peerDependencies:
-      graphql: ^16.12.0
-
   apollo-server-types@0.10.0:
     resolution: {integrity: sha512-LsB3epw1X3Co/HGiKHCGtzWG35J59gG8Ypx0p22+wgdM9AVDm1ylsNGZy+osNIVJc1lUJf3nF5kZ90vA866K/w==}
     engines: {node: '>=6'}
-    deprecated: The `apollo-server-types` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
-    peerDependencies:
-      graphql: ^16.12.0
-
-  apollo-server-types@3.8.0:
-    resolution: {integrity: sha512-ZI/8rTE4ww8BHktsVpb91Sdq7Cb71rdSkXELSwdSR0eXu600/sY+1UXhTWdiJvk+Eq5ljqoHLwLbY2+Clq2b9A==}
-    engines: {node: '>=12.0'}
     deprecated: The `apollo-server-types` package is part of Apollo Server v2 and v3, which are now end-of-life (as of October 22nd 2023 and October 22nd 2024, respectively). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
     peerDependencies:
       graphql: ^16.12.0
@@ -20660,22 +20628,6 @@ snapshots:
       '@types/node': 10.17.60
       long: 4.0.0
 
-  '@apollo/protobufjs@1.2.6':
-    dependencies:
-      '@protobufjs/aspromise': 1.1.2
-      '@protobufjs/base64': 1.1.2
-      '@protobufjs/codegen': 2.0.4
-      '@protobufjs/eventemitter': 1.1.0
-      '@protobufjs/fetch': 1.1.0
-      '@protobufjs/float': 1.0.2
-      '@protobufjs/inquire': 1.1.0
-      '@protobufjs/path': 1.1.2
-      '@protobufjs/pool': 1.1.0
-      '@protobufjs/utf8': 1.1.0
-      '@types/long': 4.0.2
-      '@types/node': 10.17.60
-      long: 4.0.0
-
   '@apollo/protobufjs@1.2.7':
     dependencies:
       '@protobufjs/aspromise': 1.1.2
@@ -20725,6 +20677,38 @@ snapshots:
       '@apollo/utils.logger': 3.0.0
       graphql: 16.12.0
 
+  '@apollo/server@4.0.0(encoding@0.1.13)(graphql@16.12.0)':
+    dependencies:
+      '@apollo/cache-control-types': 1.0.3(graphql@16.12.0)
+      '@apollo/server-gateway-interface': 1.1.1(graphql@16.12.0)
+      '@apollo/usage-reporting-protobuf': 4.1.1
+      '@apollo/utils.createhash': 1.1.0
+      '@apollo/utils.fetcher': 1.1.1
+      '@apollo/utils.isnodelike': 1.1.0
+      '@apollo/utils.keyvaluecache': 1.0.2
+      '@apollo/utils.logger': 1.0.1
+      '@apollo/utils.usagereporting': 1.0.1(graphql@16.12.0)
+      '@apollo/utils.withrequired': 1.0.1
+      '@graphql-tools/schema': 9.0.19(graphql@16.12.0)
+      '@josephg/resolvable': 1.0.1
+      '@types/express': 4.17.25
+      '@types/express-serve-static-core': 4.19.7
+      '@types/node-fetch': 2.6.13
+      async-retry: 1.3.3
+      body-parser: 2.2.1
+      cors: 2.8.5
+      express: 4.21.2
+      graphql: 16.12.0
+      loglevel: 1.9.2
+      lru-cache: 7.18.3
+      negotiator: 0.6.4
+      node-fetch: 2.7.0(encoding@0.1.13)
+      uuid: 9.0.1
+      whatwg-mimetype: 3.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
   '@apollo/server@4.13.0(encoding@0.1.13)(graphql@16.12.0)':
     dependencies:
       '@apollo/cache-control-types': 1.0.3(graphql@16.12.0)
@@ -20767,6 +20751,11 @@ snapshots:
     dependencies:
       '@apollo/protobufjs': 1.2.7
 
+  '@apollo/utils.createhash@1.1.0':
+    dependencies:
+      '@apollo/utils.isnodelike': 1.1.0
+      sha.js: 2.4.12
+
   '@apollo/utils.createhash@2.0.2':
     dependencies:
       '@apollo/utils.isnodelike': 2.0.1
@@ -20780,9 +20769,13 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
+  '@apollo/utils.fetcher@1.1.1': {}
+
   '@apollo/utils.fetcher@2.0.1': {}
 
   '@apollo/utils.fetcher@3.1.0': {}
+
+  '@apollo/utils.isnodelike@1.1.0': {}
 
   '@apollo/utils.isnodelike@2.0.1': {}
 
@@ -20804,7 +20797,7 @@ snapshots:
   '@apollo/utils.keyvaluecache@4.0.0':
     dependencies:
       '@apollo/utils.logger': 3.0.0
-      lru-cache: 11.2.2
+      lru-cache: 11.2.7
 
   '@apollo/utils.logger@1.0.1': {}
 
@@ -20866,17 +20859,11 @@ snapshots:
       '@apollo/utils.stripsensitiveliterals': 2.0.1(graphql@16.12.0)
       graphql: 16.12.0
 
+  '@apollo/utils.withrequired@1.0.1': {}
+
   '@apollo/utils.withrequired@2.0.1': {}
 
   '@apollo/utils.withrequired@3.0.0': {}
-
-  '@apollographql/apollo-tools@0.5.4(graphql@16.12.0)':
-    dependencies:
-      graphql: 16.12.0
-
-  '@apollographql/graphql-playground-html@1.6.29':
-    dependencies:
-      xss: 1.0.15
 
   '@ardatan/relay-compiler@13.0.0(graphql@16.12.0)':
     dependencies:
@@ -23902,14 +23889,6 @@ snapshots:
   '@graphql-tools/merge@9.1.7(graphql@16.12.0)':
     dependencies:
       '@graphql-tools/utils': 11.0.0(graphql@16.12.0)
-      graphql: 16.12.0
-      tslib: 2.8.1
-
-  '@graphql-tools/mock@8.7.20(graphql@16.12.0)':
-    dependencies:
-      '@graphql-tools/schema': 9.0.19(graphql@16.12.0)
-      '@graphql-tools/utils': 9.2.1(graphql@16.12.0)
-      fast-json-stable-stringify: 2.1.0
       graphql: 16.12.0
       tslib: 2.8.1
 
@@ -29823,64 +29802,18 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  apollo-datasource@3.3.2(encoding@0.1.13):
-    dependencies:
-      '@apollo/utils.keyvaluecache': 1.0.2
-      apollo-server-env: 4.2.1(encoding@0.1.13)
-    transitivePeerDependencies:
-      - encoding
-
   apollo-reporting-protobuf@0.8.0:
     dependencies:
       '@apollo/protobufjs': 1.2.2
-
-  apollo-reporting-protobuf@3.4.0:
-    dependencies:
-      '@apollo/protobufjs': 1.2.6
 
   apollo-server-caching@0.7.0:
     dependencies:
       lru-cache: 6.0.0
 
-  apollo-server-core@3.13.0(encoding@0.1.13)(graphql@16.12.0):
-    dependencies:
-      '@apollo/utils.keyvaluecache': 1.0.2
-      '@apollo/utils.logger': 1.0.1
-      '@apollo/utils.usagereporting': 1.0.1(graphql@16.12.0)
-      '@apollographql/apollo-tools': 0.5.4(graphql@16.12.0)
-      '@apollographql/graphql-playground-html': 1.6.29
-      '@graphql-tools/mock': 8.7.20(graphql@16.12.0)
-      '@graphql-tools/schema': 8.5.1(graphql@16.12.0)
-      '@josephg/resolvable': 1.0.1
-      apollo-datasource: 3.3.2(encoding@0.1.13)
-      apollo-reporting-protobuf: 3.4.0
-      apollo-server-env: 4.2.1(encoding@0.1.13)
-      apollo-server-errors: 3.3.1(graphql@16.12.0)
-      apollo-server-plugin-base: 3.7.2(encoding@0.1.13)(graphql@16.12.0)
-      apollo-server-types: 3.8.0(encoding@0.1.13)(graphql@16.12.0)
-      async-retry: 1.3.3
-      fast-json-stable-stringify: 2.1.0
-      graphql: 16.12.0
-      graphql-tag: 2.12.6(graphql@16.12.0)
-      loglevel: 1.9.2
-      lru-cache: 6.0.0
-      node-abort-controller: 3.1.1
-      sha.js: 2.4.12
-      uuid: 9.0.1
-      whatwg-mimetype: 3.0.0
-    transitivePeerDependencies:
-      - encoding
-
   apollo-server-env@3.2.0(encoding@0.1.13):
     dependencies:
       node-fetch: 2.7.0(encoding@0.1.13)
       util.promisify: 1.1.3
-    transitivePeerDependencies:
-      - encoding
-
-  apollo-server-env@4.2.1(encoding@0.1.13):
-    dependencies:
-      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
@@ -29895,28 +29828,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  apollo-server-plugin-base@3.7.2(encoding@0.1.13)(graphql@16.12.0):
-    dependencies:
-      apollo-server-types: 3.8.0(encoding@0.1.13)(graphql@16.12.0)
-      graphql: 16.12.0
-    transitivePeerDependencies:
-      - encoding
-
   apollo-server-types@0.10.0(encoding@0.1.13)(graphql@16.12.0):
     dependencies:
       apollo-reporting-protobuf: 0.8.0
       apollo-server-caching: 0.7.0
       apollo-server-env: 3.2.0(encoding@0.1.13)
-      graphql: 16.12.0
-    transitivePeerDependencies:
-      - encoding
-
-  apollo-server-types@3.8.0(encoding@0.1.13)(graphql@16.12.0):
-    dependencies:
-      '@apollo/utils.keyvaluecache': 1.0.2
-      '@apollo/utils.logger': 1.0.1
-      apollo-reporting-protobuf: 3.4.0
-      apollo-server-env: 4.2.1(encoding@0.1.13)
       graphql: 16.12.0
     transitivePeerDependencies:
       - encoding
@@ -30342,9 +30258,9 @@ snapshots:
       content-type: 1.0.5
       debug: 4.4.3(supports-color@10.2.2)
       http-errors: 2.0.1
-      iconv-lite: 0.7.0
+      iconv-lite: 0.7.2
       on-finished: 2.4.1
-      qs: 6.14.2
+      qs: 6.15.0
       raw-body: 3.0.2
       type-is: 2.0.1
     transitivePeerDependencies:
@@ -32980,7 +32896,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
-      qs: 6.14.2
+      qs: 6.15.0
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.0
@@ -34486,7 +34402,6 @@ snapshots:
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
-    optional: true
 
   ieee754@1.1.13: {}
 
@@ -38116,7 +38031,7 @@ snapshots:
 
   path-scurry@2.0.1:
     dependencies:
-      lru-cache: 11.2.2
+      lru-cache: 11.2.7
       minipass: 7.1.2
 
   path-to-regexp@0.1.12: {}
@@ -38621,7 +38536,7 @@ snapshots:
     dependencies:
       bytes: 3.1.2
       http-errors: 2.0.1
-      iconv-lite: 0.7.0
+      iconv-lite: 0.7.2
       unpipe: 1.0.0
 
   rc9@2.1.2:
