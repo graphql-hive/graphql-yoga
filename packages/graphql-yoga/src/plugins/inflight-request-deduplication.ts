@@ -27,17 +27,21 @@ export function useInflightRequestDeduplication<
       }
       setExecuteFn(args => {
         let inflightRequest$ = inflightRequests.get(dedupeKey);
-        inflightRequest$ ??= handleMaybePromise(
-            () => executeFn(args),
-            result => {
-              inflightRequests.delete(dedupeKey);
-              return result;
-            },
-            error => {
-              inflightRequests.delete(dedupeKey);
-              throw error;
-            },
-          );
+        if (inflightRequest$ == null) {
+          inflightRequest$ = executeFn(args);
+          if (inflightRequest$ != null) {
+            inflightRequests.set(dedupeKey, inflightRequest$);
+            handleMaybePromise(
+              () => inflightRequest$,
+              () => {
+                inflightRequests.delete(dedupeKey);
+              },
+              () => {
+                inflightRequests.delete(dedupeKey);
+              },
+            );
+          }
+        }
         return inflightRequest$;
       });
     },

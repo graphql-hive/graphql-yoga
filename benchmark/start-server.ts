@@ -14,7 +14,7 @@ const basicYoga = createYoga<Context>({
 
 const yogaMap: Record<string, RequestListener> = {
   '/graphql': basicYoga,
-  'request-deduplication': createYoga<Context>({
+  '/request-deduplication': createYoga<Context>({
     schema,
     logging: false,
     multipart: false,
