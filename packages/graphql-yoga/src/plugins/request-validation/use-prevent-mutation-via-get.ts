@@ -1,14 +1,28 @@
 import {
   DocumentNode,
-  getOperationAST,
   GraphQLError,
   GraphQLHTTPErrorExtensions,
   OperationDefinitionNode,
 } from 'graphql';
 import { Maybe } from '@envelop/core';
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError, getOperationASTFromDocument } from '@graphql-tools/utils';
 import type { YogaInitialContext } from '../../types.js';
 import type { Plugin } from '../types.js';
+
+export function getOperationASTFromDocumentSafe(
+  document: Maybe<DocumentNode>,
+  operationName?: string,
+): OperationDefinitionNode | undefined {
+  if (!document) {
+    return;
+  }
+  try {
+    return getOperationASTFromDocument(document, operationName) ?? undefined;
+  } catch {
+    // In case the document is invalid, we don't want to throw an error here, as it will be handled by the validation phase later on.
+    return;
+  }
+}
 
 export function assertMutationViaGet(
   method: string,
@@ -16,7 +30,7 @@ export function assertMutationViaGet(
   operationName?: string,
 ) {
   const operation: OperationDefinitionNode | undefined = document
-    ? (getOperationAST(document, operationName) ?? undefined)
+    ? (getOperationASTFromDocumentSafe(document, operationName) ?? undefined)
     : undefined;
 
   if (!operation) {

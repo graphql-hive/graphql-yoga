@@ -1,8 +1,8 @@
-import { getOperationAST } from 'graphql';
 import { GetEnvelopedFn } from '@envelop/core';
 import { ExecutionArgs } from '@graphql-tools/executor';
 import { handleMaybePromise, iterateAsync, MaybePromise } from '@whatwg-node/promise-helpers';
 import { ServerAdapterInitialContext } from '@whatwg-node/server';
+import { getOperationASTFromDocumentSafe } from './plugins/request-validation/use-prevent-mutation-via-get.js';
 import { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import { FetchAPI, GraphQLParams } from './types.js';
 
@@ -93,7 +93,7 @@ export function processRequest({
       };
 
       // Get the actual operation
-      const operation = getOperationAST(document, params.operationName);
+      const operation = getOperationASTFromDocumentSafe(document, params.operationName);
 
       // Choose the right executor
       const executeFn =

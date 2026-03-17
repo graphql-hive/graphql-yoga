@@ -51,6 +51,7 @@ function getOptionsForScenario(scenario, index) {
 
 const scenarioNames = [
   'graphql',
+  'request-deduplication',
   'graphql-jit',
   'graphql-response-cache',
   'graphql-no-parse-validate-cache',

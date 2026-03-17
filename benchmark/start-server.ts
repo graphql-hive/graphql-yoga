@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { createServer, type RequestListener } from 'http';
-import { createYoga } from 'graphql-yoga';
+import { createYoga, useInflightRequestDeduplication } from 'graphql-yoga';
 import { App } from 'uWebSockets.js';
 import { useGraphQlJit } from '@envelop/graphql-jit';
 import { useResponseCache } from '@graphql-yoga/plugin-response-cache';
@@ -14,6 +14,13 @@ const basicYoga = createYoga<Context>({
 
 const yogaMap: Record<string, RequestListener> = {
   '/graphql': basicYoga,
+  'request-deduplication': createYoga<Context>({
+    schema,
+    logging: false,
+    multipart: false,
+    plugins: [useInflightRequestDeduplication()],
+    graphqlEndpoint: '/request-deduplication',
+  }),
   '/graphql-jit': createYoga<Context>({
     schema,
     logging: false,

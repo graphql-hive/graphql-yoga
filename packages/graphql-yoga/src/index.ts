@@ -58,3 +58,4 @@ export {
 } from './plugins/use-unhandled-route.js';
 export { DisposableSymbols } from '@whatwg-node/server';
 export * from '@envelop/instrumentation';
+export { useInflightRequestDeduplication } from './plugins/inflight-request-deduplication.js';
