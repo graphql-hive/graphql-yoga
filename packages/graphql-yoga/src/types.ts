@@ -46,6 +46,17 @@ declare global {
   }
 }
 
+declare module 'graphql' {
+  interface GraphQLHTTPErrorExtensions {
+    spec?: boolean;
+    status?: number;
+    headers?: Record<string, string>;
+  }
+  interface GraphQLErrorExtensions {
+    http?: GraphQLHTTPErrorExtensions;
+  }
+}
+
 export type FetchAPI = ReturnType<typeof createFetch>;
 
 export interface FetchEvent extends Event {
