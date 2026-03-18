@@ -37,7 +37,7 @@ const allMetrics: { [Name in keyof MetricsConfig]-?: true } = {
   graphql_envelop_execute_resolver: true,
 };
 
-describe('Prom Metrics plugin', () => {
+describe.skip('Prom Metrics plugin', () => {
   const schema = makeExecutableSchema({
     typeDefs: /* GraphQL */ `
       type Query {

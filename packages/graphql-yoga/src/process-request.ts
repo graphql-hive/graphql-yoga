@@ -37,10 +37,16 @@ export function processResult<TServerContext>({
           setResult(newResult) {
             result = newResult;
           },
+          acceptedMediaType,
+          setAcceptedMediaType(newAcceptedMimeType) {
+            acceptedMediaType = newAcceptedMimeType;
+          },
           resultProcessor,
           setResultProcessor(newResultProcessor, newAcceptedMimeType) {
             resultProcessor = newResultProcessor;
-            acceptedMediaType = newAcceptedMimeType;
+            if (newAcceptedMimeType) {
+              acceptedMediaType = newAcceptedMimeType;
+            }
           },
           serverContext,
         }),
