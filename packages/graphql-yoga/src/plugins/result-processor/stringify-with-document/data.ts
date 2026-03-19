@@ -281,7 +281,6 @@ function projectLeafValue(value: unknown, field: ProjectionPlanField): string {
  * in `validValues` we can wrap in quotes directly without calling JSON.stringify.
  */
 function projectEnumValue(value: unknown, validValues: ReadonlySet<string>): string {
-  if (value == null) return NULL;
   const str = String(value);
   // Enum identifiers are guaranteed to contain only [_A-Za-z0-9] characters so
   // we can safely wrap in double-quotes without any further escaping.
