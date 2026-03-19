@@ -5,9 +5,11 @@ import {
   getOperationAST,
   GraphQLEnumType,
   GraphQLNamedOutputType,
+  GraphQLScalarType,
   GraphQLSchema,
   isAbstractType,
   isEnumType,
+  isScalarType,
   Kind,
   SchemaMetaFieldDef,
   SelectionSetNode,
@@ -57,6 +59,19 @@ export interface ProjectionPlanField {
    * null → leaf field (scalar / enum).
    */
   children: ProjectionPlanField[] | null;
+  /**
+   * Hint for fast-path leaf serialization, derived from the GraphQL scalar type at compile time.
+   * 'string'  → field resolves to a JS string (GraphQL String scalar).
+   * 'number'  → field resolves to a JS number (GraphQL Int or Float scalar).
+   * 'boolean' → field resolves to a JS boolean (GraphQL Boolean scalar).
+   * 'id'      → field resolves to a JS string or number (GraphQL ID scalar).
+   *  null     → custom scalar or non-leaf field; use generic fallback serializer.
+   */
+  scalarHint: 'string' | 'number' | 'boolean' | 'id' | null;
+  /** Pre-computed: skipIfVars.length > 0. Avoids a per-object length check in the hot loop. */
+  hasSkip: boolean;
+  /** Pre-computed: includeIfVars.length > 0. Avoids a per-object length check in the hot loop. */
+  hasInclude: boolean;
 }
 
 /**
@@ -144,6 +159,30 @@ function buildProjectionPlan(
 // Stable empty arrays shared across all plans – avoids repeated allocations.
 const EMPTY_STRINGS: readonly string[] = [];
 const EMPTY_VARIABLE_DEFS: readonly VariableDefinitionNode[] = [];
+
+// ---------------------------------------------------------------------------
+// Scalar type hint
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps well-known built-in GraphQL scalar type names to a serialization hint so the
+ * serializer can use a direct fast-path instead of a generic `typeof` dispatch.
+ */
+function getScalarHint(type: GraphQLScalarType): 'string' | 'number' | 'boolean' | 'id' | null {
+  switch (type.name) {
+    case 'String':
+      return 'string';
+    case 'Int':
+    case 'Float':
+      return 'number';
+    case 'Boolean':
+      return 'boolean';
+    case 'ID':
+      return 'id';
+    default:
+      return null;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Type-guard helpers
@@ -296,9 +335,12 @@ function mergeField(
     isTypename: existing.isTypename || incoming.isTypename,
     skipIfVars,
     includeIfVars,
+    hasSkip: skipIfVars.length > 0,
+    hasInclude: includeIfVars.length > 0,
     typeGuard: unionGuards(existing.typeGuard, incoming.typeGuard),
     enumValues,
     children,
+    scalarHint: existing.scalarHint ?? incoming.scalarHint,
   };
 }
 
@@ -354,9 +396,12 @@ function buildSelectionSet(
             isTypename: true,
             skipIfVars,
             includeIfVars,
+            hasSkip: skipIfVars.length > 0,
+            hasInclude: includeIfVars.length > 0,
             typeGuard: parentTypeGuard,
             enumValues: null,
             children: null,
+            scalarHint: 'string',
           };
           const existing = fields.get(responseKey);
           fields.set(responseKey, existing ? mergeField(existing, field) : field);
@@ -390,6 +435,11 @@ function buildSelectionSet(
           ? new Set((fieldType as GraphQLEnumType).getValues().map(v => v.name))
           : null;
 
+        const scalarHint =
+          !selection.selectionSet && enumValues === null && isScalarType(fieldType)
+            ? getScalarHint(fieldType as GraphQLScalarType)
+            : null;
+
         const children = selection.selectionSet
           ? buildSelectionSet(
               selection.selectionSet,
@@ -408,9 +458,12 @@ function buildSelectionSet(
           isTypename: false,
           skipIfVars,
           includeIfVars,
+          hasSkip: skipIfVars.length > 0,
+          hasInclude: includeIfVars.length > 0,
           typeGuard: parentTypeGuard,
           enumValues,
           children,
+          scalarHint,
         };
         const existing = fields.get(responseKey);
         fields.set(responseKey, existing ? mergeField(existing, field) : field);

@@ -81,7 +81,20 @@ export function stringifyWithoutSelectionSet(
 }
 
 export function stringifyString(value: string): string {
-  return JSON.stringify(value);
+  // Fast path: scan for characters that require JSON escaping.
+  // The vast majority of GraphQL response strings (identifiers, emails, UUIDs, etc.)
+  // contain only plain ASCII without control characters, backslashes, or double-quotes.
+  // For those we skip JSON.stringify entirely and just wrap in double-quotes.
+  const len = value.length;
+  for (let i = 0; i < len; i++) {
+    const c = value.charCodeAt(i);
+    // 0x20 = space (first printable ASCII char); 0x22 = '"'; 0x5c = '\\'
+    if (c < 0x20 || c === 0x22 || c === 0x5c) {
+      // Delegate to the engine – handles all control chars, Unicode surrogates, etc.
+      return JSON.stringify(value);
+    }
+  }
+  return '"' + value + '"';
 }
 
 // ---------------------------------------------------------------------------
@@ -126,23 +139,28 @@ function projectObject(
   fields: ProjectionPlanField[],
   variables: Record<string, unknown>,
 ): string {
-  const typenameRaw = obj['__typename'];
-  const typename = typeof typenameRaw === 'string' ? typenameRaw : null;
+  // Lazy __typename resolution: we only pay for the property lookup when at least one
+  // field in the plan actually needs it (type guards or __typename output).
+  // `undefined` means "not yet fetched"; `null` means "fetched but absent / not a string".
+  let typename: string | null | undefined = undefined;
 
   let buf = OPEN_BRACE;
   let first = true;
 
   for (const field of fields) {
-    // --- Type guard ---
-    // When __typename is known, skip fields whose type guard does not match.
-    // When __typename is absent (e.g. from a custom executor that omits it),
-    // be permissive and include all type-guarded fields.
-    if (field.typeGuard !== null && typename !== null && !field.typeGuard.has(typename)) {
-      continue;
+    // --- Type guard (lazy __typename lookup) ---
+    if (field.typeGuard !== null) {
+      if (typename === undefined) {
+        const raw = obj['__typename'];
+        typename = typeof raw === 'string' ? raw : null;
+      }
+      if (typename !== null && !field.typeGuard.has(typename)) {
+        continue;
+      }
     }
 
-    // --- @skip / @include ---
-    if (field.skipIfVars.length > 0) {
+    // --- @skip / @include (use pre-computed boolean flags to avoid .length checks) ---
+    if (field.hasSkip) {
       let skip = false;
       for (const v of field.skipIfVars) {
         if (variables[v] === true) {
@@ -152,7 +170,7 @@ function projectObject(
       }
       if (skip) continue;
     }
-    if (field.includeIfVars.length > 0) {
+    if (field.hasInclude) {
       let exclude = false;
       for (const v of field.includeIfVars) {
         if (variables[v] === false) {
@@ -168,18 +186,21 @@ function projectObject(
     buf += field.escapedKey;
 
     if (field.isTypename) {
+      // Ensure __typename is resolved before writing it.
+      if (typename === undefined) {
+        const raw = obj['__typename'];
+        typename = typeof raw === 'string' ? raw : null;
+      }
       if (typename === null) {
         const val = obj[field.responseKey];
         buf += typeof val === 'string' ? stringifyString(val) : NULL;
       } else {
         buf += stringifyString(typename);
       }
-    } else if (field.children !== null) {
-      buf += projectValue(obj[field.responseKey], field.children, variables);
-    } else if (field.enumValues === null) {
-      buf += stringifyWithoutSelectionSet(obj[field.responseKey]);
+    } else if (field.children === null) {
+      buf += projectLeafValue(obj[field.responseKey], field);
     } else {
-      buf += projectEnumValue(obj[field.responseKey], field.enumValues);
+      buf += projectValue(obj[field.responseKey], field.children, variables);
     }
   }
 
@@ -188,8 +209,45 @@ function projectObject(
 }
 
 /**
+ * Serializes a leaf (scalar or enum) field value using the fastest available path.
+ * For well-known built-in scalars the `scalarHint` lets us skip the generic
+ * `stringifyWithoutSelectionSet` dispatcher entirely.
+ */
+function projectLeafValue(value: unknown, field: ProjectionPlanField): string {
+  if (field.enumValues !== null) {
+    return projectEnumValue(value, field.enumValues);
+  }
+  switch (field.scalarHint) {
+    case 'string':
+      return typeof value === 'string' ? stringifyString(value) : NULL;
+    case 'number':
+      return typeof value === 'number' && isFinite(value)
+        ? String(value)
+        : typeof value === 'bigint'
+          ? String(value)
+          : NULL;
+    case 'boolean':
+      return value === true ? TRUE : value === false ? FALSE : NULL;
+    case 'id':
+      // GraphQL ID resolves to either a string or a numeric value.
+      return typeof value === 'string'
+        ? stringifyString(value)
+        : typeof value === 'number'
+          ? String(value)
+          : NULL;
+    default:
+      // Custom scalar or unknown type: fall back to the generic serializer.
+      return stringifyWithoutSelectionSet(value);
+  }
+}
+
+/**
  * Serializes an enum value (or array of enum values), returning `null` for
  * values that are not in the pre-computed valid-value set.
+ *
+ * GraphQL enum values are identifiers (`[_A-Za-z][_0-9A-Za-z]*`) and therefore
+ * never contain characters that require JSON escaping.  Once we verify membership
+ * in `validValues` we can wrap in quotes directly without calling JSON.stringify.
  */
 function projectEnumValue(value: unknown, validValues: ReadonlySet<string>): string {
   if (value == null) return NULL;
@@ -203,5 +261,7 @@ function projectEnumValue(value: unknown, validValues: ReadonlySet<string>): str
     return buf;
   }
   const str = String(value);
-  return validValues.has(str) ? stringifyWithoutSelectionSet(value) : NULL;
+  // Enum identifiers are guaranteed to contain only [_A-Za-z0-9] characters so
+  // we can safely wrap in double-quotes without any further escaping.
+  return validValues.has(str) ? '"' + str + '"' : NULL;
 }
