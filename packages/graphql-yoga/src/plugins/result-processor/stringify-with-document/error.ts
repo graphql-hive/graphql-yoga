@@ -1,26 +1,26 @@
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { getSchemaCoordinate } from '@graphql-tools/utils';
 import { omitInternalsFromError } from '../stringify.js';
-import {
-  CLOSE_BRACE,
-  CLOSE_BRACKET,
-  COLON,
-  COLUMN_FIELD_NAME,
-  COMMA,
-  EXTENSIONS_FIELD_NAME,
-  LINE_FIELD_NAME,
-  LOCATIONS_FIELD_NAME,
-  MESSAGE_FIELD_NAME,
-  OPEN_BRACE,
-  OPEN_BRACKET,
-  PATH_FIELD_NAME,
-  QUOTE,
-} from './consts.js';
+import { CLOSE_BRACE, OPEN_BRACE } from './consts.js';
 import { ObjectStringifyOptions, stringifyString, stringifyWithoutSelectionSet } from './data.js';
 
 const extensionsObjectOptions: ObjectStringifyOptions = {
   ignoredFields: new Set(['http', 'unexpected']),
 };
+
+// Pre-computed JSON key fragments for error objects.
+// Avoids repeated string concatenation on every serialized error.
+const MESSAGE_KEY = '"message":';
+const LOCATIONS_KEY_OPEN = '"locations":[';
+const COMMA_LOCATIONS_KEY_OPEN = ',"locations":[';
+const PATH_KEY = '"path":[';
+const COMMA_PATH_KEY = ',"path":[';
+const EXTENSIONS_KEY = '"extensions":';
+const COMMA_EXTENSIONS_KEY = ',"extensions":';
+const LINE_KEY = '"line":';
+const COMMA_COLUMN_KEY = ',"column":';
+const SCHEMA_COORDINATE_KEY = '"schemaCoordinate":"';
+const COMMA_SCHEMA_COORDINATE_KEY = ',"schemaCoordinate":"';
 
 export function stringifyError(error: GraphQLError): string {
   const serializedError: GraphQLFormattedError = omitInternalsFromError(
@@ -31,51 +31,42 @@ export function stringifyError(error: GraphQLError): string {
 
   if (serializedError.message != null) {
     first = false;
-    buf += QUOTE + MESSAGE_FIELD_NAME + QUOTE + COLON + stringifyString(serializedError.message);
+    buf += MESSAGE_KEY + stringifyString(serializedError.message);
   }
 
   if (serializedError.locations) {
-    if (!first) buf += COMMA;
+    buf += first ? LOCATIONS_KEY_OPEN : COMMA_LOCATIONS_KEY_OPEN;
     first = false;
-    buf += QUOTE + LOCATIONS_FIELD_NAME + QUOTE + COLON + OPEN_BRACKET;
     for (let i = 0; i < serializedError.locations.length; i++) {
       const location = serializedError.locations[i]!;
-      if (i > 0) buf += COMMA;
+      if (i > 0) buf += ',';
       buf += OPEN_BRACE;
-      buf += QUOTE + LINE_FIELD_NAME + QUOTE + COLON + location.line + COMMA;
-      buf += QUOTE + COLUMN_FIELD_NAME + QUOTE + COLON + location.column;
+      buf += LINE_KEY + location.line + COMMA_COLUMN_KEY + location.column;
       buf += CLOSE_BRACE;
     }
-    buf += CLOSE_BRACKET;
+    buf += ']';
   }
 
   if (serializedError.path) {
-    if (!first) buf += COMMA;
+    buf += first ? PATH_KEY : COMMA_PATH_KEY;
     first = false;
-    buf += QUOTE + PATH_FIELD_NAME + QUOTE + COLON + OPEN_BRACKET;
     for (let i = 0; i < serializedError.path.length; i++) {
       const segment = serializedError.path[i]!;
-      if (i > 0) buf += COMMA;
+      if (i > 0) buf += ',';
       buf += typeof segment === 'string' ? stringifyString(segment) : String(segment);
     }
-    buf += CLOSE_BRACKET;
+    buf += ']';
   }
 
   if (serializedError.extensions) {
-    if (!first) buf += COMMA;
+    buf += first ? EXTENSIONS_KEY : COMMA_EXTENSIONS_KEY;
     first = false;
-    buf +=
-      QUOTE +
-      EXTENSIONS_FIELD_NAME +
-      QUOTE +
-      COLON +
-      stringifyWithoutSelectionSet(serializedError.extensions, extensionsObjectOptions);
+    buf += stringifyWithoutSelectionSet(serializedError.extensions, extensionsObjectOptions);
   }
 
   const coordinate = getSchemaCoordinate(error);
   if (coordinate) {
-    if (!first) buf += COMMA;
-    buf += QUOTE + 'schemaCoordinate' + QUOTE + COLON + QUOTE + coordinate + QUOTE;
+    buf += (first ? SCHEMA_COORDINATE_KEY : COMMA_SCHEMA_COORDINATE_KEY) + coordinate + '"';
   }
 
   buf += CLOSE_BRACE;

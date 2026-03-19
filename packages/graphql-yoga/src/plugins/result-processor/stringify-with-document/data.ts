@@ -157,7 +157,8 @@ function projectObject(
   let buf = OPEN_BRACE;
   let first = true;
 
-  for (const field of fields) {
+  for (let fi = 0; fi < fields.length; fi++) {
+    const field = fields[fi]!;
     // --- Type guard (lazy __typename lookup) ---
     if (field.typeGuard !== null) {
       if (typename === undefined) {
@@ -172,8 +173,9 @@ function projectObject(
     // --- @skip / @include (use pre-computed boolean flags to avoid .length checks) ---
     if (field.hasSkip) {
       let skip = false;
-      for (const v of field.skipIfVars) {
-        if (variables[v] === true) {
+      const skipVars = field.skipIfVars;
+      for (let si = 0; si < skipVars.length; si++) {
+        if (variables[skipVars[si]!] === true) {
           skip = true;
           break;
         }
@@ -182,8 +184,9 @@ function projectObject(
     }
     if (field.hasInclude) {
       let exclude = false;
-      for (const v of field.includeIfVars) {
-        if (variables[v] === false) {
+      const includeVars = field.includeIfVars;
+      for (let ii = 0; ii < includeVars.length; ii++) {
+        if (variables[includeVars[ii]!] === false) {
           exclude = true;
           break;
         }
@@ -222,8 +225,23 @@ function projectObject(
  * Serializes a leaf (scalar or enum) field value using the fastest available path.
  * For well-known built-in scalars the `scalarHint` lets us skip the generic
  * `stringifyWithoutSelectionSet` dispatcher entirely.
+ *
+ * Arrays are handled recursively so that `[String!]!`, `[Int!]!` etc. are serialized
+ * correctly.  Without this, the typed fast-paths would fall through to `NULL` for list
+ * values because `typeof array !== 'string'` etc.
  */
 function projectLeafValue(value: unknown, field: ProjectionPlanField): string {
+  if (value == null) return NULL;
+  // Handle list fields ([String!]!, [Int!]!, [Enum!]!, etc.) at every nesting level.
+  if (Array.isArray(value)) {
+    let buf = OPEN_BRACKET;
+    for (let i = 0; i < value.length; i++) {
+      if (i > 0) buf += COMMA;
+      buf += projectLeafValue(value[i], field);
+    }
+    buf += CLOSE_BRACKET;
+    return buf;
+  }
   if (field.enumValues !== null) {
     return projectEnumValue(value, field.enumValues);
   }
@@ -252,8 +270,11 @@ function projectLeafValue(value: unknown, field: ProjectionPlanField): string {
 }
 
 /**
- * Serializes an enum value (or array of enum values), returning `null` for
- * values that are not in the pre-computed valid-value set.
+ * Serializes a single enum value, returning `null` for values not in the
+ * pre-computed valid-value set.
+ *
+ * Array handling is done by the caller (`projectLeafValue`) before this function
+ * is invoked, so we only ever receive a non-array value here.
  *
  * GraphQL enum values are identifiers (`[_A-Za-z][_0-9A-Za-z]*`) and therefore
  * never contain characters that require JSON escaping.  Once we verify membership
@@ -261,15 +282,6 @@ function projectLeafValue(value: unknown, field: ProjectionPlanField): string {
  */
 function projectEnumValue(value: unknown, validValues: ReadonlySet<string>): string {
   if (value == null) return NULL;
-  if (Array.isArray(value)) {
-    let buf = OPEN_BRACKET;
-    for (let i = 0; i < value.length; i++) {
-      if (i > 0) buf += COMMA;
-      buf += projectEnumValue(value[i], validValues);
-    }
-    buf += CLOSE_BRACKET;
-    return buf;
-  }
   const str = String(value);
   // Enum identifiers are guaranteed to contain only [_A-Za-z0-9] characters so
   // we can safely wrap in double-quotes without any further escaping.

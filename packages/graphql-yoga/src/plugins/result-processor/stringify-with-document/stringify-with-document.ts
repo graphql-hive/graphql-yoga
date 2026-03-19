@@ -2,16 +2,6 @@ import { DocumentNode, GraphQLSchema } from 'graphql';
 import { getVariableValues } from '@graphql-tools/executor';
 import { ExecutionResult } from '@graphql-tools/utils';
 import { ExecutionArgsForResult } from '../../use-result-processor.js';
-import {
-  CLOSE_BRACKET,
-  COLON,
-  COMMA,
-  DATA_FIELD_NAME,
-  ERRORS_FIELD_NAME,
-  EXTENSIONS_FIELD_NAME,
-  OPEN_BRACKET,
-  QUOTE,
-} from './consts.js';
 import { projectWithPlan, stringifyWithoutSelectionSet } from './data.js';
 import { stringifyError } from './error.js';
 import { getOrCompileProjectionPlan } from './projection-plan.js';
@@ -23,6 +13,17 @@ export interface StringifyContext {
   operationName?: string;
   variables?: Record<string, unknown>;
 }
+
+// Pre-computed JSON key fragments for the top-level response object.
+// Avoids repeated string concatenation on every serialized response.
+const DATA_KEY = '"data":';
+const ERRORS_KEY_OPEN = '"errors":[';
+const COMMA_ERRORS_KEY_OPEN = ',"errors":[';
+const EXTENSIONS_KEY = '"extensions":';
+const COMMA_EXTENSIONS_KEY = ',"extensions":';
+
+// Shared empty object for the common case where variableValues is not provided.
+const EMPTY_VARIABLE_VALUES: Record<string, unknown> = {};
 
 export function stringifyWithDocument(
   result: ExecutionResult,
@@ -45,7 +46,7 @@ export function stringifyWithDocument(
     const coerceResult = getVariableValues(
       executionArgs.schema,
       plan.variableDefinitions,
-      (executionArgs.variableValues as Record<string, unknown>) ?? {},
+      (executionArgs.variableValues as Record<string, unknown>) ?? EMPTY_VARIABLE_VALUES,
     );
     if (coerceResult.errors) {
       // Variable coercion failed – fall back to JSON.stringify.
@@ -59,34 +60,23 @@ export function stringifyWithDocument(
 
   if (result.data !== undefined) {
     first = false;
-    buf +=
-      QUOTE +
-      DATA_FIELD_NAME +
-      QUOTE +
-      COLON +
-      projectWithPlan(result.data, plan.fields, variables);
+    buf += DATA_KEY + projectWithPlan(result.data, plan.fields, variables);
   }
 
   if (result.errors?.length) {
-    if (!first) buf += COMMA;
+    buf += first ? ERRORS_KEY_OPEN : COMMA_ERRORS_KEY_OPEN;
     first = false;
-    buf += QUOTE + ERRORS_FIELD_NAME + QUOTE + COLON + OPEN_BRACKET;
     for (let i = 0; i < result.errors.length; i++) {
-      if (i > 0) buf += COMMA;
+      if (i > 0) buf += ',';
       buf += stringifyError(result.errors[i]!);
     }
-    buf += CLOSE_BRACKET;
+    buf += ']';
   }
 
   if (result.extensions != null) {
-    if (!first) buf += COMMA;
-    first = false;
-    buf +=
-      QUOTE +
-      EXTENSIONS_FIELD_NAME +
-      QUOTE +
-      COLON +
-      stringifyWithoutSelectionSet(result.extensions);
+    buf += first ? EXTENSIONS_KEY : COMMA_EXTENSIONS_KEY;
+    // first = false; (unused after this point)
+    buf += stringifyWithoutSelectionSet(result.extensions);
   }
 
   buf += '}';
