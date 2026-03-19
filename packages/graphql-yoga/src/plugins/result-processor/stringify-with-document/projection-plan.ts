@@ -136,7 +136,22 @@ function buildProjectionPlan(
   const operationAst = getOperationAST(document, operationName ?? null);
   if (!operationAst) return null;
 
-  const rootType = schema.getRootType(operationAst.operation);
+  // `schema.getRootType()` was added in GraphQL v16.
+  // For v15 compatibility we use the individual accessor methods instead.
+  let rootType: ReturnType<GraphQLSchema['getQueryType']>;
+  switch (operationAst.operation) {
+    case 'query':
+      rootType = schema.getQueryType();
+      break;
+    case 'mutation':
+      rootType = schema.getMutationType();
+      break;
+    case 'subscription':
+      rootType = schema.getSubscriptionType();
+      break;
+    default:
+      return null;
+  }
   if (!rootType) return null;
 
   const fragments = getFragmentsFromDocument(document);
