@@ -104,6 +104,16 @@ export function stringifyString(value: string): string {
 // ---------------------------------------------------------------------------
 
 /**
+ * Shared empty-variables object used when the operation has no variable definitions.
+ * When `variables` is undefined, no plan field can have `hasSkip` or `hasInclude` set
+ * (those require a `@skip(if: $var)` / `@include(if: $var)` directive which in turn
+ * requires a declared operation variable).  We still pass a real object so the inner
+ * functions keep a simple `Record<string, unknown>` signature and avoid per-access
+ * null checks, but we reuse this constant instead of allocating `{}` on every call.
+ */
+const EMPTY_VARS: Record<string, unknown> = {};
+
+/**
  * Serializes `data` according to the pre-compiled `fields` plan.
  * `variables` are the coerced operation variables used for @skip/@include evaluation.
  */
@@ -112,7 +122,7 @@ export function projectWithPlan(
   fields: ProjectionPlanField[],
   variables: Record<string, unknown> | undefined,
 ): string {
-  return projectValue(data, fields, variables ?? {});
+  return projectValue(data, fields, variables ?? EMPTY_VARS);
 }
 
 function projectValue(
