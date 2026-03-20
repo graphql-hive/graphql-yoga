@@ -38,7 +38,7 @@ jobs:
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ${{ steps.pnpm-store.outputs.PATH }}
@@ -94,7 +94,7 @@ jobs:
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ${{ steps.pnpm-store.outputs.PATH }}
@@ -114,14 +114,14 @@ jobs:
         run: pnpm build
 
       - name: Run Unit Tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: pnpm run test:unit --ci
 
       - name: Run Leak Tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 120
           max_attempts: 3
@@ -151,7 +151,7 @@ jobs:
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ${{ steps.pnpm-store.outputs.PATH }}
@@ -174,14 +174,14 @@ jobs:
         run: pnpm build
 
       - name: Run Integration Tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: pnpm test:integration --ci
 
       - name: Run Leak Tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -202,7 +202,7 @@ jobs:
         id: pnpm-store
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       - name: Cache pnpm
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ${{ steps.pnpm-store.outputs.PATH }}
@@ -281,7 +281,7 @@ jobs:
         run: echo "PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ${{ steps.pnpm-store.outputs.PATH }}
@@ -305,7 +305,7 @@ jobs:
           echo "docker_host=$(docker context inspect --format '{{.Endpoints.docker.Host}}')" >> $GITHUB_OUTPUT
 
       - name: Provision & Test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         env:
           TEST_PLAN_NAME: ${{ matrix.plan }}
           COMMIT_ID: ${{ steps.vars.outputs.sha_short }}
