@@ -3882,7 +3882,7 @@ importers:
         version: 10.1.0
       fast-xml-parser:
         specifier: ^5.3.8
-        version: 5.5.6
+        version: 5.5.7
       pagefind:
         specifier: 1.4.0
         version: 1.4.0
@@ -13646,8 +13646,8 @@ packages:
   fast-xml-builder@1.1.4:
     resolution: {integrity: sha512-f2jhpN4Eccy0/Uz9csxh3Nu6q4ErKxf0XIsasomfOihuSUa3/xw6w8dnOtCDgEItQFJG8KyXPzQXzcODDrrbOg==}
 
-  fast-xml-parser@5.5.6:
-    resolution: {integrity: sha512-3+fdZyBRVg29n4rXP0joHthhcHdPUHaIC16cuyyd1iLsuaO6Vea36MPrxgAzbZna8lhvZeRL8Bc9GP56/J9xEw==}
+  fast-xml-parser@5.5.7:
+    resolution: {integrity: sha512-LteOsISQ2GEiDHZch6L9hB0+MLoYVLToR7xotrzU0opCICBkxOPgHAy1HxAvtxfJNXDJpgAsQN30mkrfpO2Prg==}
     hasBin: true
 
   fastest-levenshtein@1.0.16:
@@ -18841,8 +18841,8 @@ packages:
     resolution: {integrity: sha512-A21Xsm1XzUkK0qK1ZrytDUvqsQWict2Cykhvi0fBQntGG5JSprESasEyV1EZ/4CiR5WB5KjzLTrP/bO37B0wPg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  strnum@2.2.0:
-    resolution: {integrity: sha512-Y7Bj8XyJxnPAORMZj/xltsfo55uOiyHcU2tnAVzHUnSJR/KsEX+9RoDeXEnsXtl/CX4fAcrt64gZ13aGaWPeBg==}
+  strnum@2.2.1:
+    resolution: {integrity: sha512-BwRvNd5/QoAtyW1na1y1LsJGQNvRlkde6Q/ipqqEaivoMdV+B1OMOTVdwR+N/cwVUcIt9PYyHmV8HyexCZSupg==}
 
   strtok3@10.3.4:
     resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
@@ -19581,6 +19581,10 @@ packages:
 
   undici@7.24.4:
     resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
+    engines: {node: '>=20.18.1'}
+
+  undici@7.24.5:
+    resolution: {integrity: sha512-3IWdCpjgxp15CbJnsi/Y9TCDE7HWVN19j1hmzVhoAkY/+CJx449tVxT5wZc1Gwg8J+P0LWvzlBzxYRnHJ+1i7Q==}
     engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.24:
@@ -21620,7 +21624,7 @@ snapshots:
   '@aws-sdk/xml-builder@3.972.5':
     dependencies:
       '@smithy/types': 4.12.0
-      fast-xml-parser: 5.5.6
+      fast-xml-parser: 5.5.7
       tslib: 2.8.1
 
   '@aws/lambda-invoke-store@0.2.3': {}
@@ -23161,7 +23165,7 @@ snapshots:
       abort-controller: 3.0.0
       async-retry: 1.3.3
       duplexify: 4.1.3
-      fast-xml-parser: 5.5.6
+      fast-xml-parser: 5.5.7
       gaxios: 6.7.1(encoding@0.1.13)
       google-auth-library: 9.15.1(encoding@0.1.13)
       html-entities: 2.6.0
@@ -25153,7 +25157,7 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       http-cache-semantics: 4.2.0
-      undici: 7.24.4
+      undici: 7.24.5
 
   '@miniflare/core@2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)':
     dependencies:
@@ -25165,7 +25169,7 @@ snapshots:
       dotenv: 10.0.0
       kleur: 4.1.5
       set-cookie-parser: 2.7.2
-      undici: 7.24.4
+      undici: 7.24.5
       urlpattern-polyfill: 4.0.3
 
   '@miniflare/d1@2.14.4':
@@ -25178,14 +25182,14 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       '@miniflare/storage-memory': 2.14.4
-      undici: 7.24.4
+      undici: 7.24.5
 
   '@miniflare/html-rewriter@2.14.4':
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       html-rewriter-wasm: 0.4.1
-      undici: 7.24.4
+      undici: 7.24.5
 
   '@miniflare/kv@2.14.4':
     dependencies:
@@ -25199,7 +25203,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.24.4
+      undici: 7.24.5
 
   '@miniflare/runner-vm@2.14.4':
     dependencies:
@@ -25254,7 +25258,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.24.4
+      undici: 7.24.5
       ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
@@ -32272,7 +32276,7 @@ snapshots:
       eslint: 9.39.1(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.1(jiti@2.6.1))
@@ -32333,7 +32337,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -32450,7 +32454,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -33167,11 +33171,11 @@ snapshots:
     dependencies:
       path-expression-matcher: 1.1.3
 
-  fast-xml-parser@5.5.6:
+  fast-xml-parser@5.5.7:
     dependencies:
       fast-xml-builder: 1.1.4
       path-expression-matcher: 1.1.3
-      strnum: 2.2.0
+      strnum: 2.2.1
 
   fastest-levenshtein@1.0.16: {}
 
@@ -40004,7 +40008,7 @@ snapshots:
 
   strip-outer@2.0.0: {}
 
-  strnum@2.2.0: {}
+  strnum@2.2.1: {}
 
   strtok3@10.3.4:
     dependencies:
@@ -40922,6 +40926,8 @@ snapshots:
 
   undici@7.24.4: {}
 
+  undici@7.24.5: {}
+
   unenv@2.0.0-rc.24:
     dependencies:
       pathe: 2.0.3
@@ -41212,7 +41218,7 @@ snapshots:
       pump: 3.0.4
       qs: 6.15.0
       type-fest: 4.41.0
-      undici: 7.24.4
+      undici: 7.24.5
       ylru: 1.4.0
 
   urllib@4.9.0:
@@ -41222,7 +41228,7 @@ snapshots:
       mime-types: 2.1.35
       qs: 6.15.0
       type-fest: 4.41.0
-      undici: 7.24.4
+      undici: 7.24.5
       ylru: 2.0.0
 
   urlpattern-polyfill@10.1.0: {}
