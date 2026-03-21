@@ -159,6 +159,21 @@ function projectObject(
 
   for (let fi = 0; fi < fields.length; fi++) {
     const field = fields[fi]!;
+
+    // Fast path: field has no type guard, no @skip/@include, and is not __typename.
+    // This branch is taken for the vast majority of fields in real-world schemas, allowing
+    // the JIT to eliminate four branch checks (typeGuard, hasSkip, hasInclude, isTypename).
+    if (field.isSimple) {
+      buf += first ? field.escapedKey : field.commaEscapedKey;
+      first = false;
+      if (field.children === null) {
+        buf += projectLeafValue(obj[field.responseKey], field);
+      } else {
+        buf += projectValue(obj[field.responseKey], field.children, variables);
+      }
+      continue;
+    }
+
     // --- Type guard (lazy __typename lookup) ---
     if (field.typeGuard !== null) {
       if (typename === undefined) {
@@ -194,9 +209,8 @@ function projectObject(
       if (exclude) continue;
     }
 
-    if (!first) buf += COMMA;
+    buf += first ? field.escapedKey : field.commaEscapedKey;
     first = false;
-    buf += field.escapedKey;
 
     if (field.isTypename) {
       // Ensure __typename is resolved before writing it.

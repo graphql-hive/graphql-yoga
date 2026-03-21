@@ -30,6 +30,11 @@ export interface ProjectionPlanField {
   responseKey: string;
   /** Pre-escaped JSON fragment: `"responseKey":` – avoids per-request JSON.stringify of the key. */
   escapedKey: string;
+  /**
+   * Pre-escaped JSON fragment with a leading comma: `,"responseKey":`.
+   * Used by all fields except the first in an object to avoid a separate comma concatenation.
+   */
+  commaEscapedKey: string;
   /** True when this field is the `__typename` meta-field. */
   isTypename: boolean;
   /**
@@ -72,6 +77,12 @@ export interface ProjectionPlanField {
   hasSkip: boolean;
   /** Pre-computed: includeIfVars.length > 0. Avoids a per-object length check in the hot loop. */
   hasInclude: boolean;
+  /**
+   * Pre-computed: true when this field has no type guard, no @skip/@include, and is not the
+   * __typename meta-field.  When true the serializer can use a tighter inner loop that skips
+   * four branch checks (typeGuard, hasSkip, hasInclude, isTypename) per field.
+   */
+  isSimple: boolean;
 }
 
 /**
@@ -85,6 +96,13 @@ export interface CompiledProjectionPlan {
    * stringify-with-document.ts can run getVariableValues without re-parsing the document.
    */
   variableDefinitions: readonly VariableDefinitionNode[];
+  /**
+   * Pre-computed: true when at least one field anywhere in the plan tree has a
+   * @skip or @include directive (@hasSkip || @hasInclude).
+   * When false, the serializer can skip the `getVariableValues` call entirely
+   * because variable values are only needed for conditional field evaluation.
+   */
+  hasConditionalFields: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -168,12 +186,25 @@ function buildProjectionPlan(
   return {
     fields,
     variableDefinitions: operationAst.variableDefinitions ?? EMPTY_VARIABLE_DEFS,
+    hasConditionalFields: anyFieldHasConditional(fields),
   };
 }
 
 // Stable empty arrays shared across all plans – avoids repeated allocations.
 const EMPTY_STRINGS: readonly string[] = [];
 const EMPTY_VARIABLE_DEFS: readonly VariableDefinitionNode[] = [];
+
+/**
+ * Returns true when any field in the plan tree (recursively) has a @skip or @include condition.
+ * Used to determine whether `getVariableValues` is needed during serialization.
+ */
+function anyFieldHasConditional(fields: ProjectionPlanField[]): boolean {
+  for (const field of fields) {
+    if (field.hasSkip || field.hasInclude) return true;
+    if (field.children && anyFieldHasConditional(field.children)) return true;
+  }
+  return false;
+}
 
 // ---------------------------------------------------------------------------
 // Scalar type hint
@@ -344,18 +375,25 @@ function mergeField(
     enumValues = new Set([...existing.enumValues, ...incoming.enumValues]);
   }
 
+  const isTypename = existing.isTypename || incoming.isTypename;
+  const hasSkip = skipIfVars.length > 0;
+  const hasInclude = includeIfVars.length > 0;
+  const typeGuard = unionGuards(existing.typeGuard, incoming.typeGuard);
+
   return {
     responseKey: existing.responseKey,
     escapedKey: existing.escapedKey,
-    isTypename: existing.isTypename || incoming.isTypename,
+    commaEscapedKey: existing.commaEscapedKey,
+    isTypename,
     skipIfVars,
     includeIfVars,
-    hasSkip: skipIfVars.length > 0,
-    hasInclude: includeIfVars.length > 0,
-    typeGuard: unionGuards(existing.typeGuard, incoming.typeGuard),
+    hasSkip,
+    hasInclude,
+    typeGuard,
     enumValues,
     children,
     scalarHint: existing.scalarHint ?? incoming.scalarHint,
+    isSimple: typeGuard === null && !hasSkip && !hasInclude && !isTypename,
   };
 }
 
@@ -405,18 +443,24 @@ function buildSelectionSet(
         const responseKey = selection.alias?.value ?? fieldName;
 
         if (fieldName === TYPENAME) {
+          const escapedKey = JSON.stringify(responseKey) + ':';
+          const hasSkip = skipIfVars.length > 0;
+          const hasInclude = includeIfVars.length > 0;
           const field: ProjectionPlanField = {
             responseKey,
-            escapedKey: JSON.stringify(responseKey) + ':',
+            escapedKey,
+            commaEscapedKey: ',' + escapedKey,
             isTypename: true,
             skipIfVars,
             includeIfVars,
-            hasSkip: skipIfVars.length > 0,
-            hasInclude: includeIfVars.length > 0,
+            hasSkip,
+            hasInclude,
             typeGuard: parentTypeGuard,
             enumValues: null,
             children: null,
             scalarHint: 'string',
+            // __typename fields are never "simple" because they need the typename lookup.
+            isSimple: false,
           };
           const existing = fields.get(responseKey);
           fields.set(responseKey, existing ? mergeField(existing, field) : field);
@@ -467,18 +511,23 @@ function buildSelectionSet(
             )
           : null;
 
+        const escapedKey = JSON.stringify(responseKey) + ':';
+        const hasSkip = skipIfVars.length > 0;
+        const hasInclude = includeIfVars.length > 0;
         const field: ProjectionPlanField = {
           responseKey,
-          escapedKey: JSON.stringify(responseKey) + ':',
+          escapedKey,
+          commaEscapedKey: ',' + escapedKey,
           isTypename: false,
           skipIfVars,
           includeIfVars,
-          hasSkip: skipIfVars.length > 0,
-          hasInclude: includeIfVars.length > 0,
+          hasSkip,
+          hasInclude,
           typeGuard: parentTypeGuard,
           enumValues,
           children,
           scalarHint,
+          isSimple: parentTypeGuard === null && !hasSkip && !hasInclude,
         };
         const existing = fields.get(responseKey);
         fields.set(responseKey, existing ? mergeField(existing, field) : field);

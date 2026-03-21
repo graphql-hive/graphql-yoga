@@ -2,7 +2,7 @@ import { DocumentNode, GraphQLSchema } from 'graphql';
 import { getVariableValues } from '@graphql-tools/executor';
 import { ExecutionResult } from '@graphql-tools/utils';
 import { ExecutionArgsForResult } from '../../use-result-processor.js';
-import { projectWithPlan, stringifyWithoutSelectionSet } from './data.js';
+import { ObjectStringifyOptions, projectWithPlan, stringifyWithoutSelectionSet } from './data.js';
 import { stringifyError } from './error.js';
 import { getOrCompileProjectionPlan } from './projection-plan.js';
 
@@ -25,6 +25,13 @@ const COMMA_EXTENSIONS_KEY = ',"extensions":';
 // Shared empty object for the common case where variableValues is not provided.
 const EMPTY_VARIABLE_VALUES: Record<string, unknown> = {};
 
+// Strip the internal `http` extension from the top-level result extensions before
+// serializing – mirrors the stripping done by omitInternalsFromResultErrors in the
+// non-plan-based code path.
+const RESULT_EXTENSIONS_OPTIONS: ObjectStringifyOptions = {
+  ignoredFields: new Set(['http']),
+};
+
 export function stringifyWithDocument(
   result: ExecutionResult,
   executionArgs: ExecutionArgsForResult,
@@ -40,9 +47,10 @@ export function stringifyWithDocument(
     return JSON.stringify(result);
   }
 
-  // Coerce variables once per request (needed for @skip / @include evaluation).
+  // Coerce variables only when the plan actually uses them for @skip / @include evaluation.
+  // Most queries have no conditional fields and can skip this entirely.
   let variables: Record<string, unknown> | undefined;
-  if (plan.variableDefinitions.length > 0) {
+  if (plan.hasConditionalFields && plan.variableDefinitions.length > 0) {
     const coerceResult = getVariableValues(
       executionArgs.schema,
       plan.variableDefinitions,
@@ -74,9 +82,21 @@ export function stringifyWithDocument(
   }
 
   if (result.extensions != null) {
-    buf += first ? EXTENSIONS_KEY : COMMA_EXTENSIONS_KEY;
-    // first = false; (unused after this point)
-    buf += stringifyWithoutSelectionSet(result.extensions);
+    // Check whether there are any public (non-internal) extensions to emit.
+    // Reuse the same set from RESULT_EXTENSIONS_OPTIONS to avoid duplicating the list.
+    const ignoredFields = RESULT_EXTENSIONS_OPTIONS.ignoredFields!;
+    let hasPublicExtensions = false;
+    for (const key in result.extensions) {
+      if (!ignoredFields.has(key)) {
+        hasPublicExtensions = true;
+        break;
+      }
+    }
+    if (hasPublicExtensions) {
+      buf += first ? EXTENSIONS_KEY : COMMA_EXTENSIONS_KEY;
+      // first = false; (unused after this point)
+      buf += stringifyWithoutSelectionSet(result.extensions, RESULT_EXTENSIONS_OPTIONS);
+    }
   }
 
   buf += '}';
