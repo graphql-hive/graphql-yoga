@@ -1,9 +1,5 @@
 /* eslint-disable */
-// @ts-check
-
-// @ts-expect-error - TS doesn't know this import
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
-// @ts-expect-error - TS doesn't know this import
 import { githubComment } from 'https://raw.githubusercontent.com/dotansimha/k6-github-pr-comment/master/lib.js';
 import { check } from 'k6';
 import http from 'k6/http';
@@ -103,6 +99,50 @@ export function handleSummary(data) {
   };
 }
 
+const requestBody = JSON.stringify({
+  query: /* GraphQL */ `
+    query authors {
+      authors {
+        id
+        name
+        company
+        books {
+          id
+          name
+          numPages
+        }
+      }
+    }
+  `,
+});
+
+let printIdentifiersMap = {};
+let runIdentifiersMap = {};
+
+function printOnce(identifier, ...args) {
+  if (printIdentifiersMap[identifier]) {
+    return;
+  }
+
+  console.log(...args);
+  printIdentifiersMap[identifier] = true;
+}
+
+function runOnce(identifier, cb) {
+  if (runIdentifiersMap[identifier]) {
+    return true;
+  }
+
+  runIdentifiersMap[identifier] = true;
+  return cb();
+}
+
+const requestParams = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
 export function run() {
   let url;
   if (__ENV.MODE.startsWith('uws')) {
@@ -112,47 +152,45 @@ export function run() {
   } else {
     url = 'http://localhost:4000/graphql';
   }
-  const res = http.post(url, {
-    query: /* GraphQL */ `
-      query authors {
-        authors {
-          id
-          name
-          company
-          books {
-            id
-            name
-            numPages
-          }
-        }
-      }
-    `,
-  });
+  const res = http.post(url, requestBody, requestParams);
 
+  const respIdentifier = `response_structure{mode:${__ENV.MODE}}`;
+  const graphqlErrorsIdentifier = `graphql_errors{mode:${__ENV.MODE}}`;
   const noErrors = `no_errors{mode:${__ENV.MODE}}`;
   const expectedResult = `expected_result{mode:${__ENV.MODE}}`;
   check(res, {
     [noErrors]: resp => {
-      const json = resp.json();
-      return !!json && typeof json === 'object' && !Array.isArray(json) && !json.errors;
+      let has_errors = resp.body.includes(`"errors"`);
+      if (has_errors) {
+        printOnce(graphqlErrorsIdentifier, `‼️ Got GraphQL errors, here's a sample:`, res.body);
+      }
+
+      return !has_errors;
     },
     [expectedResult]: resp => {
-      const json = resp.json();
-      return (
-        !!json &&
-        typeof json === 'object' &&
-        !Array.isArray(json) &&
-        !!json.data &&
-        typeof json.data === 'object' &&
-        !Array.isArray(json.data) &&
-        !!json.data.authors &&
-        Array.isArray(json.data.authors) &&
-        json.data.authors.length > 0 &&
-        !!json.data.authors[0] &&
-        typeof json.data.authors[0] === 'object' &&
-        !Array.isArray(json.data.authors[0]) &&
-        !!json.data.authors[0].id
-      );
+      return runOnce(expectedResult, () => {
+        const json = resp.json();
+        const isValid =
+          !!json &&
+          typeof json === 'object' &&
+          !Array.isArray(json) &&
+          !!json.data &&
+          typeof json.data === 'object' &&
+          !Array.isArray(json.data) &&
+          !!json.data.authors &&
+          Array.isArray(json.data.authors) &&
+          json.data.authors.length > 0 &&
+          !!json.data.authors[0] &&
+          typeof json.data.authors[0] === 'object' &&
+          !Array.isArray(json.data.authors[0]) &&
+          !!json.data.authors[0].id;
+
+        if (!isValid) {
+          printOnce(respIdentifier, `‼️ Got invalid structure, here's a sample:`, res.body);
+        }
+
+        return isValid;
+      });
     },
   });
 }
