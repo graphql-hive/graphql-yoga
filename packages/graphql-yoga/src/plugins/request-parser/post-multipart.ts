@@ -1,5 +1,3 @@
-import { Readable } from 'node:stream';
-import Busboy, { BusboyFileStream } from '@fastify/busboy';
 import { createGraphQLError } from '@graphql-tools/utils';
 import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
 import { GraphQLParams } from '../../types.js';
@@ -77,73 +75,117 @@ export function parsePOSTMultipartRequest(
   );
 }
 
+// ---------------------------------------------------------------------------
+// Cross-platform streaming multipart parser
+//
+// Uses only WHATWG standard APIs (ReadableStream, TextDecoder, Uint8Array) so
+// that it works in Node.js, Cloudflare Workers, Deno, and browsers alike.
+// ---------------------------------------------------------------------------
+
+/** Extract the `boundary` parameter from a `multipart/form-data` Content-Type. */
+function extractBoundary(contentType: string): string | null {
+  const match = contentType.match(/boundary=(?:"([^"]+)"|([^\s;,]+))/);
+  return match?.[1] ?? match?.[2] ?? null;
+}
+
+/** Return the index of `needle` inside `haystack[from…]`, or -1 if not found. */
+function indexOfBytes(haystack: Uint8Array, needle: Uint8Array, from = 0): number {
+  outer: for (let i = from; i <= haystack.length - needle.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) continue outer;
+    }
+    return i;
+  }
+  return -1;
+}
+
+/** Concatenate two Uint8Arrays into a new one. */
+function concatBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a, 0);
+  out.set(b, a.length);
+  return out;
+}
+
 /**
  * Parses a multipart/form-data request as a stream.
  *
- * Unlike the default parser (which uses `request.formData()` and fully buffers every uploaded
- * file), this variant uses busboy to pipe each file part directly into a WHATWG `ReadableStream`
- * that is placed into the GraphQL variables.  The file data therefore flows through memory only
- * as fast as the resolver consumes it, making it suitable for large files.
+ * Unlike the default parser (which uses `request.formData()` and fully buffers
+ * every uploaded file into memory), this implementation reads the request body
+ * as a WHATWG `ReadableStream` and wires each file part into its own
+ * `ReadableStream` that is exposed to resolvers.  File bytes therefore flow
+ * through memory only as fast as the resolver consumes them.
  *
- * The promise resolves as soon as the `operations` (and optional `map`) fields have been parsed
- * — i.e. **before** any file bytes have been received — so GraphQL execution can start immediately
- * and consume each file's stream on demand.
+ * The returned promise resolves as soon as the `operations` (and optional
+ * `map`) text fields have been parsed — before any file bytes are received —
+ * so GraphQL execution can start immediately and pull from each file stream
+ * on demand.
  */
 function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLParams> {
-  return new Promise<GraphQLParams>((resolve, reject) => {
-    const contentType = request.headers.get('content-type');
-    const contentLength = request.headers.get('content-length');
+  const contentType = request.headers.get('content-type') ?? '';
+  const boundary = extractBoundary(contentType);
 
-    if (!request.body) {
-      return reject(createGraphQLError('Request body is missing'));
-    }
+  if (!boundary) {
+    return Promise.reject(createGraphQLError('Could not determine multipart boundary'));
+  }
+  if (!request.body) {
+    return Promise.reject(createGraphQLError('Request body is missing'));
+  }
 
-    const bb = new Busboy({
-      headers: {
-        'content-type': contentType || '',
-        ...(contentLength ? { 'content-length': contentLength } : {}),
-      },
-      defCharset: 'utf-8',
-    });
+  const body = request.body;
 
-    let operationsStr: string | undefined;
-    let mapStr: string | undefined;
-    let operations: GraphQLParams | undefined;
-    let map: Record<string, string[]> | undefined;
+  return new Promise<GraphQLParams>((resolveParams, rejectParams) => {
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
 
-    /**
-     * Per-file entry created when we build the deferred streams (inside
-     * `onAllFieldsReceived`).  The `meta` object is mutated in-place when
-     * busboy fires the `file` event so that resolvers see the correct
-     * filename / MIME-type even for the second, third, … file.
-     */
+    // Pre-encode the byte sequences we search for repeatedly.
+    const DASH_BOUNDARY = enc.encode(`--${boundary}`);
+    const CRLF_DASH_BOUNDARY = enc.encode(`\r\n--${boundary}`);
+    const CRLF_CRLF = enc.encode('\r\n\r\n');
+
+    // Shared accumulation buffer that the background async task reads into.
+    let buf = new Uint8Array(0);
+
     interface FileEntry {
       controller: ReadableStreamDefaultController<Uint8Array>;
       meta: { name: string; type: string };
     }
     const fileEntries = new Map<string, FileEntry>();
 
+    let operationsStr: string | undefined;
+    let mapStr: string | undefined;
+    let operations: GraphQLParams | undefined;
+    let map: Record<string, string[]> | undefined;
     let resolved = false;
 
-    /**
-     * Called once we are sure that all non-file fields have been received
-     * (i.e. when the first `file` event fires, or when `finish` fires
-     * without any files).  Parses `operations` / `map`, wires the deferred
-     * streams into the variable tree, and resolves the outer promise.
-     */
-    function onAllFieldsReceived() {
-      if (resolved) return;
-
-      if (!operationsStr) {
+    /** Reject the params promise and propagate the error to any open file streams. */
+    function fail(err: unknown): void {
+      if (!resolved) {
         resolved = true;
-        return reject(createGraphQLError('Missing multipart form field "operations"'));
+        rejectParams(err);
       }
+      for (const { controller } of fileEntries.values()) {
+        try {
+          controller.error(err);
+        } catch {
+          // already closed
+        }
+      }
+    }
+
+    /**
+     * Resolve the outer promise once we have both `operations` and (optionally)
+     * `map`.  Sets up deferred ReadableStreams for every file index listed in the
+     * map so that the GraphQL variables tree already has File-like objects in
+     * place when the promise resolves — even though the file bytes arrive later.
+     */
+    function tryResolve(): void {
+      if (resolved || !operationsStr) return;
 
       try {
         operations = JSON.parse(operationsStr);
       } catch {
-        resolved = true;
-        return reject(
+        return fail(
           createGraphQLError('Multipart form field "operations" must be a valid JSON string'),
         );
       }
@@ -152,129 +194,245 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
         try {
           map = JSON.parse(mapStr);
         } catch {
-          resolved = true;
-          return reject(
-            createGraphQLError('Multipart form field "map" must be a valid JSON string'),
-          );
+          return fail(createGraphQLError('Multipart form field "map" must be a valid JSON string'));
         }
 
-        // Create a deferred ReadableStream + mutable metadata ref for each
-        // file listed in the map, then inject a streaming File-like object
-        // into the corresponding variable paths.
-        for (const fileIndex in map!) {
+        for (const fileIndex in map) {
+          if (fileEntries.has(fileIndex)) continue;
           let controller!: ReadableStreamDefaultController<Uint8Array>;
           const stream = new ReadableStream<Uint8Array>({
             start(c) {
               controller = c;
             },
           });
-
-          // Placeholder metadata – will be mutated when busboy fires the
-          // `file` event for this particular part.
           const meta = { name: '', type: '' };
           fileEntries.set(fileIndex, { controller, meta });
 
           const fileObj = createStreamingFile(stream, meta);
-          const keys = map![fileIndex]!;
-          for (const key of keys) {
+          for (const key of map![fileIndex]!) {
             setObjectKeyPath(operations!, key, fileObj);
           }
         }
       }
 
       resolved = true;
-      resolve(operations!);
+      resolveParams(operations!);
     }
 
-    bb.on('field', (name: string, value: string) => {
-      if (name === 'operations') {
-        operationsStr = value;
-      } else if (name === 'map') {
-        mapStr = value;
+    // ------------------------------------------------------------------
+    // Background async task: reads `body` chunk by chunk and parses the
+    // multipart boundaries.  Resolves the params promise early (as soon as
+    // text fields are consumed) and then continues feeding bytes into each
+    // file's ReadableStream controller.
+    // ------------------------------------------------------------------
+    (async () => {
+      const reader = body.getReader();
+
+      /** Pull one more chunk from the request body into `buf`. */
+      async function readMore(): Promise<boolean> {
+        const { value, done } = await reader.read();
+        if (done || !value) return false;
+        buf = concatBytes(buf, value);
+        return true;
       }
-    });
 
-    bb.on(
-      'file',
-      (
-        fieldname: string,
-        fileStream: BusboyFileStream,
-        filename: string,
-        _transferEncoding: string,
-        mimeType: string,
-      ) => {
-        // All non-file fields arrive before the first file part – resolve now.
-        onAllFieldsReceived();
+      /** Read until `needle` is present somewhere in `buf`. */
+      async function waitFor(needle: Uint8Array): Promise<boolean> {
+        while (indexOfBytes(buf, needle) === -1) {
+          if (!(await readMore())) return false;
+        }
+        return true;
+      }
 
-        const entry = fileEntries.get(fieldname);
-        if (!entry) {
-          // Not referenced in the map; drain so busboy can continue.
-          fileStream.resume();
-          return;
+      /** Ensure `buf` has at least `n` bytes (or stream ended). */
+      async function ensureBytes(n: number): Promise<boolean> {
+        while (buf.length < n) {
+          if (!(await readMore())) return false;
+        }
+        return true;
+      }
+
+      /** Consume `n` bytes from the front of `buf` and return them. */
+      function eat(n: number): Uint8Array {
+        const slice = buf.slice(0, n);
+        buf = buf.slice(n);
+        return slice;
+      }
+
+      // ---- locate and skip the opening boundary ----
+      if (!(await waitFor(DASH_BOUNDARY))) {
+        return fail(createGraphQLError('No multipart boundary found in request body'));
+      }
+      eat(indexOfBytes(buf, DASH_BOUNDARY) + DASH_BOUNDARY.length);
+
+      // After the first boundary comes either `\r\n` (first part) or `--` (empty body).
+      if (!(await ensureBytes(2))) {
+        return fail(createGraphQLError('Unexpected end of multipart stream'));
+      }
+      if (buf[0] === 0x2d && buf[1] === 0x2d) {
+        // `--boundary--` with nothing inside
+        return fail(createGraphQLError('Missing multipart form field "operations"'));
+      }
+      eat(2); // consume the `\r\n` after the boundary
+
+      let done = false;
+
+      while (!done) {
+        // ---- read the part's headers ----
+        if (!(await waitFor(CRLF_CRLF))) {
+          return fail(createGraphQLError('Incomplete multipart part headers'));
+        }
+        const headerEnd = indexOfBytes(buf, CRLF_CRLF);
+        const rawHeaders = dec.decode(eat(headerEnd));
+        eat(4); // consume `\r\n\r\n`
+
+        // Parse header lines into a plain object.
+        const hdrs: Record<string, string> = {};
+        for (const line of rawHeaders.split('\r\n')) {
+          const ci = line.indexOf(':');
+          if (ci !== -1) {
+            hdrs[line.slice(0, ci).trim().toLowerCase()] = line.slice(ci + 1).trim();
+          }
         }
 
-        // Populate the metadata ref in-place so the File-like object reflects
-        // the correct filename and MIME type.
-        entry.meta.name = filename;
-        entry.meta.type = mimeType;
+        const contentDisp = hdrs['content-disposition'] ?? '';
+        const nameMatch = contentDisp.match(/\bname=(?:"([^"]+)"|([^\s;,]+))/);
+        const filenameMatch = contentDisp.match(/\bfilename=(?:"([^"]+)"|([^\s;,]+))/);
+        const fieldName = nameMatch?.[1] ?? nameMatch?.[2];
+        const fileName = filenameMatch?.[1] ?? filenameMatch?.[2];
+        const mimeType = hdrs['content-type'];
+
+        // Helper: skip past the current part's body to the next boundary.
+        async function skipPart(): Promise<boolean> {
+          if (!(await waitFor(CRLF_DASH_BOUNDARY))) return false;
+          eat(indexOfBytes(buf, CRLF_DASH_BOUNDARY) + CRLF_DASH_BOUNDARY.length);
+          if (!(await ensureBytes(2))) return false;
+          if (buf[0] === 0x2d && buf[1] === 0x2d) {
+            eat(2);
+            return false; // signals "no more parts"
+          }
+          eat(2); // consume `\r\n` before next part's headers
+          return true; // more parts follow
+        }
+
+        if (!fieldName) {
+          done = !(await skipPart());
+          continue;
+        }
+
+        const isFilePart = fileName !== undefined;
+
+        if (!isFilePart) {
+          // ---- text field (operations / map / …) ----
+          if (!(await waitFor(CRLF_DASH_BOUNDARY))) {
+            return fail(createGraphQLError('Unexpected end of text field body'));
+          }
+          const delimPos = indexOfBytes(buf, CRLF_DASH_BOUNDARY);
+          const value = dec.decode(eat(delimPos));
+          eat(CRLF_DASH_BOUNDARY.length);
+
+          if (fieldName === 'operations') operationsStr = value;
+          else if (fieldName === 'map') mapStr = value;
+
+          if (!(await ensureBytes(2))) {
+            done = true;
+            break;
+          }
+          if (buf[0] === 0x2d && buf[1] === 0x2d) {
+            done = true;
+            eat(2);
+            break;
+          }
+          eat(2); // `\r\n` before next part's headers
+          continue;
+        }
+
+        // ---- file part ----
+        // Resolve the outer promise now that all text fields are available.
+        if (!resolved) tryResolve();
+
+        const entry = fileEntries.get(fieldName);
+        if (!entry) {
+          // File index not referenced in the map — drain and move on.
+          done = !(await skipPart());
+          continue;
+        }
+
+        // Populate the mutable metadata ref so the File-like object in the
+        // variables tree reflects the correct filename and MIME type.
+        entry.meta.name = fileName;
+        entry.meta.type = mimeType ?? 'application/octet-stream';
 
         const { controller } = entry;
-        fileStream.on('data', (chunk: Buffer) => {
-          controller.enqueue(new Uint8Array(chunk));
-        });
-        fileStream.on('end', () => {
-          controller.close();
-        });
-        fileStream.on('error', (err: Error) => {
-          controller.error(err);
-        });
-        fileStream.on('limit', () => {
-          const err = createGraphQLError('File size limit exceeded', {
-            extensions: { http: { status: 413 } },
-          });
-          controller.error(err);
-          if (!resolved) {
-            reject(err);
+
+        // Stream bytes until the next boundary.
+        // We must be careful not to emit bytes that are actually the start
+        // of an as-yet-incomplete boundary sequence, so we keep back
+        // `CRLF_DASH_BOUNDARY.length - 1` bytes in `buf` at all times.
+        while (true) {
+          const delimPos = indexOfBytes(buf, CRLF_DASH_BOUNDARY);
+
+          if (delimPos !== -1) {
+            // We found the end of this file part.
+            if (delimPos > 0) controller.enqueue(eat(delimPos));
+            eat(CRLF_DASH_BOUNDARY.length);
+            controller.close();
+
+            if (!(await ensureBytes(2))) {
+              done = true;
+              break;
+            }
+            if (buf[0] === 0x2d && buf[1] === 0x2d) {
+              done = true;
+              eat(2);
+            } else {
+              eat(2); // `\r\n` before next part
+            }
+            break;
           }
-        });
-      },
-    );
 
-    bb.on('error', (err: unknown) => {
-      if (!resolved) {
-        reject(err);
+          // The boundary might straddle the current end of `buf` — only emit
+          // bytes that cannot possibly be part of the delimiter prefix.
+          const safeLen = buf.length - (CRLF_DASH_BOUNDARY.length - 1);
+          if (safeLen > 0) {
+            controller.enqueue(eat(safeLen));
+          }
+
+          if (!(await readMore())) {
+            // Stream ended without a closing boundary — emit remaining bytes.
+            if (buf.length > 0) controller.enqueue(buf);
+            controller.close();
+            done = true;
+            break;
+          }
+        }
       }
-    });
 
-    bb.on('finish', () => {
-      // No file parts were found – resolve from whatever fields we collected.
-      onAllFieldsReceived();
-    });
-
-    // Convert the WHATWG ReadableStream (request.body) to a Node.js Readable
-    // so that we can pipe it into busboy (a Node.js Writable).
-    //
-    // When running under @whatwg-node/server the body may be a
-    // PonyfillReadableStream which already exposes its underlying Node.js
-    // Readable via a `.readable` property – use that directly.  In all other
-    // environments fall back to Readable.fromWeb().
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bodyAny = request.body as any;
-    const nodeReadable: Readable =
-      bodyAny?.readable instanceof Readable ? bodyAny.readable : Readable.fromWeb(bodyAny);
-    nodeReadable.pipe(bb);
-    nodeReadable.on('error', (err: Error) => {
-      if (!resolved) {
-        reject(err);
+      // Close any file streams whose part was never reached.
+      for (const { controller } of fileEntries.values()) {
+        try {
+          controller.close();
+        } catch {
+          // already closed / errored
+        }
       }
-    });
+
+      // If we parsed everything without ever seeing a file part, resolve now.
+      if (!resolved) {
+        if (operationsStr) {
+          tryResolve();
+        } else {
+          fail(createGraphQLError('Missing multipart form field "operations"'));
+        }
+      }
+    })().catch(fail);
   });
 }
 
 /**
  * Creates a lightweight `File`-like object backed by a `ReadableStream`.
  *
- * The `meta` object is intentionally **mutable** so that busboy can fill in
+ * The `meta` object is intentionally **mutable** so that the parser can fill in
  * the filename / MIME-type after the object has already been placed into the
  * GraphQL variables tree.
  */
