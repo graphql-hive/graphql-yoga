@@ -142,6 +142,8 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
     const DASH_BOUNDARY = enc.encode(`--${boundary}`);
     const CRLF_DASH_BOUNDARY = enc.encode(`\r\n--${boundary}`);
     const CRLF_CRLF = enc.encode('\r\n\r\n');
+    // ASCII code for '-', used when detecting the close delimiter `--`.
+    const DASH = 0x2d;
 
     // Shared accumulation buffer that the background async task reads into.
     let buf = new Uint8Array(0);
@@ -269,7 +271,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
       if (!(await ensureBytes(2))) {
         return fail(createGraphQLError('Unexpected end of multipart stream'));
       }
-      if (buf[0] === 0x2d && buf[1] === 0x2d) {
+      if (buf[0] === DASH && buf[1] === DASH) {
         // `--boundary--` with nothing inside
         return fail(createGraphQLError('Missing multipart form field "operations"'));
       }
@@ -307,7 +309,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
           if (!(await waitFor(CRLF_DASH_BOUNDARY))) return false;
           eat(indexOfBytes(buf, CRLF_DASH_BOUNDARY) + CRLF_DASH_BOUNDARY.length);
           if (!(await ensureBytes(2))) return false;
-          if (buf[0] === 0x2d && buf[1] === 0x2d) {
+          if (buf[0] === DASH && buf[1] === DASH) {
             eat(2);
             return false; // signals "no more parts"
           }
@@ -338,7 +340,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
             done = true;
             break;
           }
-          if (buf[0] === 0x2d && buf[1] === 0x2d) {
+          if (buf[0] === DASH && buf[1] === DASH) {
             done = true;
             eat(2);
             break;
@@ -360,7 +362,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
 
         // Populate the mutable metadata ref so the File-like object in the
         // variables tree reflects the correct filename and MIME type.
-        entry.meta.name = fileName;
+        entry.meta.name = fileName ?? '';
         entry.meta.type = mimeType ?? 'application/octet-stream';
 
         const { controller } = entry;
@@ -382,7 +384,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
               done = true;
               break;
             }
-            if (buf[0] === 0x2d && buf[1] === 0x2d) {
+            if (buf[0] === DASH && buf[1] === DASH) {
               done = true;
               eat(2);
             } else {
