@@ -318,7 +318,10 @@ function createStreamingFile(
         result.set(chunk, offset);
         offset += chunk.length;
       }
-      return result.buffer as ArrayBuffer;
+      return result.buffer.slice(
+        result.byteOffset,
+        result.byteOffset + result.byteLength,
+      ) as ArrayBuffer;
     },
     async bytes(): Promise<Uint8Array> {
       return new Uint8Array(await file.arrayBuffer());

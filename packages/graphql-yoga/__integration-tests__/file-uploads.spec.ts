@@ -244,32 +244,7 @@ describe('file uploads (streaming mode)', () => {
       }),
     );
     formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
-    formData.append('0', new File(['hello'], 'hello.txt', { type: 'text/plain' }));
-
-    const response = await fetch(`http://localhost:${port}/graphql`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    const body = await response.json();
-    expect(body.errors).toBeUndefined();
-    // Each resolver call gets its own invocation; only one file var per query
-    // We can only read the stream once so let's test them separately.
-  });
-
-  it('exposes correct file name via stream mode', async () => {
-    const formData = new FormData();
-    formData.append(
-      'operations',
-      JSON.stringify({
-        query: /* GraphQL */ `
-          mutation Test($file: File!) {
-            fileName(file: $file)
-          }
-        `,
-      }),
-    );
-    formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
+    // Neither resolver consumes the stream, so both can be queried together.
     formData.append('0', new File(['hello'], 'hello.txt', { type: 'text/plain' }));
 
     const response = await fetch(`http://localhost:${port}/graphql`, {
@@ -280,6 +255,7 @@ describe('file uploads (streaming mode)', () => {
     const body = await response.json();
     expect(body.errors).toBeUndefined();
     expect(body.data?.fileName).toBe('hello.txt');
+    expect(body.data?.fileType).toBe('text/plain');
   });
 
   it('reads file content as text', async () => {
