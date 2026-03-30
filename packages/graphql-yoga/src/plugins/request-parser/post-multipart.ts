@@ -89,7 +89,11 @@ function extractBoundary(contentType: string): string | null {
 }
 
 /** Return the index of `needle` inside `haystack[from…]`, or -1 if not found. */
-function indexOfBytes(haystack: Uint8Array, needle: Uint8Array, from = 0): number {
+function indexOfBytes(
+  haystack: Uint8Array<ArrayBufferLike>,
+  needle: Uint8Array<ArrayBufferLike>,
+  from = 0,
+): number {
   outer: for (let i = from; i <= haystack.length - needle.length; i++) {
     for (let j = 0; j < needle.length; j++) {
       if (haystack[i + j] !== needle[j]) continue outer;
@@ -100,7 +104,10 @@ function indexOfBytes(haystack: Uint8Array, needle: Uint8Array, from = 0): numbe
 }
 
 /** Concatenate two Uint8Arrays into a new one. */
-function concatBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
+function concatBytes(
+  a: Uint8Array<ArrayBufferLike>,
+  b: Uint8Array<ArrayBufferLike>,
+): Uint8Array<ArrayBuffer> {
   const out = new Uint8Array(a.length + b.length);
   out.set(a, 0);
   out.set(b, a.length);
