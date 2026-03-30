@@ -95,20 +95,18 @@ to prevent Yoga from handling multipart requests.
 createYoga({ multipart: false })
 ```
 
-## Processing File Uploads as Streams (Node.js)
+## Processing File Uploads as Streams
 
 By default, GraphQL Yoga buffers each uploaded file into memory before making it available to
 resolvers as a `File` object. For large files this can exhaust server memory.
 
 You can enable **streaming mode** by setting `multipart: { stream: true }`. In this mode each file
 variable is backed by a live `ReadableStream` coming directly from the network – no buffering occurs
-until your resolver actually reads the data.
+until your resolver actually reads the data. This works across all runtimes (Node.js, Cloudflare
+Workers, Deno, Bun, etc.) using only standard WHATWG APIs.
 
 ```ts
-import { createServer } from 'http'
-import { createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
-import { createYoga } from 'graphql-yoga'
+import { createYoga, createSchema } from 'graphql-yoga'
 
 const yoga = createYoga({
   multipart: { stream: true },
@@ -122,18 +120,31 @@ const yoga = createYoga({
     resolvers: {
       Mutation: {
         uploadFile: async (_, { file }: { file: File }) => {
-          // file.stream() returns a ReadableStream – pipe it directly to disk
-          // without ever loading the full file into memory.
-          const { Readable } = await import('node:stream')
-          await pipeline(Readable.fromWeb(file.stream()), createWriteStream('/tmp/' + file.name))
+          // file.stream() returns a WHATWG ReadableStream – consume it however you like.
+          // Here we collect all bytes without ever buffering the whole file at once:
+          const reader = file.stream().getReader()
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            // process chunk (value is Uint8Array)
+          }
           return true
         }
       }
     }
   })
 })
+```
 
-createServer(yoga).listen(4000)
+On Node.js you can pipe the stream directly to disk using the Node.js streams interop:
+
+```ts
+import { createWriteStream } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
+import { Readable } from 'node:stream'
+
+// Inside your resolver:
+await pipeline(Readable.fromWeb(file.stream()), createWriteStream('/tmp/' + file.name))
 ```
 
 ### Notes on streaming mode
@@ -142,8 +153,6 @@ createServer(yoga).listen(4000)
   once on the same file will throw an error.
 - **Backpressure is respected.** If the resolver reads slowly, the TCP connection will naturally
   slow down.
-- **Only available in Node.js.** In edge runtimes the standard `request.formData()` path is used
-  regardless of this option.
 
 ## Configuring Multipart Request Processing (only for Node.js)
 
