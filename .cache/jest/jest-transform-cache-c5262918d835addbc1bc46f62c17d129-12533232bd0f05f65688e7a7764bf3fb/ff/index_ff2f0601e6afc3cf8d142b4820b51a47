@@ -1,0 +1,50 @@
+b8a69680ae16b3ba2573ed466e6af5b0
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderGraphiQL = void 0;
+var _graphiql = require("./graphiql.js");
+const renderGraphiQL = opts => /* HTML */`
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>${opts?.title || 'Yoga GraphiQL'}</title>
+      <link rel="icon" href="${opts?.favicon || _graphiql.favicon}" />
+      <style>
+        ${_graphiql.css}
+      </style>
+    </head>
+    <body id="body" class="no-focus-outline">
+      <noscript>You need to enable JavaScript to run this app.</noscript>
+      <div id="root"></div>
+
+      <script>
+        function prepareBlob(workerContent) {
+          const blob = new Blob([workerContent], { type: 'application/javascript' });
+          return URL.createObjectURL(blob);
+        }
+        const workers = {
+          editorWorkerService: prepareBlob(${JSON.stringify(_graphiql.editorWorkerService)}),
+          json: prepareBlob(${JSON.stringify(_graphiql.jsonWorker)}),
+          graphql: prepareBlob(${JSON.stringify(_graphiql.graphqlWorker)}),
+        };
+        self['MonacoEnvironment'] = {
+          globalAPI: false,
+          getWorkerUrl: function (moduleId, label) {
+            return workers[label];
+          },
+        };
+        ${_graphiql.js};
+        YogaGraphiQL.renderYogaGraphiQL(
+          window.document.querySelector('#root'),
+          ${JSON.stringify(opts ?? {})},
+        );
+      </script>
+    </body>
+  </html>
+`;
+exports.renderGraphiQL = renderGraphiQL;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZ3JhcGhpcWwiLCJyZXF1aXJlIiwicmVuZGVyR3JhcGhpUUwiLCJvcHRzIiwidGl0bGUiLCJmYXZpY29uIiwiY3NzIiwiSlNPTiIsInN0cmluZ2lmeSIsImVkaXRvcldvcmtlclNlcnZpY2UiLCJqc29uV29ya2VyIiwiZ3JhcGhxbFdvcmtlciIsImpzIiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbImluZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB0eXBlIHsgR3JhcGhpUUxPcHRpb25zIH0gZnJvbSAnZ3JhcGhxbC15b2dhJztcbmltcG9ydCB7IGNzcywgZWRpdG9yV29ya2VyU2VydmljZSwgZmF2aWNvbiwgZ3JhcGhxbFdvcmtlciwganMsIGpzb25Xb3JrZXIgfSBmcm9tICcuL2dyYXBoaXFsLmpzJztcblxuZXhwb3J0IGNvbnN0IHJlbmRlckdyYXBoaVFMID0gKG9wdHM/OiBHcmFwaGlRTE9wdGlvbnMpID0+IC8qIEhUTUwgKi8gYFxuICA8IWRvY3R5cGUgaHRtbD5cbiAgPGh0bWwgbGFuZz1cImVuXCI+XG4gICAgPGhlYWQ+XG4gICAgICA8bWV0YSBjaGFyc2V0PVwidXRmLThcIiAvPlxuICAgICAgPHRpdGxlPiR7b3B0cz8udGl0bGUgfHwgJ1lvZ2EgR3JhcGhpUUwnfTwvdGl0bGU+XG4gICAgICA8bGluayByZWw9XCJpY29uXCIgaHJlZj1cIiR7b3B0cz8uZmF2aWNvbiB8fCBmYXZpY29ufVwiIC8+XG4gICAgICA8c3R5bGU+XG4gICAgICAgICR7Y3NzfVxuICAgICAgPC9zdHlsZT5cbiAgICA8L2hlYWQ+XG4gICAgPGJvZHkgaWQ9XCJib2R5XCIgY2xhc3M9XCJuby1mb2N1cy1vdXRsaW5lXCI+XG4gICAgICA8bm9zY3JpcHQ+WW91IG5lZWQgdG8gZW5hYmxlIEphdmFTY3JpcHQgdG8gcnVuIHRoaXMgYXBwLjwvbm9zY3JpcHQ+XG4gICAgICA8ZGl2IGlkPVwicm9vdFwiPjwvZGl2PlxuXG4gICAgICA8c2NyaXB0PlxuICAgICAgICBmdW5jdGlvbiBwcmVwYXJlQmxvYih3b3JrZXJDb250ZW50KSB7XG4gICAgICAgICAgY29uc3QgYmxvYiA9IG5ldyBCbG9iKFt3b3JrZXJDb250ZW50XSwgeyB0eXBlOiAnYXBwbGljYXRpb24vamF2YXNjcmlwdCcgfSk7XG4gICAgICAgICAgcmV0dXJuIFVSTC5jcmVhdGVPYmplY3RVUkwoYmxvYik7XG4gICAgICAgIH1cbiAgICAgICAgY29uc3Qgd29ya2VycyA9IHtcbiAgICAgICAgICBlZGl0b3JXb3JrZXJTZXJ2aWNlOiBwcmVwYXJlQmxvYigke0pTT04uc3RyaW5naWZ5KGVkaXRvcldvcmtlclNlcnZpY2UpfSksXG4gICAgICAgICAganNvbjogcHJlcGFyZUJsb2IoJHtKU09OLnN0cmluZ2lmeShqc29uV29ya2VyKX0pLFxuICAgICAgICAgIGdyYXBocWw6IHByZXBhcmVCbG9iKCR7SlNPTi5zdHJpbmdpZnkoZ3JhcGhxbFdvcmtlcil9KSxcbiAgICAgICAgfTtcbiAgICAgICAgc2VsZlsnTW9uYWNvRW52aXJvbm1lbnQnXSA9IHtcbiAgICAgICAgICBnbG9iYWxBUEk6IGZhbHNlLFxuICAgICAgICAgIGdldFdvcmtlclVybDogZnVuY3Rpb24gKG1vZHVsZUlkLCBsYWJlbCkge1xuICAgICAgICAgICAgcmV0dXJuIHdvcmtlcnNbbGFiZWxdO1xuICAgICAgICAgIH0sXG4gICAgICAgIH07XG4gICAgICAgICR7anN9O1xuICAgICAgICBZb2dhR3JhcGhpUUwucmVuZGVyWW9nYUdyYXBoaVFMKFxuICAgICAgICAgIHdpbmRvdy5kb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjcm9vdCcpLFxuICAgICAgICAgICR7SlNPTi5zdHJpbmdpZnkob3B0cyA/PyB7fSl9LFxuICAgICAgICApO1xuICAgICAgPC9zY3JpcHQ+XG4gICAgPC9ib2R5PlxuICA8L2h0bWw+XG5gO1xuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFDQSxJQUFBQSxTQUFBLEdBQUFDLE9BQUE7QUFFTyxNQUFNQyxjQUFjLEdBQUlDLElBQXNCLElBQUssVUFBVztBQUNyRTtBQUNBO0FBQ0E7QUFDQTtBQUNBLGVBQWVBLElBQUksRUFBRUMsS0FBSyxJQUFJLGVBQWU7QUFDN0MsK0JBQStCRCxJQUFJLEVBQUVFLE9BQU8sSUFBSUEsaUJBQU87QUFDdkQ7QUFDQSxVQUFVQyxhQUFHO0FBQ2I7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsNkNBQTZDQyxJQUFJLENBQUNDLFNBQVMsQ0FBQ0MsNkJBQW1CLENBQUM7QUFDaEYsOEJBQThCRixJQUFJLENBQUNDLFNBQVMsQ0FBQ0Usb0JBQVUsQ0FBQztBQUN4RCxpQ0FBaUNILElBQUksQ0FBQ0MsU0FBUyxDQUFDRyx1QkFBYSxDQUFDO0FBQzlEO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsVUFBVUMsWUFBRTtBQUNaO0FBQ0E7QUFDQSxZQUFZTCxJQUFJLENBQUNDLFNBQVMsQ0FBQ0wsSUFBSSxJQUFJLENBQUMsQ0FBQyxDQUFDO0FBQ3RDO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsQ0FBQztBQUFDVSxPQUFBLENBQUFYLGNBQUEsR0FBQUEsY0FBQSIsImlnbm9yZUxpc3QiOltdfQ==

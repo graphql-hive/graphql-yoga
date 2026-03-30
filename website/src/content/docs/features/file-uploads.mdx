@@ -95,6 +95,56 @@ to prevent Yoga from handling multipart requests.
 createYoga({ multipart: false })
 ```
 
+## Processing File Uploads as Streams (Node.js)
+
+By default, GraphQL Yoga buffers each uploaded file into memory before making it available to
+resolvers as a `File` object. For large files this can exhaust server memory.
+
+You can enable **streaming mode** by setting `multipart: { stream: true }`. In this mode each file
+variable is backed by a live `ReadableStream` coming directly from the network – no buffering occurs
+until your resolver actually reads the data.
+
+```ts
+import { createServer } from 'http'
+import { createWriteStream } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
+import { createYoga } from 'graphql-yoga'
+
+const yoga = createYoga({
+  multipart: { stream: true },
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      scalar File
+      type Mutation {
+        uploadFile(file: File!): Boolean!
+      }
+    `,
+    resolvers: {
+      Mutation: {
+        uploadFile: async (_, { file }: { file: File }) => {
+          // file.stream() returns a ReadableStream – pipe it directly to disk
+          // without ever loading the full file into memory.
+          const { Readable } = await import('node:stream')
+          await pipeline(Readable.fromWeb(file.stream()), createWriteStream('/tmp/' + file.name))
+          return true
+        }
+      }
+    }
+  })
+})
+
+createServer(yoga).listen(4000)
+```
+
+### Notes on streaming mode
+
+- **Stream can only be read once.** Calling `.stream()`, `.arrayBuffer()`, or `.text()` more than
+  once on the same file will throw an error.
+- **Backpressure is respected.** If the resolver reads slowly, the TCP connection will naturally
+  slow down.
+- **Only available in Node.js.** In edge runtimes the standard `request.formData()` path is used
+  regardless of this option.
+
 ## Configuring Multipart Request Processing (only for Node.js)
 
 In Node.js, you can configure the limits of the multipart request processing such as maximum allowed

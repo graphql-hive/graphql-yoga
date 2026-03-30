@@ -85,6 +85,26 @@ import {
 import { maskError } from './utils/mask-error.js';
 
 /**
+ * Configuration options for multipart request processing
+ */
+export type MultipartOptions = {
+  /**
+   * When enabled, file uploads are provided as streaming `File`-like objects
+   * whose `.stream()` method returns a live `ReadableStream` from the network,
+   * so the file data is never fully buffered into memory.
+   *
+   * The stream can only be consumed **once**.  Calling `.arrayBuffer()` or
+   * `.text()` is still supported – those methods will drain the stream and
+   * collect the bytes for you.
+   *
+   * Only available in Node.js environments.
+   *
+   * @default false
+   */
+  stream?: boolean | undefined;
+};
+
+/**
  * Configuration options for the server
  */
 export type YogaServerOptions<TServerContext, TUserContext> = Omit<
@@ -172,7 +192,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    *
    * @default true
    */
-  multipart?: boolean | undefined;
+  multipart?: boolean | MultipartOptions | undefined;
   id?: string | undefined;
   /**
    * Batching RFC Support configuration
@@ -361,7 +381,11 @@ export class YogaServer<
       options?.multipart !== false &&
         useRequestParser({
           match: isPOSTMultipartRequest,
-          parse: parsePOSTMultipartRequest,
+          parse: (request: Request) =>
+            parsePOSTMultipartRequest(
+              request,
+              typeof options?.multipart === 'object' && options.multipart.stream === true,
+            ),
         }),
 
       useRequestParser({
