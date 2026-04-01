@@ -1,5 +1,4 @@
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
-import 'reflect-metadata';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useApolloDataSources } from '../src/index.js';

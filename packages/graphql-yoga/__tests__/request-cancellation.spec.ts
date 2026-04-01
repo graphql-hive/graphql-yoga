@@ -141,7 +141,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     const iterator = response.body![Symbol.asyncIterator]();
     // first we will always get a ping/keep alive for flushed headers
     const next = await iterator.next();
-    expect(Buffer.from(next.value).toString('utf-8')).toMatchInlineSnapshot(`
+    expect(Buffer.from(next.value!).toString('utf-8')).toMatchInlineSnapshot(`
 ":
 
 "

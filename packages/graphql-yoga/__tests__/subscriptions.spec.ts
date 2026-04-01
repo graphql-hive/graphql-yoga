@@ -107,7 +107,7 @@ describe('Subscription', () => {
       }),
     });
 
-    const iterator = response.body![Symbol.asyncIterator]();
+    const iterator = response.body![Symbol.asyncIterator]() as AsyncIterator<Uint8Array>;
 
     const results = [];
     let value: Uint8Array;
