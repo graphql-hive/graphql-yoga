@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.19.0
+
+### Minor Changes
+
+- [#4425](https://github.com/graphql-hive/graphql-yoga/pull/4425)
+  [`7e0aaf6`](https://github.com/graphql-hive/graphql-yoga/commit/7e0aaf63ab4abc8e3f76f53898c8a85de60c641b)
+  Thanks [@ardatan](https://github.com/ardatan)! - Update TypeScript to v6, and remove
+  \`ReadableStream\`'s \`AsyncIterable\` typings
+
 ## 5.18.1
 
 ### Patch Changes
