@@ -5,7 +5,7 @@ import { createSchema, createYoga } from 'graphql-yoga';
 const yoga = createYoga<{
   event: LambdaFunctionURLEvent;
   lambdaContext: Context;
-  res: awslambda.ResponseStream;
+  res: awslambda.HttpResponseStream;
 }>({
   schema: createSchema({
     typeDefs: /* GraphQL */ `

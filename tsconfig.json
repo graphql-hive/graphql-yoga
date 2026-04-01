@@ -33,7 +33,10 @@
       "@envelop/instrumentation": ["packages/envelop/instrumentation/src/index.ts"],
       "@envelop/*": ["packages/envelop/plugins/*/src/index.ts"],
       "@graphql-yoga/*": ["packages/*/src/index.ts"]
-    }
+    },
+    "types": ["node", "jest"],
+    "ignoreDeprecations": "6.0",
+    "rootDir": "."
   },
   "include": ["packages"],
   "exclude": [

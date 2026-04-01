@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "commonjs",
-    "lib": ["es2018"],
+    "lib": ["es2018", "dom"],
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -18,7 +18,11 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "types": ["aws-lambda", "node"],
+    "paths": {
+      "graphql-yoga": ["../../packages/graphql-yoga/src/index.ts"]
+    }
   },
   "exclude": ["cdk.out"]
 }

@@ -40,12 +40,6 @@ export type CORSOptions =
     }
   | false;
 
-declare global {
-  interface ReadableStream<R = any> {
-    [Symbol.asyncIterator]: () => AsyncIterator<R>;
-  }
-}
-
 declare module 'graphql' {
   interface GraphQLHTTPErrorExtensions {
     spec?: boolean;
