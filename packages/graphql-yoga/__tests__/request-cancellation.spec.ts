@@ -138,7 +138,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
       signal: abortController.signal,
     });
     expect(response.status).toBe(200);
-    const iterator = response.body![Symbol.asyncIterator]();
+    const iterator = response.body![Symbol.asyncIterator]() as AsyncIterator<Uint8Array>;
     // first we will always get a ping/keep alive for flushed headers
     const next = await iterator.next();
     expect(Buffer.from(next.value!).toString('utf-8')).toMatchInlineSnapshot(`
@@ -238,7 +238,7 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
       signal: abortController.signal,
     });
     expect(response.status).toEqual(200);
-    const iterator = response.body![Symbol.asyncIterator]();
+    const iterator = response.body![Symbol.asyncIterator]() as AsyncIterator<Uint8Array>;
     let payload = '';
 
     // Shitty wait condition, but it works lol

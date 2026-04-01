@@ -59,7 +59,7 @@ export async function startApp(port: number) {
       );
 
       const res = h.response(
-        Readable.from(body, {
+        Readable.from(body!, {
           // hapi needs the stream not to be in object mode
           objectMode: false,
         }),

@@ -21,6 +21,7 @@ import { pageMap as v3PageMap } from './v3/[[...slug]]/page';
 import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
+//@ts-expect-error - no types for this package
 import './global.css';
 import { Metadata } from 'next';
 

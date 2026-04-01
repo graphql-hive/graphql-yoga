@@ -1,7 +1,10 @@
 import { createSchema, createYoga, Repeater } from 'graphql-yoga';
 
+// @ts-expect-error - We know this global variable is set by the bundler
+const graphqlEndpoint: string = globalThis.GRAPHQL_ROUTE || '/graphql';
+
 const yoga = createYoga({
-  graphqlEndpoint: globalThis.GRAPHQL_ROUTE || '/graphql',
+  graphqlEndpoint,
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {

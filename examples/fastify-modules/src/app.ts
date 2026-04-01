@@ -22,7 +22,7 @@ export function createGraphQLHandler(): RouteHandlerMethod & {
     plugins: [useGraphQLModules(createGraphQLApp())],
   });
 
-  const handler = async (req, reply) => {
+  const handler = async (req: FastifyRequest, reply: FastifyReply) => {
     const response = await graphQLServer.handleNodeRequestAndResponse(req, reply, {
       req,
       reply,

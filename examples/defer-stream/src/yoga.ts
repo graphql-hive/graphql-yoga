@@ -3,27 +3,6 @@ import { createSchema, createYoga } from 'graphql-yoga';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 
-const typeDefs = /* GraphQL */ `
-  type Query {
-    """
-    Resolves the alphabet slowly. 1 character per second
-    Maybe you want to @stream this field ;)
-    """
-    alphabet(waitFor: Int! = 1000): [String]
-
-    """
-    A field that resolves fast.
-    """
-    fastField: String!
-
-    """
-    A field that resolves slowly.
-    Maybe you want to @defer this field ;)
-    """
-    slowField(waitFor: Int! = 5000): String
-  }
-`;
-
 const alphabet = [
   'a',
   'b',
@@ -53,29 +32,46 @@ const alphabet = [
   'z',
 ];
 
-const resolvers = {
-  Query: {
-    async *alphabet(_, { waitFor }) {
-      for (const character of alphabet) {
-        yield character;
-        await setTimeout$(waitFor);
-      }
-    },
-    fastField: async () => {
-      await setTimeout$(100);
-      return 'I am speed';
-    },
-    slowField: async (_, { waitFor }) => {
-      await setTimeout$(waitFor);
-      return 'I am slow';
-    },
-  },
-};
-
 export const yoga = createYoga({
   schema: createSchema({
-    typeDefs,
-    resolvers,
+    typeDefs: /* GraphQL */ `
+      type Query {
+        """
+        Resolves the alphabet slowly. 1 character per second
+        Maybe you want to @stream this field ;)
+        """
+        alphabet(waitFor: Int! = 1000): [String]
+
+        """
+        A field that resolves fast.
+        """
+        fastField: String!
+
+        """
+        A field that resolves slowly.
+        Maybe you want to @defer this field ;)
+        """
+        slowField(waitFor: Int! = 5000): String
+      }
+    `,
+    resolvers: {
+      Query: {
+        async *alphabet(_, { waitFor }) {
+          for (const character of alphabet) {
+            yield character;
+            await setTimeout$(waitFor);
+          }
+        },
+        fastField: async () => {
+          await setTimeout$(100);
+          return 'I am speed';
+        },
+        slowField: async (_, { waitFor }) => {
+          await setTimeout$(waitFor);
+          return 'I am slow';
+        },
+      },
+    },
   }),
   plugins: [useDeferStream()],
   renderGraphiQL,
