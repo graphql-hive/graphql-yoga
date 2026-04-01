@@ -12,6 +12,7 @@ import {
   YogaIcon,
 } from '@theguild/components';
 import { getPageMap, HiveLayout } from '@theguild/components/server';
+//@ts-expect-error - no types for this package
 import '@theguild/components/style.css';
 import { pageMap as changelogsPageMap } from './changelogs/[...slug]/page';
 import { rootMetadata, websiteDescription } from './metadata';

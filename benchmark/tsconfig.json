@@ -3,9 +3,12 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "dist",
-    "target": "ES2019",
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
     "rootDir": "."
   },
   "include": ["./start-server.ts"],
