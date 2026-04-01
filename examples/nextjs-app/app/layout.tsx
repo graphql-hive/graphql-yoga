@@ -1,3 +1,4 @@
+//@ts-expect-error - We know .css files
 import './globals.css';
 import { Inter } from 'next/font/google';
 

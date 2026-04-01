@@ -4,7 +4,7 @@ import { createYoga } from 'graphql-yoga';
 import { App } from 'uWebSockets.js';
 import { useGraphQlJit } from '@envelop/graphql-jit';
 import { useResponseCache } from '@graphql-yoga/plugin-response-cache';
-import { Context, schema } from './schema.js';
+import { schema, type Context } from './schema.ts';
 
 const basicYoga = createYoga<Context>({
   schema,
@@ -61,13 +61,13 @@ const server = createServer((req, res) => {
 });
 
 server.listen(4000, () => {
-  console.log('ready');
+  console.log('node:http server ready');
 });
 
 App()
   .any('/*', basicYoga)
   .listen(4001, listenSocket => {
     if (listenSocket) {
-      console.log('ready');
+      console.log('uWebSockets.js server ready');
     }
   });

@@ -22,6 +22,7 @@ export default {
       schema,
     });
 
+    // @ts-expect-error - We want to test the `fetch` function with the `env` and `rest` parameters.
     return yoga.fetch(request, env, ...rest);
   },
 };

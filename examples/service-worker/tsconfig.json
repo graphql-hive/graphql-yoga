@@ -6,7 +6,10 @@
     "lib": ["esnext", "webworker"],
     "moduleResolution": "node",
     "sourceMap": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "types": ["node", "jest"],
+    "rootDir": "."
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "__integration-tests__"]

@@ -49,6 +49,7 @@ function useDisableSubscription(): Plugin<
 > {
   return {
     onSubscribe({ args }) {
+      // @ts-expect-error - we know the context value has this shape
       if (args.contextValue.disableSubscription) {
         throw createGraphQLError('Subscriptions have been disabled', {
           extensions: {

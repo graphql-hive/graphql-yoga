@@ -1,18 +1,19 @@
+import { Resolvers } from 'graphql-modules';
 import { BasicProvider } from './providers';
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   Query: {
     hello: () => 'world',
-    contextKeys: (root, args, { injector }: GraphQLModules.AppContext) => {
+    contextKeys: (_: never, __: never, { injector }: GraphQLModules.AppContext) => {
       return injector.get(BasicProvider).getContextKeys();
     },
   },
   Subscription: {
     countdown: {
-      subscribe(_, { from }, { injector }: GraphQLModules.AppContext) {
+      subscribe(_: never, { from }: { from: number }, { injector }: GraphQLModules.AppContext) {
         return injector.get(BasicProvider).getCountdown(from);
       },
-      resolve(countdown) {
+      resolve(countdown: number) {
         return { countdown };
       },
     },

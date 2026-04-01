@@ -1,4 +1,6 @@
+// @ts-expect-error - we know this exists
 import 'graphiql/style.css';
+// @ts-expect-error - we know this exists
 import '@graphiql/plugin-explorer/style.css';
 import { GraphiQL, GraphiQLProps } from 'graphiql';
 import { DocumentNode, Kind, parse } from 'graphql';
@@ -8,6 +10,7 @@ import { LoadFromUrlOptions, SubscriptionProtocol, UrlLoader } from '@graphql-to
 import 'json-bigint-patch';
 import React, { useMemo } from 'react';
 import { YogaLogo } from './YogaLogo';
+// @ts-expect-error - we know this exists
 import './styles.css';
 
 const getOperationWithFragments = (

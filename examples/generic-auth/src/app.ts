@@ -21,7 +21,7 @@ const users: Record<string, User> = {
   },
 };
 
-export const yoga = createYoga<unknown, { currentUser: User }>({
+export const yoga = createYoga<any, { currentUser: User }>({
   plugins: [
     useGenericAuth({
       mode: 'protect-granular',
