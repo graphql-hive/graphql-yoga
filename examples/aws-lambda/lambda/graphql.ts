@@ -1,4 +1,3 @@
-import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import type { Context, LambdaFunctionURLEvent } from 'aws-lambda';
 import { createSchema, createYoga } from 'graphql-yoga';
@@ -51,7 +50,7 @@ export const handler = awslambda.streamifyResponse(async function handler(
 
   // Pipe the response body to the response stream
   if (response.body) {
-    await pipeline(Readable.fromWeb(response.body), res);
+    await pipeline(response.body as any, res);
   }
 
   // End the response stream
