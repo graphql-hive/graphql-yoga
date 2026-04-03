@@ -34,27 +34,22 @@ export const defaultRenderLandingPage: LandingPageRenderer = function defaultRen
 };
 
 export function useUnhandledRoute(args: {
-  graphqlEndpoint: string;
+  getGraphQLEndpoint(): string;
+  getGraphQLEndpointURLPattern(): URLPattern;
   landingPageRenderer?: LandingPageRenderer;
   showLandingPage: boolean;
 }): Plugin {
-  let urlPattern: URLPattern;
-  function getUrlPattern({ URLPattern }: FetchAPI) {
-    urlPattern ||= new URLPattern({
-      pathname: args.graphqlEndpoint,
-    });
-    return urlPattern;
-  }
   const landingPageRenderer: LandingPageRenderer =
     args.landingPageRenderer || defaultRenderLandingPage;
   return {
     onRequest({ request, fetchAPI, endResponse, url }): PromiseOrValue<void> {
+      const graphqlEndpoint = args.getGraphQLEndpoint();
       if (
-        !request.url.endsWith(args.graphqlEndpoint) &&
-        !request.url.endsWith(`${args.graphqlEndpoint}/`) &&
-        url.pathname !== args.graphqlEndpoint &&
-        url.pathname !== `${args.graphqlEndpoint}/` &&
-        !getUrlPattern(fetchAPI).test(url)
+        !request.url.endsWith(graphqlEndpoint) &&
+        !request.url.endsWith(`${graphqlEndpoint}/`) &&
+        url.pathname !== graphqlEndpoint &&
+        url.pathname !== `${graphqlEndpoint}/` &&
+        !args.getGraphQLEndpointURLPattern().test(url)
       ) {
         if (
           args.showLandingPage === true &&
@@ -65,9 +60,9 @@ export function useUnhandledRoute(args: {
             request,
             fetchAPI,
             url,
-            graphqlEndpoint: args.graphqlEndpoint,
+            graphqlEndpoint,
             get urlPattern() {
-              return getUrlPattern(fetchAPI);
+              return args.getGraphQLEndpointURLPattern();
             },
           });
           if (isPromise(landingPage$)) {

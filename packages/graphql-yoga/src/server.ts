@@ -231,7 +231,6 @@ export class YogaServer<
    */
   public readonly getEnveloped: GetEnvelopedFn<TUserContext & TServerContext & YogaInitialContext>;
   public logger: YogaLogger;
-  public readonly graphqlEndpoint: string;
   public fetchAPI: FetchAPI;
   protected plugins: Array<
     Plugin<TUserContext & TServerContext & YogaInitialContext, TServerContext, TUserContext>
@@ -245,6 +244,10 @@ export class YogaServer<
   private onResultProcessHooks: OnResultProcess<TServerContext>[];
   private maskedErrorsOpts: YogaMaskedErrorOpts | null;
   private id: string;
+
+  // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
+  private _graphqlEndpoint: string;
+  private _graphqlEndpointURLPattern: URLPattern | undefined;
 
   readonly version = '__YOGA_VERSION__';
 
@@ -311,7 +314,6 @@ export class YogaServer<
     }
 
     this.graphqlEndpoint = options?.graphqlEndpoint || '/graphql';
-    const graphqlEndpoint = this.graphqlEndpoint;
 
     this.plugins = [
       useEngine({
@@ -344,7 +346,8 @@ export class YogaServer<
       options?.cors !== false && useCORS(options?.cors),
       options?.graphiql !== false &&
         useGraphiQL({
-          graphqlEndpoint,
+          getGraphQLEndpoint: () => this._graphqlEndpoint,
+          getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
           options: options?.graphiql,
           render: options?.renderGraphiQL,
           logger: this.logger,
@@ -386,7 +389,8 @@ export class YogaServer<
       useLimitBatching(batchingLimit),
       useCheckGraphQLQueryParams(options?.extraParamNames),
       useUnhandledRoute({
-        graphqlEndpoint,
+        getGraphQLEndpoint: () => this.graphqlEndpoint,
+        getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
         showLandingPage: options?.landingPage !== false,
         landingPageRenderer:
           typeof options?.landingPage === 'function' ? options.landingPage : undefined,
@@ -454,6 +458,22 @@ export class YogaServer<
         }
       }
     }
+  }
+
+  get graphqlEndpoint() {
+    return this._graphqlEndpoint;
+  }
+
+  set graphqlEndpoint(endpoint: string) {
+    this._graphqlEndpoint = endpoint;
+    this._graphqlEndpointURLPattern = undefined;
+  }
+
+  private getUrlPatternForGraphQLEndpoint() {
+    this._graphqlEndpointURLPattern ??= new this.fetchAPI.URLPattern({
+      pathname: this._graphqlEndpoint,
+    });
+    return this._graphqlEndpointURLPattern;
   }
 
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {

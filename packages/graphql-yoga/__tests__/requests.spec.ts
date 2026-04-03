@@ -1,6 +1,6 @@
 import { OnExecuteHook } from '@envelop/core';
 import { Request } from '@whatwg-node/fetch';
-import { createSchema, createYoga, YogaInitialContext } from '../src';
+import { createGraphQLError, createSchema, createYoga, YogaInitialContext } from '../src';
 
 describe('requests', () => {
   const schema = createSchema({
@@ -551,5 +551,89 @@ describe('requests', () => {
     expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue).not.toBe(
       onExecuteFn.mock.calls[0]![0].args.contextValue,
     );
+  });
+  it('allows you to change the graphql endpoint after the initialization', async () => {
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      graphqlEndpoint: '/graphql',
+      plugins: [
+        {
+          onYogaInit({ yoga }) {
+            yoga.graphqlEndpoint = '/new-endpoint';
+          },
+        },
+      ],
+    });
+    const response = await yoga.fetch('http://yoga/new-endpoint', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.errors).toBeUndefined();
+    expect(body.data.ping).toBe('pong');
+
+    // Old endpoint should not work
+    const oldResponse = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+
+    expect(oldResponse.status).toBe(404);
+  });
+  it('allows you to extend the existing endpoint with a pattern', async () => {
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      plugins: [
+        {
+          onYogaInit({ yoga }) {
+            yoga.graphqlEndpoint = `/(graphql|mcp)`;
+          },
+          onRequestParse({ url, setRequestParser }) {
+            if (url.pathname === '/mcp') {
+              setRequestParser(async req => {
+                const body = await req.json();
+                if (body.ping === true) {
+                  return {
+                    query: '{ ping }',
+                  };
+                }
+                throw createGraphQLError('Invalid request body', {
+                  extensions: {
+                    code: 'BAD_REQUEST',
+                  },
+                });
+              });
+            }
+          },
+        },
+      ],
+    });
+    const response = await yoga.fetch('http://yoga/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ping: true }),
+    });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.errors).toBeUndefined();
+    expect(body.data.ping).toBe('pong');
+
+    // Old endpoint should still work
+    const oldResponse = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+
+    expect(oldResponse.status).toBe(200);
+    const oldBody = await oldResponse.json();
+    expect(oldBody.errors).toBeUndefined();
+    expect(oldBody.data.ping).toBe('pong');
   });
 });
