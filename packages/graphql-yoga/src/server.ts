@@ -231,7 +231,7 @@ export class YogaServer<
    */
   public readonly getEnveloped: GetEnvelopedFn<TUserContext & TServerContext & YogaInitialContext>;
   public logger: YogaLogger;
-  public readonly graphqlEndpoint: string;
+  public graphqlEndpoint: string;
   public fetchAPI: FetchAPI;
   protected plugins: Array<
     Plugin<TUserContext & TServerContext & YogaInitialContext, TServerContext, TUserContext>
@@ -245,6 +245,12 @@ export class YogaServer<
   private onResultProcessHooks: OnResultProcess<TServerContext>[];
   private maskedErrorsOpts: YogaMaskedErrorOpts | null;
   private id: string;
+  private _graphqlEndpointURLPattern:
+    | {
+        graphqlEndpoint: string;
+        urlPattern: URLPattern;
+      }
+    | undefined;
 
   readonly version = '__YOGA_VERSION__';
 
@@ -311,7 +317,6 @@ export class YogaServer<
     }
 
     this.graphqlEndpoint = options?.graphqlEndpoint || '/graphql';
-    const graphqlEndpoint = this.graphqlEndpoint;
 
     this.plugins = [
       useEngine({
@@ -344,7 +349,7 @@ export class YogaServer<
       options?.cors !== false && useCORS(options?.cors),
       options?.graphiql !== false &&
         useGraphiQL({
-          graphqlEndpoint,
+          getGraphQLEndpoint: () => this.graphqlEndpoint,
           options: options?.graphiql,
           render: options?.renderGraphiQL,
           logger: this.logger,
@@ -386,7 +391,8 @@ export class YogaServer<
       useLimitBatching(batchingLimit),
       useCheckGraphQLQueryParams(options?.extraParamNames),
       useUnhandledRoute({
-        graphqlEndpoint,
+        getGraphQLEndpoint: () => this.graphqlEndpoint,
+        getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
         showLandingPage: options?.landingPage !== false,
         landingPageRenderer:
           typeof options?.landingPage === 'function' ? options.landingPage : undefined,
@@ -454,6 +460,18 @@ export class YogaServer<
         }
       }
     }
+  }
+
+  getUrlPatternForGraphQLEndpoint() {
+    if (this._graphqlEndpointURLPattern?.graphqlEndpoint !== this.graphqlEndpoint) {
+      this._graphqlEndpointURLPattern = {
+        graphqlEndpoint: this.graphqlEndpoint,
+        urlPattern: new this.fetchAPI.URLPattern({
+          pathname: this.graphqlEndpoint,
+        }),
+      };
+    }
+    return this._graphqlEndpointURLPattern.urlPattern;
   }
 
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
