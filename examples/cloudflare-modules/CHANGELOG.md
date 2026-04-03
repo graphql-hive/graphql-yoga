@@ -1,5 +1,13 @@
 # cloudflare
 
+## 3.20.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`93f1dc0`](https://github.com/graphql-hive/graphql-yoga/commit/93f1dc0d7231372b86450ab6aefd7e15df32a8c2)]:
+  - graphql-yoga@5.20.0
+
 ## 3.19.0
 
 ### Patch Changes
