@@ -247,8 +247,7 @@ export class YogaServer<
 
   // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
   private _graphqlEndpoint: string;
-  // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
-  private _graphqlEndpointURLPattern: URLPattern;
+  private _graphqlEndpointURLPattern: URLPattern | undefined;
 
   readonly version = '__YOGA_VERSION__';
 
@@ -348,7 +347,7 @@ export class YogaServer<
       options?.graphiql !== false &&
         useGraphiQL({
           getGraphQLEndpoint: () => this._graphqlEndpoint,
-          getGraphQLEndpointURLPattern: () => this._graphqlEndpointURLPattern,
+          getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
           options: options?.graphiql,
           render: options?.renderGraphiQL,
           logger: this.logger,
@@ -391,7 +390,7 @@ export class YogaServer<
       useCheckGraphQLQueryParams(options?.extraParamNames),
       useUnhandledRoute({
         getGraphQLEndpoint: () => this.graphqlEndpoint,
-        getGraphQLEndpointURLPattern: () => this._graphqlEndpointURLPattern,
+        getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
         showLandingPage: options?.landingPage !== false,
         landingPageRenderer:
           typeof options?.landingPage === 'function' ? options.landingPage : undefined,
@@ -467,7 +466,14 @@ export class YogaServer<
 
   set graphqlEndpoint(endpoint: string) {
     this._graphqlEndpoint = endpoint;
-    this._graphqlEndpointURLPattern = new this.fetchAPI.URLPattern({ pathname: endpoint });
+    this._graphqlEndpointURLPattern = undefined;
+  }
+
+  private getUrlPatternForGraphQLEndpoint() {
+    this._graphqlEndpointURLPattern ??= new this.fetchAPI.URLPattern({
+        pathname: this._graphqlEndpoint,
+      });
+    return this._graphqlEndpointURLPattern;
   }
 
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
