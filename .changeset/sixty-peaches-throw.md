@@ -2,7 +2,7 @@
 'graphql-yoga': minor
 ---
 
-Support to change `graphqlEndpoint` after the initialization;
+Support changing `graphqlEndpoint` after initialization;
 
 ```ts
 const yoga = createYoga({
