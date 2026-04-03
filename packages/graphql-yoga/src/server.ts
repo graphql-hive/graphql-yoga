@@ -350,6 +350,7 @@ export class YogaServer<
       options?.graphiql !== false &&
         useGraphiQL({
           getGraphQLEndpoint: () => this.graphqlEndpoint,
+          getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
           options: options?.graphiql,
           render: options?.renderGraphiQL,
           logger: this.logger,
@@ -462,7 +463,7 @@ export class YogaServer<
     }
   }
 
-  getUrlPatternForGraphQLEndpoint() {
+  private getUrlPatternForGraphQLEndpoint() {
     if (this._graphqlEndpointURLPattern?.graphqlEndpoint !== this.graphqlEndpoint) {
       this._graphqlEndpointURLPattern = {
         graphqlEndpoint: this.graphqlEndpoint,
