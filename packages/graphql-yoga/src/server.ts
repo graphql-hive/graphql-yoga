@@ -231,7 +231,6 @@ export class YogaServer<
    */
   public readonly getEnveloped: GetEnvelopedFn<TUserContext & TServerContext & YogaInitialContext>;
   public logger: YogaLogger;
-  public graphqlEndpoint: string;
   public fetchAPI: FetchAPI;
   protected plugins: Array<
     Plugin<TUserContext & TServerContext & YogaInitialContext, TServerContext, TUserContext>
@@ -245,12 +244,11 @@ export class YogaServer<
   private onResultProcessHooks: OnResultProcess<TServerContext>[];
   private maskedErrorsOpts: YogaMaskedErrorOpts | null;
   private id: string;
-  private _graphqlEndpointURLPattern:
-    | {
-        graphqlEndpoint: string;
-        urlPattern: URLPattern;
-      }
-    | undefined;
+
+  // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
+  private _graphqlEndpoint: string;
+  // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
+  private _graphqlEndpointURLPattern: URLPattern;
 
   readonly version = '__YOGA_VERSION__';
 
@@ -349,8 +347,8 @@ export class YogaServer<
       options?.cors !== false && useCORS(options?.cors),
       options?.graphiql !== false &&
         useGraphiQL({
-          getGraphQLEndpoint: () => this.graphqlEndpoint,
-          getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
+          getGraphQLEndpoint: () => this._graphqlEndpoint,
+          getGraphQLEndpointURLPattern: () => this._graphqlEndpointURLPattern,
           options: options?.graphiql,
           render: options?.renderGraphiQL,
           logger: this.logger,
@@ -393,7 +391,7 @@ export class YogaServer<
       useCheckGraphQLQueryParams(options?.extraParamNames),
       useUnhandledRoute({
         getGraphQLEndpoint: () => this.graphqlEndpoint,
-        getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
+        getGraphQLEndpointURLPattern: () => this._graphqlEndpointURLPattern,
         showLandingPage: options?.landingPage !== false,
         landingPageRenderer:
           typeof options?.landingPage === 'function' ? options.landingPage : undefined,
@@ -463,16 +461,13 @@ export class YogaServer<
     }
   }
 
-  private getUrlPatternForGraphQLEndpoint() {
-    if (this._graphqlEndpointURLPattern?.graphqlEndpoint !== this.graphqlEndpoint) {
-      this._graphqlEndpointURLPattern = {
-        graphqlEndpoint: this.graphqlEndpoint,
-        urlPattern: new this.fetchAPI.URLPattern({
-          pathname: this.graphqlEndpoint,
-        }),
-      };
-    }
-    return this._graphqlEndpointURLPattern.urlPattern;
+  get graphqlEndpoint() {
+    return this._graphqlEndpoint;
+  }
+
+  set graphqlEndpoint(endpoint: string) {
+    this._graphqlEndpoint = endpoint;
+    this._graphqlEndpointURLPattern = new this.fetchAPI.URLPattern({ pathname: endpoint });
   }
 
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
