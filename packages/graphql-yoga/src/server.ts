@@ -471,8 +471,8 @@ export class YogaServer<
 
   private getUrlPatternForGraphQLEndpoint() {
     this._graphqlEndpointURLPattern ??= new this.fetchAPI.URLPattern({
-        pathname: this._graphqlEndpoint,
-      });
+      pathname: this._graphqlEndpoint,
+    });
     return this._graphqlEndpointURLPattern;
   }
 
