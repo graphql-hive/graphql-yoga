@@ -2,7 +2,6 @@ import { PromiseOrValue } from '@envelop/core';
 import { YogaLogger } from '@graphql-yoga/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
-import { FetchAPI } from '../types.js';
 import { Plugin } from './types.js';
 
 export function shouldRenderGraphiQL({ headers, method }: Request): boolean {
@@ -159,6 +158,7 @@ export type GraphiQLOptionsOrFactory<TServerContext> =
 
 export interface GraphiQLPluginConfig<TServerContext> {
   getGraphQLEndpoint(): string;
+  getGraphQLEndpointURLPattern(): URLPattern;
   options?: GraphiQLOptionsOrFactory<TServerContext>;
   render?: GraphiQLRenderer;
   logger?: YogaLogger;
@@ -184,17 +184,6 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
   }
 
   const renderer = config?.render ?? renderGraphiQL;
-  let urlPattern: URLPattern;
-  let graphqlEndpointForUrlPattern: string | undefined;
-  const getUrlPattern = ({ URLPattern }: FetchAPI, graphqlEndpoint: string) => {
-    if (graphqlEndpointForUrlPattern !== graphqlEndpoint) {
-      graphqlEndpointForUrlPattern = graphqlEndpoint;
-      urlPattern = new URLPattern({
-        pathname: graphqlEndpoint,
-      });
-    }
-    return urlPattern;
-  };
   return {
     onRequest({ request, serverContext, fetchAPI, endResponse, url }) {
       const graphqlEndpoint = config.getGraphQLEndpoint();
@@ -204,7 +193,7 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
           request.url.endsWith(`${graphqlEndpoint}/`) ||
           url.pathname === graphqlEndpoint ||
           url.pathname === `${graphqlEndpoint}/` ||
-          getUrlPattern(fetchAPI, graphqlEndpoint).test(url))
+          config.getGraphQLEndpointURLPattern().test(url))
       ) {
         logger.debug(`Rendering GraphiQL`);
         return handleMaybePromise(
