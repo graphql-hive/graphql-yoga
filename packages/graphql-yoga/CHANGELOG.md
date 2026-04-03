@@ -1,5 +1,32 @@
 # graphql-yoga
 
+## 5.20.0
+
+### Minor Changes
+
+- [#4428](https://github.com/graphql-hive/graphql-yoga/pull/4428)
+  [`93f1dc0`](https://github.com/graphql-hive/graphql-yoga/commit/93f1dc0d7231372b86450ab6aefd7e15df32a8c2)
+  Thanks [@ardatan](https://github.com/ardatan)! - Support changing `graphqlEndpoint` after
+  initialization;
+
+  ```ts
+  const yoga = createYoga({
+    schema,
+    logging: false,
+    plugins: [
+      {
+        onYogaInit({ yoga }) {
+          // Inside the plugin
+          yoga.graphqlEndpoint = `/(graphql|my-custom-path)`
+        }
+      }
+    ]
+  })
+
+  // Or after the initialization
+  yoga.graphqlEndpoint = `/(graphql|my-custom-path)`
+  ```
+
 ## 5.19.0
 
 ### Minor Changes
