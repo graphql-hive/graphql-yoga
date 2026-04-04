@@ -82,6 +82,7 @@ import {
   YogaInitialContext,
   YogaMaskedErrorOpts,
 } from './types.js';
+import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
 
 /**
@@ -612,13 +613,14 @@ export class YogaServer<
     }) as URL;
 
     let requestParser: RequestParser | undefined;
+    let response: Response | undefined;
     const onRequestParseDoneList: OnRequestParseDoneHook[] = [];
 
     return handleMaybePromise(
       () =>
         iterateAsync(
           this.onRequestParseHooks,
-          onRequestParse =>
+          (onRequestParse, endEarly) =>
             handleMaybePromise(
               () =>
                 onRequestParse({
@@ -629,12 +631,21 @@ export class YogaServer<
                   setRequestParser(parser: RequestParser) {
                     requestParser = parser;
                   },
+                  // Short-circuit the request parsing if a response is sent in `onRequestParse`
+                  endResponse(res) {
+                    response = res;
+                    endEarly();
+                  },
+                  fetchAPI: this.fetchAPI,
                 }),
               requestParseHookResult => requestParseHookResult?.onRequestParseDone,
             ),
           onRequestParseDoneList,
         ),
       () => {
+        if (response) {
+          return { response };
+        }
         this.logger.debug(`Parsing request to extract GraphQL parameters`);
 
         if (!requestParser) {
@@ -648,7 +659,13 @@ export class YogaServer<
 
         return handleMaybePromise(
           () => requestParser!(request),
-          requestParserResult => {
+          requestParserFnResult => {
+            if (isResponse(requestParserFnResult)) {
+              return {
+                response: requestParserFnResult,
+              };
+            }
+            let requestParserResult = requestParserFnResult;
             return handleMaybePromise(
               () =>
                 iterateAsyncVoid(onRequestParseDoneList, onRequestParseDone =>
