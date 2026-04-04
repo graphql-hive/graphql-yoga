@@ -82,6 +82,7 @@ import {
   YogaInitialContext,
   YogaMaskedErrorOpts,
 } from './types.js';
+import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
 
 /**
@@ -597,12 +598,12 @@ export class YogaServer<
     serverContext: TServerContext & ServerAdapterInitialContext,
   ): MaybePromise<
     | {
-        requestParserResult:
+        parsedParams:
           | GraphQLParams<Record<string, any>, Record<string, any>>
           | GraphQLParams<Record<string, any>, Record<string, any>>[];
         response?: never;
       }
-    | { requestParserResult?: never; response: Response }
+    | { parsedParams?: never; response: Response }
   > => {
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
@@ -612,13 +613,14 @@ export class YogaServer<
     }) as URL;
 
     let requestParser: RequestParser | undefined;
+    let response: Response | undefined;
     const onRequestParseDoneList: OnRequestParseDoneHook[] = [];
 
     return handleMaybePromise(
       () =>
         iterateAsync(
           this.onRequestParseHooks,
-          onRequestParse =>
+          (onRequestParse, endEarly) =>
             handleMaybePromise(
               () =>
                 onRequestParse({
@@ -629,12 +631,21 @@ export class YogaServer<
                   setRequestParser(parser: RequestParser) {
                     requestParser = parser;
                   },
+                  // Short-circuit the request parsing if a response is sent in `onRequestParse`
+                  endResponse(res) {
+                    response = res;
+                    endEarly();
+                  },
+                  fetchAPI: this.fetchAPI,
                 }),
               requestParseHookResult => requestParseHookResult?.onRequestParseDone,
             ),
           onRequestParseDoneList,
         ),
       () => {
+        if (response) {
+          return { response };
+        }
         this.logger.debug(`Parsing request to extract GraphQL parameters`);
 
         if (!requestParser) {
@@ -649,18 +660,24 @@ export class YogaServer<
         return handleMaybePromise(
           () => requestParser!(request),
           requestParserResult => {
+            if (isResponse(requestParserResult)) {
+              return {
+                response: requestParserResult,
+              };
+            }
+            const parsedParams = requestParserResult;
             return handleMaybePromise(
               () =>
                 iterateAsyncVoid(onRequestParseDoneList, onRequestParseDone =>
                   onRequestParseDone({
-                    requestParserResult,
+                    requestParserResult: parsedParams,
                     setRequestParserResult(newParams: GraphQLParams | GraphQLParams[]) {
                       requestParserResult = newParams;
                     },
                   }),
                 ),
               () => ({
-                requestParserResult,
+                parsedParams,
               }),
             );
           },
@@ -682,7 +699,7 @@ export class YogaServer<
     return unfakePromise(
       fakePromise()
         .then(() => parseRequest(request, serverContext))
-        .then(({ response, requestParserResult }) => {
+        .then(({ response, parsedParams }) => {
           if (response) {
             return response;
           }
@@ -698,9 +715,9 @@ export class YogaServer<
             : this.getResultForParams;
           return handleMaybePromise(
             () =>
-              (Array.isArray(requestParserResult)
+              (Array.isArray(parsedParams)
                 ? Promise.all(
-                    requestParserResult.map(params =>
+                    parsedParams.map(params =>
                       fakePromise()
                         .then(() =>
                           getResultForParams(
@@ -723,7 +740,7 @@ export class YogaServer<
                   )
                 : getResultForParams(
                     {
-                      params: requestParserResult,
+                      params: parsedParams,
                       request,
                     },
                     serverContext,

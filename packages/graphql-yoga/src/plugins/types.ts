@@ -123,7 +123,7 @@ export type OnRequestParseHook<TServerContext> = (
 
 export type RequestParser = (
   request: Request,
-) => PromiseOrValue<GraphQLParams> | PromiseOrValue<GraphQLParams[]>;
+) => PromiseOrValue<GraphQLParams | GraphQLParams[] | Response>;
 
 export interface OnRequestParseEventPayload<TServerContext> {
   request: Request;
@@ -131,6 +131,8 @@ export interface OnRequestParseEventPayload<TServerContext> {
   requestParser: RequestParser | undefined;
   serverContext: TServerContext & ServerAdapterInitialContext;
   setRequestParser: (parser: RequestParser) => void;
+  fetchAPI: FetchAPI;
+  endResponse: (response: Response) => void;
 }
 
 export type OnRequestParseHookResult = {

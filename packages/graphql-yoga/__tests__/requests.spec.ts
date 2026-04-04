@@ -636,4 +636,52 @@ describe('requests', () => {
     expect(oldBody.errors).toBeUndefined();
     expect(oldBody.data.ping).toBe('pong');
   });
+  it('allows you to short-circuit response inside `onRequestParse` hook', async () => {
+    const shortCircuitResponse = new Response('Short-circuited response', {
+      status: 418,
+    });
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      plugins: [
+        {
+          onRequestParse({ endResponse }) {
+            endResponse(shortCircuitResponse);
+          },
+        },
+      ],
+    });
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+
+    expect(response).toBe(shortCircuitResponse);
+  });
+  it('allows you to short-circuit inside the request parser', async () => {
+    const shortCircuitResponse = new Response('Short-circuited response', {
+      status: 418,
+    });
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      plugins: [
+        {
+          onRequestParse({ setRequestParser }) {
+            setRequestParser(() => {
+              return shortCircuitResponse;
+            });
+          },
+        },
+      ],
+    });
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+
+    expect(response).toBe(shortCircuitResponse);
+  });
 });
