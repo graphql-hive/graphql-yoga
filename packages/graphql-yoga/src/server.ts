@@ -598,12 +598,12 @@ export class YogaServer<
     serverContext: TServerContext & ServerAdapterInitialContext,
   ): MaybePromise<
     | {
-        parsedParams:
+        requestParserResult:
           | GraphQLParams<Record<string, any>, Record<string, any>>
           | GraphQLParams<Record<string, any>, Record<string, any>>[];
         response?: never;
       }
-    | { parsedParams?: never; response: Response }
+    | { requestParserResult?: never; response: Response }
   > => {
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
@@ -659,25 +659,25 @@ export class YogaServer<
 
         return handleMaybePromise(
           () => requestParser!(request),
-          requestParserResult => {
-            if (isResponse(requestParserResult)) {
+          requestParserFnResult => {
+            if (isResponse(requestParserFnResult)) {
               return {
-                response: requestParserResult,
+                response: requestParserFnResult,
               };
             }
-            const parsedParams = requestParserResult;
+            let requestParserResult = requestParserFnResult;
             return handleMaybePromise(
               () =>
                 iterateAsyncVoid(onRequestParseDoneList, onRequestParseDone =>
                   onRequestParseDone({
-                    requestParserResult: parsedParams,
+                    requestParserResult,
                     setRequestParserResult(newParams: GraphQLParams | GraphQLParams[]) {
                       requestParserResult = newParams;
                     },
                   }),
                 ),
               () => ({
-                parsedParams,
+                requestParserResult,
               }),
             );
           },
@@ -699,7 +699,7 @@ export class YogaServer<
     return unfakePromise(
       fakePromise()
         .then(() => parseRequest(request, serverContext))
-        .then(({ response, parsedParams }) => {
+        .then(({ response, requestParserResult }) => {
           if (response) {
             return response;
           }
@@ -715,9 +715,9 @@ export class YogaServer<
             : this.getResultForParams;
           return handleMaybePromise(
             () =>
-              (Array.isArray(parsedParams)
+              (Array.isArray(requestParserResult)
                 ? Promise.all(
-                    parsedParams.map(params =>
+                    requestParserResult.map(params =>
                       fakePromise()
                         .then(() =>
                           getResultForParams(
@@ -740,7 +740,7 @@ export class YogaServer<
                   )
                 : getResultForParams(
                     {
-                      params: parsedParams,
+                      params: requestParserResult,
                       request,
                     },
                     serverContext,
