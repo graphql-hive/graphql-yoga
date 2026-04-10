@@ -9,7 +9,7 @@ import {
   GraphQLString,
 } from 'graphql';
 import { Push } from '@repeaterjs/repeater';
-import { createFetch, fetch, File, FormData } from '@whatwg-node/fetch';
+import { fetch, File, FormData } from '@whatwg-node/fetch';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga, Plugin, Repeater } from '../src';
 
@@ -197,11 +197,11 @@ describe('incremental delivery: node-fetch', () => {
   const yoga = createYoga({
     logging: false,
     maskedErrors: false,
-    fetchAPI: createFetch({
-      formDataLimits: {
+    multipart: {
+      limits: {
         fileSize: 12,
       },
-    }),
+    },
     schema,
   });
 

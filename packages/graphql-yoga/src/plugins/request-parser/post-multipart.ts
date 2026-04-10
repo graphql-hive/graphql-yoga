@@ -354,10 +354,9 @@ function parsePOSTMultipartRequestAsStream(
 
         /** Fail both the file stream and the outer params promise with a file-size error. */
         function fileSizeError(): void {
-          const err = createGraphQLError(
-            `File size limit exceeded: file exceeds ${limits!.fileSize} bytes`,
-            { extensions: { http: { status: 413 } } },
-          );
+          const err = createGraphQLError(`File size limit exceeded: ${limits!.fileSize} bytes`, {
+            extensions: { http: { status: 413 } },
+          });
           controller.error(err);
           fail(err);
         }
