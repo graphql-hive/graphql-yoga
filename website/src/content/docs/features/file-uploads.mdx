@@ -97,19 +97,17 @@ createYoga({ multipart: false })
 
 ## Processing File Uploads as Streams
 
-By default, GraphQL Yoga buffers each uploaded file into memory before making it available to
-resolvers as a `File` object. For large files this can exhaust server memory.
-
-You can enable **streaming mode** by setting `multipart: { stream: true }`. In this mode each file
-variable is backed by a live `ReadableStream` coming directly from the network – no buffering occurs
+GraphQL Yoga streams uploaded files directly from the network to your resolver — no buffering occurs
 until your resolver actually reads the data. This works across all runtimes (Node.js, Cloudflare
 Workers, Deno, Bun, etc.) using only standard WHATWG APIs.
 
+Each file variable in your resolver is backed by a live `ReadableStream` that comes directly from
+the incoming HTTP connection:
+
 ```ts
-import { createYoga, createSchema } from 'graphql-yoga'
+import { createSchema, createYoga } from 'graphql-yoga'
 
 const yoga = createYoga({
-  multipart: { stream: true },
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       scalar File
@@ -136,12 +134,22 @@ const yoga = createYoga({
 })
 ```
 
-On Node.js you can pipe the stream directly to disk using the Node.js streams interop:
+You can also write the file to disk using the standard WHATWG Streams API (works on every runtime):
+
+```ts
+// Inside your resolver — no Node.js-specific imports needed:
+import { createWriteStream } from 'node:fs'
+import { Writable } from 'node:stream'
+
+await file.stream().pipeTo(Writable.toWeb(createWriteStream('/tmp/' + file.name)))
+```
+
+On Node.js you can also use the traditional `pipeline` helper:
 
 ```ts
 import { createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
 import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
 // Inside your resolver:
 await pipeline(Readable.fromWeb(file.stream()), createWriteStream('/tmp/' + file.name))
@@ -154,31 +162,26 @@ await pipeline(Readable.fromWeb(file.stream()), createWriteStream('/tmp/' + file
 - **Backpressure is respected.** If the resolver reads slowly, the TCP connection will naturally
   slow down.
 
-## Configuring Multipart Request Processing (only for Node.js)
+## Configuring Multipart Request Limits
 
-In Node.js, you can configure the limits of the multipart request processing such as maximum allowed
-file size, maximum numbers of files, etc.
-
-Fetch API's `Request.formData` method doesn't have any options to configure the limits of Multipart
-request processing. Instead we can configure our Fetch API ponyfill to manage that.
+You can configure upload limits such as maximum file size and maximum number of files using the
+`multipart.limits` option. These limits are enforced by the built-in streaming parser and work on
+every runtime (Node.js, Cloudflare Workers, Deno, Bun, etc.).
 
 ```ts
 import { createYoga } from 'graphql-yoga'
-import { createFetch } from '@whatwg-node/fetch'
 
 createYoga({
-  fetchAPI: createFetch({
-    formDataLimits: {
+  multipart: {
+    limits: {
       // Maximum allowed file size (in bytes)
-      fileSize: 1000000,
+      fileSize: 1_000_000,
       // Maximum allowed number of files
       files: 10,
-      // Maximum allowed size of content (operations, variables etc...)
-      fieldSize: 1000000,
-      // Maximum allowed header size for form data
-      headerSize: 1000000
+      // Maximum allowed size of text fields such as `operations` and `map` (in bytes)
+      fieldSize: 1_000_000
     }
-  })
+  }
 })
 ```
 

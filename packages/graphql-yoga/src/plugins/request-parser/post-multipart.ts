@@ -1,7 +1,16 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import { MaybePromise } from '@whatwg-node/promise-helpers';
 import { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
+
+export interface MultipartParserLimits {
+  /** Maximum allowed size per uploaded file in bytes. */
+  fileSize?: number | undefined;
+  /** Maximum total number of file fields. */
+  files?: number | undefined;
+  /** Maximum allowed size of non-file text fields in bytes (e.g. `operations`, `map`). */
+  fieldSize?: number | undefined;
+}
 
 export function isPOSTMultipartRequest(request: Request): boolean {
   return request.method === 'POST' && isContentTypeMatch(request, 'multipart/form-data');
@@ -9,70 +18,9 @@ export function isPOSTMultipartRequest(request: Request): boolean {
 
 export function parsePOSTMultipartRequest(
   request: Request,
-  useStream?: boolean,
+  limits?: MultipartParserLimits,
 ): MaybePromise<GraphQLParams> {
-  if (useStream) {
-    return parsePOSTMultipartRequestAsStream(request);
-  }
-  return handleMaybePromise(
-    () => request.formData(),
-    (requestBody: FormData) => {
-      const operationsStr = requestBody.get('operations');
-
-      if (!operationsStr) {
-        throw createGraphQLError('Missing multipart form field "operations"');
-      }
-
-      if (typeof operationsStr !== 'string') {
-        throw createGraphQLError('Multipart form field "operations" must be a string');
-      }
-
-      let operations: GraphQLParams;
-
-      try {
-        operations = JSON.parse(operationsStr);
-      } catch {
-        throw createGraphQLError('Multipart form field "operations" must be a valid JSON string');
-      }
-
-      const mapStr = requestBody.get('map');
-
-      if (mapStr != null) {
-        if (typeof mapStr !== 'string') {
-          throw createGraphQLError('Multipart form field "map" must be a string');
-        }
-
-        let map: Record<string, string[]>;
-
-        try {
-          map = JSON.parse(mapStr);
-        } catch {
-          throw createGraphQLError('Multipart form field "map" must be a valid JSON string');
-        }
-        for (const fileIndex in map) {
-          const file = requestBody.get(fileIndex);
-          const keys = map[fileIndex]!;
-          for (const key of keys) {
-            setObjectKeyPath(operations, key, file);
-          }
-        }
-      }
-
-      return operations;
-    },
-    e => {
-      if (e instanceof Error && e.message.startsWith('File size limit exceeded: ')) {
-        throw createGraphQLError(e.message, {
-          extensions: {
-            http: {
-              status: 413,
-            },
-          },
-        });
-      }
-      throw e;
-    },
-  );
+  return parsePOSTMultipartRequestAsStream(request, limits);
 }
 
 // ---------------------------------------------------------------------------
@@ -128,7 +76,10 @@ function concatBytes(
  * so GraphQL execution can start immediately and pull from each file stream
  * on demand.
  */
-function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLParams> {
+function parsePOSTMultipartRequestAsStream(
+  request: Request,
+  limits?: MultipartParserLimits,
+): Promise<GraphQLParams> {
   const contentType = request.headers.get('content-type') ?? '';
   const boundary = extractBoundary(contentType);
 
@@ -166,6 +117,7 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
     let operations: GraphQLParams | undefined;
     let map: Record<string, string[]> | undefined;
     let resolved = false;
+    let fileCount = 0;
 
     /** Reject the params promise and propagate the error to any open file streams. */
     function fail(err: unknown): void {
@@ -337,6 +289,18 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
             return fail(createGraphQLError('Unexpected end of text field body'));
           }
           const delimPos = indexOfBytes(buf, CRLF_DASH_BOUNDARY);
+
+          if (limits?.fieldSize != null && delimPos > limits.fieldSize) {
+            return fail(
+              createGraphQLError(
+                `Field size limit exceeded: ${fieldName} exceeds ${limits.fieldSize} bytes`,
+                {
+                  extensions: { http: { status: 413 } },
+                },
+              ),
+            );
+          }
+
           const value = dec.decode(eat(delimPos));
           eat(CRLF_DASH_BOUNDARY.length);
 
@@ -344,11 +308,9 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
           else if (fieldName === 'map') mapStr = value;
 
           if (!(await ensureBytes(2))) {
-            done = true;
             break;
           }
           if (buf[0] === DASH && buf[1] === DASH) {
-            done = true;
             eat(2);
             break;
           }
@@ -359,6 +321,16 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
         // ---- file part ----
         // Resolve the outer promise now that all text fields are available.
         if (!resolved) tryResolve();
+
+        // Enforce the maximum number of file uploads.
+        fileCount++;
+        if (limits?.files != null && fileCount > limits.files) {
+          return fail(
+            createGraphQLError(`Too many files: upload limit is ${limits.files}`, {
+              extensions: { http: { status: 413 } },
+            }),
+          );
+        }
 
         const entry = fileEntries.get(fieldName);
         if (!entry) {
@@ -378,12 +350,34 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
         // We must be careful not to emit bytes that are actually the start
         // of an as-yet-incomplete boundary sequence, so we keep back
         // `CRLF_DASH_BOUNDARY.length - 1` bytes in `buf` at all times.
+        let fileBytesEmitted = 0;
         while (true) {
           const delimPos = indexOfBytes(buf, CRLF_DASH_BOUNDARY);
 
           if (delimPos !== -1) {
             // We found the end of this file part.
-            if (delimPos > 0) controller.enqueue(eat(delimPos));
+            if (delimPos > 0) {
+              if (limits?.fileSize != null && fileBytesEmitted + delimPos > limits.fileSize) {
+                controller.error(
+                  createGraphQLError(
+                    `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
+                    {
+                      extensions: { http: { status: 413 } },
+                    },
+                  ),
+                );
+                return fail(
+                  createGraphQLError(
+                    `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
+                    {
+                      extensions: { http: { status: 413 } },
+                    },
+                  ),
+                );
+              }
+              controller.enqueue(eat(delimPos));
+              fileBytesEmitted += delimPos;
+            }
             eat(CRLF_DASH_BOUNDARY.length);
             controller.close();
 
@@ -404,12 +398,34 @@ function parsePOSTMultipartRequestAsStream(request: Request): Promise<GraphQLPar
           // bytes that cannot possibly be part of the delimiter prefix.
           const safeLen = buf.length - (CRLF_DASH_BOUNDARY.length - 1);
           if (safeLen > 0) {
+            if (limits?.fileSize != null && fileBytesEmitted + safeLen > limits.fileSize) {
+              controller.error(
+                createGraphQLError(
+                  `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
+                  {
+                    extensions: { http: { status: 413 } },
+                  },
+                ),
+              );
+              return fail(
+                createGraphQLError(
+                  `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
+                  {
+                    extensions: { http: { status: 413 } },
+                  },
+                ),
+              );
+            }
             controller.enqueue(eat(safeLen));
+            fileBytesEmitted += safeLen;
           }
 
           if (!(await readMore())) {
             // Stream ended without a closing boundary — emit remaining bytes.
-            if (buf.length > 0) controller.enqueue(buf);
+            if (buf.length > 0) {
+              controller.enqueue(buf);
+              fileBytesEmitted += buf.length;
+            }
             controller.close();
             done = true;
             break;

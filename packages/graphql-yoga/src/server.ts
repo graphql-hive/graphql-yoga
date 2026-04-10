@@ -45,6 +45,7 @@ import {
 import { isPOSTJsonRequest, parsePOSTJsonRequest } from './plugins/request-parser/post-json.js';
 import {
   isPOSTMultipartRequest,
+  MultipartParserLimits,
   parsePOSTMultipartRequest,
 } from './plugins/request-parser/post-multipart.js';
 import { useCheckGraphQLQueryParams } from './plugins/request-validation/use-check-graphql-query-params.js';
@@ -89,19 +90,12 @@ import { maskError } from './utils/mask-error.js';
  */
 export type MultipartOptions = {
   /**
-   * When enabled, file uploads are provided as streaming `File`-like objects
-   * whose `.stream()` method returns a live `ReadableStream` from the network,
-   * so the file data is never fully buffered into memory.
+   * Limits to enforce on uploaded files and text fields.
    *
-   * The stream can only be consumed **once**.  Calling `.arrayBuffer()` or
-   * `.text()` is still supported – those methods will drain the stream and
-   * collect the bytes for you.
-   *
-   * Only available in Node.js environments.
-   *
-   * @default false
+   * These limits are enforced by the built-in streaming multipart parser and
+   * work on every runtime (Node.js, Cloudflare Workers, Deno, Bun, …).
    */
-  stream?: boolean | undefined;
+  limits?: MultipartParserLimits | undefined;
 };
 
 /**
@@ -384,7 +378,7 @@ export class YogaServer<
           parse: (request: Request) =>
             parsePOSTMultipartRequest(
               request,
-              typeof options?.multipart === 'object' && options.multipart.stream === true,
+              typeof options?.multipart === 'object' ? options.multipart.limits : undefined,
             ),
         }),
 
