@@ -134,13 +134,13 @@ const yoga = createYoga({
 })
 ```
 
-You can also write the file to disk using the standard WHATWG Streams API (works on every runtime):
+You can also write the file to disk on Node.js using `pipeTo` with `Writable.toWeb`:
 
 ```ts
-// Inside your resolver — no Node.js-specific imports needed:
 import { createWriteStream } from 'node:fs'
 import { Writable } from 'node:stream'
 
+// Inside your resolver — works in Node.js 18+:
 await file.stream().pipeTo(Writable.toWeb(createWriteStream('/tmp/' + file.name)))
 ```
 

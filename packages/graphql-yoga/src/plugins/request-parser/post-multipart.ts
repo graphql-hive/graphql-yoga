@@ -351,6 +351,17 @@ function parsePOSTMultipartRequestAsStream(
         // of an as-yet-incomplete boundary sequence, so we keep back
         // `CRLF_DASH_BOUNDARY.length - 1` bytes in `buf` at all times.
         let fileBytesEmitted = 0;
+
+        /** Fail both the file stream and the outer params promise with a file-size error. */
+        function fileSizeError(): void {
+          const err = createGraphQLError(
+            `File size limit exceeded: file exceeds ${limits!.fileSize} bytes`,
+            { extensions: { http: { status: 413 } } },
+          );
+          controller.error(err);
+          fail(err);
+        }
+
         while (true) {
           const delimPos = indexOfBytes(buf, CRLF_DASH_BOUNDARY);
 
@@ -358,22 +369,7 @@ function parsePOSTMultipartRequestAsStream(
             // We found the end of this file part.
             if (delimPos > 0) {
               if (limits?.fileSize != null && fileBytesEmitted + delimPos > limits.fileSize) {
-                controller.error(
-                  createGraphQLError(
-                    `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
-                    {
-                      extensions: { http: { status: 413 } },
-                    },
-                  ),
-                );
-                return fail(
-                  createGraphQLError(
-                    `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
-                    {
-                      extensions: { http: { status: 413 } },
-                    },
-                  ),
-                );
+                return fileSizeError();
               }
               controller.enqueue(eat(delimPos));
               fileBytesEmitted += delimPos;
@@ -399,22 +395,7 @@ function parsePOSTMultipartRequestAsStream(
           const safeLen = buf.length - (CRLF_DASH_BOUNDARY.length - 1);
           if (safeLen > 0) {
             if (limits?.fileSize != null && fileBytesEmitted + safeLen > limits.fileSize) {
-              controller.error(
-                createGraphQLError(
-                  `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
-                  {
-                    extensions: { http: { status: 413 } },
-                  },
-                ),
-              );
-              return fail(
-                createGraphQLError(
-                  `File size limit exceeded: file exceeds ${limits.fileSize} bytes`,
-                  {
-                    extensions: { http: { status: 413 } },
-                  },
-                ),
-              );
+              return fileSizeError();
             }
             controller.enqueue(eat(safeLen));
             fileBytesEmitted += safeLen;
