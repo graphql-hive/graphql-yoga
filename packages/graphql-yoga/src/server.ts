@@ -45,6 +45,7 @@ import {
 import { isPOSTJsonRequest, parsePOSTJsonRequest } from './plugins/request-parser/post-json.js';
 import {
   isPOSTMultipartRequest,
+  MultipartParserLimits,
   parsePOSTMultipartRequest,
 } from './plugins/request-parser/post-multipart.js';
 import { useCheckGraphQLQueryParams } from './plugins/request-validation/use-check-graphql-query-params.js';
@@ -84,6 +85,19 @@ import {
 } from './types.js';
 import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
+
+/**
+ * Configuration options for multipart request processing
+ */
+export type MultipartOptions = {
+  /**
+   * Limits to enforce on uploaded files and text fields.
+   *
+   * These limits are enforced by the built-in streaming multipart parser and
+   * work on every runtime (Node.js, Cloudflare Workers, Deno, Bun, …).
+   */
+  limits?: MultipartParserLimits | undefined;
+};
 
 /**
  * Configuration options for the server
@@ -173,7 +187,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    *
    * @default true
    */
-  multipart?: boolean | undefined;
+  multipart?: boolean | MultipartOptions | undefined;
   id?: string | undefined;
   /**
    * Batching RFC Support configuration
@@ -365,7 +379,11 @@ export class YogaServer<
       options?.multipart !== false &&
         useRequestParser({
           match: isPOSTMultipartRequest,
-          parse: parsePOSTMultipartRequest,
+          parse: (request: Request) =>
+            parsePOSTMultipartRequest(
+              request,
+              typeof options?.multipart === 'object' ? options.multipart.limits : undefined,
+            ),
         }),
 
       useRequestParser({
