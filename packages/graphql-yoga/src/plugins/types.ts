@@ -23,6 +23,7 @@ import {
   MaybeArray,
   YogaInitialContext,
 } from '../types.js';
+import { DocumentNode } from 'graphql';
 
 export type Plugin<
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -215,9 +216,11 @@ export interface OnResultProcessEventPayload<TServerContext> {
   request: Request;
   result: ResultProcessorInput;
   setResult(result: ResultProcessorInput): void;
-  resultProcessor?: ResultProcessor;
   acceptableMediaTypes: string[];
-  setResultProcessor(resultProcessor: ResultProcessor, acceptedMediaType: string): void;
+  acceptedMediaType?: string;
+  setAcceptedMediaType(newAcceptedMimeType: string): void;
+  resultProcessor?: ResultProcessor;
+  setResultProcessor(resultProcessor: ResultProcessor, acceptedMediaType?: string): void;
   serverContext: TServerContext & ServerAdapterInitialContext;
 }
 
