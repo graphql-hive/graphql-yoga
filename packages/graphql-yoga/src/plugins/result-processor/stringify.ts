@@ -3,23 +3,43 @@ import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError } from '../../error.js';
 import { MaybeArray } from '../../types.js';
 import { ExecutionResultWithSerializer } from '../types.js';
+import { executionArgsByResult } from '../use-result-processor.js';
+import { CLOSE_BRACKET, COMMA, OPEN_BRACKET } from './stringify-with-document/consts.js';
+import { stringifyWithDocument } from './stringify-with-document/stringify-with-document.js';
 
 // JSON stringifier that adjusts the result error extensions while serialising
 export function jsonStringifyResultWithoutInternals(
   result: MaybeArray<ExecutionResultWithSerializer>,
 ) {
   if (Array.isArray(result)) {
-    return `[${result
-      .map(r => {
-        const sanitizedResult = omitInternalsFromResultErrors(r);
-        const stringifier = r.stringify || JSON.stringify;
-        return stringifier(sanitizedResult);
-      })
-      .join(',')}]`;
+    let buf = OPEN_BRACKET;
+    for (let i = 0; i < result.length; i++) {
+      if (i > 0) {
+        buf += COMMA;
+      }
+      buf += jsonStringifySingleResultWithoutInternals(result[i]!);
+    }
+    buf += CLOSE_BRACKET;
+    return buf;
+  }
+  return jsonStringifySingleResultWithoutInternals(result);
+}
+
+function jsonStringifySingleResultWithoutInternals(result: ExecutionResultWithSerializer): string {
+  // Custom serializer supplied by a plugin (e.g. graphql-jit) takes priority
+  if (result.stringify) {
+    const sanitizedResult = omitInternalsFromResultErrors(result);
+    return result.stringify(sanitizedResult);
+  }
+  // Use the selection-set-based serializer for non-incremental, non-streaming results
+  if (result.incremental == null && result.hasNext == null) {
+    const executionArgs = executionArgsByResult.get(result);
+    if (executionArgs) {
+      return stringifyWithDocument(result, executionArgs);
+    }
   }
   const sanitizedResult = omitInternalsFromResultErrors(result);
-  const stringifier = result.stringify || JSON.stringify;
-  return stringifier(sanitizedResult);
+  return JSON.stringify(sanitizedResult);
 }
 export function omitInternalsFromResultErrors(
   result: ExecutionResultWithSerializer,
@@ -37,7 +57,7 @@ export function omitInternalsFromResultErrors(
   return result;
 }
 
-function omitInternalsFromError<E extends GraphQLError | Error | undefined>(err: E): E {
+export function omitInternalsFromError<E extends GraphQLError | Error | undefined>(err: E): E {
   if (isGraphQLError(err)) {
     const serializedError =
       'toJSON' in err && typeof err.toJSON === 'function' ? err.toJSON() : Object(err);
