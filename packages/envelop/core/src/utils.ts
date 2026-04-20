@@ -2,7 +2,6 @@ import {
   AsyncIterableIteratorOrValue,
   DefaultContext,
   ExecuteFunction,
-  ExecutionArgs,
   OnExecuteDoneEventPayload,
   OnExecuteDoneHookResult,
   OnExecuteDoneHookResultOnNextHook,
@@ -10,16 +9,19 @@ import {
   PolymorphicSubscribeArguments,
   PromiseOrValue,
   SubscribeFunction,
+  TypedExecutionArgs,
+  TypedSubscriptionArgs,
 } from '@envelop/types';
 import { fakePromise } from '@whatwg-node/promise-helpers';
+import { Source } from 'graphql';
 
 export const envelopIsIntrospectionSymbol = Symbol('ENVELOP_IS_INTROSPECTION');
 
-export function isIntrospectionOperationString(operation: string | any): boolean {
+export function isIntrospectionOperationString(operation: string | Source): boolean {
   return (typeof operation === 'string' ? operation : operation.body).includes('__schema');
 }
 
-function getSubscribeArgs(args: PolymorphicSubscribeArguments): ExecutionArgs {
+function getSubscribeArgs(args: PolymorphicSubscribeArguments): TypedSubscriptionArgs<unknown> {
   return args.length === 1
     ? args[0]
     : {
@@ -30,19 +32,20 @@ function getSubscribeArgs(args: PolymorphicSubscribeArguments): ExecutionArgs {
         variableValues: args[4],
         operationName: args[5],
         fieldResolver: args[6],
-        subscribeFieldResolver: args[7],
+        typeResolver: args[7],
+        subscribeFieldResolver: args[8],
       };
 }
 /**
  * Utility function for making a subscribe function that handles polymorphic arguments.
  */
-export const makeSubscribe = (subscribeFn: (args: ExecutionArgs) => any): SubscribeFunction =>
+export const makeSubscribe = (subscribeFn: (args: TypedSubscriptionArgs<unknown>) => any): SubscribeFunction =>
   ((...polyArgs: PolymorphicSubscribeArguments): PromiseOrValue<AsyncIterableIterator<any>> =>
     subscribeFn(getSubscribeArgs(polyArgs))) as SubscribeFunction;
 
 export { mapAsyncIterator } from '@whatwg-node/promise-helpers';
 
-function getExecuteArgs(args: PolymorphicExecuteArguments): ExecutionArgs {
+function getExecuteArgs(args: PolymorphicExecuteArguments): TypedExecutionArgs<unknown> {
   return args.length === 1
     ? args[0]
     : {
@@ -61,7 +64,7 @@ function getExecuteArgs(args: PolymorphicExecuteArguments): ExecutionArgs {
  * Utility function for making a execute function that handles polymorphic arguments.
  */
 export const makeExecute = (
-  executeFn: (args: ExecutionArgs) => PromiseOrValue<AsyncIterableIteratorOrValue<any>>,
+  executeFn: (args: TypedExecutionArgs<unknown>) => PromiseOrValue<AsyncIterableIteratorOrValue<any>>,
 ): ExecuteFunction =>
   ((...polyArgs: PolymorphicExecuteArguments): PromiseOrValue<AsyncIterableIteratorOrValue<any>> =>
     executeFn(getExecuteArgs(polyArgs))) as unknown as ExecuteFunction;

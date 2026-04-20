@@ -56,7 +56,7 @@ export const useErrorHandler = <ContextType extends Record<string, any>>(
       return function onValidateEnd({ valid, result, context }) {
         if (valid === false && result.length > 0) {
           errorHandler({
-            errors: result as Error[],
+            errors: result,
             context,
             phase: 'validate',
           });

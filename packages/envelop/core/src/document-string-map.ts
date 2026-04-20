@@ -1,17 +1,14 @@
-export const documentStringMap = new WeakMap<any, string>();
+import { DocumentNode, print } from "graphql";
 
-function getDocumentString<TDocumentNode>(
-  document: TDocumentNode,
-  print: (doc: TDocumentNode) => string,
-): string;
-function getDocumentString<TDocumentNode>(document: TDocumentNode): string | undefined;
-function getDocumentString<TDocumentNode>(
-  document: TDocumentNode,
-  print?: (doc: TDocumentNode) => string,
-): string | undefined {
+export const documentStringMap = new WeakMap<DocumentNode, string>();
+
+function getDocumentString(
+  document: DocumentNode,
+  printFn = print,
+): string {
   let documentSource = documentStringMap.get(document);
-  if (!documentSource && print) {
-    documentSource = print(document);
+  if (!documentSource) {
+    documentSource = printFn(document);
     documentStringMap.set(document, documentSource);
   }
   return documentSource;

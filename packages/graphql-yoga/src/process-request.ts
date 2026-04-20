@@ -84,14 +84,6 @@ export function processRequest({
   return handleMaybePromise(
     () => enveloped.contextFactory(),
     contextValue => {
-      const executionArgs: ExecutionArgs = {
-        schema: enveloped.schema,
-        document,
-        contextValue,
-        variableValues: params.variables,
-        operationName: params.operationName,
-      };
-
       // Get the actual operation
       const operation = getOperationAST(document, params.operationName);
 
@@ -100,7 +92,13 @@ export function processRequest({
         operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
 
       // Get the result to be processed
-      return executeFn(executionArgs);
+      return executeFn({
+        schema: enveloped.schema,
+        document,
+        contextValue,
+        variableValues: params.variables,
+        operationName: params.operationName,
+      });
     },
   );
 }

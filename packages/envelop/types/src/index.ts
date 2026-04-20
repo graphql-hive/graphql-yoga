@@ -4,3 +4,4 @@ export * from './plugin.js';
 export * from './get-enveloped.js';
 export * from './graphql.js';
 export * from './utils.js';
+export type { ExecutionResult } from 'graphql';

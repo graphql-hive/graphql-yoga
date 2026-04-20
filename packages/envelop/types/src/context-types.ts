@@ -1,6 +1,6 @@
-import { GetEnvelopedFn } from './get-enveloped.js';
-import { Plugin } from './plugin.js';
-import { Spread, TuplifyUnion, Unarray } from './utils.js';
+import type { GetEnvelopedFn } from './get-enveloped.js';
+import type { Plugin } from './plugin.js';
+import type { Spread, TuplifyUnion, Unarray } from './utils.js';
 
 // We are using `interface` instead of `type` in order to allow type augmentation
 export interface DefaultContext extends Record<string | symbol | number, unknown> {}

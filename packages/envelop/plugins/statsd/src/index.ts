@@ -5,6 +5,7 @@ import {
   isIntrospectionOperationString,
   Plugin,
 } from '@envelop/core';
+import type { GraphQLError } from 'graphql';
 
 export interface StatsDPluginOptions {
   client: StatsD;
@@ -41,7 +42,7 @@ function getOperation(document: any) {
 
 function isParseFailure(
   parseResult: AfterParseEventPayload<any>['result'],
-): parseResult is Error | null {
+): parseResult is GraphQLError | null {
   return parseResult === null || parseResult instanceof Error;
 }
 

@@ -6,8 +6,9 @@ import {
   Kind,
   visit,
 } from 'graphql';
+import { GraphQLError } from 'graphql/error';
 
-export function applySelectionSetFragmentArguments(document: DocumentNode): DocumentNode | Error {
+export function applySelectionSetFragmentArguments(document: DocumentNode): DocumentNode | GraphQLError {
   const fragmentList = new Map<string, FragmentDefinitionNode>();
   for (const def of document.definitions) {
     if (def.kind !== 'FragmentDefinition') {
@@ -19,7 +20,7 @@ export function applySelectionSetFragmentArguments(document: DocumentNode): Docu
   return visit(document, {
     FragmentSpread(fragmentNode) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error - We know arguments there
       if (fragmentNode.arguments?.length) {
         const fragmentDef = fragmentList.get(fragmentNode.name.value);
         if (!fragmentDef) {

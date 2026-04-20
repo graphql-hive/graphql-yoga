@@ -11,6 +11,7 @@ export const useGraphQLMiddleware = <TSource = any, TContext = any, TArgs = any>
 ): Plugin => {
   return {
     onSchemaChange({ schema, replaceSchema }) {
+      // @ts-expect-error - We are adding this property to the schema to avoid applying the middleware multiple times
       if (schema.extensions?.[graphqlMiddlewareAppliedTransformSymbol]) {
         return;
       }

@@ -11,6 +11,7 @@ import {
 } from 'graphql';
 import {
   AsyncIterableIteratorOrValue,
+  AsyncIterableOrValue,
   isAsyncIterable,
   OnExecuteEventPayload,
   OnExecuteHookResult,
@@ -154,8 +155,8 @@ function buildHandler(
               result,
               setResult,
             }: {
-              result: AsyncIterableIteratorOrValue<ExecutionResult>;
-              setResult: (result: AsyncIterableIteratorOrValue<ExecutionResult>) => void;
+              result: AsyncIterableOrValue<ExecutionResult>;
+              setResult: (result: AsyncIterableOrValue<ExecutionResult>) => void;
             }) {
               if (isAsyncIterable(result)) {
                 // rejectOnErrors is false doesn't work with async iterables

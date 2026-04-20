@@ -38,6 +38,7 @@ export type Unarray<T> = T extends Array<infer U> ? U : T;
 export type ArbitraryObject = Record<string | number | symbol, any>;
 export type { MaybePromise as PromiseOrValue } from '@whatwg-node/promise-helpers';
 export type AsyncIterableIteratorOrValue<T> = T | AsyncIterableIterator<T>;
+export type AsyncIterableOrValue<T> = T | AsyncIterable<T>;
 export type Maybe<T> = T | null | undefined;
 export type Optional<T> = T | Maybe<T> | false;
 export interface ObjMap<T> {

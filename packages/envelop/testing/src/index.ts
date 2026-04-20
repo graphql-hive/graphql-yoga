@@ -82,9 +82,9 @@ export function createSpiedPlugin() {
 }
 
 type MaybePromise<T> = T | Promise<T>;
-type MaybeAsyncIterableIterator<T> = T | AsyncIterableIterator<T>;
+type MaybeAsyncIterable<T> = T | AsyncIterable<T>;
 
-type ExecutionReturn<TData = any, TExtensions = any> = MaybeAsyncIterableIterator<
+type ExecutionReturn<TData = any, TExtensions = any> = MaybeAsyncIterable<
   ExecutionResult<TData, TExtensions>
 >;
 
@@ -231,7 +231,7 @@ export function createTestkit(
             document,
             rootValue: {},
             operationName,
-          });
+          }) as ExecutionResult;
         },
       );
     },

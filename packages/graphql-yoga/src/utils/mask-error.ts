@@ -2,8 +2,12 @@ import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
 import { MaskError } from '../types.js';
 
+function isSerializable(value: any): value is { toJSON(): unknown } {
+  return value?.toJSON != null
+}
+
 function serializeError(error: unknown) {
-  if (isGraphQLError(error)) {
+  if (isSerializable(error)) {
     return error.toJSON();
   }
   if (error instanceof Error) {

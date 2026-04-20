@@ -212,7 +212,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               let args: Record<string, any> | null = null;
               function getArgValues() {
                 if (!args && field) {
-                  args = getArgumentValues(field, node, variableValues);
+                  args = getArgumentValues(field, node, variableValues ?? undefined);
                 }
                 return args;
               }
