@@ -1,24 +1,23 @@
-import {
+import type {
   ExecuteFunction,
-  ExecutionArgs,
-  ExecutionResult,
   IncrementalExecutionResult,
   ParseFunction,
   SubscribeFunction,
   ValidateFunction,
   ValidateFunctionParameter,
 } from './graphql.js';
-import { Plugin } from './plugin.js';
-import { AsyncIterableIteratorOrValue, Maybe, PromiseOrValue } from './utils.js';
+import type { Plugin } from './plugin.js';
+import type { AsyncIterableIteratorOrValue, AsyncIterableOrValue, Maybe, PromiseOrValue } from './utils.js';
+import type { Source, ExecutionArgs, ExecutionResult, GraphQLError, GraphQLSchema, ParseOptions, DocumentNode, ValidationRule } from 'graphql';
 
 export type DefaultArgs = Record<string, unknown>;
 
-export type SetSchemaFn = (newSchema: any) => void;
+export type SetSchemaFn = (newSchema: GraphQLSchema) => void;
 
 /**
  * The payload forwarded to the onSchemaChange hook.
  */
-export type OnSchemaChangeEventPayload = { schema: any; replaceSchema: SetSchemaFn };
+export type OnSchemaChangeEventPayload = { schema: GraphQLSchema; replaceSchema: SetSchemaFn };
 
 /**
  * Invoked each time the schema is changed via a setSchema call.
@@ -101,7 +100,7 @@ export type OnParseEventPayload<ContextType> = {
   /**
    * The parameters that are passed to the parse call.
    */
-  params: { source: string | any; options?: any };
+  params: { source: string | Source; options?: ParseOptions };
   /**
    * The current parse function
    */
@@ -114,7 +113,7 @@ export type OnParseEventPayload<ContextType> = {
    * Set/overwrite the parsed document.
    * If a parsed document is set the call to the parseFn will be skipped.
    */
-  setParsedDocument: (doc: any) => void;
+  setParsedDocument: (doc: DocumentNode) => void;
 };
 
 export type AfterParseEventPayload<ContextType> = {
@@ -129,11 +128,11 @@ export type AfterParseEventPayload<ContextType> = {
   /**
    * The result of the parse phase.
    */
-  result: any | Error | null;
+  result: DocumentNode | GraphQLError | null;
   /**
    * Replace the parse result with a new result.
    */
-  replaceParseResult: (newResult: any | Error) => void;
+  replaceParseResult: (newResult: DocumentNode | GraphQLError | null) => void;
 };
 
 /**
@@ -165,7 +164,7 @@ export type OnValidateEventPayload<ContextType> = {
   /**
    * Register a validation rule that will be used for the validate invocation.
    */
-  addValidationRule: (rule: any) => void;
+  addValidationRule: (rule: ValidationRule) => void;
   /**
    * The current validate function that will be invoked.
    */
@@ -177,7 +176,7 @@ export type OnValidateEventPayload<ContextType> = {
   /**
    * Set a validation error result and skip the validate invocation.
    */
-  setResult: (errors: readonly any[]) => void;
+  setResult: (errors: readonly GraphQLError[]) => void;
 };
 
 /**
@@ -200,11 +199,11 @@ export type AfterValidateEventPayload<ContextType> = {
    * An array of errors that were raised during the validation phase.
    * The array is empty if no errors were raised.
    */
-  result: readonly Error[] | any[];
+  result: readonly GraphQLError[];
   /**
    * Replace the current error result with a new one.
    */
-  setResult: (errors: Error[] | any[]) => void;
+  setResult: (errors: GraphQLError[]) => void;
 };
 
 /**
@@ -273,6 +272,7 @@ export type OnContextBuildingHook<ContextType> = (
  */
 export type TypedExecutionArgs<ContextType> = Omit<ExecutionArgs, 'contextValue'> & {
   contextValue: ContextType;
+  signal?: AbortSignal;
 };
 
 /**
@@ -361,11 +361,11 @@ export type OnExecuteDoneEventPayload<ContextType> = {
    * The execution result returned from the execute function.
    * Can return an AsyncIterable if a graphql.js that has defer/stream implemented is used.
    */
-  result: AsyncIterableIteratorOrValue<ExecutionResult>;
+  result: AsyncIterableOrValue<ExecutionResult>;
   /**
    * Replace the execution result with a new execution result.
    */
-  setResult: (newResult: AsyncIterableIteratorOrValue<ExecutionResult>) => void;
+  setResult: (newResult: AsyncIterableOrValue<ExecutionResult>) => void;
 };
 
 /**
@@ -398,6 +398,7 @@ export type OnExecuteHook<ContextType> = (
  */
 export type TypedSubscriptionArgs<ContextType> = Omit<ExecutionArgs, 'contextValue'> & {
   contextValue: ContextType;
+  signal?: AbortSignal;
 };
 
 /**
@@ -441,18 +442,18 @@ export type OnSubscribeResultEventPayload<ContextType> = {
   /**
    * The current execution result.
    */
-  result: AsyncIterableIteratorOrValue<ExecutionResult>;
+  result: AsyncIterableOrValue<ExecutionResult>;
   /**
    * Replace the current execution result with a new execution result.
    */
-  setResult: (newResult: AsyncIterableIteratorOrValue<ExecutionResult>) => void;
+  setResult: (newResult: AsyncIterableOrValue<ExecutionResult>) => void;
 };
 
 export type OnSubscribeResultResultOnNextHookPayload<ContextType> = {
   /**
    * The execution arguments.
    */
-  args: TypedExecutionArgs<ContextType>;
+  args: TypedSubscriptionArgs<ContextType>;
   /**
    * The current execution result.
    */

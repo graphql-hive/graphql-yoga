@@ -31,7 +31,6 @@ import {
   SubscribeErrorHook,
   SubscribeFunction,
   SubscribeResultHook,
-  TypedExecutionArgs,
   TypedSubscriptionArgs,
   ValidateFunction,
 } from '@envelop/types';
@@ -45,6 +44,7 @@ import {
   makeSubscribe,
   mapAsyncIterator,
 } from './utils.js';
+import { GraphQLError, GraphQLSchema } from 'graphql';
 
 export type EnvelopOrchestrator<
   InitialContext extends ArbitraryObject = ArbitraryObject,
@@ -65,7 +65,7 @@ export type EnvelopOrchestrator<
     ReturnType<GetEnvelopedFn<PluginsContext>>['contextFactory'],
     PluginsContext
   >;
-  getCurrentSchema: () => Maybe<any>;
+  getCurrentSchema: () => Maybe<GraphQLSchema>;
   instrumentation?: Instrumentation<PluginsContext>;
 };
 
@@ -73,7 +73,7 @@ type EnvelopOrchestratorOptions = {
   plugins: Plugin[];
 };
 
-function throwEngineFunctionError(name: string) {
+function throwEngineFunctionError(name: string): never {
   throw Error(`No \`${name}\` function found! Register it using "useEngine" plugin.`);
 }
 
@@ -92,7 +92,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
   // Define the initial method for replacing the GraphQL schema, this is needed in order
   // to allow setting the schema from the onPluginInit callback. We also need to make sure
   // here not to call the same plugin that initiated the schema switch.
-  const replaceSchema = (newSchema: any, ignorePluginIndex = -1) => {
+  const replaceSchema = (newSchema: GraphQLSchema, ignorePluginIndex = -1) => {
     if (schema === newSchema) {
       return;
     }
@@ -131,13 +131,20 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
   }
 
   // A set of before callbacks defined here in order to allow it to be used later
-  const beforeCallbacks = {
-    init: [] as OnEnvelopedHook<any>[],
-    parse: [] as OnParseHook<any>[],
-    validate: [] as OnValidateHook<any>[],
-    subscribe: [] as OnSubscribeHook<any>[],
-    execute: [] as OnExecuteHook<any>[],
-    context: [] as OnContextBuildingHook<any>[],
+  const beforeCallbacks: {
+    init: OnEnvelopedHook<any>[];
+    parse: OnParseHook<any>[];
+    validate: OnValidateHook<any>[];
+    subscribe: OnSubscribeHook<any>[];
+    execute: OnExecuteHook<any>[];
+    context: OnContextBuildingHook<any>[];
+  } = {
+    init: [],
+    parse: [] ,
+    validate: [],
+    subscribe: [],
+    execute: [],
+    context: [],
   };
 
   for (const {
@@ -243,10 +250,10 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
 
   const customValidate: EnvelopContextFnWrapper<typeof validate, any> = beforeCallbacks.validate
     .length
-    ? initialContext => (schema, documentAST, rules, typeInfo, validationOptions) => {
+    ? initialContext => (schema, documentAST, rules, validationOptions, typeInfo) => {
         let actualRules: undefined | any[] = rules ? [...rules] : undefined;
         let validateFn = validate;
-        let result: null | readonly any[] = null;
+      let result: readonly GraphQLError[] | null = null;
         const context = initialContext;
 
         const afterCalls: AfterValidateHook<any>[] = [];
@@ -281,11 +288,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
           afterFn && afterCalls.push(afterFn);
         }
 
-        result ||= validateFn(schema, documentAST, actualRules, typeInfo, validationOptions);
-
-        if (!result) {
-          return;
-        }
+        result ||= validateFn(schema, documentAST, actualRules, validationOptions, typeInfo);
 
         const valid = result.length === 0;
 
@@ -400,7 +403,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                   extendContext: extension => {
                     Object.assign(context, extension);
                   },
-                  args: args as TypedSubscriptionArgs<PluginsContext>,
+                  args,
                   setResultAndStopExecution: stopResult => {
                     result = stopResult;
                     endEarly();
@@ -446,7 +449,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                 }
 
                 if (onNextHandler.length && isAsyncIterable(result)) {
-                  result = mapAsyncIterator(result, (result: any) =>
+                  result = mapAsyncIterator(result, result =>
                     handleMaybePromise(
                       () =>
                         iterateAsync(onNextHandler, onNext =>
@@ -489,18 +492,18 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
           },
         );
       })
-    : makeSubscribe(subscribe as any);
+    : makeSubscribe(subscribe);
 
   const useCustomExecute = beforeCallbacks.execute.length;
 
   const customExecute = useCustomExecute
     ? makeExecute(args => {
-        let executeFn = execute as ExecuteFunction;
+        let executeFn: ExecuteFunction = execute;
         let result: AsyncIterableIteratorOrValue<ExecutionResult> | undefined;
 
         const afterCalls: OnExecuteHookResult<PluginsContext>[] = [];
         const afterDoneCalls: OnExecuteDoneHookResult<any>[] = [];
-        const context = (args.contextValue as {}) || {};
+        const context = args.contextValue || {};
 
         return handleMaybePromise(
           () =>
@@ -528,8 +531,8 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                       );
                     }
                   },
-                  args: args as TypedExecutionArgs<PluginsContext>,
-                }) as OnExecuteHookResult<PluginsContext>,
+                  args,
+                }),
               afterCalls,
             ),
           () =>
@@ -547,7 +550,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                       afterCalls,
                       afterCb =>
                         afterCb.onExecuteDone?.({
-                          args: args as TypedExecutionArgs<PluginsContext>,
+                          args: args as TypedSubscriptionArgs<PluginsContext>,
                           result,
                           setResult: newResult => {
                             result = newResult;
@@ -573,8 +576,8 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                           () =>
                             iterateAsyncVoid(onNextHandler, onNext =>
                               onNext({
-                                args: args as TypedExecutionArgs<PluginsContext>,
-                                result: result as ExecutionResult,
+                                args: args as TypedSubscriptionArgs<PluginsContext>,
+                                result,
                                 setResult: newResult => {
                                   result = newResult;
                                 },
@@ -620,7 +623,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
     init,
     parse: customParse,
     validate: customValidate,
-    execute: customExecute as ExecuteFunction,
+    execute: customExecute,
     subscribe: customSubscribe,
     contextFactory: customContextFactory,
     instrumentation,

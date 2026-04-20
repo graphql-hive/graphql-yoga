@@ -1,34 +1,24 @@
-import { ObjMap } from './utils.js';
+import type {
+  DocumentNode,
+  ExecutionArgs,
+  ExecutionResult,
+  GraphQLError,
+  GraphQLSchema,
+  parse,
+  TypeInfo,
+  validate,
+  ValidationRule,
+} from 'graphql';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import type { TypedExecutionArgs, TypedSubscriptionArgs } from './hooks.js';
 
-export interface ExecutionArgs {
-  schema: any;
-  document: any;
-  rootValue?: any;
-  contextValue?: any;
-  variableValues?: any;
-  operationName?: any;
-  fieldResolver?: any;
-  typeResolver?: any;
-  subscribeFieldResolver?: any;
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare function parse(source: any, options?: any): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare function execute(args: ExecutionArgs): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare function subscribe(args: ExecutionArgs): any;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare function validate(
-  schema: any,
-  documentAST: any,
-  rules?: any,
-  options?: any,
-  typeInfo?: any,
-): any;
+export type ExecuteFunction = (
+  args: TypedExecutionArgs<unknown>,
+) => MaybePromise<AsyncIterable<ExecutionResult> | ExecutionResult>;
 
-export type ExecuteFunction = typeof execute;
-
-export type SubscribeFunction = typeof subscribe;
+export type SubscribeFunction = (
+  args: TypedSubscriptionArgs<unknown>,
+) => MaybePromise<AsyncIterable<ExecutionResult> | ExecutionResult>;
 
 export type ParseFunction = typeof parse;
 
@@ -38,26 +28,27 @@ export type ValidateFunctionParameter = {
   /**
    * GraphQL schema instance.
    */
-  schema: Parameters<ValidateFunction>[0];
+  schema: GraphQLSchema;
   /**
    * Parsed document node.
    */
-  documentAST: Parameters<ValidateFunction>[1];
+  documentAST: DocumentNode;
   /**
    * The rules used for validation.
    * validate uses specifiedRules as exported by the GraphQL module if this parameter is undefined.
    */
-  rules?: Parameters<ValidateFunction>[2];
+  rules?: ValidationRule[];
   /**
    * TypeInfo instance which is used for getting schema information during validation
    */
-  typeInfo?: Parameters<ValidateFunction>[3];
-  options?: Parameters<ValidateFunction>[4];
+  typeInfo?: TypeInfo;
+
+  options?: Parameters<ValidateFunction>[3];
 };
 
 /** @private */
 export type PolymorphicExecuteArguments =
-  | [ExecutionArgs]
+  | [TypedExecutionArgs<unknown>]
   | [
       ExecutionArgs['schema'],
       ExecutionArgs['document'],
@@ -67,6 +58,7 @@ export type PolymorphicExecuteArguments =
       ExecutionArgs['operationName'],
       ExecutionArgs['fieldResolver'],
       ExecutionArgs['typeResolver'],
+      ExecutionArgs['subscribeFieldResolver'],
     ];
 
 /** @private */
@@ -77,12 +69,6 @@ export type Path = {
   readonly key: string | number;
   readonly typename: string | undefined;
 };
-
-export interface ExecutionResult<TData = ObjMap<unknown>, TExtensions = ObjMap<unknown>> {
-  errors?: ReadonlyArray<any>;
-  data?: TData | null;
-  extensions?: TExtensions;
-}
 
 export interface IncrementalDeferResult<
   TData = Record<string, unknown>,
@@ -96,7 +82,7 @@ export interface IncrementalStreamResult<
   TData = Array<unknown>,
   TExtensions = Record<string, unknown>,
 > {
-  errors?: ReadonlyArray<any>;
+  errors?: ReadonlyArray<GraphQLError>;
   items?: TData | null;
   path?: ReadonlyArray<string | number>;
   label?: string;

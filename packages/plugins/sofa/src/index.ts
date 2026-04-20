@@ -3,6 +3,7 @@ import { Plugin, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
 import { useSofa as createSofaHandler } from 'sofa-api';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { SofaHandler } from './types.js';
+import { TypedExecutionArgs, TypedSubscriptionArgs } from '@envelop/types';
 
 type SofaHandlerConfig = Parameters<typeof createSofaHandler>[0];
 
@@ -74,7 +75,7 @@ export function useSofa(config: SofaPluginConfig): Plugin {
           if (!enveloped) {
             throw new TypeError('Illegal invocation.');
           }
-          return enveloped.execute(executionArgs);
+          return enveloped.execute(executionArgs as TypedExecutionArgs<unknown>) as Promise<ExecutionResult>;
         },
         subscribe(
           ...args:
@@ -109,7 +110,7 @@ export function useSofa(config: SofaPluginConfig): Plugin {
           if (!enveloped) {
             throw new TypeError('Illegal invocation.');
           }
-          return enveloped.subscribe(subscriptionArgs);
+          return enveloped.subscribe(subscriptionArgs as TypedSubscriptionArgs<unknown>) as Promise<ExecutionResult>;
         },
       });
     },

@@ -1,21 +1,18 @@
 import { ExecutionResult, Plugin } from '@envelop/types';
 import { handleStreamOrSingleExecutionResult } from '../utils.js';
+import { GraphQLError } from 'graphql';
 
 export const DEFAULT_ERROR_MESSAGE = 'Unexpected error.';
 
 export type MaskError = (error: unknown, message: string) => Error;
 
-export type SerializableGraphQLErrorLike = Error & {
-  name: 'GraphQLError';
-  toJSON(): { message: string };
-  extensions?: Record<string, unknown>;
-};
+export type SerializableGraphQLErrorLike = GraphQLError;
 
-export function isGraphQLError(error: unknown): error is Error & { originalError?: Error } {
-  return error instanceof Error && error.name === 'GraphQLError';
-}
+export function isGraphQLError(error: unknown): error is GraphQLError {
+  return error instanceof GraphQLError;
+}3
 
-export function isOriginalGraphQLError(error: unknown): error is Error & { originalError?: Error } {
+export function isOriginalGraphQLError(error: unknown): error is Omit<GraphQLError, 'originalError'> & { originalError: GraphQLError } {
   if (isGraphQLError(error)) {
     if (error.originalError != null) {
       return isOriginalGraphQLError(error.originalError);
@@ -29,11 +26,11 @@ function createSerializableGraphQLError(
   message: string,
   originalError: unknown,
   isDev: boolean,
-): SerializableGraphQLErrorLike {
-  const error = new Error(message) as SerializableGraphQLErrorLike;
-  error.name = 'GraphQLError';
+): GraphQLError {
+  let extensions: Record<string, any> | undefined;
+  const error = new GraphQLError(message);
   if (isDev) {
-    const extensions =
+    extensions =
       originalError instanceof Error
         ? { message: originalError.message, stack: originalError.stack }
         : { message: String(originalError) };
@@ -45,16 +42,7 @@ function createSerializableGraphQLError(
     });
   }
 
-  Object.defineProperty(error, 'toJSON', {
-    value() {
-      return {
-        message: error.message,
-        extensions: error.extensions,
-      };
-    },
-  });
-
-  return error as SerializableGraphQLErrorLike;
+  return error;
 }
 
 export const createDefaultMaskError =
@@ -89,7 +77,7 @@ const makeHandleResult =
     if (result.errors != null) {
       setResult({
         ...result,
-        errors: result.errors.map(error => maskError(error, message)),
+        errors: result.errors.map(error => maskError(error, message)) as GraphQLError[],
       });
     }
   };

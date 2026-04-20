@@ -10,7 +10,6 @@ import {
   isNonNullType,
   isUnionType,
   Kind,
-  print,
   TypeInfo,
   visit,
   visitWithTypeInfo,
@@ -195,7 +194,7 @@ export const defaultShouldCacheResult: ShouldCacheResultFunction = (params): boo
 };
 
 export function defaultGetDocumentString(executionArgs: ExecutionArgs): string {
-  return getDocumentString(executionArgs.document, print);
+  return getDocumentString(executionArgs.document);
 }
 
 export type ResponseCacheExtensions =

@@ -1,6 +1,7 @@
-import { ExecuteFunction, ParseFunction, SubscribeFunction, ValidateFunction } from './graphql.js';
-import { Plugin } from './plugin.js';
-import { ArbitraryObject, PromiseOrValue, Spread } from './utils.js';
+import type { GraphQLSchema } from 'graphql';
+import type { ExecuteFunction, ParseFunction, SubscribeFunction, ValidateFunction } from './graphql.js';
+import type { Plugin } from './plugin.js';
+import type { ArbitraryObject, PromiseOrValue, Spread } from './utils.js';
 
 export type { ArbitraryObject } from './utils.js';
 
@@ -20,7 +21,7 @@ export type GetEnvelopedFn<PluginsContext> = {
     contextFactory: <ContextExtension>(
       contextExtension?: ContextExtension,
     ) => PromiseOrValue<Spread<[InitialContext, PluginsContext, ContextExtension]>>;
-    schema: any;
+    schema: GraphQLSchema;
   };
   _plugins: Plugin[];
 };

@@ -4,13 +4,14 @@ import {
   Plugin,
   SubscribeFunction,
   ValidateFunction,
+  ValidateFunctionParameter,
 } from '@envelop/types';
 
 type UseEngineOptions = {
   execute?: ExecuteFunction;
   parse?: ParseFunction;
   validate?: ValidateFunction;
-  specifiedRules?: readonly any[];
+  specifiedRules?: Readonly<NonNullable<ValidateFunctionParameter['rules']>>;
   subscribe?: SubscribeFunction;
 };
 

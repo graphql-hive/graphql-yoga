@@ -95,7 +95,7 @@ export type PrometheusTracingPluginConfig = Omit<
 };
 
 type HTTPFillLabelParams = FillLabelsFnParams & {
-  document: DocumentNode;
+  document?: DocumentNode;
   request: Request;
   response: Response;
 };
@@ -185,7 +185,7 @@ export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
   }
 
   const startByRequest = new WeakMap<Request, number>();
-  const paramsByRequest = new WeakMap<Request, FillLabelsFnParams & { document: DocumentNode }>();
+  const paramsByRequest = new WeakMap<Request, FillLabelsFnParams & { document?: DocumentNode }>();
 
   return {
     ...basePlugin,
@@ -201,9 +201,9 @@ export function usePrometheus(options: PrometheusTracingPluginConfig): Plugin {
             // graphql errors are also instances of errors
             return;
           }
-          const operationAST = getOperationAST(document, context.params.operationName);
+          const operationAST = document && getOperationAST(document, context.params.operationName);
           const params = {
-            document,
+            document: document ?? undefined,
             operationName: operationAST?.name?.value,
             operationType: operationAST?.operation,
           };

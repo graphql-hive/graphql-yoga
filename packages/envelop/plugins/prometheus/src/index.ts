@@ -475,7 +475,7 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
       const args = {
         context,
         totalTime: (Date.now() - startTime) / 1000,
-        params: fillLabelsFnParams ?? { error: params.result, errorPhase: 'parse' },
+        params: fillLabelsFnParams ?? { error: params.result as GraphQLError, errorPhase: 'parse' },
       };
 
       for (const { handler } of phasesToHook.parse.filter(({ shouldHandle }) =>

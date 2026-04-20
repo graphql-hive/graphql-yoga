@@ -11,28 +11,24 @@ const DEFAULT_OPTIONS: LoggerPluginOptions = {
   logFn: console.log,
 };
 
-type InternalPluginContext = {
-  [envelopIsIntrospectionSymbol]?: true;
-};
-
-export const useLogger = (
+export const useLogger = <TContext extends Record<string, any>>(
   rawOptions: LoggerPluginOptions = DEFAULT_OPTIONS,
-): Plugin<InternalPluginContext> => {
+): Plugin<TContext> => {
   const options = {
     DEFAULT_OPTIONS,
     ...rawOptions,
   };
 
+  const introspectionCtx = new WeakSet();
+
   return {
-    onParse({ extendContext, params }) {
+    onParse({ context, params }) {
       if (options.skipIntrospection && isIntrospectionOperationString(params.source)) {
-        extendContext({
-          [envelopIsIntrospectionSymbol]: true,
-        });
+        introspectionCtx.add(context);
       }
     },
     onExecute({ args }) {
-      if (args.contextValue[envelopIsIntrospectionSymbol]) {
+      if (introspectionCtx.has(args.contextValue)) {
         return;
       }
 
@@ -45,7 +41,7 @@ export const useLogger = (
       };
     },
     onSubscribe({ args }) {
-      if (args.contextValue[envelopIsIntrospectionSymbol]) {
+      if (introspectionCtx.has(args.contextValue)) {
         return;
       }
 

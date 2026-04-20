@@ -128,7 +128,6 @@ export const useSentry = <PluginContext extends Record<string, any> = {}>(
       }
 
       const rootOperation = args.document.definitions.find(
-        // @ts-expect-error TODO: not sure how we will make it dev friendly
         o => o.kind === Kind.OPERATION_DEFINITION,
       ) as OperationDefinitionNode;
       const operationType = rootOperation.operation;

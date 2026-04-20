@@ -70,8 +70,9 @@ export function useManagedFederation(options: ManagedFederationPluginOptions = {
       ensureSupergraphManager().start();
     },
     onPluginInit({ setSchema }) {
-      if (ensureSupergraphManager().schema) {
-        setSchema(ensureSupergraphManager().schema);
+      const schema = ensureSupergraphManager().schema;
+      if (schema != null) {
+        setSchema(schema);
       } else {
         // Wait for the first schema to be loaded before before allowing requests to be parsed
         // We can then remove the onRequestParse hook to avoid async cost on every request

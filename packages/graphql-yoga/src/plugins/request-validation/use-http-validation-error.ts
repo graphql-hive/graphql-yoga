@@ -9,12 +9,13 @@ export function useHTTPValidationError<
       return ({ valid, result }) => {
         if (!valid) {
           for (const error of result) {
-            error.extensions ||= {};
-            error.extensions.code ||= 'GRAPHQL_VALIDATION_FAILED';
-            error.extensions.http ||= {};
-            error.extensions.http.spec =
-              error.extensions.http.spec == null ? true : error.extensions.http.spec;
-            error.extensions.http.status ||= 400;
+            // @ts-expect-error - We can safely mutate the error here, as it's a GraphQLError and we are in control of it
+            const errorExtensions = error.extensions ||= {};
+            errorExtensions.code ||= 'GRAPHQL_VALIDATION_FAILED';
+            const httpExtensions = errorExtensions.http ||= {};
+            httpExtensions.spec =
+              httpExtensions.spec == null ? true : httpExtensions.spec;
+            httpExtensions.status ||= 400;
           }
         }
       };

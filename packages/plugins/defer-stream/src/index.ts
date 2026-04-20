@@ -10,13 +10,10 @@ export function useDeferStream<
   TPluginContext extends Record<string, unknown>,
 >(): Plugin<TPluginContext> {
   return {
-    onSchemaChange: ({
+    onSchemaChange({
       schema,
       replaceSchema,
-    }: {
-      schema: GraphQLSchema;
-      replaceSchema(schema: GraphQLSchema): void;
-    }) => {
+    }) {
       const directives: GraphQLDirective[] = [];
 
       const deferInSchema = schema.getDirective('defer');
@@ -30,23 +27,18 @@ export function useDeferStream<
       }
 
       if (directives.length) {
-        replaceSchema(
-          new GraphQLSchema({
-            ...schema.toConfig(),
-            directives: [...schema.getDirectives(), ...directives],
-          }),
-        );
+        const newSchema = new GraphQLSchema({
+          ...schema.toConfig(),
+          directives: [...schema.getDirectives(), ...directives],
+        });
+        newSchema.extensions = schema.extensions;
+        replaceSchema(newSchema);
       }
     },
-    onValidate: ({
+    onValidate({
       params,
       addValidationRule,
-    }: {
-      params: {
-        rules?: ValidationRule[];
-      };
-      addValidationRule(rule: ValidationRule): void;
-    }) => {
+    }) {
       // Just to make TS happy because rules are always defined by useEngine.
       params.rules ||= [];
       params.rules = params.rules.filter(rule => rule.name !== 'OverlappingFieldsCanBeMergedRule');
