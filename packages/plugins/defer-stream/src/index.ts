@@ -30,12 +30,13 @@ export function useDeferStream<
       }
 
       if (directives.length) {
-        replaceSchema(
-          new GraphQLSchema({
-            ...schema.toConfig(),
-            directives: [...schema.getDirectives(), ...directives],
-          }),
-        );
+        const newSchema = new GraphQLSchema({
+          ...schema.toConfig(),
+          directives: [...schema.getDirectives(), ...directives],
+        });
+        // Move extensions from the old schema to the new one, otherwise we might lose important information like plugin metadata.
+        newSchema.extensions = schema.extensions;
+        replaceSchema(newSchema);
       }
     },
     onValidate: ({

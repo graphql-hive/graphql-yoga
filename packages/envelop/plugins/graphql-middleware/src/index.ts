@@ -1,14 +1,13 @@
 import { applyMiddleware, IMiddleware, IMiddlewareGenerator } from 'graphql-middleware';
 import type { Plugin } from '@envelop/core';
 
-const graphqlMiddlewareAppliedTransformSymbol = Symbol('graphqlMiddleware.appliedTransform');
-
 export const useGraphQLMiddleware = <TSource = any, TContext = any, TArgs = any>(
   middlewares: (
     | IMiddleware<TSource, TContext, TArgs>
     | IMiddlewareGenerator<TSource, TContext, TArgs>
   )[],
 ): Plugin => {
+  const graphqlMiddlewareAppliedTransformSymbol = 'graphqlMiddleware.appliedTransform';
   return {
     onSchemaChange({ schema, replaceSchema }) {
       if (schema.extensions?.[graphqlMiddlewareAppliedTransformSymbol]) {
