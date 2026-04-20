@@ -1,5 +1,5 @@
 import {
-  GraphQLFieldResolver,
+  GraphQLFieldConfig,
   GraphQLList,
   GraphQLObjectType,
   GraphQLSchema,
@@ -26,15 +26,15 @@ function createResolverWrappingPlugin(callLog: string[]) {
 
       const queryType = schema.getQueryType()!;
       const fields = queryType.getFields();
-      const wrappedFields: Record<string, any> = {};
+      const wrappedFields: Record<string, GraphQLFieldConfig<unknown, unknown>> = {};
 
       for (const [fieldName, field] of Object.entries(fields)) {
         const originalResolve = field.resolve;
         wrappedFields[fieldName] = {
           type: field.type,
-          resolve: (...args: Parameters<GraphQLFieldResolver<any, any>>) => {
+          resolve: (...args) => {
             callLog.push(fieldName);
-            return originalResolve?.apply(null, args);
+            return originalResolve?.(...args);
           },
         };
       }
@@ -82,7 +82,7 @@ describe('Middleware Compatibility', () => {
           onSchemaChange({ schema }: { schema: GraphQLSchema }) {
             capturedSchema = schema;
           },
-        } as any,
+        },
       ],
     });
 
@@ -132,7 +132,7 @@ describe('Middleware Compatibility', () => {
             };
             replaceSchema(newSchema);
           },
-        } as any,
+        },
         useDeferStream(),
       ],
     });
@@ -164,7 +164,7 @@ describe('Middleware Compatibility', () => {
 
     const yoga = createYoga({
       schema,
-      plugins: [createResolverWrappingPlugin(callLog) as any, useDeferStream()],
+      plugins: [createResolverWrappingPlugin(callLog), useDeferStream()],
     });
 
     const response = await yoga.fetch('http://yoga/graphql', {
@@ -209,7 +209,7 @@ describe('Middleware Compatibility', () => {
 
     const yoga = createYoga({
       schema,
-      plugins: [createResolverWrappingPlugin(callLog) as any, useDeferStream()],
+      plugins: [createResolverWrappingPlugin(callLog), useDeferStream()],
     });
 
     const response = await yoga.fetch('http://yoga/graphql', {
