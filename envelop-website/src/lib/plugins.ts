@@ -1,38 +1,20 @@
-// @ts-expect-error - next/image imports
 import { StaticImageData } from 'next/image';
-// @ts-expect-error - SVG/PNG imports
 import apolloIcon from '../../public/assets/logos/apollo.svg';
-// @ts-expect-error - SVG/PNG imports
 import assetsIcon from '../../public/assets/logos/assets.png';
-// @ts-expect-error - SVG/PNG imports
 import auth0Icon from '../../public/assets/logos/auth0.png';
-// @ts-expect-error - SVG/PNG imports
 import datadogIcon from '../../public/assets/logos/datadog.svg';
-// @ts-expect-error - SVG/PNG imports
 import genericAuthIcon from '../../public/assets/logos/generic_auth.png';
-// @ts-expect-error - SVG/PNG imports
 import graphqlArmorIcon from '../../public/assets/logos/graphql-armor.svg';
-// @ts-expect-error - SVG/PNG imports
 import graphqlIcon from '../../public/assets/logos/graphql.png';
-// @ts-expect-error - SVG/PNG imports
 import inngestIcon from '../../public/assets/logos/inngest.png';
-// @ts-expect-error - SVG/PNG imports
 import modulesIcon from '../../public/assets/logos/modules.svg';
-// @ts-expect-error - SVG/PNG imports
 import newrelicIcon from '../../public/assets/logos/newrelic.png';
-// @ts-expect-error - SVG/PNG imports
 import openTelemetryIcon from '../../public/assets/logos/opentelemetry.png';
-// @ts-expect-error - SVG/PNG imports
 import persistedOperationsIcon from '../../public/assets/logos/persisted_operations.png';
-// @ts-expect-error - SVG/PNG imports
 import prometheusIcon from '../../public/assets/logos/prometheus.png';
-// @ts-expect-error - SVG/PNG imports
 import rateLimiterIcon from '../../public/assets/logos/rate_limiter.png';
-// @ts-expect-error - SVG/PNG imports
 import sentryIcon from '../../public/assets/logos/sentry.svg';
-// @ts-expect-error - SVG/PNG imports
 import envelopIcon from '../../public/logo.png';
-// @ts-expect-error - SVG/PNG imports
 import hiveIcon from './hive-plugins-logo-green.svg';
 
 export const ALL_TAGS = [
