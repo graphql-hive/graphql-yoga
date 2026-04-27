@@ -4,8 +4,8 @@ import {
   getResponseInitByRespectingErrors,
   isGraphQLError,
 } from '../../error.js';
-import { FetchAPI } from '../../types.js';
-import { ResultProcessorInput } from '../types.js';
+import type { FetchAPI } from '../../types.js';
+import type { ResultProcessorInput } from '../types.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function processRegularResult(

@@ -1,5 +1,7 @@
-import { FormattedExecutionResult, GraphQLFormattedError, versionInfo } from 'graphql';
-import { createYoga, YogaServerInstance } from 'graphql-yoga';
+import type { FormattedExecutionResult, GraphQLFormattedError } from 'graphql';
+import { versionInfo } from 'graphql';
+import type { YogaServerInstance } from 'graphql-yoga';
+import { createYoga } from 'graphql-yoga';
 import { Trace } from '@apollo/usage-reporting-protobuf';
 import { useApolloInlineTrace } from '@graphql-yoga/plugin-apollo-inline-trace';
 import { getStitchedSchemaFromLocalSchemas } from './fixtures/getStitchedSchemaFromLocalSchemas';

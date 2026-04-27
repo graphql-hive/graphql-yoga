@@ -1,7 +1,8 @@
-import { buildSchema, DocumentNode, parse } from 'graphql';
+import type { DocumentNode } from 'graphql';
+import { buildSchema, parse } from 'graphql';
 import { LRUCache } from 'lru-cache';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 import { useParserCache } from '../src/index.js';
 
 describe('useParserCache', () => {

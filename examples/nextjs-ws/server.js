@@ -145,9 +145,7 @@ async function start(port, handle) {
     });
   });
 
-  await new Promise((resolve, reject) =>
-    server.listen(port, err => (err ? reject(err) : resolve())),
-  );
+  await new Promise(resolve => server.listen(port, () => resolve(undefined)));
 
   return () =>
     new Promise(resolve => {
@@ -155,7 +153,7 @@ async function start(port, handle) {
         socket.destroy();
       }
       server.closeAllConnections();
-      server.close(() => resolve());
+      server.close(() => resolve(undefined));
     });
 }
 

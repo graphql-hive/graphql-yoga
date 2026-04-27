@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Callout, LegacyPackageCmd, NextPageProps, Tabs } from '@theguild/components';
+import type { NextPageProps } from '@theguild/components';
+import { Callout, LegacyPackageCmd, Tabs } from '@theguild/components';
 import { defaultNextraOptions } from '@theguild/components/next.config';
 import {
   compileMdx,

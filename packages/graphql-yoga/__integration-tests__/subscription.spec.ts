@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
-import { AddressInfo } from 'node:net';
-import { ExecutionResult } from 'graphql';
+import type { AddressInfo } from 'node:net';
+import type { ExecutionResult } from 'graphql';
 import { fetch } from '@whatwg-node/fetch';
 import { fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga } from '../src';

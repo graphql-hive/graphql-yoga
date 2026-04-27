@@ -1,6 +1,8 @@
-import { ExecutionResult, FieldNode, getOperationAST, GraphQLError, Kind, print } from 'graphql';
+import type { ExecutionResult, FieldNode, GraphQLError } from 'graphql';
+import { getOperationAST, Kind, print } from 'graphql';
 import newRelic from 'newrelic';
-import { DefaultContext, getDocumentString, isAsyncIterable, Path, Plugin } from '@envelop/core';
+import type { DefaultContext, Path, Plugin } from '@envelop/core';
+import { getDocumentString, isAsyncIterable } from '@envelop/core';
 import { useOnResolve } from '@envelop/on-resolve';
 
 export enum AttributeName {

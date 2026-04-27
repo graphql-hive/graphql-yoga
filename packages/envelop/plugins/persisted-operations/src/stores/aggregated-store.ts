@@ -1,5 +1,5 @@
-import { DocumentNode } from 'graphql';
-import { PersistedOperationsStore } from '../types.js';
+import type { DocumentNode } from 'graphql';
+import type { PersistedOperationsStore } from '../types.js';
 
 export class AggregatedStore implements PersistedOperationsStore {
   constructor(private stores: PersistedOperationsStore[]) {}

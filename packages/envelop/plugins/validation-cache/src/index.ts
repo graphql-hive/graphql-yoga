@@ -1,4 +1,5 @@
-import { GraphQLError, introspectionFromSchema, print, type GraphQLSchema } from 'graphql';
+import type { GraphQLError, GraphQLSchema } from 'graphql';
+import { introspectionFromSchema, print } from 'graphql';
 import { LRUCache } from 'lru-cache';
 import objectHash from 'object-hash';
 import { getDocumentString, type Plugin } from '@envelop/core';

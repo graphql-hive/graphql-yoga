@@ -1,4 +1,4 @@
-import {
+import type {
   DefaultContext,
   ExecutionResult,
   IncrementalExecutionResult,
@@ -6,7 +6,8 @@ import {
   TypedExecutionArgs,
 } from '@envelop/types';
 import { handleStreamOrSingleExecutionResult } from '../utils.js';
-import { isGraphQLError, SerializableGraphQLErrorLike } from './use-masked-errors.js';
+import type { SerializableGraphQLErrorLike } from './use-masked-errors.js';
+import { isGraphQLError } from './use-masked-errors.js';
 
 export type ErrorHandler = ({
   errors,

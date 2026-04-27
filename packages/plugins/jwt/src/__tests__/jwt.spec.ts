@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHmac } from 'node:crypto';
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { buildClientSchema, getIntrospectionQuery, printSchema } from 'graphql';
 import { createClient } from 'graphql-ws';
 import { useServer } from 'graphql-ws/use/ws';
-import { createSchema, createYoga, Plugin } from 'graphql-yoga';
-import jwt, { Algorithm, SignOptions } from 'jsonwebtoken';
+import type { Plugin } from 'graphql-yoga';
+import { createSchema, createYoga } from 'graphql-yoga';
+import type { Algorithm, SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import WebSocket, { WebSocketServer } from 'ws';
 import { useDisableIntrospection } from '@graphql-yoga/plugin-disable-introspection';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
-import { JwtPluginOptions } from '../config';
+import type { JwtPluginOptions } from '../config';
 import { useJWT } from '../plugin';
 import {
   createInlineSigningKeyProvider,

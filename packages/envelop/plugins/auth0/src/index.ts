@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 
-import jwtPkg, { DecodeOptions, VerifyOptions } from 'jsonwebtoken';
+import type { DecodeOptions, VerifyOptions } from 'jsonwebtoken';
+import jwtPkg from 'jsonwebtoken';
 import * as JwksRsa from 'jwks-rsa';
-import { Plugin } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 const { decode, verify } = jwtPkg;

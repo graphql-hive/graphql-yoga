@@ -1,5 +1,6 @@
-import { createServer, get, IncomingMessage } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { IncomingMessage } from 'node:http';
+import { createServer, get } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import fetchMultipart from 'fetch-multipart-graphql';
 import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga';

@@ -1,5 +1,5 @@
 import { NoSchemaIntrospectionCustomRule } from 'graphql';
-import { DefaultContext, Plugin } from '@envelop/core';
+import type { DefaultContext, Plugin } from '@envelop/core';
 
 export interface DisableIntrospectionOptions {
   disableIf?: (args: {

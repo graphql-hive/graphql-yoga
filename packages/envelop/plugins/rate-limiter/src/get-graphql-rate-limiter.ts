@@ -1,6 +1,7 @@
 import get from 'lodash.get';
 import ms from 'ms';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { getNoOpCache, getWeakMapCache } from './batch-request-cache.js';
 import { InMemoryStore } from './in-memory-store.js';
 import type {

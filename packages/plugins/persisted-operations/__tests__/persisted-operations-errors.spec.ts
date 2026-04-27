@@ -1,8 +1,6 @@
 import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
-import {
-  CustomPersistedQueryErrors,
-  usePersistedOperations,
-} from '@graphql-yoga/plugin-persisted-operations';
+import type { CustomPersistedQueryErrors } from '@graphql-yoga/plugin-persisted-operations';
+import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations';
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `

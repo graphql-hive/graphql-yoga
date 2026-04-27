@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
-import { DocumentNode, ExecutionArgs, ExecutionResult } from 'graphql';
-import { CompiledQuery, compileQuery, CompilerOptions, isCompiledQuery } from 'graphql-jit';
-import { getDocumentString, makeExecute, makeSubscribe, Plugin } from '@envelop/core';
+import type { DocumentNode, ExecutionArgs, ExecutionResult } from 'graphql';
+import type { CompiledQuery, CompilerOptions } from 'graphql-jit';
+import { compileQuery, isCompiledQuery } from 'graphql-jit';
+import type { Plugin } from '@envelop/core';
+import { getDocumentString, makeExecute, makeSubscribe } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 type JSONStringifier = (result: any) => string;

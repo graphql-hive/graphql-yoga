@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 import type { Cache } from '@envelop/response-cache';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 

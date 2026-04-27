@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build:watch": "tsgo --watch",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "shell": "concurrently \"npm run build:watch\" \"firebase functions:shell\"",

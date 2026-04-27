@@ -1,4 +1,4 @@
-import { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
 import { fakePromise } from '@whatwg-node/server';
 import { createSchema, createYoga } from '../src/index.js';
 

@@ -1,4 +1,5 @@
-import { createSchema, createYoga, Plugin } from '../src';
+import type { Plugin } from '../src';
+import { createSchema, createYoga } from '../src';
 
 describe('instrumentation', () => {
   const schema = createSchema({

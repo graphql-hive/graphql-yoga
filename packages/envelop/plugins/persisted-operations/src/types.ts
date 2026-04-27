@@ -1,5 +1,5 @@
-import { DocumentNode } from 'graphql';
-import { DefaultContext } from '@envelop/core';
+import type { DocumentNode } from 'graphql';
+import type { DefaultContext } from '@envelop/core';
 
 export interface PersistedOperationsStore {
   /**

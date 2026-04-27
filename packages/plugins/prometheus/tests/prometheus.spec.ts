@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga, Plugin } from 'graphql-yoga';
+import type { Plugin } from 'graphql-yoga';
+import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
 import { register as registry } from 'prom-client';
 import { createHistogram, usePrometheus } from '@graphql-yoga/plugin-prometheus';
 

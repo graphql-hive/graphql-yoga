@@ -1,5 +1,5 @@
 import { URLSearchParams } from '@whatwg-node/fetch';
-import { GraphQLParams } from '../../types.js';
+import type { GraphQLParams } from '../../types.js';
 import { handleURLSearchParams } from './utils.js';
 
 export function isGETRequest(request: Request) {

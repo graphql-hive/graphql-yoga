@@ -1,5 +1,6 @@
-import { IExecutableSchemaDefinition, makeExecutableSchema } from '@graphql-tools/schema';
-import { GraphQLSchemaWithContext, YogaInitialContext } from './types.js';
+import type { IExecutableSchemaDefinition } from '@graphql-tools/schema';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import type { GraphQLSchemaWithContext, YogaInitialContext } from './types.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export function createSchema<TContext = {}>(

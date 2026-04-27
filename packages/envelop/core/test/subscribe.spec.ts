@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import {
   assertStreamExecutionValue,
   collectAsyncIteratorValues,

@@ -1,4 +1,5 @@
-import { createGraphQLError, Plugin, YogaInitialContext } from 'graphql-yoga';
+import type { Plugin, YogaInitialContext } from 'graphql-yoga';
+import { createGraphQLError } from 'graphql-yoga';
 
 const NON_PREFLIGHTED_CONTENT_TYPES = [
   'application/x-www-form-urlencoded',

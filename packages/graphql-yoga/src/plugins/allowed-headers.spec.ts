@@ -1,7 +1,7 @@
 import { createSchema } from '../schema';
 import { createYoga } from '../server';
 import { useAllowedResponseHeaders } from './allowed-headers';
-import { Plugin } from './types';
+import type { Plugin } from './types';
 
 describe('useAllowedHeaders', () => {
   it('should strip headers from responses', async () => {

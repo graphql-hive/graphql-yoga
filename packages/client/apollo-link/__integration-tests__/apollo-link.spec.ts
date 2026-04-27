@@ -1,5 +1,6 @@
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { parse, versionInfo } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';

@@ -1,5 +1,6 @@
 import { crypto, TextEncoder } from '@whatwg-node/fetch';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export function hashSHA256(text: string): MaybePromise<string> {
   const inputUint8Array = new TextEncoder().encode(text);

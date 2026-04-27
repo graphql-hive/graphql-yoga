@@ -1,13 +1,6 @@
-import { GraphQLError, ResponsePath } from 'graphql';
-import {
-  createGraphQLError,
-  FetchAPI,
-  isAsyncIterable,
-  mapMaybePromise,
-  Plugin,
-  YogaInitialContext,
-  YogaLogger,
-} from 'graphql-yoga';
+import type { GraphQLError, ResponsePath } from 'graphql';
+import type { FetchAPI, Plugin, YogaInitialContext, YogaLogger } from 'graphql-yoga';
+import { createGraphQLError, isAsyncIterable, mapMaybePromise } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
 

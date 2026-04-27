@@ -1,9 +1,10 @@
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { pipe, toObservable } from 'wonka';
 import { yogaExchange } from '@graphql-yoga/urql-exchange';
-import { Client, createClient } from '@urql/core';
+import type { Client } from '@urql/core';
+import { createClient } from '@urql/core';
 
 describe('URQL Yoga Exchange', () => {
   const endpoint = '/graphql';

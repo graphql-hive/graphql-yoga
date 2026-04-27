@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { FieldNode, parse, visit } from 'graphql';
+import type { FieldNode } from 'graphql';
+import { parse, visit } from 'graphql';
 import { assertSingleExecutionValue, createSpiedPlugin, createTestkit } from '@envelop/testing';
 import { query, schema } from './common.js';
 

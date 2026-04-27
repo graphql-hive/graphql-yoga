@@ -1,6 +1,6 @@
 import { GraphQLError, parse } from 'graphql';
-import { DefaultContext, Plugin } from '@envelop/core';
-import { PersistedOperationsFunctionStore, PersistedOperationsStore } from './types.js';
+import type { DefaultContext, Plugin } from '@envelop/core';
+import type { PersistedOperationsFunctionStore, PersistedOperationsStore } from './types.js';
 import { operationIdFromSource } from './utils.js';
 
 export type UsePersistedOperationsOptions<ContextType = DefaultContext> = {

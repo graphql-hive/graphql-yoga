@@ -1,4 +1,4 @@
-import { AfterValidateEventPayload } from '@envelop/core';
+import type { AfterValidateEventPayload } from '@envelop/core';
 import { createSchema } from '../../schema.js';
 import { createYoga } from '../../server.js';
 

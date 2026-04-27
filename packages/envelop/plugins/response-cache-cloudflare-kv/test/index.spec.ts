@@ -1,4 +1,4 @@
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import type { Cache } from '@envelop/response-cache';
 import { buildOperationKey } from '../src/cache-key.js';

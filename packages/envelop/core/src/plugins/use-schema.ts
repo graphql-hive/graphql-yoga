@@ -1,4 +1,4 @@
-import { DefaultContext, Maybe, Plugin } from '@envelop/types';
+import type { DefaultContext, Maybe, Plugin } from '@envelop/types';
 
 export const useSchema = (schema: any): Plugin => {
   return {

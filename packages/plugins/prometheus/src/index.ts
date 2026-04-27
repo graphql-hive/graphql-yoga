@@ -1,5 +1,5 @@
 import { getOperationAST, type DocumentNode } from 'graphql';
-import { Plugin } from 'graphql-yoga';
+import type { Plugin } from 'graphql-yoga';
 import { register as defaultRegistry } from 'prom-client';
 import {
   createCounter,

@@ -1,4 +1,4 @@
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import { buildEntityKey, buildOperationKey } from '../src/cache-key.js';
 import { getAllKvKeysForPrefix } from '../src/invalidate.js';

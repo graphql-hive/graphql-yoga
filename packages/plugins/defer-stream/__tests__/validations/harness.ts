@@ -1,7 +1,8 @@
-import { buildSchema, GraphQLSchema, parse, validate, ValidationRule } from 'graphql';
-import { Maybe } from 'graphql/jsutils/Maybe';
+import type { GraphQLSchema, ValidationRule } from 'graphql';
+import { buildSchema, parse, validate } from 'graphql';
+import type { Maybe } from 'graphql/jsutils/Maybe';
 import { validateSDL } from 'graphql/validation/validate';
-import { SDLValidationRule } from 'graphql/validation/ValidationContext';
+import type { SDLValidationRule } from 'graphql/validation/ValidationContext';
 
 /**
  * Checks whether the value is an object.

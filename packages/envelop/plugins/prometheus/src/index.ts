@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { ExecutionResult, GraphQLSchema, TypeInfo, type GraphQLError } from 'graphql';
+import { TypeInfo, type ExecutionResult, type GraphQLSchema } from 'graphql';
 import { register as defaultRegistry } from 'prom-client';
 import {
   isAsyncIterable,
@@ -15,12 +15,12 @@ import {
   type OnSchemaChangeHook,
 } from '@envelop/core';
 import { useOnResolve } from '@envelop/on-resolve';
-import {
+import type {
   CounterMetricOption,
   HistogramMetricOption,
+  MetricsConfig,
   PrometheusTracingPluginConfig,
   SummaryMetricOption,
-  type MetricsConfig,
 } from './config.js';
 import {
   createCounter,
@@ -28,7 +28,6 @@ import {
   createHistogram,
   createSummary,
   extractDeprecatedFields,
-  FillLabelsFnParams,
   filterFillParamsFnParams,
   getCounterFromConfig,
   getHistogramFromConfig,
@@ -36,6 +35,7 @@ import {
   instrumentRegistry,
   shouldTraceFieldResolver,
   type CounterAndLabels,
+  type FillLabelsFnParams,
   type HistogramAndLabels,
   type SummaryAndLabels,
 } from './utils.js';

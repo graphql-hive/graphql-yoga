@@ -1,4 +1,5 @@
-import { ContextFactoryFn, useExtendContext } from '@envelop/core';
+import type { ContextFactoryFn } from '@envelop/core';
+import { useExtendContext } from '@envelop/core';
 import { createSpiedPlugin, createTestkit } from '@envelop/testing';
 import { query, schema } from './common.js';
 

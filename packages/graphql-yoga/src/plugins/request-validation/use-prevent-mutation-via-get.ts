@@ -1,11 +1,6 @@
-import {
-  DocumentNode,
-  getOperationAST,
-  GraphQLError,
-  GraphQLHTTPErrorExtensions,
-  OperationDefinitionNode,
-} from 'graphql';
-import { Maybe } from '@envelop/core';
+import type { DocumentNode, GraphQLHTTPErrorExtensions, OperationDefinitionNode } from 'graphql';
+import { getOperationAST, GraphQLError } from 'graphql';
+import type { Maybe } from '@envelop/core';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaInitialContext } from '../../types.js';
 import type { Plugin } from '../types.js';

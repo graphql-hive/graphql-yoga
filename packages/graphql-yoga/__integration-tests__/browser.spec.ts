@@ -15,21 +15,16 @@ import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import { InMemoryLiveQueryStore } from '@n1ru4l/in-memory-live-query-store';
 import 'json-bigint-patch';
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 // @see https://github.com/graphql-hive/graphql-yoga/pull/3543#issuecomment-2537035739
 // eslint-disable-next-line
 import { Browser, chromium, ElementHandle, Page } from 'playwright';
 import { fakePromise } from '@whatwg-node/server';
-import {
-  ansiCodes,
-  CORSOptions,
-  createSchema,
-  createYoga,
-  GraphiQLOptions,
-  Repeater,
-} from '../src/index.js';
+import type { CORSOptions, GraphiQLOptions } from '../src/index.js';
+import { ansiCodes, createSchema, createYoga, Repeater } from '../src/index.js';
 
 let resolveOnReturn: VoidFunction;
 const timeoutsSignal = new AbortController();

@@ -1,4 +1,5 @@
-import { createGraphQLError, createLRUCache, Plugin, PromiseOrValue } from 'graphql-yoga';
+import type { Plugin, PromiseOrValue } from 'graphql-yoga';
+import { createGraphQLError, createLRUCache } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export function hashSHA256(

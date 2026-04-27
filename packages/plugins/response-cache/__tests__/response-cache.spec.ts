@@ -1,9 +1,7 @@
-import { createSchema, createYoga, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
-import {
-  cacheControlDirective,
-  defaultBuildResponseCacheKey,
-  ShouldCacheResultFunction,
-} from '@envelop/response-cache';
+import type { YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
+import { createSchema, createYoga } from 'graphql-yoga';
+import type { ShouldCacheResultFunction } from '@envelop/response-cache';
+import { cacheControlDirective, defaultBuildResponseCacheKey } from '@envelop/response-cache';
 import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
 import { createRedisCache } from '@envelop/response-cache-redis';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';

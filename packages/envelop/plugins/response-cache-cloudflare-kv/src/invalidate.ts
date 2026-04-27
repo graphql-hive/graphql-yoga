@@ -1,4 +1,4 @@
-import { KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import type { CacheEntityRecord } from '@envelop/response-cache';
 import { buildEntityKey } from './cache-key.js';
 
