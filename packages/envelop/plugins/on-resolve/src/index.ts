@@ -1,12 +1,8 @@
-import {
-  defaultFieldResolver,
-  GraphQLResolveInfo,
-  GraphQLSchema,
-  isIntrospectionType,
-  isObjectType,
-} from 'graphql';
+import type { GraphQLResolveInfo, GraphQLSchema } from 'graphql';
+import { defaultFieldResolver, isIntrospectionType, isObjectType } from 'graphql';
 import type { Plugin } from '@envelop/core';
-import { handleMaybePromise, mapMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, mapMaybePromise } from '@whatwg-node/promise-helpers';
 
 export type Resolver<Context = unknown> = (
   root: unknown,

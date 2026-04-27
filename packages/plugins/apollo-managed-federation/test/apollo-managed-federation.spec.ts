@@ -1,6 +1,7 @@
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { createYoga } from 'graphql-yoga';
-import { SupergraphSchemaManager, SupergraphSchemaManagerOptions } from '@graphql-tools/federation';
+import type { SupergraphSchemaManagerOptions } from '@graphql-tools/federation';
+import { SupergraphSchemaManager } from '@graphql-tools/federation';
 import { useManagedFederation } from '@graphql-yoga/plugin-apollo-managed-federation';
 import { Response } from '@whatwg-node/fetch';
 import { fakePromise } from '@whatwg-node/server';

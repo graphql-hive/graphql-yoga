@@ -1,6 +1,7 @@
 import { formatApolloErrors } from 'apollo-server-errors';
 import type { ExecutionResult, GraphQLError } from 'graphql';
-import { handleStreamOrSingleExecutionResult, Plugin } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
+import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 
 const makeHandleResult =
   (options: Parameters<typeof formatApolloErrors>[1] = {}) =>

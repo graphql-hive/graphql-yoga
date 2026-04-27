@@ -1,16 +1,10 @@
 import { inspect } from 'node:util';
 // eslint-disable-next-line no-restricted-imports
 import * as GraphQLJS from 'graphql';
-import {
-  DocumentNode,
-  ExecutionResult,
-  getOperationAST,
-  GraphQLError,
-  GraphQLSchema,
-  print,
-} from 'graphql';
+import type { DocumentNode, ExecutionResult, GraphQLSchema } from 'graphql';
+import { getOperationAST, GraphQLError, print } from 'graphql';
 import { envelop, getDocumentString, isAsyncIterable, useEngine, useSchema } from '@envelop/core';
-import { GetEnvelopedFn, Plugin } from '@envelop/types';
+import type { GetEnvelopedFn, Plugin } from '@envelop/types';
 import { mapSchema as cloneSchema, isDocumentNode } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 

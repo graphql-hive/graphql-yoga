@@ -1,6 +1,6 @@
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { WebSocket } from 'ws';
-import { INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from './fixtures/graphql/app.module';
 

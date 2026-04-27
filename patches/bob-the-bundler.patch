@@ -1,0 +1,22 @@
+diff --git a/dist/commands/build.js b/dist/commands/build.js
+index e89c3982c115101a65e9a4d631dc5db14c345848..c9500f992f6d8b4d97dcc8fbf48bbe433802b7af 100644
+--- a/dist/commands/build.js
++++ b/dist/commands/build.js
+@@ -56,7 +56,7 @@ async function buildTypeScript(buildPath, options) {
+         tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
+     }
+     assertTypeScriptBuildResult(await execa('npx', [
+-        'tsc',
++        'tsgo',
+         ...(tsconfig ? ['--project', tsconfig] : []),
+         ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
+         ...(options.incremental ? ['--incremental'] : []),
+@@ -64,7 +64,7 @@ async function buildTypeScript(buildPath, options) {
+         join(buildPath, 'esm'),
+     ]));
+     assertTypeScriptBuildResult(await execa('npx', [
+-        'tsc',
++        'tsgo',
+         ...(tsconfig ? ['--project', tsconfig] : []),
+         ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
+         ...(options.incremental ? ['--incremental'] : []),

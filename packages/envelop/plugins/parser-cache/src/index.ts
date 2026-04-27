@@ -1,4 +1,5 @@
-import { DocumentNode, Source } from 'graphql';
+import type { DocumentNode } from 'graphql';
+import { Source } from 'graphql';
 import { LRUCache } from 'lru-cache';
 import type { Plugin } from '@envelop/core';
 

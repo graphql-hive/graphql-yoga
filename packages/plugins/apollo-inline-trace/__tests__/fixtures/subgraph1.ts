@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { GraphQLSchema, parse } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
+import { parse } from 'graphql';
 import { createGraphQLError } from 'graphql-yoga';
 
 const typeDefs = parse(/* GraphQL */ `

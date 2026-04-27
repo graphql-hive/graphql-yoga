@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "check": "tsc --noEmit",
+    "check": "tsgo --noEmit",
     "loadtest": "k6 -e GITHUB_PR=$GITHUB_PR -e GITHUB_SHA=$GITHUB_SHA -e GITHUB_TOKEN=$GITHUB_TOKEN run k6.js",
     "start": "node start-server.ts",
     "test": "start-server-and-test start http://127.0.0.1:4000/ping loadtest"

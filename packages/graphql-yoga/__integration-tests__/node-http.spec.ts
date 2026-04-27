@@ -1,14 +1,15 @@
-import { createServer, IncomingMessage, ServerResponse, STATUS_CODES } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { ServerResponse } from 'node:http';
+import { createServer, IncomingMessage, STATUS_CODES } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import { fetch } from '@whatwg-node/fetch';
 import { createDeferredPromise } from '@whatwg-node/server';
+import type { Plugin } from '../src/index.js';
 import {
   createGraphQLError,
   createSchema,
   createYoga,
-  Plugin,
   useExecutionCancellation,
 } from '../src/index.js';
 

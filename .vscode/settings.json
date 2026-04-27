@@ -1,8 +1,12 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "search.useGlobalIgnoreFiles": true,
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "js/ts.tsdk.path": "./node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "deno.enablePaths": ["examples/deno", "examples/netlify-edge/netlify/edge-functions"],
-  "deno.importMap": "examples/netlify-edge/.netlify/edge-functions-import-map.json"
+  "deno.importMap": "examples/netlify-edge/.netlify/edge-functions-import-map.json",
+  // UI Setting:
+  // TypeScript (Native Preview) > Use Tsgo
+  "js/ts.experimental.useTsgo": true,
+  "typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
 }

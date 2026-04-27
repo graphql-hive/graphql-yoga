@@ -1,6 +1,7 @@
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import { fakePromise } from '@whatwg-node/server';
-import { createSchema, createYoga, Plugin, Repeater } from '../src/index.js';
+import type { Plugin } from '../src/index.js';
+import { createSchema, createYoga, Repeater } from '../src/index.js';
 
 describe('accept header', () => {
   it('instruct server to return an event-stream with GET parameters', async () => {

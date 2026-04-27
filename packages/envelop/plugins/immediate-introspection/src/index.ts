@@ -1,4 +1,5 @@
-import { BREAK, ValidationRule } from 'graphql';
+import type { ValidationRule } from 'graphql';
+import { BREAK } from 'graphql';
 import type { Plugin } from '@envelop/types';
 
 const OnNonIntrospectionFieldReachedValidationRule =

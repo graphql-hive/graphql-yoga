@@ -1,5 +1,5 @@
 import { chain } from '@envelop/instrumentation';
-import {
+import type {
   AfterContextBuildingHook,
   AfterParseHook,
   AfterValidateHook,

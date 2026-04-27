@@ -1,7 +1,7 @@
-import { PromiseOrValue } from '@envelop/core';
+import type { PromiseOrValue } from '@envelop/core';
 import { isPromise } from '@graphql-tools/utils';
 import landingPageBody from '../landing-page-html.js';
-import { FetchAPI } from '../types.js';
+import type { FetchAPI } from '../types.js';
 import type { Plugin } from './types.js';
 
 export interface LandingPageRendererOpts {

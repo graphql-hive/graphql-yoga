@@ -1,6 +1,6 @@
 import { GraphQLError, parse } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
 describe('Test the testkit', () => {

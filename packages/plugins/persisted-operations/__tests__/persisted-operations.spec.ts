@@ -1,5 +1,7 @@
-import { DocumentNode, parse, validate } from 'graphql';
-import { createSchema, createYoga, GraphQLParams } from 'graphql-yoga';
+import type { DocumentNode, validate } from 'graphql';
+import { parse } from 'graphql';
+import type { GraphQLParams } from 'graphql-yoga';
+import { createSchema, createYoga } from 'graphql-yoga';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations';
 
 const schema = createSchema({

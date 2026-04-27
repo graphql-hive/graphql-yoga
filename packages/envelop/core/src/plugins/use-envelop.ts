@@ -1,4 +1,4 @@
-import { GetEnvelopedFn, Plugin } from '@envelop/types';
+import type { GetEnvelopedFn, Plugin } from '@envelop/types';
 
 export const useEnvelop = (envelop: GetEnvelopedFn<any>): Plugin<any> => {
   let initialized = false;

@@ -10,10 +10,10 @@ import {
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { createGraphQLError } from '@graphql-tools/utils';
 import { useAuth0 } from '../../../plugins/auth0/src/index.js';
+import type { MaskError } from '../../src/plugins/use-masked-errors.js';
 import {
   createDefaultMaskError,
   DEFAULT_ERROR_MESSAGE,
-  MaskError,
   useMaskedErrors,
 } from '../../src/plugins/use-masked-errors.js';
 

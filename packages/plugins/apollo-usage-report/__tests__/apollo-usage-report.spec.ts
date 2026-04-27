@@ -1,9 +1,7 @@
 import { createSchema, createYoga, DisposableSymbols } from 'graphql-yoga';
 import { Report } from '@apollo/usage-reporting-protobuf';
-import {
-  ApolloUsageReportOptions,
-  useApolloUsageReport,
-} from '@graphql-yoga/plugin-apollo-usage-report';
+import type { ApolloUsageReportOptions } from '@graphql-yoga/plugin-apollo-usage-report';
+import { useApolloUsageReport } from '@graphql-yoga/plugin-apollo-usage-report';
 import { createDeferredPromise } from '@whatwg-node/promise-helpers';
 import { Reporter } from '../src/reporter';
 

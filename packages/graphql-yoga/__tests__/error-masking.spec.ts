@@ -1,4 +1,4 @@
-import { ExecutionResult, GraphQLError } from 'graphql';
+import type { ExecutionResult, GraphQLError } from 'graphql';
 import { inspect } from '@graphql-tools/utils';
 import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
 import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';

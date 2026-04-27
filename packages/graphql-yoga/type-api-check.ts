@@ -1,7 +1,8 @@
-import { ClientRequest } from 'node:http';
+import type { ClientRequest } from 'node:http';
 import type { GraphQLSchema } from 'graphql';
-import { IResolvers } from '@graphql-tools/utils';
-import { createSchema, createYoga, YogaInitialContext } from './src/index.js';
+import type { IResolvers } from '@graphql-tools/utils';
+import type { YogaInitialContext } from './src/index.js';
+import { createSchema, createYoga } from './src/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const schema: GraphQLSchema = null as any;

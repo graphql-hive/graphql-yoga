@@ -1,4 +1,4 @@
-import { ComponentProps, FC, ReactNode } from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 import { Anchor, ArrowIcon, cn, Heading } from '@theguild/components';
 
 export const RunAnywhereSection: FC<ComponentProps<'section'>> = ({

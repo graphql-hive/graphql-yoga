@@ -1,4 +1,4 @@
-import { DocumentNode, FragmentDefinitionNode, SelectionSetNode } from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode, SelectionSetNode } from 'graphql';
 
 /**
  * Sanitizes a GraphQL document node by removing empty and unused nodes.

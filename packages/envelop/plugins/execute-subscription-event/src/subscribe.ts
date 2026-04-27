@@ -1,11 +1,7 @@
-import { createSourceEventStream, ExecutionResult } from 'graphql';
-import {
-  ExecuteFunction,
-  isAsyncIterable,
-  makeSubscribe,
-  mapAsyncIterator,
-  SubscribeFunction,
-} from '@envelop/core';
+import type { ExecutionResult } from 'graphql';
+import { createSourceEventStream } from 'graphql';
+import type { ExecuteFunction, SubscribeFunction } from '@envelop/core';
+import { isAsyncIterable, makeSubscribe, mapAsyncIterator } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 /**

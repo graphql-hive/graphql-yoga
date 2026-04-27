@@ -1,7 +1,8 @@
-import { buildSchema, GraphQLError, NoSchemaIntrospectionCustomRule, validate } from 'graphql';
+import type { GraphQLError } from 'graphql';
+import { buildSchema, NoSchemaIntrospectionCustomRule, validate } from 'graphql';
 import { LRUCache } from 'lru-cache';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 import { useValidationCache } from '../src/index.js';
 
 describe('useValidationCache', () => {
