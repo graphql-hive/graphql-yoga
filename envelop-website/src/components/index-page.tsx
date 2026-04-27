@@ -6,10 +6,15 @@ import {
   InfoList,
   NPMBadge,
 } from '@theguild/components';
+// @ts-expect-error - PNG imports
 import featuresModernImage from '../../public/assets/features-modern.png';
+// @ts-expect-error - PNG imports
 import featuresPerformantImage from '../../public/assets/features-performant.png';
+// @ts-expect-error - PNG imports
 import featuresPluggableImage from '../../public/assets/features-pluggable.png';
+// @ts-expect-error - PNG imports
 import homeClawImage from '../../public/assets/home-claw.png';
+// @ts-expect-error - PNG imports
 import homeCommunicationImage from '../../public/assets/home-communication.png';
 
 export function IndexPage() {
