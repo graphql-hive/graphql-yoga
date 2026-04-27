@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "baseUrl": "./src",
-    "module": "esnext",
+    "module": "nodenext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -17,7 +16,7 @@
     "incremental": true,
     "useUnknownInCatchVariables": false,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+// @ts-expect-error - next/image imports
 import { StaticImageData } from 'next/image';
 import { compareDesc } from 'date-fns';
 import { useData } from 'nextra/hooks';
