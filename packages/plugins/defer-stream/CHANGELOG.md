@@ -1,5 +1,14 @@
 # @graphql-yoga/plugin-defer-stream
 
+## 3.21.1
+
+### Patch Changes
+
+- [`08c3cb6`](https://github.com/graphql-hive/graphql-yoga/commit/08c3cb644294b5165287540f68f9228ec7bc7623)
+  Thanks [@ardatan](https://github.com/ardatan)! - When adding the defer and stream directives to
+  the schema, we need to make sure to also move the extensions from the old schema to the new one,
+  otherwise we might lose important information like plugin metadata.
+
 ## 3.21.0
 
 ### Patch Changes
