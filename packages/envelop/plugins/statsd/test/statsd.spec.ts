@@ -3,7 +3,8 @@ import type { StatsD } from 'hot-shots';
 import { useExtendContext } from '@envelop/core';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { metricNames, StatsDPluginOptions, useStatsD } from '../src/index.js';
+import type { StatsDPluginOptions } from '../src/index.js';
+import { metricNames, useStatsD } from '../src/index.js';
 
 function createMetricName(key: keyof typeof metricNames, prefix: string = 'graphql'): string {
   return `${prefix}.${metricNames[key]}`;

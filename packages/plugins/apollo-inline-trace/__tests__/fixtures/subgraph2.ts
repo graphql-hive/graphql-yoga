@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { GraphQLSchema, parse } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
+import { parse } from 'graphql';
 
 const typeDefs = parse(/* GraphQL */ `
   type Query {

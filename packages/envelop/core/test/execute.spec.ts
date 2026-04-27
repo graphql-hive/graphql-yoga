@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { execute, ExecutionResult, GraphQLError, GraphQLSchema } from 'graphql';
+import { execute, GraphQLError, GraphQLSchema, type ExecutionResult } from 'graphql';
 import {
   assertSingleExecutionValue,
   assertStreamExecutionValue,
@@ -7,7 +7,7 @@ import {
   createSpiedPlugin,
   createTestkit,
 } from '@envelop/testing';
-import { OnExecuteDoneHookResult, OnSubscribeResultResult } from '@envelop/types';
+import type { OnExecuteDoneHookResult, OnSubscribeResultResult } from '@envelop/types';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { fakePromise } from '@whatwg-node/promise-helpers';
 import { query, schema } from './common.js';

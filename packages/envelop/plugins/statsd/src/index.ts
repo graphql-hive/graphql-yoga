@@ -1,10 +1,6 @@
 import type { StatsD } from 'hot-shots';
-import {
-  AfterParseEventPayload,
-  isAsyncIterable,
-  isIntrospectionOperationString,
-  Plugin,
-} from '@envelop/core';
+import type { AfterParseEventPayload, Plugin } from '@envelop/core';
+import { isAsyncIterable, isIntrospectionOperationString } from '@envelop/core';
 
 export interface StatsDPluginOptions {
   client: StatsD;

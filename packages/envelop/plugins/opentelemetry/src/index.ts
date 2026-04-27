@@ -1,13 +1,10 @@
-import { ExecutionResult, getOperationAST, print } from 'graphql';
-import {
-  getDocumentString,
-  isAsyncIterable,
-  OnExecuteHookResult,
-  OnSubscribeHookResult,
-  Plugin,
-} from '@envelop/core';
+import type { ExecutionResult } from 'graphql';
+import { getOperationAST, print } from 'graphql';
+import type { OnExecuteHookResult, OnSubscribeHookResult, Plugin } from '@envelop/core';
+import { getDocumentString, isAsyncIterable } from '@envelop/core';
 import { useOnResolve } from '@envelop/on-resolve';
-import { SpanAttributes, SpanKind, SpanStatusCode, TracerProvider } from '@opentelemetry/api';
+import type { SpanAttributes, TracerProvider } from '@opentelemetry/api';
+import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import * as opentelemetry from '@opentelemetry/api';
 import {
   BasicTracerProvider,

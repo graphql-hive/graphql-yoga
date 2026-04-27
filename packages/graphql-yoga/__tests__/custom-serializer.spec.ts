@@ -1,5 +1,6 @@
-import { ExecutionResultWithSerializer, useGraphQlJit } from '@envelop/graphql-jit';
-import { Plugin } from '../src/plugins/types';
+import type { ExecutionResultWithSerializer } from '@envelop/graphql-jit';
+import { useGraphQlJit } from '@envelop/graphql-jit';
+import type { Plugin } from '../src/plugins/types';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
 

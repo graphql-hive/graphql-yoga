@@ -1,4 +1,5 @@
-import { BREAK, DocumentNode, visit } from 'graphql';
+import type { DocumentNode } from 'graphql';
+import { BREAK, visit } from 'graphql';
 
 export function hasInlineArgument(doc: DocumentNode) {
   let seen = false;

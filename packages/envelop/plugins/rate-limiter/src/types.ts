@@ -1,4 +1,4 @@
-import { Store } from './store.js';
+import type { Store } from './store.js';
 
 /**
  * Two keys that define the identity for the call to a given

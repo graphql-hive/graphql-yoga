@@ -1,5 +1,5 @@
 import { ApolloServerBase } from 'apollo-server-core';
-import { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
 import { envelop, useSchema } from '@envelop/core';
 import { assertSingleExecutionValue, useGraphQLJSEngine } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';

@@ -1,15 +1,14 @@
+import type { ArgumentNode, GraphQLType, ValidationContext } from 'graphql';
 import {
-  ArgumentNode,
   getNamedType,
   GraphQLError,
   GraphQLInputObjectType,
   GraphQLNonNull,
-  GraphQLType,
   isListType,
-  ValidationContext,
 } from 'graphql';
 import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
-import { ExtendedValidationRule, getDirectiveFromAstNode } from '../common.js';
+import type { ExtendedValidationRule } from '../common.js';
+import { getDirectiveFromAstNode } from '../common.js';
 
 export const ONE_OF_DIRECTIVE_SDL = /* GraphQL */ `
   directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION

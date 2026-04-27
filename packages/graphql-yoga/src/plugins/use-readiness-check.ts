@@ -1,6 +1,6 @@
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
-import { FetchAPI } from '../types.js';
-import { Plugin } from './types.js';
+import type { FetchAPI } from '../types.js';
+import type { Plugin } from './types.js';
 
 export interface ReadinessCheckPluginOptions {
   /**

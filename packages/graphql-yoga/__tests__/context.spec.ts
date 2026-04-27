@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 
-import { Plugin } from '../src/plugins/types';
+import type { Plugin } from '../src/plugins/types';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
-import { YogaInitialContext } from '../src/types';
+import type { YogaInitialContext } from '../src/types';
 
 describe('Context', () => {
   interface UserContext {

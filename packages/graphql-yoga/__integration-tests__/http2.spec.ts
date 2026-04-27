@@ -1,11 +1,6 @@
-import {
-  ClientHttp2Session,
-  connect,
-  constants,
-  createSecureServer,
-  Http2SecureServer,
-} from 'node:http2';
-import { AddressInfo } from 'node:net';
+import type { ClientHttp2Session, Http2SecureServer } from 'node:http2';
+import { connect, constants, createSecureServer } from 'node:http2';
+import type { AddressInfo } from 'node:net';
 import { createSchema, createYoga } from 'graphql-yoga';
 import type { CertificateCreationResult } from 'pem';
 

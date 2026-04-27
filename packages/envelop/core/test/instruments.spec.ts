@@ -1,4 +1,5 @@
-import { envelop, Plugin, useEngine } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
+import { envelop, useEngine } from '@envelop/core';
 
 describe('instrumentation', () => {
   it('should instrument all graphql phases', async () => {

@@ -10,7 +10,8 @@ import {
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 import { Repeater } from '@repeaterjs/repeater';
-import { AttributeName, TracingOptions, useOpenTelemetry } from '../src/index.js';
+import type { TracingOptions } from '../src/index.js';
+import { AttributeName, useOpenTelemetry } from '../src/index.js';
 
 function createTraceProvider(exporter: InMemorySpanExporter) {
   const provider = new BasicTracerProvider();

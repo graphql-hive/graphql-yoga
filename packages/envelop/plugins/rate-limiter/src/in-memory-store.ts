@@ -1,5 +1,5 @@
-import { Store } from './store.js';
-import { Identity } from './types.js';
+import type { Store } from './store.js';
+import type { Identity } from './types.js';
 
 interface StoreData {
   // Object of fields identified by the field name + potentially args.

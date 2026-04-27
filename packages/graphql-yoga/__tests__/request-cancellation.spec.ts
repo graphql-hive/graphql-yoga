@@ -1,7 +1,8 @@
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
-import { createLogger, createSchema, createYoga, FetchAPI } from '../src/index';
+import type { FetchAPI } from '../src/index';
+import { createLogger, createSchema, createYoga } from '../src/index';
 import { useExecutionCancellation } from '../src/plugins/use-execution-cancellation';
 
 const variants: Array<[name: string, fetchAPI: undefined | FetchAPI]> = [

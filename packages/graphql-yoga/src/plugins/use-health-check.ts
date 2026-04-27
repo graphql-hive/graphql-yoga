@@ -1,5 +1,5 @@
-import { YogaLogger } from '@graphql-yoga/logger';
-import { Plugin } from './types.js';
+import type { YogaLogger } from '@graphql-yoga/logger';
+import type { Plugin } from './types.js';
 
 export interface HealthCheckPluginOptions {
   id?: string;

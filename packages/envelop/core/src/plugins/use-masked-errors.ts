@@ -1,4 +1,4 @@
-import { ExecutionResult, Plugin } from '@envelop/types';
+import type { ExecutionResult, Plugin } from '@envelop/types';
 import { handleStreamOrSingleExecutionResult } from '../utils.js';
 
 export const DEFAULT_ERROR_MESSAGE = 'Unexpected error.';

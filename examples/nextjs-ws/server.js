@@ -145,17 +145,21 @@ async function start(port, handle) {
     });
   });
 
-  await new Promise((resolve, reject) =>
-    server.listen(port, err => (err ? reject(err) : resolve())),
-  );
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, () => {
+      server.off('error', reject);
+      resolve(undefined);
+    });
+  });
 
   return () =>
-    new Promise(resolve => {
+    new Promise((resolve, reject) => {
       for (const socket of sockets) {
         socket.destroy();
       }
       server.closeAllConnections();
-      server.close(() => resolve());
+      server.close(err => (err ? reject(err) : resolve(undefined)));
     });
 }
 

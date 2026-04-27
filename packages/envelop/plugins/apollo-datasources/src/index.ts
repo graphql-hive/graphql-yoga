@@ -1,5 +1,6 @@
 import { InMemoryLRUCache, type KeyValueCache } from '@apollo/utils.keyvaluecache';
-import { isPromise, Plugin } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
+import { isPromise } from '@envelop/core';
 
 interface DataSource {
   initialize?(config: {

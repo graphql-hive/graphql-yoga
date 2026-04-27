@@ -1,5 +1,6 @@
 import { validate } from 'graphql';
-import { createSchema, createYoga, Plugin } from '../src';
+import type { Plugin } from '../src';
+import { createSchema, createYoga } from '../src';
 
 describe('validation cache', () => {
   test('validation is cached', async () => {

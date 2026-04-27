@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 import localFont from 'next/font/local';
 import {
   Anchor,
@@ -12,7 +12,6 @@ import {
   YogaIcon,
 } from '@theguild/components';
 import { getPageMap, HiveLayout } from '@theguild/components/server';
-//@ts-expect-error - no types for this package
 import '@theguild/components/style.css';
 import { pageMap as changelogsPageMap } from './changelogs/[...slug]/page';
 import { rootMetadata, websiteDescription } from './metadata';
@@ -21,9 +20,8 @@ import { pageMap as v3PageMap } from './v3/[[...slug]]/page';
 import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
-//@ts-expect-error - no types for this package
 import './global.css';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = rootMetadata;
 

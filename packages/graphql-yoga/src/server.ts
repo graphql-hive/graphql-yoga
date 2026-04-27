@@ -1,36 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionResult, parse, specifiedRules, validate } from 'graphql';
+import type { ExecutionResult } from 'graphql';
+import { parse, specifiedRules, validate } from 'graphql';
+import type { GetEnvelopedFn, PromiseOrValue } from '@envelop/core';
 import {
   envelop,
-  GetEnvelopedFn,
   isAsyncIterable,
-  PromiseOrValue,
   useEngine,
   useExtendContext,
   useMaskedErrors,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
-import { createLogger, LogLevel, YogaLogger } from '@graphql-yoga/logger';
+import type { LogLevel, YogaLogger } from '@graphql-yoga/logger';
+import { createLogger } from '@graphql-yoga/logger';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import {
   fakePromise,
   handleMaybePromise,
   iterateAsync,
   iterateAsyncVoid,
   mapAsyncIterator,
-  MaybePromise,
   unfakePromise,
 } from '@whatwg-node/promise-helpers';
-import {
-  createServerAdapter,
+import type {
   ServerAdapter,
   ServerAdapterBaseObject,
   ServerAdapterInitialContext,
   ServerAdapterOptions,
   ServerAdapterRequestHandler,
-  useCORS,
 } from '@whatwg-node/server';
+import { createServerAdapter, useCORS } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
@@ -52,7 +52,7 @@ import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
-import {
+import type {
   Instrumentation,
   OnExecutionResultHook,
   OnParamsHook,
@@ -64,18 +64,19 @@ import {
   RequestParser,
   ResultProcessorInput,
 } from './plugins/types.js';
-import { GraphiQLOptions, GraphiQLOptionsOrFactory, useGraphiQL } from './plugins/use-graphiql.js';
+import type { GraphiQLOptions, GraphiQLOptionsOrFactory } from './plugins/use-graphiql.js';
+import { useGraphiQL } from './plugins/use-graphiql.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
-import {
-  ParserAndValidationCacheOptions,
-  useParserAndValidationCache,
-} from './plugins/use-parser-and-validation-cache.js';
+import type { ParserAndValidationCacheOptions } from './plugins/use-parser-and-validation-cache.js';
+import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
 import { useRequestParser } from './plugins/use-request-parser.js';
 import { useResultProcessors } from './plugins/use-result-processor.js';
-import { useSchema, YogaSchemaDefinition } from './plugins/use-schema.js';
-import { LandingPageRenderer, useUnhandledRoute } from './plugins/use-unhandled-route.js';
+import type { YogaSchemaDefinition } from './plugins/use-schema.js';
+import { useSchema } from './plugins/use-schema.js';
+import type { LandingPageRenderer } from './plugins/use-unhandled-route.js';
+import { useUnhandledRoute } from './plugins/use-unhandled-route.js';
 import { processRequest as processGraphQLParams, processResult } from './process-request.js';
-import {
+import type {
   FetchAPI,
   GraphQLParams,
   MaskError,

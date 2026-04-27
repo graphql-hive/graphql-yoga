@@ -1,6 +1,7 @@
-import { buildHTTPExecutor, HTTPExecutorOptions } from '@graphql-tools/executor-http';
+import type { HTTPExecutorOptions } from '@graphql-tools/executor-http';
+import { buildHTTPExecutor } from '@graphql-tools/executor-http';
 import { executorExchange } from '@graphql-tools/executor-urql-exchange';
-import { Exchange } from '@urql/core';
+import type { Exchange } from '@urql/core';
 
 export type YogaExchangeOptions = HTTPExecutorOptions;
 

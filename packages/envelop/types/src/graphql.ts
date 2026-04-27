@@ -1,4 +1,4 @@
-import { ObjMap } from './utils.js';
+import type { ObjMap } from './utils.js';
 
 export interface ExecutionArgs {
   schema: any;

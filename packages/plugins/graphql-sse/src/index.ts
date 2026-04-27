@@ -1,7 +1,8 @@
 import { getOperationAST } from 'graphql';
-import { HandlerOptions } from 'graphql-sse';
-import { createHandler, RequestContext } from 'graphql-sse/lib/use/fetch';
-import { Plugin, YogaInitialContext } from 'graphql-yoga';
+import type { HandlerOptions } from 'graphql-sse';
+import type { RequestContext } from 'graphql-sse/lib/use/fetch';
+import { createHandler } from 'graphql-sse/lib/use/fetch';
+import type { Plugin, YogaInitialContext } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface GraphQLSSEPluginOptions

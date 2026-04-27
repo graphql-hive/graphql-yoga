@@ -3,7 +3,7 @@ import { getMediaTypesForRequestInOrder, isMatchingMediaType } from './result-pr
 import { processMultipartResult } from './result-processor/multipart.js';
 import { processRegularResult } from './result-processor/regular.js';
 import { getSSEProcessor } from './result-processor/sse.js';
-import { Plugin, ResultProcessor } from './types.js';
+import type { Plugin, ResultProcessor } from './types.js';
 
 interface ResultProcessorConfig {
   processResult: ResultProcessor;

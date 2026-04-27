@@ -1,13 +1,12 @@
-import {
+import type {
   ASTNode,
   DocumentNode,
   GraphQLError,
   GraphQLResolveInfo,
   OperationDefinitionNode,
   TypeInfo,
-  visit,
-  visitWithTypeInfo,
 } from 'graphql';
+import { visit, visitWithTypeInfo } from 'graphql';
 import {
   Counter,
   register as defaultRegistry,
@@ -18,8 +17,8 @@ import {
   type Registry,
   type SummaryConfiguration,
 } from 'prom-client';
-import { AfterParseEventPayload } from '@envelop/core';
-import { PrometheusTracingPluginConfig } from './config.js';
+import type { AfterParseEventPayload } from '@envelop/core';
+import type { PrometheusTracingPluginConfig } from './config.js';
 
 const histograms = new WeakMap<Registry, Map<string, Histogram>>();
 const summaries = new WeakMap<Registry, Map<string, Summary>>();
