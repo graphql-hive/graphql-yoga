@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { TypeInfo, type ExecutionResult, type GraphQLSchema } from 'graphql';
+import { TypeInfo, type ExecutionResult, type GraphQLError, type GraphQLSchema } from 'graphql';
 import { register as defaultRegistry } from 'prom-client';
 import {
   isAsyncIterable,
