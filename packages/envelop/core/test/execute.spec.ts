@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import type { ExecutionResult } from 'graphql';
-import { execute, GraphQLError, GraphQLSchema } from 'graphql';
+import { execute, GraphQLError, GraphQLSchema, type ExecutionResult } from 'graphql';
 import {
   assertSingleExecutionValue,
   assertStreamExecutionValue,

@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import type { GraphQLSchema } from 'graphql';
-import { buildSchema } from 'graphql';
+import { buildSchema, type GraphQLSchema } from 'graphql';
 import { createSpiedPlugin, createTestkit } from '@envelop/testing';
 import type { Plugin } from '@envelop/types';
 import { schema } from './common.js';
