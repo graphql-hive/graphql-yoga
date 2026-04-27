@@ -2,11 +2,14 @@
 import 'graphiql/style.css';
 // @ts-expect-error - we know this exists
 import '@graphiql/plugin-explorer/style.css';
-import { GraphiQL, GraphiQLProps } from 'graphiql';
-import { DocumentNode, Kind, parse } from 'graphql';
+import type { GraphiQLProps } from 'graphiql';
+import { GraphiQL } from 'graphiql';
+import type { DocumentNode } from 'graphql';
+import { Kind, parse } from 'graphql';
 import { explorerPlugin } from '@graphiql/plugin-explorer';
-import { Fetcher, FetcherOpts, FetcherParams } from '@graphiql/toolkit';
-import { LoadFromUrlOptions, SubscriptionProtocol, UrlLoader } from '@graphql-tools/url-loader';
+import type { Fetcher, FetcherOpts, FetcherParams } from '@graphiql/toolkit';
+import type { LoadFromUrlOptions } from '@graphql-tools/url-loader';
+import { SubscriptionProtocol, UrlLoader } from '@graphql-tools/url-loader';
 import 'json-bigint-patch';
 import React, { useMemo } from 'react';
 import { YogaLogo } from './YogaLogo';

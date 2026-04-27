@@ -1,5 +1,5 @@
-import DataLoader from 'dataloader';
-import { DefaultContext, Plugin } from '@envelop/core';
+import type DataLoader from 'dataloader';
+import type { DefaultContext, Plugin } from '@envelop/core';
 
 export const useDataLoader = <
   TName extends string,

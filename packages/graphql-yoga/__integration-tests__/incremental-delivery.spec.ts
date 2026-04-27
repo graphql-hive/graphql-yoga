@@ -1,17 +1,19 @@
-import { createServer, Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import type { ExecutionResult } from 'graphql';
 import {
-  ExecutionResult,
   GraphQLInt,
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLSchema,
   GraphQLString,
 } from 'graphql';
-import { Push } from '@repeaterjs/repeater';
+import type { Push } from '@repeaterjs/repeater';
 import { createFetch, fetch, File, FormData } from '@whatwg-node/fetch';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
-import { createSchema, createYoga, Plugin, Repeater } from '../src';
+import type { Plugin } from '../src';
+import { createSchema, createYoga, Repeater } from '../src';
 
 describe('incremental delivery', () => {
   it('incremental delivery source is closed properly', async () => {

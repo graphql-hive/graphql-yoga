@@ -1,14 +1,13 @@
-import {
+import type {
   FragmentDefinitionNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-  Kind,
-  Location,
   Token,
-  TokenKind,
 } from 'graphql';
+import { Kind, Location, TokenKind } from 'graphql';
 import type { Lexer } from 'graphql/language/lexer.js';
-import { ParseOptions, Parser } from 'graphql/language/parser.js';
+import type { ParseOptions } from 'graphql/language/parser.js';
+import { Parser } from 'graphql/language/parser.js';
 
 export class FragmentArgumentCompatibleParser extends Parser {
   // see https://github.com/graphql/graphql-js/pull/3248

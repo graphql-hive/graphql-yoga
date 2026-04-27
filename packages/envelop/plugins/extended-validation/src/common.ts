@@ -1,4 +1,4 @@
-import { ASTVisitor, DirectiveNode, ExecutionArgs, ValidationContext } from 'graphql';
+import type { ASTVisitor, DirectiveNode, ExecutionArgs, ValidationContext } from 'graphql';
 
 export type ExtendedValidationRule = (
   context: ValidationContext,

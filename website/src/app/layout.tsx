@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 import localFont from 'next/font/local';
 import {
   Anchor,
@@ -23,7 +23,7 @@ import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
 //@ts-expect-error - no types for this package
 import './global.css';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = rootMetadata;
 

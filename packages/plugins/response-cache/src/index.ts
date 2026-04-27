@@ -1,16 +1,19 @@
-import { ExecutionResult, print } from 'graphql';
-import { Maybe, Plugin, PromiseOrValue, YogaInitialContext, YogaLogger } from 'graphql-yoga';
+import type { ExecutionResult } from 'graphql';
+import { print } from 'graphql';
+import type { Maybe, Plugin, PromiseOrValue, YogaInitialContext, YogaLogger } from 'graphql-yoga';
 import { getDocumentString } from '@envelop/core';
-import {
-  defaultBuildResponseCacheKey,
+import type {
   BuildResponseCacheKeyFunction as EnvelopBuildResponseCacheKeyFunction,
   Cache as EnvelopCache,
-  createInMemoryCache as envelopCreateInMemoryCache,
   ResponseCacheExtensions as EnvelopResponseCacheExtensions,
   GetDocumentStringFunction,
+  UseResponseCacheParameter as UseEnvelopResponseCacheParameter,
+} from '@envelop/response-cache';
+import {
+  defaultBuildResponseCacheKey,
+  createInMemoryCache as envelopCreateInMemoryCache,
   resultWithMetadata,
   useResponseCache as useEnvelopResponseCache,
-  UseResponseCacheParameter as UseEnvelopResponseCacheParameter,
 } from '@envelop/response-cache';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 

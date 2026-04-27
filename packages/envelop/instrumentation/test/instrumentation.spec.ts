@@ -1,4 +1,5 @@
-import { chain, GenericInstrumentation } from '../src';
+import type { GenericInstrumentation } from '../src';
+import { chain } from '../src';
 
 describe('instrumentation', () => {
   describe('chain', () => {

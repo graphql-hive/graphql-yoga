@@ -1,6 +1,7 @@
 import { createServer, type Server } from 'node:http';
-import { AddressInfo } from 'node:net';
-import { Client, createClient } from 'graphql-ws';
+import type { AddressInfo } from 'node:net';
+import type { Client } from 'graphql-ws';
+import { createClient } from 'graphql-ws';
 import { useServer } from 'graphql-ws/use/ws';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { register as registry } from 'prom-client';

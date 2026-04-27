@@ -1,4 +1,5 @@
-import { AfterResolver, OnResolveOptions, useOnResolve } from '@envelop/on-resolve';
+import type { AfterResolver, OnResolveOptions } from '@envelop/on-resolve';
+import { useOnResolve } from '@envelop/on-resolve';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 

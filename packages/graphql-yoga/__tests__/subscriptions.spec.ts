@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
-import { createSchema, createYoga, maskError, Plugin } from '../src/index.js';
+import type { Plugin } from '../src/index.js';
+import { createSchema, createYoga, maskError } from '../src/index.js';
 import { eventStream } from './utilities.js';
 
 describe('Subscription', () => {

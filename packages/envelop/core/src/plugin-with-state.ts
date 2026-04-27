@@ -1,4 +1,4 @@
-import { MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
 
 export function withState<P extends { instrumentation?: GenericInstrumentation }, State = object>(
   pluginFactory: (

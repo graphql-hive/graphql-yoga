@@ -1,6 +1,7 @@
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { DIRECTIVE_SDL, IdentifyFn, useRateLimiter } from '../src/index.js';
+import type { IdentifyFn } from '../src/index.js';
+import { DIRECTIVE_SDL, useRateLimiter } from '../src/index.js';
 
 describe('Rate-Limiter', () => {
   describe('Directive', () => {

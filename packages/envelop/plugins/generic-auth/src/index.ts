@@ -1,22 +1,24 @@
-import {
+import type {
   ASTNode,
   ExecutionArgs,
   FieldNode,
-  getNamedType,
-  getOperationAST,
   GraphQLError,
   GraphQLField,
   GraphQLInterfaceType,
   GraphQLObjectType,
+  OperationTypeNode,
+} from 'graphql';
+import {
+  getNamedType,
+  getOperationAST,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
   isListType,
   isObjectType,
   isUnionType,
-  OperationTypeNode,
 } from 'graphql';
-import { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
+import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
 import { getVariableValues } from '@graphql-tools/executor';
 import {

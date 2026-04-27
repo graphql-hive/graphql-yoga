@@ -9,7 +9,8 @@ import {
   createTestkit,
 } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { ExecutionResultWithSerializer, JITCache, useGraphQlJit } from '../src/index.js';
+import type { ExecutionResultWithSerializer, JITCache } from '../src/index.js';
+import { useGraphQlJit } from '../src/index.js';
 
 describe('useGraphQlJit', () => {
   const schema = makeExecutableSchema({

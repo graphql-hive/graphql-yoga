@@ -1,8 +1,8 @@
-import { ExecutionArgs, ExecutionResult, SubscriptionArgs } from 'graphql';
-import { Plugin, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
+import type { ExecutionArgs, ExecutionResult, SubscriptionArgs } from 'graphql';
+import type { Plugin, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
 import { useSofa as createSofaHandler } from 'sofa-api';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
-import { SofaHandler } from './types.js';
+import type { SofaHandler } from './types.js';
 
 type SofaHandlerConfig = Parameters<typeof createSofaHandler>[0];
 

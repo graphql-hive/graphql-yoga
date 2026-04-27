@@ -1,6 +1,6 @@
-import { PromiseOrValue } from '@envelop/core';
-import { GraphQLParams } from '../types.js';
-import { Plugin } from './types.js';
+import type { PromiseOrValue } from '@envelop/core';
+import type { GraphQLParams } from '../types.js';
+import type { Plugin } from './types.js';
 
 interface RequestParserPluginOptions {
   match?(request: Request): boolean;

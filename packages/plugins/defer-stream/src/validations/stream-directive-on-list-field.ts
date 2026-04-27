@@ -1,4 +1,5 @@
-import { ASTVisitor, DirectiveNode, isListType, isWrappingType, ValidationContext } from 'graphql';
+import type { ASTVisitor, DirectiveNode, ValidationContext } from 'graphql';
+import { isListType, isWrappingType } from 'graphql';
 import { createGraphQLError } from 'graphql-yoga';
 import { GraphQLStreamDirective } from '@graphql-tools/utils';
 

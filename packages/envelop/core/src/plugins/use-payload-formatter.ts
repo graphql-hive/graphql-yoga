@@ -1,4 +1,4 @@
-import { ExecutionResult, Plugin, TypedExecutionArgs } from '@envelop/types';
+import type { ExecutionResult, Plugin, TypedExecutionArgs } from '@envelop/types';
 import { handleStreamOrSingleExecutionResult } from '../utils.js';
 
 export type FormatterFunction = (

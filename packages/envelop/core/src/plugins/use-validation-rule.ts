@@ -1,4 +1,4 @@
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 
 export const useValidationRule = (rule: any): Plugin => {
   return {

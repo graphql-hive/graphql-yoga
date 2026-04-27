@@ -1,12 +1,12 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import { Registry } from 'prom-client';
-import {
+import type { Registry } from 'prom-client';
+import type {
+  AtLeastOne,
   createCounter,
   createHistogram,
   createSummary,
-  type AtLeastOne,
-  type DeprecatedFieldInfo,
-  type FillLabelsFnParams,
+  DeprecatedFieldInfo,
+  FillLabelsFnParams,
 } from './utils.js';
 
 export type PrometheusTracingPluginConfig = {

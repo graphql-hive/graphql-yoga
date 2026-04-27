@@ -1,15 +1,16 @@
+import type { FieldNode, GraphQLObjectType } from 'graphql';
 import {
-  FieldNode,
   getNamedType,
   GraphQLError,
-  GraphQLObjectType,
   isInterfaceType,
   isIntrospectionType,
   isObjectType,
   isUnionType,
 } from 'graphql';
-import { Plugin, PromiseOrValue, useExtendContext } from '@envelop/core';
-import { ExtendedValidationRule, useExtendedValidation } from '@envelop/extended-validation';
+import type { Plugin, PromiseOrValue } from '@envelop/core';
+import { useExtendContext } from '@envelop/core';
+import type { ExtendedValidationRule } from '@envelop/extended-validation';
+import { useExtendedValidation } from '@envelop/extended-validation';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 const OPERATION_PERMISSIONS_SYMBOL = Symbol('OPERATION_PERMISSIONS_SYMBOL');

@@ -1,4 +1,5 @@
-import { DocumentNode, getOperationAST, GraphQLSchema, Kind } from 'graphql';
+import type { DocumentNode, GraphQLSchema } from 'graphql';
+import { getOperationAST, Kind } from 'graphql';
 import {
   isAsyncIterable,
   YogaLogger,
@@ -13,13 +14,13 @@ import {
   usageReportingSignature,
 } from '@apollo/utils.usagereporting';
 import { printSchemaWithDirectives } from '@graphql-tools/utils';
-import {
+import type {
   ApolloInlineGraphqlTraceContext,
   ApolloInlineRequestTraceContext,
   ApolloInlineTracePluginOptions,
-  useApolloInstrumentation,
 } from '@graphql-yoga/plugin-apollo-inline-trace';
-import { MaybePromise } from '@whatwg-node/promise-helpers';
+import { useApolloInstrumentation } from '@graphql-yoga/plugin-apollo-inline-trace';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { getEnvVar, Reporter } from './reporter.js';
 
 export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {

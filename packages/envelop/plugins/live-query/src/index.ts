@@ -1,5 +1,5 @@
 import { print } from 'graphql';
-import { Plugin } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
 import { astFromDirective } from '@graphql-tools/utils';
 import { GraphQLLiveDirective, NoLiveMixedWithDeferStreamRule } from '@n1ru4l/graphql-live-query';
 import type { createApplyLiveQueryPatchGenerator } from '@n1ru4l/graphql-live-query-patch';

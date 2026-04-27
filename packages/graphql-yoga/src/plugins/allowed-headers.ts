@@ -1,4 +1,4 @@
-import { Plugin } from './types.js';
+import type { Plugin } from './types.js';
 
 export function useAllowedResponseHeaders(allowedHeaders: string[]): Plugin {
   return {

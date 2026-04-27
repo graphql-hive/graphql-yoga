@@ -1,24 +1,15 @@
-import {
-  DocumentNode,
-  ExecutionArgs,
-  ExecutionResult,
-  GraphQLError,
-  TypeInfo,
-  ValidationContext,
-  visit,
-  visitInParallel,
-  visitWithTypeInfo,
-} from 'graphql';
-import {
+import type { DocumentNode, ExecutionArgs, ExecutionResult, GraphQLError } from 'graphql';
+import { TypeInfo, ValidationContext, visit, visitInParallel, visitWithTypeInfo } from 'graphql';
+import type {
   AsyncIterableIteratorOrValue,
-  isAsyncIterable,
   OnExecuteEventPayload,
   OnExecuteHookResult,
   OnSubscribeEventPayload,
   OnSubscribeHookResult,
   Plugin,
 } from '@envelop/core';
-import { ExtendedValidationRule } from './common.js';
+import { isAsyncIterable } from '@envelop/core';
+import type { ExtendedValidationRule } from './common.js';
 
 const symbolExtendedValidationRules = Symbol('extendedValidationContext');
 

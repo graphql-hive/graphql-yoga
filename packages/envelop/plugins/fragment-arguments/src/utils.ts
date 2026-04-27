@@ -1,11 +1,10 @@
-import {
+import type {
   ArgumentNode,
   DocumentNode,
   FragmentDefinitionNode,
   InlineFragmentNode,
-  Kind,
-  visit,
 } from 'graphql';
+import { Kind, visit } from 'graphql';
 
 export function applySelectionSetFragmentArguments(document: DocumentNode): DocumentNode | Error {
   const fragmentList = new Map<string, FragmentDefinitionNode>();
