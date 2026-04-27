@@ -1,19 +1,23 @@
-import {
+import type {
   ExecutionArgs,
   ExecutionResult,
   FieldNode,
-  GraphQLError,
   GraphQLField,
   GraphQLInputType,
+  GraphQLType,
+} from 'graphql';
+import {
+  GraphQLError,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLType,
   isScalarType,
 } from 'graphql';
-import { handleStreamOrSingleExecutionResult, Plugin } from '@envelop/core';
-import { ExtendedValidationRule, useExtendedValidation } from '@envelop/extended-validation';
+import type { Plugin } from '@envelop/core';
+import { handleStreamOrSingleExecutionResult } from '@envelop/core';
+import type { ExtendedValidationRule } from '@envelop/extended-validation';
+import { useExtendedValidation } from '@envelop/extended-validation';
 import { getArgumentValues } from '@graphql-tools/utils';
 
 const getWrappedType = (

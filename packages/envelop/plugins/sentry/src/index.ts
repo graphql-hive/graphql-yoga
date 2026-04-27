@@ -1,11 +1,12 @@
-import { GraphQLError, Kind, OperationDefinitionNode, print } from 'graphql';
+import type { GraphQLError, OperationDefinitionNode } from 'graphql';
+import { Kind, print } from 'graphql';
 import {
   getDocumentString,
   handleStreamOrSingleExecutionResult,
   isOriginalGraphQLError,
-  OnExecuteDoneHookResultOnNextHook,
-  TypedExecutionArgs,
+  type OnExecuteDoneHookResultOnNextHook,
   type Plugin,
+  type TypedExecutionArgs,
 } from '@envelop/core';
 import * as Sentry from '@sentry/node';
 

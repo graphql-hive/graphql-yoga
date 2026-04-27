@@ -1,6 +1,7 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
-import { GraphQLParams } from '../../types.js';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
 export function isPOSTMultipartRequest(request: Request): boolean {

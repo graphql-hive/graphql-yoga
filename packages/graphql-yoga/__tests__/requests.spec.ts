@@ -1,6 +1,7 @@
-import { OnExecuteHook } from '@envelop/core';
+import type { OnExecuteHook } from '@envelop/core';
 import { Request } from '@whatwg-node/fetch';
-import { createGraphQLError, createSchema, createYoga, YogaInitialContext } from '../src';
+import type { YogaInitialContext } from '../src';
+import { createGraphQLError, createSchema, createYoga } from '../src';
 
 describe('requests', () => {
   const schema = createSchema({

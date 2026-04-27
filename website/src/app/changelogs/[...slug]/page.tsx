@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
-import { Metadata } from 'next/types';
+import type { Metadata } from 'next/types';
 import fg from 'fast-glob';
-import { NextPageProps } from '@theguild/components';
+import type { NextPageProps } from '@theguild/components';
 import {
   compileMdx,
   convertToPageMap,

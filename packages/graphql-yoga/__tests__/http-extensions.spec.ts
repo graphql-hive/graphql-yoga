@@ -1,7 +1,8 @@
 import { STATUS_CODES } from 'node:http';
 import { GraphQLError, GraphQLScalarType } from 'graphql';
-import { ExecutionResult } from '@envelop/core';
-import { createGraphQLError, createSchema, createYoga, Plugin } from '../src/index.js';
+import type { ExecutionResult } from '@envelop/core';
+import type { Plugin } from '../src/index.js';
+import { createGraphQLError, createSchema, createYoga } from '../src/index.js';
 
 describe('GraphQLError.extensions.http', () => {
   it('sets correct status code and headers for thrown GraphQLError in a resolver', async () => {

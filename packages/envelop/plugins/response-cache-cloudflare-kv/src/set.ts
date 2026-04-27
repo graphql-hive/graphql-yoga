@@ -1,5 +1,5 @@
 import type { ExecutionResult } from 'graphql';
-import { KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import type { CacheEntityRecord } from '@envelop/response-cache';
 import { buildEntityKey, buildOperationKey } from './cache-key.js';
 

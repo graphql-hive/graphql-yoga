@@ -1,4 +1,4 @@
-import {
+import type {
   ExecuteFunction,
   ExecutionArgs,
   ExecutionResult,
@@ -8,8 +8,8 @@ import {
   ValidateFunction,
   ValidateFunctionParameter,
 } from './graphql.js';
-import { Plugin } from './plugin.js';
-import { AsyncIterableIteratorOrValue, Maybe, PromiseOrValue } from './utils.js';
+import type { Plugin } from './plugin.js';
+import type { AsyncIterableIteratorOrValue, Maybe, PromiseOrValue } from './utils.js';
 
 export type DefaultArgs = Record<string, unknown>;
 

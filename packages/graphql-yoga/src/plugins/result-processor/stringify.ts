@@ -1,8 +1,8 @@
-import { GraphQLError } from 'graphql';
+import type { GraphQLError } from 'graphql';
 import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
 import { isGraphQLError } from '../../error.js';
-import { MaybeArray } from '../../types.js';
-import { ExecutionResultWithSerializer } from '../types.js';
+import type { MaybeArray } from '../../types.js';
+import type { ExecutionResultWithSerializer } from '../types.js';
 
 // JSON stringifier that adjusts the result error extensions while serialising
 export function jsonStringifyResultWithoutInternals(

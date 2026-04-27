@@ -1,5 +1,5 @@
 import { serverAudits } from 'graphql-http';
-import { INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { fetch } from '@whatwg-node/fetch';
 import { AppModule } from './fixtures/graphql/app.module';

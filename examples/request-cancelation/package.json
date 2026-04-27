@@ -5,10 +5,10 @@
   "author": "Laurin Quast <laurinquast@googlemail.com>",
   "license": "MIT",
   "private": true,
-  "module": "commonjs",
+  "module": "nodenext",
   "keywords": [],
   "scripts": {
-    "check": "tsc --pretty --noEmit",
+    "check": "tsgo --pretty --noEmit",
     "dev": "cross-env NODE_ENV=development ts-node-dev --exit-child --respawn src/main.ts",
     "start": "ts-node src/main.ts"
   },

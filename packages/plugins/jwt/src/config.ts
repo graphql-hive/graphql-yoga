@@ -1,5 +1,5 @@
 import { type PromiseOrValue } from 'graphql-yoga';
-import { VerifyOptions } from 'jsonwebtoken';
+import type { VerifyOptions } from 'jsonwebtoken';
 import { extractFromHeader } from './utils.js';
 
 type AtleastOneItem<T> = [T, ...T[]];

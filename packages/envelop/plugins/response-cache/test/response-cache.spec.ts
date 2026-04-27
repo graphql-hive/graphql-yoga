@@ -1,27 +1,27 @@
 // eslint-disable-next-line no-restricted-imports
 import * as GraphQLJS from 'graphql';
-import { getIntrospectionQuery, GraphQLObjectType, GraphQLSchema } from 'graphql';
+import type { GraphQLObjectType, GraphQLSchema } from 'graphql';
+import { getIntrospectionQuery } from 'graphql';
 import { DateTimeResolver } from 'graphql-scalars';
 import { envelop, useEngine, useExtendContext, useLogger, useSchema } from '@envelop/core';
 import { useGraphQlJit } from '@envelop/graphql-jit';
 import { useParserCache } from '@envelop/parser-cache';
+import type { TestkitInstance } from '@envelop/testing';
 import {
   assertSingleExecutionValue,
   assertStreamExecutionValue,
   collectAsyncIteratorValues,
   createTestkit,
-  TestkitInstance,
 } from '@envelop/testing';
 import { useValidationCache } from '@envelop/validation-cache';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mapSchema as cloneSchema } from '@graphql-tools/utils';
+import type { Cache, ResponseCacheOnTtlFunction } from '../src/index.js';
 import {
-  Cache,
   cacheControlDirective,
   createInMemoryCache,
   defaultBuildResponseCacheKey,
-  ResponseCacheOnTtlFunction,
   useResponseCache,
 } from '../src/index.js';
 

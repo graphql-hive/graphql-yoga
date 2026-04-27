@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "wrangler deploy --dry-run --outdir=dist",
-    "check": "tsc --pretty --noEmit",
+    "check": "tsgo --pretty --noEmit",
     "start": "wrangler dev",
     "test": "jest"
   },

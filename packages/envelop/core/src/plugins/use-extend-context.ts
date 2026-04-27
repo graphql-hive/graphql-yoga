@@ -1,4 +1,4 @@
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export type ContextFactoryFn<TResult = unknown, TCurrent = unknown> = (

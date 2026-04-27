@@ -1,28 +1,31 @@
-import {
+import type {
   ASTVisitor,
   DirectiveNode,
   FieldNode,
   FragmentDefinitionNode,
-  getNamedType,
   GraphQLField,
   GraphQLNamedType,
   GraphQLOutputType,
+  ObjectFieldNode,
+  ObjectValueNode,
+  SelectionSetNode,
+  ValidationContext,
+  ValueNode,
+} from 'graphql';
+import {
+  getNamedType,
   isInterfaceType,
   isLeafType,
   isListType,
   isNonNullType,
   isObjectType,
   Kind,
-  ObjectFieldNode,
-  ObjectValueNode,
   print,
-  SelectionSetNode,
   typeFromAST,
-  ValidationContext,
-  ValueNode,
 } from 'graphql';
 import { createGraphQLError } from 'graphql-yoga';
-import { inspect, Maybe } from '@graphql-tools/utils';
+import type { Maybe } from '@graphql-tools/utils';
+import { inspect } from '@graphql-tools/utils';
 
 /**
  * Returns a number indicating whether a reference string comes before, or after,

@@ -1,11 +1,13 @@
 import { isPromise } from 'node:util/types';
-import {
-  getNamedType,
+import type {
   GraphQLError,
   GraphQLField,
   GraphQLNamedOutputType,
   GraphQLOutputType,
   GraphQLSchema,
+} from 'graphql';
+import {
+  getNamedType,
   isAbstractType,
   isListType,
   isObjectType,
@@ -26,7 +28,7 @@ import {
 } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { getGraphQLRateLimiter } from './get-graphql-rate-limiter.js';
-import {
+import type {
   FormatErrorInput,
   GraphQLRateLimitConfig,
   GraphQLRateLimitDirectiveArgs,

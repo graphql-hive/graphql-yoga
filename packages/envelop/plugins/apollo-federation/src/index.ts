@@ -1,15 +1,15 @@
-import {
+import type {
   DocumentNode,
   ExecutionResult,
-  getOperationAST,
   GraphQLSchema,
   OperationDefinitionNode,
-  print,
-  printSchema,
 } from 'graphql';
+import { getOperationAST, print, printSchema } from 'graphql';
 import { InMemoryLRUCache, type KeyValueCache } from '@apollo/utils.keyvaluecache';
-import { getDocumentString, Plugin } from '@envelop/core';
-import { CachePolicy, newCachePolicy } from './new-cache-policy.js';
+import type { Plugin } from '@envelop/core';
+import { getDocumentString } from '@envelop/core';
+import type { CachePolicy } from './new-cache-policy.js';
+import { newCachePolicy } from './new-cache-policy.js';
 
 interface GatewayLogger {
   warn(message: unknown): void;

@@ -1,5 +1,6 @@
-import { GraphQLDirective, GraphQLSchema, ValidationRule } from 'graphql';
-import { Plugin } from 'graphql-yoga';
+import type { GraphQLDirective, ValidationRule } from 'graphql';
+import { GraphQLSchema } from 'graphql';
+import type { Plugin } from 'graphql-yoga';
 import { GraphQLDeferDirective, GraphQLStreamDirective } from '@graphql-tools/utils';
 import { DeferStreamDirectiveLabelRule } from './validations/defer-stream-directive-label.js';
 import { DeferStreamDirectiveOnRootFieldRule } from './validations/defer-stream-directive-on-root-field.js';

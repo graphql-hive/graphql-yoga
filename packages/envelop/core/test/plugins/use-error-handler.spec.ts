@@ -6,7 +6,7 @@ import {
   collectAsyncIteratorValues,
   createTestkit,
 } from '@envelop/testing';
-import { Plugin } from '@envelop/types';
+import type { Plugin } from '@envelop/types';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { createGraphQLError } from '@graphql-tools/utils';

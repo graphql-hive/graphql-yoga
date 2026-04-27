@@ -1,11 +1,11 @@
-import { ASTNode, DocumentNode, GraphQLErrorExtensions, Source } from 'graphql';
-import {
-  createGraphQLError,
+import type { ASTNode, DocumentNode, GraphQLErrorExtensions, Source } from 'graphql';
+import { createGraphQLError } from 'graphql-yoga';
+import type {
   GraphQLParams,
   Maybe,
+  OnParamsEventPayload,
   Plugin,
   PromiseOrValue,
-  type OnParamsEventPayload,
 } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 

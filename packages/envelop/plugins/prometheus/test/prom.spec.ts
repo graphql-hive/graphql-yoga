@@ -1,6 +1,8 @@
-import { ASTNode, buildSchema, print as graphQLPrint } from 'graphql';
+import type { ASTNode } from 'graphql';
+import { buildSchema, print as graphQLPrint } from 'graphql';
 import { Registry } from 'prom-client';
-import { Plugin, useExtendContext } from '@envelop/core';
+import type { Plugin } from '@envelop/core';
+import { useExtendContext } from '@envelop/core';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type {
@@ -9,12 +11,8 @@ import type {
   MetricsConfig,
   SummaryMetricOption,
 } from '../src/config.js';
-import {
-  createCounter,
-  createHistogram,
-  PrometheusTracingPluginConfig,
-  usePrometheus,
-} from '../src/index.js';
+import type { PrometheusTracingPluginConfig } from '../src/index.js';
+import { createCounter, createHistogram, usePrometheus } from '../src/index.js';
 import { createSummary, registerHistogram, type FillLabelsFnParams } from '../src/utils.js';
 
 // Graphql.js 16 and 15 produce different results

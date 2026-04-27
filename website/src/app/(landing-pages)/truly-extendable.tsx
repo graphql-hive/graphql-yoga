@@ -1,12 +1,12 @@
-import { ComponentProps, FC } from 'react';
+import type { ComponentProps, FC } from 'react';
 import Image from 'next/image';
+import type { InfoCardProps } from '@theguild/components';
 import {
   Anchor,
   CallToAction,
   cn,
   Heading,
   InfoCard,
-  InfoCardProps,
   MarqueeRows,
   YogaIcon,
 } from '@theguild/components';

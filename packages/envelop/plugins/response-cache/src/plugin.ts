@@ -1,11 +1,13 @@
 import jsonStableStringify from 'fast-json-stable-stringify';
-import {
+import type {
   ASTVisitor,
   DocumentNode,
   ExecutionArgs,
-  getOperationAST,
   GraphQLDirective,
   GraphQLType,
+} from 'graphql';
+import {
+  getOperationAST,
   isListType,
   isNonNullType,
   isUnionType,
@@ -15,16 +17,15 @@ import {
   visit,
   visitWithTypeInfo,
 } from 'graphql';
-import {
+import type {
   ExecutionResult,
-  getDocumentString,
-  isAsyncIterable,
   Maybe,
   ObjMap,
   OnExecuteDoneHookResult,
   OnExecuteHookResult,
   Plugin,
 } from '@envelop/core';
+import { getDocumentString, isAsyncIterable } from '@envelop/core';
 import {
   getDirective,
   MapperKind,
@@ -33,7 +34,8 @@ import {
   memoize4,
   mergeIncrementalResult,
 } from '@graphql-tools/utils';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import type { Cache, CacheEntityRecord } from './cache.js';
 import { hashSHA256 } from './hash-sha256.js';
 import { createInMemoryCache } from './in-memory-cache.js';

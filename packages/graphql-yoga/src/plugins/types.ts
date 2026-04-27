@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
+import type {
   Instrumentation as EnvelopInstrumentation,
   Plugin as EnvelopPlugin,
   OnExecuteHook,
@@ -8,15 +8,15 @@ import {
   RegisterContextErrorHandler,
   SetSchemaFn,
 } from '@envelop/core';
-import { ExecutionResult } from '@graphql-tools/utils';
-import { MaybePromise } from '@whatwg-node/promise-helpers';
-import {
+import type { ExecutionResult } from '@graphql-tools/utils';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import type {
+  ServerAdapterInitialContext,
+  Instrumentation as ServerAdapterInstrumentation,
   ServerAdapterPlugin,
-  type ServerAdapterInitialContext,
-  type Instrumentation as ServerAdapterInstrumentation,
 } from '@whatwg-node/server';
-import { YogaServer } from '../server.js';
-import {
+import type { YogaServer } from '../server.js';
+import type {
   FetchAPI,
   GraphQLHTTPExtensions,
   GraphQLParams,

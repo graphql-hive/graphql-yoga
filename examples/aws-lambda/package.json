@@ -8,12 +8,12 @@
   "scripts": {
     "build": "tsc",
     "bundle": "node scripts/bundle.js",
-    "check": "tsc --noEmit",
+    "check": "tsgo --noEmit",
     "deploy": "cdk deploy",
     "postdeploy": "rm -rf cdk-out",
     "predeploy": "build",
     "test": "jest",
-    "watch": "tsc -w"
+    "watch": "tsgo -w"
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "1.204.0",

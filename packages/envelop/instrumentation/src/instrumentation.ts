@@ -1,4 +1,5 @@
-import { handleMaybePromise, isPromise, MaybePromise } from '@whatwg-node/promise-helpers';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, isPromise } from '@whatwg-node/promise-helpers';
 
 export type GenericInstrumentation = Record<
   string,

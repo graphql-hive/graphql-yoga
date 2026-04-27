@@ -1,3 +1,3 @@
-import { useSofa } from 'sofa-api';
+import type { useSofa } from 'sofa-api';
 
 export type SofaHandler = ReturnType<typeof useSofa>;

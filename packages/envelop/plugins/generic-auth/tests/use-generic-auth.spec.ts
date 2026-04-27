@@ -2,13 +2,8 @@ import { getIntrospectionQuery, print } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { createGraphQLError } from '@graphql-tools/utils';
-import {
-  DIRECTIVE_SDL,
-  ResolveUserFn,
-  SKIP_AUTH_DIRECTIVE_SDL,
-  useGenericAuth,
-  ValidateUserFn,
-} from '../src/index.js';
+import type { ResolveUserFn, ValidateUserFn } from '../src/index.js';
+import { DIRECTIVE_SDL, SKIP_AUTH_DIRECTIVE_SDL, useGenericAuth } from '../src/index.js';
 
 type UserType = {
   id: number;

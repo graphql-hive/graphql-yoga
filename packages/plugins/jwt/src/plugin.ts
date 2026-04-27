@@ -1,8 +1,13 @@
 import { GraphQLError } from 'graphql';
 import type { FetchAPI, Plugin, YogaLogger } from 'graphql-yoga';
 import jsonwebtoken, { type Jwt, type JwtPayload, type VerifyOptions } from 'jsonwebtoken';
-import { handleMaybePromise, MaybePromise } from '@whatwg-node/promise-helpers';
-import { ExtractTokenFunctionParams, normalizeConfig, type JwtPluginOptions } from './config.js';
+import type { MaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import {
+  normalizeConfig,
+  type ExtractTokenFunctionParams,
+  type JwtPluginOptions,
+} from './config.js';
 import { badRequestError, unauthorizedError } from './utils.js';
 
 export type JWTExtendContextFields = {

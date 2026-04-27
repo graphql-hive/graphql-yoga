@@ -1,8 +1,8 @@
-import { PromiseOrValue } from '@envelop/core';
-import { YogaLogger } from '@graphql-yoga/logger';
+import type { PromiseOrValue } from '@envelop/core';
+import type { YogaLogger } from '@graphql-yoga/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
-import { Plugin } from './types.js';
+import type { Plugin } from './types.js';
 
 export function shouldRenderGraphiQL({ headers, method }: Request): boolean {
   return method === 'GET' && !!headers?.get('accept')?.includes('text/html');

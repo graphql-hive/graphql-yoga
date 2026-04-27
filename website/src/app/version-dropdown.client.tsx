@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import type { FC } from 'react';
 import { usePathname } from 'next/navigation';
 import { VersionDropdown as VD } from '@theguild/components';
 import { VERSIONS } from './versioned-search';

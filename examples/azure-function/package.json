@@ -5,7 +5,7 @@
   "main": "dist/functions/index.js",
   "scripts": {
     "build": "rm -rf dist/ && node scripts/bundle.js",
-    "check": "tsc --pretty --noEmit",
+    "check": "tsgo --pretty --noEmit",
     "prestart": "npm run build",
     "start": "func start"
   },

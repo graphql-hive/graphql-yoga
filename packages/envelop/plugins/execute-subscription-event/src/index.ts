@@ -1,6 +1,8 @@
+import type { SubscriptionArgs } from 'graphql';
 // eslint-disable-next-line no-restricted-imports
-import { execute, SubscriptionArgs } from 'graphql';
-import { DefaultContext, makeExecute, Plugin, PromiseOrValue } from '@envelop/core';
+import { execute } from 'graphql';
+import type { DefaultContext, Plugin, PromiseOrValue } from '@envelop/core';
+import { makeExecute } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { subscribe } from './subscribe.js';
 
