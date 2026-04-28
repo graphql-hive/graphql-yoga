@@ -1,5 +1,13 @@
 # @envelop/graphql-middleware
 
+## 9.1.2
+
+### Patch Changes
+
+- [`08c3cb6`](https://github.com/graphql-hive/graphql-yoga/commit/08c3cb644294b5165287540f68f9228ec7bc7623)
+  Thanks [@ardatan](https://github.com/ardatan)! - Do not use symbols which are forbidden in
+  GraphQLjs, and use 'graphqlMiddleware.appliedTransform' string as a key in the extension instead
+
 ## 9.1.1
 
 ### Patch Changes
@@ -106,8 +114,8 @@
   [`e3c90116`](https://github.com/n1ru4l/envelop/commit/e3c9011640b73aaede4e5e472a5d45aab947165c)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:
