@@ -14,10 +14,10 @@ import type { TracingOptions } from '../src/index.js';
 import { AttributeName, useOpenTelemetry } from '../src/index.js';
 
 function createTraceProvider(exporter: InMemorySpanExporter) {
-  const provider = new BasicTracerProvider();
-  const processor = new SimpleSpanProcessor(exporter);
-  provider.addSpanProcessor(processor);
-  provider.register();
+  const provider = new BasicTracerProvider({
+    spanProcessors: [new SimpleSpanProcessor(exporter)],
+  });
+  opentelemetry.trace.setGlobalTracerProvider(provider);
   return provider;
 }
 
