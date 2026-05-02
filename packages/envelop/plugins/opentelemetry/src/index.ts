@@ -73,9 +73,10 @@ export const useOpenTelemetry = (
   spanPrefix = '',
 ): Plugin<PluginContext> => {
   if (!tracingProvider) {
-    const basicTraceProvider = new BasicTracerProvider();
-    basicTraceProvider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
-    basicTraceProvider.register();
+    const basicTraceProvider = new BasicTracerProvider({
+      spanProcessors: [new SimpleSpanProcessor(new ConsoleSpanExporter())],
+    });
+    opentelemetry.trace.setGlobalTracerProvider(basicTraceProvider);
     tracingProvider = basicTraceProvider;
   }
 
