@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import fetchMultipart from 'fetch-multipart-graphql';
 import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga';
+import { ExecutionResult } from '@graphql-tools/utils';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createPushPullAsyncIterable } from '../__tests__/push-pull-async-iterable.js';
@@ -256,7 +257,7 @@ describe('fetch-multipart-graphql', () => {
         throw new Error('Missing port...');
       }
 
-      const collected: any[] = [];
+      const collected: ExecutionResult[] = [];
 
       await new Promise<void>((resolve, reject) => {
         fetchMultipart(`http://localhost:${port}/graphql`, {
