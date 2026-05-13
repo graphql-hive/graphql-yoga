@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import fetchMultipart from 'fetch-multipart-graphql';
 import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga';
+import { ExecutionResult } from '@graphql-tools/utils';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import { createPushPullAsyncIterable } from '../__tests__/push-pull-async-iterable.js';
@@ -60,7 +61,7 @@ skipIf(majorNodeVersion <= 18)(
       });
       let counter = 0;
       const toStr = (arr: Uint8Array) => Buffer.from(arr).toString('utf-8');
-      for await (const chunk of response.body!) {
+      for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
         const parts = toStr(chunk)
           .split('\r\n')
           .filter(p => p.startsWith('{'));
@@ -172,15 +173,16 @@ it('memory/cleanup leak by source that never publishes a value', async () => {
 
     const iterator = response![Symbol.asyncIterator]();
 
-    let cnt = 0;
+    function countEnds(str: string) {
+      // count the number of --- lines
+      return str.split('\r\n').filter(line => line === '---').length;
+    }
+
     while (true) {
       const { value, done } = await iterator.next();
       const chunkStr = Buffer.from(value).toString('utf-8');
       payload += chunkStr;
-      if (chunkStr.endsWith('\r\n---')) {
-        cnt++;
-      }
-      if (cnt === 2 || done) {
+      if (countEnds(payload) === 2 || done) {
         break;
       }
     }
@@ -255,7 +257,7 @@ describe('fetch-multipart-graphql', () => {
         throw new Error('Missing port...');
       }
 
-      const collected: any[] = [];
+      const collected: ExecutionResult[] = [];
 
       await new Promise<void>((resolve, reject) => {
         fetchMultipart(`http://localhost:${port}/graphql`, {
@@ -274,7 +276,7 @@ describe('fetch-multipart-graphql', () => {
             `,
           }),
           onNext(next) {
-            collected.push(...next);
+            collected.push(...(next as ExecutionResult[]));
           },
           onError(err) {
             reject(err);
