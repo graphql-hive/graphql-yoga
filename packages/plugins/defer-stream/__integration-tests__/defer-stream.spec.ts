@@ -172,15 +172,16 @@ it('memory/cleanup leak by source that never publishes a value', async () => {
 
     const iterator = response![Symbol.asyncIterator]();
 
-    let cnt = 0;
+    function countEnds(str: string) {
+      // count the number of --- lines
+      return str.split('\r\n').filter(line => line === '---').length;
+    }
+
     while (true) {
       const { value, done } = await iterator.next();
       const chunkStr = Buffer.from(value).toString('utf-8');
       payload += chunkStr;
-      if (chunkStr.endsWith('\r\n---')) {
-        cnt++;
-      }
-      if (cnt === 2 || done) {
+      if (countEnds(payload) === 2 || done) {
         break;
       }
     }
