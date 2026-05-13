@@ -61,7 +61,7 @@ skipIf(majorNodeVersion <= 18)(
       });
       let counter = 0;
       const toStr = (arr: Uint8Array) => Buffer.from(arr).toString('utf-8');
-      for await (const chunk of response.body!) {
+      for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
         const parts = toStr(chunk)
           .split('\r\n')
           .filter(p => p.startsWith('{'));
@@ -276,7 +276,7 @@ describe('fetch-multipart-graphql', () => {
             `,
           }),
           onNext(next) {
-            collected.push(...next);
+            collected.push(...(next as ExecutionResult[]));
           },
           onError(err) {
             reject(err);

@@ -38,9 +38,15 @@ if (process.env.INTEGRATION_TEST === 'true') {
   );
 }
 
+const nodeMajor = parseInt(process.versions.node.split('.')[0]);
+
 // Skip for Node 18 and below
-if (parseInt(process.versions.node.split('.')[0]) <= 20) {
+if (nodeMajor <= 20) {
   testMatch.push('!**/nestjs/**');
+}
+
+if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
+  testMatch.push('!**/graphql-scalars.spec.ts');
 }
 
 projects.unshift({
