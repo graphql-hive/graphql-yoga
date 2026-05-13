@@ -1,0 +1,250 @@
+--- a/dist/changesets-assemble-release-plan.cjs.js
++++ b/dist/changesets-assemble-release-plan.cjs.js
+@@ -74,17 +74,15 @@
+   }
+   let highestReleaseType = "none";
+   for (let release of releases) {
+-    switch (release.type) {
+-      case "major":
+-        return "major";
+-      case "minor":
+-        highestReleaseType = "minor";
+-        break;
+-      case "patch":
+-        if (highestReleaseType === "none") {
+-          highestReleaseType = "patch";
+-        }
+-        break;
++    console.log(release, release.type);
++    if (release.type === "major") {
++      return "major";
++    } else if (release.type === "minor") {
++      highestReleaseType = "minor";
++    } else if (release.type === "patch") {
++      if (highestReleaseType === "none") {
++        highestReleaseType = "patch";
++      }
+     }
+   }
+   return highestReleaseType;
+@@ -164,7 +162,7 @@
+     let preVersion = mapGetOrThrowInternal(preInfo.preVersions, release.name, `preVersion for ${release.name} does not exist when preState is defined`);
+     // why are we adding this ourselves rather than passing 'pre' + versionType to semver.inc?
+     // because semver.inc with prereleases is confusing and this seems easier
+-    version += `-${preInfo.state.tag}.${preVersion}`;
++    version += `-next.${preVersion}`;
+   }
+   return version;
+ }
+@@ -213,19 +211,11 @@
+           depType,
+           versionRange
+         } of dependencyVersionRanges) {
+-          if (nextRelease.type === "none") {
+-            continue;
+-          } else if (shouldBumpMajor({
+-            dependent,
+-            depType,
+-            versionRange,
+-            releases,
+-            nextRelease,
+-            preInfo,
+-            onlyUpdatePeerDependentsWhenOutOfRange: config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange
+-          })) {
+-            type = "major";
+-          } else if ((!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semverSatisfies__default["default"](incrementVersion(nextRelease, preInfo), versionRange))) {
++          if (["patch", "minor", "major"].indexOf(nextRelease.type) > ["patch", "minor", "major"].indexOf(type)) {
++            type = nextRelease.type;
++          } else if (
++          // TODO validate this - I don't think it's right anymore
++          (!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semverSatisfies__default["default"](incrementVersion(nextRelease, preInfo), versionRange))) {
+             switch (depType) {
+               case "dependencies":
+               case "optionalDependencies":
+@@ -235,11 +225,9 @@
+                 }
+                 break;
+               case "devDependencies":
+-                {
+-                  // We don't need a version bump if the package is only in the devDependencies of the dependent package
+-                  if (type !== "major" && type !== "minor" && type !== "patch") {
+-                    type = "none";
+-                  }
++                // We don't need a version bump if the package is only in the devDependencies of the dependent package
++                if (type !== "major" && type !== "minor" && type !== "patch") {
++                  type = "none";
+                 }
+             }
+           }
+@@ -253,23 +241,31 @@
+         type,
+         pkgJSON: dependentPackage.packageJson
+       };
+-    }).filter(dependentItem => !!dependentItem.type).forEach(({
++    }).filter(({
++      type
++    }) => type).forEach(({
+       name,
+       type,
+       pkgJSON
+     }) => {
+-      // At this point, we know if we are making a change
+-      updated = true;
+       const existing = releases.get(name);
+       // For things that are being given a major bump, we check if we have already
+       // added them here. If we have, we update the existing item instead of pushing it on to search.
+       // It is safe to not add it to pkgsToSearch because it should have already been searched at the
+       // largest possible bump type.
+ 
+-      if (existing && type === "major" && existing.type !== "major") {
+-        existing.type = "major";
+-        pkgsToSearch.push(existing);
++      if (existing) {
++        const index = ["patch", "minor", "major"].indexOf(existing.type);
++        if (type === "major") {
++          existing.type = "major";
++        } else if (type === "minor" && index < 1) {
++          existing.type = "minor";
++        } else if (type === "patch" && index < 0) {
++          existing.type = "patch";
++        }
++        // pkgsToSearch.push(existing);
+       } else {
++        updated = true;
+         let newDependent = {
+           name,
+           type,
+@@ -340,7 +336,7 @@
+   return depType === "peerDependencies" && nextRelease.type !== "none" && nextRelease.type !== "patch" && (
+   // 1. If onlyUpdatePeerDependentsWhenOutOfRange set to true, bump major if the version is leaving the range.
+   // 2. If onlyUpdatePeerDependentsWhenOutOfRange set to false, bump major regardless whether or not the version is leaving the range.
+-  !onlyUpdatePeerDependentsWhenOutOfRange || !semverSatisfies__default["default"](incrementVersion(nextRelease, preInfo), versionRange)) && (
++  !onlyUpdatePeerDependentsWhenOutOfRange) && (
+   // bump major only if the dependent doesn't already has a major release.
+   !releases.has(dependent) || releases.has(dependent) && releases.get(dependent).type !== "major");
+ }
+--- a/dist/changesets-assemble-release-plan.esm.js
++++ b/dist/changesets-assemble-release-plan.esm.js
+@@ -61,17 +61,15 @@
+   }
+   let highestReleaseType = "none";
+   for (let release of releases) {
+-    switch (release.type) {
+-      case "major":
+-        return "major";
+-      case "minor":
+-        highestReleaseType = "minor";
+-        break;
+-      case "patch":
+-        if (highestReleaseType === "none") {
+-          highestReleaseType = "patch";
+-        }
+-        break;
++    console.log(release, release.type);
++    if (release.type === "major") {
++      return "major";
++    } else if (release.type === "minor") {
++      highestReleaseType = "minor";
++    } else if (release.type === "patch") {
++      if (highestReleaseType === "none") {
++        highestReleaseType = "patch";
++      }
+     }
+   }
+   return highestReleaseType;
+@@ -151,7 +149,7 @@
+     let preVersion = mapGetOrThrowInternal(preInfo.preVersions, release.name, `preVersion for ${release.name} does not exist when preState is defined`);
+     // why are we adding this ourselves rather than passing 'pre' + versionType to semver.inc?
+     // because semver.inc with prereleases is confusing and this seems easier
+-    version += `-${preInfo.state.tag}.${preVersion}`;
++    version += `-next.${preVersion}`;
+   }
+   return version;
+ }
+@@ -200,19 +198,11 @@
+           depType,
+           versionRange
+         } of dependencyVersionRanges) {
+-          if (nextRelease.type === "none") {
+-            continue;
+-          } else if (shouldBumpMajor({
+-            dependent,
+-            depType,
+-            versionRange,
+-            releases,
+-            nextRelease,
+-            preInfo,
+-            onlyUpdatePeerDependentsWhenOutOfRange: config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange
+-          })) {
+-            type = "major";
+-          } else if ((!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semverSatisfies(incrementVersion(nextRelease, preInfo), versionRange))) {
++          if (["patch", "minor", "major"].indexOf(nextRelease.type) > ["patch", "minor", "major"].indexOf(type)) {
++            type = nextRelease.type;
++          } else if (
++          // TODO validate this - I don't think it's right anymore
++          (!releases.has(dependent) || releases.get(dependent).type === "none") && (config.___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.updateInternalDependents === "always" || !semverSatisfies(incrementVersion(nextRelease, preInfo), versionRange))) {
+             switch (depType) {
+               case "dependencies":
+               case "optionalDependencies":
+@@ -222,11 +212,9 @@
+                 }
+                 break;
+               case "devDependencies":
+-                {
+-                  // We don't need a version bump if the package is only in the devDependencies of the dependent package
+-                  if (type !== "major" && type !== "minor" && type !== "patch") {
+-                    type = "none";
+-                  }
++                // We don't need a version bump if the package is only in the devDependencies of the dependent package
++                if (type !== "major" && type !== "minor" && type !== "patch") {
++                  type = "none";
+                 }
+             }
+           }
+@@ -240,23 +228,31 @@
+         type,
+         pkgJSON: dependentPackage.packageJson
+       };
+-    }).filter(dependentItem => !!dependentItem.type).forEach(({
++    }).filter(({
++      type
++    }) => type).forEach(({
+       name,
+       type,
+       pkgJSON
+     }) => {
+-      // At this point, we know if we are making a change
+-      updated = true;
+       const existing = releases.get(name);
+       // For things that are being given a major bump, we check if we have already
+       // added them here. If we have, we update the existing item instead of pushing it on to search.
+       // It is safe to not add it to pkgsToSearch because it should have already been searched at the
+       // largest possible bump type.
+ 
+-      if (existing && type === "major" && existing.type !== "major") {
+-        existing.type = "major";
+-        pkgsToSearch.push(existing);
++      if (existing) {
++        const index = ["patch", "minor", "major"].indexOf(existing.type);
++        if (type === "major") {
++          existing.type = "major";
++        } else if (type === "minor" && index < 1) {
++          existing.type = "minor";
++        } else if (type === "patch" && index < 0) {
++          existing.type = "patch";
++        }
++        // pkgsToSearch.push(existing);
+       } else {
++        updated = true;
+         let newDependent = {
+           name,
+           type,
+@@ -327,7 +323,7 @@
+   return depType === "peerDependencies" && nextRelease.type !== "none" && nextRelease.type !== "patch" && (
+   // 1. If onlyUpdatePeerDependentsWhenOutOfRange set to true, bump major if the version is leaving the range.
+   // 2. If onlyUpdatePeerDependentsWhenOutOfRange set to false, bump major regardless whether or not the version is leaving the range.
+-  !onlyUpdatePeerDependentsWhenOutOfRange || !semverSatisfies(incrementVersion(nextRelease, preInfo), versionRange)) && (
++  !onlyUpdatePeerDependentsWhenOutOfRange) && (
+   // bump major only if the dependent doesn't already has a major release.
+   !releases.has(dependent) || releases.has(dependent) && releases.get(dependent).type !== "major");
+ }

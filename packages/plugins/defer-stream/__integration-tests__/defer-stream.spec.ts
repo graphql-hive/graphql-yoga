@@ -168,12 +168,24 @@ it('memory/cleanup leak by source that never publishes a value', async () => {
       );
     });
 
+    let payload = '';
+
     const iterator = response![Symbol.asyncIterator]();
 
-    const next = await iterator.next();
+    let cnt = 0;
+    while (true) {
+      const { value, done } = await iterator.next();
+      const chunkStr = Buffer.from(value).toString('utf-8');
+      payload += chunkStr;
+      if (chunkStr.endsWith('\r\n---')) {
+        cnt++;
+      }
+      if (cnt === 2 || done) {
+        break;
+      }
+    }
 
-    const chunkStr = Buffer.from(next.value).toString('utf-8');
-    expect(chunkStr).toMatchInlineSnapshot(`
+    expect(payload).toMatchInlineSnapshot(`
 "
 ---
 Content-Type: application/json; charset=utf-8
@@ -243,6 +255,8 @@ describe('fetch-multipart-graphql', () => {
         throw new Error('Missing port...');
       }
 
+      const collected: any[] = [];
+
       await new Promise<void>((resolve, reject) => {
         fetchMultipart(`http://localhost:${port}/graphql`, {
           method: 'POST',
@@ -260,23 +274,7 @@ describe('fetch-multipart-graphql', () => {
             `,
           }),
           onNext(next) {
-            expect(next).toEqual([
-              {
-                data: {},
-                hasNext: true,
-              },
-              {
-                hasNext: false,
-                incremental: [
-                  {
-                    data: {
-                      a: 'a',
-                    },
-                    path: [],
-                  },
-                ],
-              },
-            ]);
+            collected.push(...next);
           },
           onError(err) {
             reject(err);
@@ -286,6 +284,24 @@ describe('fetch-multipart-graphql', () => {
           },
         });
       });
+
+      expect(collected).toEqual([
+        {
+          data: {},
+          hasNext: true,
+        },
+        {
+          hasNext: false,
+          incremental: [
+            {
+              data: {
+                a: 'a',
+              },
+              path: [],
+            },
+          ],
+        },
+      ]);
     } finally {
       await new Promise<void>(res => {
         server.close(() => {
