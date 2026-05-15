@@ -10,13 +10,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  noop-for-bots:
+    if:
+      ${{ github.actor == 'dependabot[bot]' || github.actor == 'copilot-swe-agent[bot]' ||
+      github.actor == 'github-copilot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipping snapshot release jobs for bot actor."
+
   alpha:
     permissions:
       contents: read
       id-token: write
       pull-requests: write
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
+    if:
+      ${{ github.event_name == 'push' || (github.event.pull_request.title != 'Upcoming Release
+      Changes' && github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
+      github.actor != 'github-copilot[bot]') }}
     with:
       npmTag: alpha
       buildScript: build
@@ -27,7 +38,10 @@ jobs:
 
   release-candidate:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
-    if: ${{ github.event.pull_request.title == 'Upcoming Release Changes' }}
+    if:
+      ${{ github.event.pull_request.title == 'Upcoming Release Changes' && github.actor !=
+      'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' && github.actor !=
+      'github-copilot[bot]') }}
     with:
       npmTag: rc
       restoreDeletedChangesets: false
@@ -39,7 +53,10 @@ jobs:
 
   dependencies:
     uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
-    if: ${{ github.event.pull_request.title != 'Upcoming Release Changes' }}
+    if:
+      ${{ github.event_name == 'push' || (github.event.pull_request.title != 'Upcoming Release
+      Changes' && github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
+      github.actor != 'github-copilot[bot]') }}
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
     with:
