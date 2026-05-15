@@ -10,6 +10,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  noop-for-bots:
+    if:
+      ${{ github.actor == 'dependabot[bot]' || github.actor == 'copilot-swe-agent[bot]' ||
+      github.actor == 'github-copilot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipping snapshot release jobs for bot actor."
+
   alpha:
     permissions:
       contents: read
