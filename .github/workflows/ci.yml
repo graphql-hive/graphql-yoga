@@ -335,7 +335,8 @@ jobs:
   dependencies:
     if:
       github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming Release
-      Changes'
+      Changes' && github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
+      github.actor != 'github-copilot[bot]'
     name: Dependencies
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-dependencies
