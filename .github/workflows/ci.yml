@@ -179,21 +179,37 @@ jobs:
 
       - name: Run Integration Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
-        env:
-          NODE_OPTIONS: ${{ matrix.node-version == 18 && '--experimental-vm-modules' || '' }}
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:integration --ci
+          command: >-
+            if [ "${{ matrix.node-version }}" = "18" ]; then
+              pnpm test:integration --ci
+              --testPathIgnorePatterns='packages/graphql-yoga/__integration-tests__/browser.spec.ts|examples/sveltekit/__integration-tests__/sveltekit.spec.ts'
+              &&
+              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration --ci
+              packages/graphql-yoga/__integration-tests__/browser.spec.ts
+              examples/sveltekit/__integration-tests__/sveltekit.spec.ts;
+            else
+              pnpm test:integration --ci;
+            fi
 
       - name: Run Leak Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
-        env:
-          NODE_OPTIONS: ${{ matrix.node-version == 18 && '--experimental-vm-modules' || '' }}
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:integration:leaks --ci
+          command: >-
+            if [ "${{ matrix.node-version }}" = "18" ]; then
+              pnpm test:integration:leaks --ci
+              --testPathIgnorePatterns='packages/graphql-yoga/__integration-tests__/browser.spec.ts|examples/sveltekit/__integration-tests__/sveltekit.spec.ts'
+              &&
+              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration:leaks --ci
+              packages/graphql-yoga/__integration-tests__/browser.spec.ts
+              examples/sveltekit/__integration-tests__/sveltekit.spec.ts;
+            else
+              pnpm test:integration:leaks --ci;
+            fi
 
   apollo-federation-compatibility:
     runs-on: ubuntu-latest
