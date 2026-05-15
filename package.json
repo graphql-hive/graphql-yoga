@@ -43,7 +43,7 @@
     "prettier:check": "prettier --ignore-path .prettierignore --check .",
     "release": "pnpm build && changeset publish",
     "start:docs": "pnpm --filter=website dev",
-    "test:integration": "node -e \"const fs=require('node:fs');const { chromium }=require('playwright');process.exit(fs.existsSync(chromium.executablePath())?0:1)\" || pnpm exec playwright install chromium && cross-env INTEGRATION_TEST=true jest --forceExit",
+    "test:integration": "node scripts/ensure-playwright-chromium.js && cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
     "test:unit": "jest --detectOpenHandles",
     "test:unit:leaks": "cross-env LEAKS_TEST=true pnpm run test:unit --detectLeaks"
