@@ -184,9 +184,9 @@ jobs:
           max_attempts: 3
           command: >-
             if [ "${{ matrix.node-version }}" = "18" ]; then
-              pnpm test:integration --ci
-            --testPathIgnorePatterns='/(browser|sveltekit)\\.spec\\.ts$' &&
-              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration --ci
+              pnpm test:integration --ci \
+                --testPathIgnorePatterns='/(browser|sveltekit)\.spec\.ts$' &&
+              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration --ci \
             packages/graphql-yoga/__integration-tests__/browser.spec.ts
             examples/sveltekit/__integration-tests__/sveltekit.spec.ts; else
               pnpm test:integration --ci;
@@ -199,9 +199,9 @@ jobs:
           max_attempts: 3
           command: >-
             if [ "${{ matrix.node-version }}" = "18" ]; then
-              pnpm test:integration:leaks --ci
-            --testPathIgnorePatterns='/(browser|sveltekit)\\.spec\\.ts$' &&
-              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration:leaks --ci
+              pnpm test:integration:leaks --ci \
+                --testPathIgnorePatterns='/(browser|sveltekit)\.spec\.ts$' &&
+              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration:leaks --ci \
             packages/graphql-yoga/__integration-tests__/browser.spec.ts
             examples/sveltekit/__integration-tests__/sveltekit.spec.ts; else
               pnpm test:integration:leaks --ci;
