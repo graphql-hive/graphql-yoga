@@ -5,8 +5,26 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
+function resolvePlaywrightCacheDir() {
+  const customBrowsersPath = process.env['PLAYWRIGHT_BROWSERS_PATH'];
+  if (customBrowsersPath && customBrowsersPath !== '0') {
+    return customBrowsersPath;
+  }
+
+  if (process.platform === 'win32') {
+    const localAppData = process.env['LOCALAPPDATA'] || path.join(os.homedir(), 'AppData', 'Local');
+    return path.join(localAppData, 'ms-playwright');
+  }
+
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Caches', 'ms-playwright');
+  }
+
+  return path.join(os.homedir(), '.cache', 'ms-playwright');
+}
+
 function ensurePlaywrightChromiumInstalled() {
-  const playwrightCacheDir = path.join(os.homedir(), '.cache', 'ms-playwright');
+  const playwrightCacheDir = resolvePlaywrightCacheDir();
   const playwrightCacheEntries = fs.existsSync(playwrightCacheDir)
     ? fs.readdirSync(playwrightCacheDir)
     : [];
@@ -21,7 +39,7 @@ function ensurePlaywrightChromiumInstalled() {
 
   const installCommands = [
     ['pnpm', ['exec', 'playwright', 'install', 'chromium']],
-    ['corepack', ['pnpm', 'exec', 'playwright', 'install', 'chromium']],
+    ['npx', ['playwright', 'install', 'chromium']],
   ];
 
   let installSucceeded = false;
