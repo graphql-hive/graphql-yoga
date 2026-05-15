@@ -188,8 +188,7 @@ jobs:
             --testPathIgnorePatterns='/(browser|sveltekit)\\.spec\\.ts$' &&
               NODE_OPTIONS=--experimental-vm-modules pnpm test:integration --ci
             packages/graphql-yoga/__integration-tests__/browser.spec.ts
-            examples/sveltekit/__integration-tests__/sveltekit.spec.ts;
-            else
+            examples/sveltekit/__integration-tests__/sveltekit.spec.ts; else
               pnpm test:integration --ci;
             fi
 
@@ -204,8 +203,7 @@ jobs:
             --testPathIgnorePatterns='/(browser|sveltekit)\\.spec\\.ts$' &&
               NODE_OPTIONS=--experimental-vm-modules pnpm test:integration:leaks --ci
             packages/graphql-yoga/__integration-tests__/browser.spec.ts
-            examples/sveltekit/__integration-tests__/sveltekit.spec.ts;
-            else
+            examples/sveltekit/__integration-tests__/sveltekit.spec.ts; else
               pnpm test:integration:leaks --ci;
             fi
 
