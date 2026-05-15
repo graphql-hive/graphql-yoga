@@ -251,8 +251,7 @@ jobs:
     runs-on: ubuntu-latest
     if:
       github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-      github.repository && github.event.pull_request.user.login != 'dependabot[bot]' &&
-      !contains(github.event.pull_request.user.login, 'copilot')
+      github.repository && github.actor != 'dependabot[bot]' && !contains(github.actor, 'copilot')
     env:
       # CloudFlare
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
