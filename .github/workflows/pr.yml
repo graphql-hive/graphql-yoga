@@ -31,9 +31,9 @@ jobs:
   release-candidate:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
     if:
-      ${{ github.event_name == 'pull_request' && github.event.pull_request.title == 'Upcoming
-      Release Changes' && github.actor != 'dependabot[bot]' && github.actor !=
-      'copilot-swe-agent[bot]' && github.actor != 'github-copilot[bot]') }}
+      ${{ github.event.pull_request.title == 'Upcoming Release Changes' && github.actor !=
+      'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' && github.actor !=
+      'github-copilot[bot]') }}
     with:
       npmTag: rc
       restoreDeletedChangesets: false
