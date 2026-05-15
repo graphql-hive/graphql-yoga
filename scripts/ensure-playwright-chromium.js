@@ -8,7 +8,10 @@ function ensurePlaywrightChromiumInstalled() {
   try {
     const { chromium } = require('playwright');
     executablePath = chromium.executablePath();
-  } catch {
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code !== 'MODULE_NOT_FOUND') {
+      console.warn('Unable to detect existing Playwright Chromium binary. Installing Chromium.');
+    }
     executablePath = undefined;
   }
 
@@ -22,6 +25,7 @@ function ensurePlaywrightChromiumInstalled() {
   });
 
   if (installResult.status !== 0) {
+    console.error('Failed to install Playwright Chromium binary.');
     process.exit(installResult.status ?? 1);
   }
 }
