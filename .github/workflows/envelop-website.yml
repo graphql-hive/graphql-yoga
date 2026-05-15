@@ -16,8 +16,9 @@ jobs:
   deployment:
     runs-on: ubuntu-latest
     if:
-      github.event.pull_request.head.repo.full_name == github.repository || github.event_name ==
-      'push'
+      github.event_name == 'push' || (github.event.pull_request.head.repo.full_name ==
+      github.repository && github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !contains(github.event.pull_request.user.login, 'copilot'))
     steps:
       - name: checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
