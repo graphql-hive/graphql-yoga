@@ -133,6 +133,7 @@ jobs:
     name: integration / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18, 20, 26]
         graphql-version: ['15.10.1', '16.12.0']
@@ -178,6 +179,8 @@ jobs:
 
       - name: Run Integration Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          NODE_OPTIONS: ${{ matrix.node-version == 18 && '--experimental-vm-modules' || '' }}
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -185,6 +188,8 @@ jobs:
 
       - name: Run Leak Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          NODE_OPTIONS: ${{ matrix.node-version == 18 && '--experimental-vm-modules' || '' }}
         with:
           timeout_minutes: 10
           max_attempts: 3
