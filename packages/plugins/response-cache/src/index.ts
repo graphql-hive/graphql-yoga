@@ -143,6 +143,7 @@ export function useResponseCache<TContext = YogaInitialContext>(
                     status: 304,
                     headers: {
                       ETag: operationId,
+                      'Last-Modified': lastModifiedFromCache,
                     },
                   });
                   endResponse(okResponse);
