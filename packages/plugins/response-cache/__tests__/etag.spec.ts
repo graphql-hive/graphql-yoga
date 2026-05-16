@@ -68,6 +68,22 @@ describe('Response Caching via ETag', () => {
         },
       });
       expect(response2.status).toEqual(304);
+      expect(response2.headers.get('ETag')).toEqual(query);
+      expect(response2.headers.get('Last-Modified')).toEqual(lastModified);
+      expect(resolverCalledCount).toEqual(0);
+    });
+    it('should respond 304 with ETag and Last-Modified when only If-None-Match matches', async () => {
+      const query = '{me{id,name}}';
+      const response1 = await yoga.fetch('http://localhost:4000/graphql?query=' + query);
+      const lastModified = response1.headers.get('Last-Modified');
+      const response2 = await yoga.fetch('http://localhost:4000/graphql?query=' + query, {
+        headers: {
+          'If-None-Match': query,
+        },
+      });
+      expect(response2.status).toEqual(304);
+      expect(response2.headers.get('ETag')).toEqual(query);
+      expect(response2.headers.get('Last-Modified')).toEqual(lastModified);
       expect(resolverCalledCount).toEqual(0);
     });
     it('should not send ETag or Last-Modified if the result is not cached', async () => {
