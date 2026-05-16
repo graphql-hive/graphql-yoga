@@ -340,7 +340,7 @@ jobs:
 
       - name: Ensure Deletion
         working-directory: e2e
-        if: ${{ always() }}
+        if: always()
         run: pnpm start
         env:
           ENSURE_DELETION: 1
