@@ -25,9 +25,9 @@ jobs:
       pull-requests: write
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
     if:
-      ${{ github.event_name == 'push' || (github.event.pull_request.title != 'Upcoming Release
-      Changes' && github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
-      github.actor != 'github-copilot[bot]') }}
+      ${{ github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
+      github.actor != 'github-copilot[bot]' && (github.event_name == 'push' || (github.event_name ==
+      'pull_request' && github.event.pull_request.title != 'Upcoming Release Changes')) }}
     with:
       npmTag: alpha
       buildScript: build
@@ -39,9 +39,9 @@ jobs:
   release-candidate:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
     if:
-      ${{ github.event.pull_request.title == 'Upcoming Release Changes' && github.actor !=
-      'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' && github.actor !=
-      'github-copilot[bot]') }}
+      ${{ github.event_name == 'pull_request' && github.event.pull_request.title == 'Upcoming
+      Release Changes' && github.actor != 'dependabot[bot]' && github.actor !=
+      'copilot-swe-agent[bot]' && github.actor != 'github-copilot[bot]') }}
     with:
       npmTag: rc
       restoreDeletedChangesets: false
@@ -54,9 +54,9 @@ jobs:
   dependencies:
     uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yml@v1
     if:
-      ${{ github.event_name == 'push' || (github.event.pull_request.title != 'Upcoming Release
-      Changes' && github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
-      github.actor != 'github-copilot[bot]') }}
+      ${{ github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' &&
+      github.actor != 'github-copilot[bot]' && (github.event_name == 'push' || (github.event_name ==
+      'pull_request' && github.event.pull_request.title != 'Upcoming Release Changes')) }}
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
     with:
