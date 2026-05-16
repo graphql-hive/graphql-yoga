@@ -1,0 +1,34 @@
+c7f20d45ac02b102bc295a9eaf14e4fc
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hasInlineArgument = hasInlineArgument;
+var _graphql = require("graphql");
+function hasInlineArgument(doc) {
+  let seen = false;
+  const leave = () => {
+    seen = true;
+    return _graphql.BREAK;
+  };
+  (0, _graphql.visit)(doc, {
+    StringValue: {
+      leave
+    },
+    BooleanValue: {
+      leave
+    },
+    FloatValue: {
+      leave
+    },
+    EnumValue: {
+      leave
+    },
+    IntValue: {
+      leave
+    }
+  });
+  return seen;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZ3JhcGhxbCIsInJlcXVpcmUiLCJoYXNJbmxpbmVBcmd1bWVudCIsImRvYyIsInNlZW4iLCJsZWF2ZSIsIkJSRUFLIiwidmlzaXQiLCJTdHJpbmdWYWx1ZSIsIkJvb2xlYW5WYWx1ZSIsIkZsb2F0VmFsdWUiLCJFbnVtVmFsdWUiLCJJbnRWYWx1ZSJdLCJzb3VyY2VzIjpbImhhcy1pbmxpbmUtYXJndW1lbnQudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHR5cGUgeyBEb2N1bWVudE5vZGUgfSBmcm9tICdncmFwaHFsJztcbmltcG9ydCB7IEJSRUFLLCB2aXNpdCB9IGZyb20gJ2dyYXBocWwnO1xuXG5leHBvcnQgZnVuY3Rpb24gaGFzSW5saW5lQXJndW1lbnQoZG9jOiBEb2N1bWVudE5vZGUpIHtcbiAgbGV0IHNlZW4gPSBmYWxzZTtcbiAgY29uc3QgbGVhdmUgPSAoKSA9PiB7XG4gICAgc2VlbiA9IHRydWU7XG4gICAgcmV0dXJuIEJSRUFLO1xuICB9O1xuICB2aXNpdChkb2MsIHtcbiAgICBTdHJpbmdWYWx1ZToge1xuICAgICAgbGVhdmUsXG4gICAgfSxcbiAgICBCb29sZWFuVmFsdWU6IHtcbiAgICAgIGxlYXZlLFxuICAgIH0sXG4gICAgRmxvYXRWYWx1ZToge1xuICAgICAgbGVhdmUsXG4gICAgfSxcbiAgICBFbnVtVmFsdWU6IHtcbiAgICAgIGxlYXZlLFxuICAgIH0sXG4gICAgSW50VmFsdWU6IHtcbiAgICAgIGxlYXZlLFxuICAgIH0sXG4gIH0pO1xuICByZXR1cm4gc2Vlbjtcbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7O0FBQ0EsSUFBQUEsUUFBQSxHQUFBQyxPQUFBO0FBRU8sU0FBU0MsaUJBQWlCQSxDQUFDQyxHQUFpQixFQUFFO0VBQ25ELElBQUlDLElBQUksR0FBRyxLQUFLO0VBQ2hCLE1BQU1DLEtBQUssR0FBR0EsQ0FBQSxLQUFNO0lBQ2xCRCxJQUFJLEdBQUcsSUFBSTtJQUNYLE9BQU9FLGNBQUs7RUFDZCxDQUFDO0VBQ0QsSUFBQUMsY0FBSyxFQUFDSixHQUFHLEVBQUU7SUFDVEssV0FBVyxFQUFFO01BQ1hIO0lBQ0YsQ0FBQztJQUNESSxZQUFZLEVBQUU7TUFDWko7SUFDRixDQUFDO0lBQ0RLLFVBQVUsRUFBRTtNQUNWTDtJQUNGLENBQUM7SUFDRE0sU0FBUyxFQUFFO01BQ1ROO0lBQ0YsQ0FBQztJQUNETyxRQUFRLEVBQUU7TUFDUlA7SUFDRjtFQUNGLENBQUMsQ0FBQztFQUNGLE9BQU9ELElBQUk7QUFDYiIsImlnbm9yZUxpc3QiOltdfQ==

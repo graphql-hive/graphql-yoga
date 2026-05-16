@@ -1,0 +1,15 @@
+cd10c34f64e49092d8be94b9a09041e6
+"use strict";
+
+/**
+ * Jest Fake Timers don't work with performance.now()
+ * Thus we replace it with a custom implementation lol.
+ */
+const nowOffset = Date.now();
+globalThis.performance = {
+  ...globalThis.performance,
+  now: () => {
+    return Date.now() - nowOffset;
+  }
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJub3dPZmZzZXQiLCJEYXRlIiwibm93IiwiZ2xvYmFsVGhpcyIsInBlcmZvcm1hbmNlIl0sInNvdXJjZXMiOlsiamVzdC1zZXR1cC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEplc3QgRmFrZSBUaW1lcnMgZG9uJ3Qgd29yayB3aXRoIHBlcmZvcm1hbmNlLm5vdygpXG4gKiBUaHVzIHdlIHJlcGxhY2UgaXQgd2l0aCBhIGN1c3RvbSBpbXBsZW1lbnRhdGlvbiBsb2wuXG4gKi9cbmNvbnN0IG5vd09mZnNldCA9IERhdGUubm93KCk7XG5cbmdsb2JhbFRoaXMucGVyZm9ybWFuY2UgPSB7XG4gIC4uLmdsb2JhbFRoaXMucGVyZm9ybWFuY2UsXG4gIG5vdzogKCkgPT4ge1xuICAgIHJldHVybiBEYXRlLm5vdygpIC0gbm93T2Zmc2V0O1xuICB9LFxufTtcbiJdLCJtYXBwaW5ncyI6Ijs7QUFBQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLE1BQU1BLFNBQVMsR0FBR0MsSUFBSSxDQUFDQyxHQUFHLENBQUMsQ0FBQztBQUU1QkMsVUFBVSxDQUFDQyxXQUFXLEdBQUc7RUFDdkIsR0FBR0QsVUFBVSxDQUFDQyxXQUFXO0VBQ3pCRixHQUFHLEVBQUVBLENBQUEsS0FBTTtJQUNULE9BQU9ELElBQUksQ0FBQ0MsR0FBRyxDQUFDLENBQUMsR0FBR0YsU0FBUztFQUMvQjtBQUNGLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

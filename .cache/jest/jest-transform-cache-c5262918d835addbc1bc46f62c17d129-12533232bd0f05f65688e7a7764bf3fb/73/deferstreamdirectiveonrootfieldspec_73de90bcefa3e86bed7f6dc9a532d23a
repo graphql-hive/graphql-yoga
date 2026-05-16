@@ -1,0 +1,245 @@
+0b58801eac14b42647046dc11aa551d2
+"use strict";
+
+var _graphql = require("graphql");
+var _deferStreamDirectiveOnRootField = require("../../src/validations/defer-stream-directive-on-root-field.js");
+var _harness = require("./harness.js");
+function expectErrors(queryStr) {
+  return (0, _harness.expectValidationErrorsWithSchema)(schema, _deferStreamDirectiveOnRootField.DeferStreamDirectiveOnRootFieldRule, queryStr);
+}
+function expectValid(queryStr) {
+  expectErrors(queryStr).toDeepEqual([]);
+}
+const schema = (0, _graphql.buildSchema)(`
+  type Message {
+    body: String
+    sender: String
+  }
+
+  type SubscriptionRoot {
+    subscriptionField: Message
+    subscriptionListField: [Message]
+  }
+
+  type MutationRoot {
+    mutationField: Message
+    mutationListField: [Message]
+  }
+
+  type QueryRoot {
+    message: Message
+    messages: [Message]
+  }
+
+  schema {
+    query: QueryRoot
+    mutation: MutationRoot
+    subscription: SubscriptionRoot
+  }
+`);
+describe('Validate: Defer/Stream directive on root field', () => {
+  it('Defer fragment spread on root query field', () => {
+    expectValid(`
+      {
+        ...rootQueryFragment @defer
+      }
+      fragment rootQueryFragment on QueryRoot {
+        message {
+          body
+        }
+      }
+    `);
+  });
+  it('Defer inline fragment spread on root query field', () => {
+    expectValid(`
+      {
+        ... @defer {
+          message {
+            body
+          }
+        }
+      }
+    `);
+  });
+  it('Defer fragment spread on root mutation field', () => {
+    expectErrors(`
+      mutation {
+        ...rootFragment @defer
+      }
+      fragment rootFragment on MutationRoot {
+        mutationField {
+          body
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Defer directive cannot be used on root mutation type "MutationRoot".',
+      locations: [{
+        line: 3,
+        column: 25
+      }]
+    }]);
+  });
+  it('Defer inline fragment spread on root mutation field', () => {
+    expectErrors(`
+      mutation {
+        ... @defer {
+          mutationField {
+            body
+          }
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Defer directive cannot be used on root mutation type "MutationRoot".',
+      locations: [{
+        line: 3,
+        column: 13
+      }]
+    }]);
+  });
+  it('Defer fragment spread on nested mutation field', () => {
+    expectValid(`
+      mutation {
+        mutationField {
+          ... @defer {
+            body
+          }
+        }
+      }
+    `);
+  });
+  it('Defer fragment spread on root subscription field', () => {
+    expectErrors(`
+      subscription {
+        ...rootFragment @defer
+      }
+      fragment rootFragment on SubscriptionRoot {
+        subscriptionField {
+          body
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Defer directive cannot be used on root subscription type "SubscriptionRoot".',
+      locations: [{
+        line: 3,
+        column: 25
+      }]
+    }]);
+  });
+  it('Defer inline fragment spread on root subscription field', () => {
+    expectErrors(`
+      subscription {
+        ... @defer {
+          subscriptionField {
+            body
+          }
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Defer directive cannot be used on root subscription type "SubscriptionRoot".',
+      locations: [{
+        line: 3,
+        column: 13
+      }]
+    }]);
+  });
+  it('Defer fragment spread on nested subscription field', () => {
+    expectValid(`
+      subscription {
+        subscriptionField {
+          ...nestedFragment
+        }
+      }
+      fragment nestedFragment on Message {
+        body
+      }
+    `);
+  });
+  it('Stream field on root query field', () => {
+    expectValid(`
+      {
+        messages @stream {
+          name
+        }
+      }
+    `);
+  });
+  it('Stream field on fragment on root query field', () => {
+    expectValid(`
+      {
+        ...rootFragment
+      }
+      fragment rootFragment on QueryType {
+        messages @stream {
+          name
+        }
+      }
+    `);
+  });
+  it('Stream field on root mutation field', () => {
+    expectErrors(`
+      mutation {
+        mutationListField @stream {
+          name
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Stream directive cannot be used on root mutation type "MutationRoot".',
+      locations: [{
+        line: 3,
+        column: 27
+      }]
+    }]);
+  });
+  it('Stream field on fragment on root mutation field', () => {
+    expectErrors(`
+      mutation {
+        ...rootFragment
+      }
+      fragment rootFragment on MutationRoot {
+        mutationListField @stream {
+          name
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Stream directive cannot be used on root mutation type "MutationRoot".',
+      locations: [{
+        line: 6,
+        column: 27
+      }]
+    }]);
+  });
+  it('Stream field on root subscription field', () => {
+    expectErrors(`
+      subscription {
+        subscriptionListField @stream {
+          name
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Stream directive cannot be used on root subscription type "SubscriptionRoot".',
+      locations: [{
+        line: 3,
+        column: 31
+      }]
+    }]);
+  });
+  it('Stream field on fragment on root subscription field', () => {
+    expectErrors(`
+      subscription {
+        ...rootFragment
+      }
+      fragment rootFragment on SubscriptionRoot {
+        subscriptionListField @stream {
+          name
+        }
+      }
+    `).toDeepEqual([{
+      message: 'Stream directive cannot be used on root subscription type "SubscriptionRoot".',
+      locations: [{
+        line: 6,
+        column: 31
+      }]
+    }]);
+  });
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZ3JhcGhxbCIsInJlcXVpcmUiLCJfZGVmZXJTdHJlYW1EaXJlY3RpdmVPblJvb3RGaWVsZCIsIl9oYXJuZXNzIiwiZXhwZWN0RXJyb3JzIiwicXVlcnlTdHIiLCJleHBlY3RWYWxpZGF0aW9uRXJyb3JzV2l0aFNjaGVtYSIsInNjaGVtYSIsIkRlZmVyU3RyZWFtRGlyZWN0aXZlT25Sb290RmllbGRSdWxlIiwiZXhwZWN0VmFsaWQiLCJ0b0RlZXBFcXVhbCIsImJ1aWxkU2NoZW1hIiwiZGVzY3JpYmUiLCJpdCIsIm1lc3NhZ2UiLCJsb2NhdGlvbnMiLCJsaW5lIiwiY29sdW1uIl0sInNvdXJjZXMiOlsiZGVmZXItc3RyZWFtLWRpcmVjdGl2ZS1vbi1yb290LWZpZWxkLnNwZWMudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgYnVpbGRTY2hlbWEgfSBmcm9tICdncmFwaHFsJztcbmltcG9ydCB7IERlZmVyU3RyZWFtRGlyZWN0aXZlT25Sb290RmllbGRSdWxlIH0gZnJvbSAnLi4vLi4vc3JjL3ZhbGlkYXRpb25zL2RlZmVyLXN0cmVhbS1kaXJlY3RpdmUtb24tcm9vdC1maWVsZC5qcyc7XG5pbXBvcnQgeyBleHBlY3RWYWxpZGF0aW9uRXJyb3JzV2l0aFNjaGVtYSB9IGZyb20gJy4vaGFybmVzcy5qcyc7XG5cbmZ1bmN0aW9uIGV4cGVjdEVycm9ycyhxdWVyeVN0cjogc3RyaW5nKSB7XG4gIHJldHVybiBleHBlY3RWYWxpZGF0aW9uRXJyb3JzV2l0aFNjaGVtYShzY2hlbWEsIERlZmVyU3RyZWFtRGlyZWN0aXZlT25Sb290RmllbGRSdWxlLCBxdWVyeVN0cik7XG59XG5cbmZ1bmN0aW9uIGV4cGVjdFZhbGlkKHF1ZXJ5U3RyOiBzdHJpbmcpIHtcbiAgZXhwZWN0RXJyb3JzKHF1ZXJ5U3RyKS50b0RlZXBFcXVhbChbXSk7XG59XG5cbmNvbnN0IHNjaGVtYSA9IGJ1aWxkU2NoZW1hKGBcbiAgdHlwZSBNZXNzYWdlIHtcbiAgICBib2R5OiBTdHJpbmdcbiAgICBzZW5kZXI6IFN0cmluZ1xuICB9XG5cbiAgdHlwZSBTdWJzY3JpcHRpb25Sb290IHtcbiAgICBzdWJzY3JpcHRpb25GaWVsZDogTWVzc2FnZVxuICAgIHN1YnNjcmlwdGlvbkxpc3RGaWVsZDogW01lc3NhZ2VdXG4gIH1cblxuICB0eXBlIE11dGF0aW9uUm9vdCB7XG4gICAgbXV0YXRpb25GaWVsZDogTWVzc2FnZVxuICAgIG11dGF0aW9uTGlzdEZpZWxkOiBbTWVzc2FnZV1cbiAgfVxuXG4gIHR5cGUgUXVlcnlSb290IHtcbiAgICBtZXNzYWdlOiBNZXNzYWdlXG4gICAgbWVzc2FnZXM6IFtNZXNzYWdlXVxuICB9XG5cbiAgc2NoZW1hIHtcbiAgICBxdWVyeTogUXVlcnlSb290XG4gICAgbXV0YXRpb246IE11dGF0aW9uUm9vdFxuICAgIHN1YnNjcmlwdGlvbjogU3Vic2NyaXB0aW9uUm9vdFxuICB9XG5gKTtcblxuZGVzY3JpYmUoJ1ZhbGlkYXRlOiBEZWZlci9TdHJlYW0gZGlyZWN0aXZlIG9uIHJvb3QgZmllbGQnLCAoKSA9PiB7XG4gIGl0KCdEZWZlciBmcmFnbWVudCBzcHJlYWQgb24gcm9vdCBxdWVyeSBmaWVsZCcsICgpID0+IHtcbiAgICBleHBlY3RWYWxpZChgXG4gICAgICB7XG4gICAgICAgIC4uLnJvb3RRdWVyeUZyYWdtZW50IEBkZWZlclxuICAgICAgfVxuICAgICAgZnJhZ21lbnQgcm9vdFF1ZXJ5RnJhZ21lbnQgb24gUXVlcnlSb290IHtcbiAgICAgICAgbWVzc2FnZSB7XG4gICAgICAgICAgYm9keVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCk7XG4gIH0pO1xuXG4gIGl0KCdEZWZlciBpbmxpbmUgZnJhZ21lbnQgc3ByZWFkIG9uIHJvb3QgcXVlcnkgZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0VmFsaWQoYFxuICAgICAge1xuICAgICAgICAuLi4gQGRlZmVyIHtcbiAgICAgICAgICBtZXNzYWdlIHtcbiAgICAgICAgICAgIGJvZHlcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICBgKTtcbiAgfSk7XG5cbiAgaXQoJ0RlZmVyIGZyYWdtZW50IHNwcmVhZCBvbiByb290IG11dGF0aW9uIGZpZWxkJywgKCkgPT4ge1xuICAgIGV4cGVjdEVycm9ycyhgXG4gICAgICBtdXRhdGlvbiB7XG4gICAgICAgIC4uLnJvb3RGcmFnbWVudCBAZGVmZXJcbiAgICAgIH1cbiAgICAgIGZyYWdtZW50IHJvb3RGcmFnbWVudCBvbiBNdXRhdGlvblJvb3Qge1xuICAgICAgICBtdXRhdGlvbkZpZWxkIHtcbiAgICAgICAgICBib2R5XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICBgKS50b0RlZXBFcXVhbChbXG4gICAgICB7XG4gICAgICAgIG1lc3NhZ2U6ICdEZWZlciBkaXJlY3RpdmUgY2Fubm90IGJlIHVzZWQgb24gcm9vdCBtdXRhdGlvbiB0eXBlIFwiTXV0YXRpb25Sb290XCIuJyxcbiAgICAgICAgbG9jYXRpb25zOiBbeyBsaW5lOiAzLCBjb2x1bW46IDI1IH1dLFxuICAgICAgfSxcbiAgICBdKTtcbiAgfSk7XG4gIGl0KCdEZWZlciBpbmxpbmUgZnJhZ21lbnQgc3ByZWFkIG9uIHJvb3QgbXV0YXRpb24gZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIG11dGF0aW9uIHtcbiAgICAgICAgLi4uIEBkZWZlciB7XG4gICAgICAgICAgbXV0YXRpb25GaWVsZCB7XG4gICAgICAgICAgICBib2R5XG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCkudG9EZWVwRXF1YWwoW1xuICAgICAge1xuICAgICAgICBtZXNzYWdlOiAnRGVmZXIgZGlyZWN0aXZlIGNhbm5vdCBiZSB1c2VkIG9uIHJvb3QgbXV0YXRpb24gdHlwZSBcIk11dGF0aW9uUm9vdFwiLicsXG4gICAgICAgIGxvY2F0aW9uczogW3sgbGluZTogMywgY29sdW1uOiAxMyB9XSxcbiAgICAgIH0sXG4gICAgXSk7XG4gIH0pO1xuXG4gIGl0KCdEZWZlciBmcmFnbWVudCBzcHJlYWQgb24gbmVzdGVkIG11dGF0aW9uIGZpZWxkJywgKCkgPT4ge1xuICAgIGV4cGVjdFZhbGlkKGBcbiAgICAgIG11dGF0aW9uIHtcbiAgICAgICAgbXV0YXRpb25GaWVsZCB7XG4gICAgICAgICAgLi4uIEBkZWZlciB7XG4gICAgICAgICAgICBib2R5XG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCk7XG4gIH0pO1xuXG4gIGl0KCdEZWZlciBmcmFnbWVudCBzcHJlYWQgb24gcm9vdCBzdWJzY3JpcHRpb24gZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIHN1YnNjcmlwdGlvbiB7XG4gICAgICAgIC4uLnJvb3RGcmFnbWVudCBAZGVmZXJcbiAgICAgIH1cbiAgICAgIGZyYWdtZW50IHJvb3RGcmFnbWVudCBvbiBTdWJzY3JpcHRpb25Sb290IHtcbiAgICAgICAgc3Vic2NyaXB0aW9uRmllbGQge1xuICAgICAgICAgIGJvZHlcbiAgICAgICAgfVxuICAgICAgfVxuICAgIGApLnRvRGVlcEVxdWFsKFtcbiAgICAgIHtcbiAgICAgICAgbWVzc2FnZTogJ0RlZmVyIGRpcmVjdGl2ZSBjYW5ub3QgYmUgdXNlZCBvbiByb290IHN1YnNjcmlwdGlvbiB0eXBlIFwiU3Vic2NyaXB0aW9uUm9vdFwiLicsXG4gICAgICAgIGxvY2F0aW9uczogW3sgbGluZTogMywgY29sdW1uOiAyNSB9XSxcbiAgICAgIH0sXG4gICAgXSk7XG4gIH0pO1xuICBpdCgnRGVmZXIgaW5saW5lIGZyYWdtZW50IHNwcmVhZCBvbiByb290IHN1YnNjcmlwdGlvbiBmaWVsZCcsICgpID0+IHtcbiAgICBleHBlY3RFcnJvcnMoYFxuICAgICAgc3Vic2NyaXB0aW9uIHtcbiAgICAgICAgLi4uIEBkZWZlciB7XG4gICAgICAgICAgc3Vic2NyaXB0aW9uRmllbGQge1xuICAgICAgICAgICAgYm9keVxuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuICAgIGApLnRvRGVlcEVxdWFsKFtcbiAgICAgIHtcbiAgICAgICAgbWVzc2FnZTogJ0RlZmVyIGRpcmVjdGl2ZSBjYW5ub3QgYmUgdXNlZCBvbiByb290IHN1YnNjcmlwdGlvbiB0eXBlIFwiU3Vic2NyaXB0aW9uUm9vdFwiLicsXG4gICAgICAgIGxvY2F0aW9uczogW3sgbGluZTogMywgY29sdW1uOiAxMyB9XSxcbiAgICAgIH0sXG4gICAgXSk7XG4gIH0pO1xuXG4gIGl0KCdEZWZlciBmcmFnbWVudCBzcHJlYWQgb24gbmVzdGVkIHN1YnNjcmlwdGlvbiBmaWVsZCcsICgpID0+IHtcbiAgICBleHBlY3RWYWxpZChgXG4gICAgICBzdWJzY3JpcHRpb24ge1xuICAgICAgICBzdWJzY3JpcHRpb25GaWVsZCB7XG4gICAgICAgICAgLi4ubmVzdGVkRnJhZ21lbnRcbiAgICAgICAgfVxuICAgICAgfVxuICAgICAgZnJhZ21lbnQgbmVzdGVkRnJhZ21lbnQgb24gTWVzc2FnZSB7XG4gICAgICAgIGJvZHlcbiAgICAgIH1cbiAgICBgKTtcbiAgfSk7XG4gIGl0KCdTdHJlYW0gZmllbGQgb24gcm9vdCBxdWVyeSBmaWVsZCcsICgpID0+IHtcbiAgICBleHBlY3RWYWxpZChgXG4gICAgICB7XG4gICAgICAgIG1lc3NhZ2VzIEBzdHJlYW0ge1xuICAgICAgICAgIG5hbWVcbiAgICAgICAgfVxuICAgICAgfVxuICAgIGApO1xuICB9KTtcbiAgaXQoJ1N0cmVhbSBmaWVsZCBvbiBmcmFnbWVudCBvbiByb290IHF1ZXJ5IGZpZWxkJywgKCkgPT4ge1xuICAgIGV4cGVjdFZhbGlkKGBcbiAgICAgIHtcbiAgICAgICAgLi4ucm9vdEZyYWdtZW50XG4gICAgICB9XG4gICAgICBmcmFnbWVudCByb290RnJhZ21lbnQgb24gUXVlcnlUeXBlIHtcbiAgICAgICAgbWVzc2FnZXMgQHN0cmVhbSB7XG4gICAgICAgICAgbmFtZVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCk7XG4gIH0pO1xuICBpdCgnU3RyZWFtIGZpZWxkIG9uIHJvb3QgbXV0YXRpb24gZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIG11dGF0aW9uIHtcbiAgICAgICAgbXV0YXRpb25MaXN0RmllbGQgQHN0cmVhbSB7XG4gICAgICAgICAgbmFtZVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCkudG9EZWVwRXF1YWwoW1xuICAgICAge1xuICAgICAgICBtZXNzYWdlOiAnU3RyZWFtIGRpcmVjdGl2ZSBjYW5ub3QgYmUgdXNlZCBvbiByb290IG11dGF0aW9uIHR5cGUgXCJNdXRhdGlvblJvb3RcIi4nLFxuICAgICAgICBsb2NhdGlvbnM6IFt7IGxpbmU6IDMsIGNvbHVtbjogMjcgfV0sXG4gICAgICB9LFxuICAgIF0pO1xuICB9KTtcbiAgaXQoJ1N0cmVhbSBmaWVsZCBvbiBmcmFnbWVudCBvbiByb290IG11dGF0aW9uIGZpZWxkJywgKCkgPT4ge1xuICAgIGV4cGVjdEVycm9ycyhgXG4gICAgICBtdXRhdGlvbiB7XG4gICAgICAgIC4uLnJvb3RGcmFnbWVudFxuICAgICAgfVxuICAgICAgZnJhZ21lbnQgcm9vdEZyYWdtZW50IG9uIE11dGF0aW9uUm9vdCB7XG4gICAgICAgIG11dGF0aW9uTGlzdEZpZWxkIEBzdHJlYW0ge1xuICAgICAgICAgIG5hbWVcbiAgICAgICAgfVxuICAgICAgfVxuICAgIGApLnRvRGVlcEVxdWFsKFtcbiAgICAgIHtcbiAgICAgICAgbWVzc2FnZTogJ1N0cmVhbSBkaXJlY3RpdmUgY2Fubm90IGJlIHVzZWQgb24gcm9vdCBtdXRhdGlvbiB0eXBlIFwiTXV0YXRpb25Sb290XCIuJyxcbiAgICAgICAgbG9jYXRpb25zOiBbeyBsaW5lOiA2LCBjb2x1bW46IDI3IH1dLFxuICAgICAgfSxcbiAgICBdKTtcbiAgfSk7XG4gIGl0KCdTdHJlYW0gZmllbGQgb24gcm9vdCBzdWJzY3JpcHRpb24gZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIHN1YnNjcmlwdGlvbiB7XG4gICAgICAgIHN1YnNjcmlwdGlvbkxpc3RGaWVsZCBAc3RyZWFtIHtcbiAgICAgICAgICBuYW1lXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICBgKS50b0RlZXBFcXVhbChbXG4gICAgICB7XG4gICAgICAgIG1lc3NhZ2U6ICdTdHJlYW0gZGlyZWN0aXZlIGNhbm5vdCBiZSB1c2VkIG9uIHJvb3Qgc3Vic2NyaXB0aW9uIHR5cGUgXCJTdWJzY3JpcHRpb25Sb290XCIuJyxcbiAgICAgICAgbG9jYXRpb25zOiBbeyBsaW5lOiAzLCBjb2x1bW46IDMxIH1dLFxuICAgICAgfSxcbiAgICBdKTtcbiAgfSk7XG4gIGl0KCdTdHJlYW0gZmllbGQgb24gZnJhZ21lbnQgb24gcm9vdCBzdWJzY3JpcHRpb24gZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIHN1YnNjcmlwdGlvbiB7XG4gICAgICAgIC4uLnJvb3RGcmFnbWVudFxuICAgICAgfVxuICAgICAgZnJhZ21lbnQgcm9vdEZyYWdtZW50IG9uIFN1YnNjcmlwdGlvblJvb3Qge1xuICAgICAgICBzdWJzY3JpcHRpb25MaXN0RmllbGQgQHN0cmVhbSB7XG4gICAgICAgICAgbmFtZVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCkudG9EZWVwRXF1YWwoW1xuICAgICAge1xuICAgICAgICBtZXNzYWdlOiAnU3RyZWFtIGRpcmVjdGl2ZSBjYW5ub3QgYmUgdXNlZCBvbiByb290IHN1YnNjcmlwdGlvbiB0eXBlIFwiU3Vic2NyaXB0aW9uUm9vdFwiLicsXG4gICAgICAgIGxvY2F0aW9uczogW3sgbGluZTogNiwgY29sdW1uOiAzMSB9XSxcbiAgICAgIH0sXG4gICAgXSk7XG4gIH0pO1xufSk7XG4iXSwibWFwcGluZ3MiOiI7O0FBQUEsSUFBQUEsUUFBQSxHQUFBQyxPQUFBO0FBQ0EsSUFBQUMsZ0NBQUEsR0FBQUQsT0FBQTtBQUNBLElBQUFFLFFBQUEsR0FBQUYsT0FBQTtBQUVBLFNBQVNHLFlBQVlBLENBQUNDLFFBQWdCLEVBQUU7RUFDdEMsT0FBTyxJQUFBQyx5Q0FBZ0MsRUFBQ0MsTUFBTSxFQUFFQyxvRUFBbUMsRUFBRUgsUUFBUSxDQUFDO0FBQ2hHO0FBRUEsU0FBU0ksV0FBV0EsQ0FBQ0osUUFBZ0IsRUFBRTtFQUNyQ0QsWUFBWSxDQUFDQyxRQUFRLENBQUMsQ0FBQ0ssV0FBVyxDQUFDLEVBQUUsQ0FBQztBQUN4QztBQUVBLE1BQU1ILE1BQU0sR0FBRyxJQUFBSSxvQkFBVyxFQUFDO0FBQzNCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsQ0FBQyxDQUFDO0FBRUZDLFFBQVEsQ0FBQyxnREFBZ0QsRUFBRSxNQUFNO0VBQy9EQyxFQUFFLENBQUMsMkNBQTJDLEVBQUUsTUFBTTtJQUNwREosV0FBVyxDQUFDO0FBQ2hCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUM7RUFDSixDQUFDLENBQUM7RUFFRkksRUFBRSxDQUFDLGtEQUFrRCxFQUFFLE1BQU07SUFDM0RKLFdBQVcsQ0FBQztBQUNoQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLEtBQUssQ0FBQztFQUNKLENBQUMsQ0FBQztFQUVGSSxFQUFFLENBQUMsOENBQThDLEVBQUUsTUFBTTtJQUN2RFQsWUFBWSxDQUFDO0FBQ2pCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUMsQ0FBQ00sV0FBVyxDQUFDLENBQ2I7TUFDRUksT0FBTyxFQUFFLHNFQUFzRTtNQUMvRUMsU0FBUyxFQUFFLENBQUM7UUFBRUMsSUFBSSxFQUFFLENBQUM7UUFBRUMsTUFBTSxFQUFFO01BQUcsQ0FBQztJQUNyQyxDQUFDLENBQ0YsQ0FBQztFQUNKLENBQUMsQ0FBQztFQUNGSixFQUFFLENBQUMscURBQXFELEVBQUUsTUFBTTtJQUM5RFQsWUFBWSxDQUFDO0FBQ2pCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSxzRUFBc0U7TUFDL0VDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7RUFFRkosRUFBRSxDQUFDLGdEQUFnRCxFQUFFLE1BQU07SUFDekRKLFdBQVcsQ0FBQztBQUNoQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLEtBQUssQ0FBQztFQUNKLENBQUMsQ0FBQztFQUVGSSxFQUFFLENBQUMsa0RBQWtELEVBQUUsTUFBTTtJQUMzRFQsWUFBWSxDQUFDO0FBQ2pCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUMsQ0FBQ00sV0FBVyxDQUFDLENBQ2I7TUFDRUksT0FBTyxFQUFFLDhFQUE4RTtNQUN2RkMsU0FBUyxFQUFFLENBQUM7UUFBRUMsSUFBSSxFQUFFLENBQUM7UUFBRUMsTUFBTSxFQUFFO01BQUcsQ0FBQztJQUNyQyxDQUFDLENBQ0YsQ0FBQztFQUNKLENBQUMsQ0FBQztFQUNGSixFQUFFLENBQUMseURBQXlELEVBQUUsTUFBTTtJQUNsRVQsWUFBWSxDQUFDO0FBQ2pCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSw4RUFBOEU7TUFDdkZDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7RUFFRkosRUFBRSxDQUFDLG9EQUFvRCxFQUFFLE1BQU07SUFDN0RKLFdBQVcsQ0FBQztBQUNoQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDO0VBQ0osQ0FBQyxDQUFDO0VBQ0ZJLEVBQUUsQ0FBQyxrQ0FBa0MsRUFBRSxNQUFNO0lBQzNDSixXQUFXLENBQUM7QUFDaEI7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLEtBQUssQ0FBQztFQUNKLENBQUMsQ0FBQztFQUNGSSxFQUFFLENBQUMsOENBQThDLEVBQUUsTUFBTTtJQUN2REosV0FBVyxDQUFDO0FBQ2hCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUM7RUFDSixDQUFDLENBQUM7RUFDRkksRUFBRSxDQUFDLHFDQUFxQyxFQUFFLE1BQU07SUFDOUNULFlBQVksQ0FBQztBQUNqQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSx1RUFBdUU7TUFDaEZDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7RUFDRkosRUFBRSxDQUFDLGlEQUFpRCxFQUFFLE1BQU07SUFDMURULFlBQVksQ0FBQztBQUNqQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSx1RUFBdUU7TUFDaEZDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7RUFDRkosRUFBRSxDQUFDLHlDQUF5QyxFQUFFLE1BQU07SUFDbERULFlBQVksQ0FBQztBQUNqQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSwrRUFBK0U7TUFDeEZDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7RUFDRkosRUFBRSxDQUFDLHFEQUFxRCxFQUFFLE1BQU07SUFDOURULFlBQVksQ0FBQztBQUNqQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDLENBQUNNLFdBQVcsQ0FBQyxDQUNiO01BQ0VJLE9BQU8sRUFBRSwrRUFBK0U7TUFDeEZDLFNBQVMsRUFBRSxDQUFDO1FBQUVDLElBQUksRUFBRSxDQUFDO1FBQUVDLE1BQU0sRUFBRTtNQUFHLENBQUM7SUFDckMsQ0FBQyxDQUNGLENBQUM7RUFDSixDQUFDLENBQUM7QUFDSixDQUFDLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

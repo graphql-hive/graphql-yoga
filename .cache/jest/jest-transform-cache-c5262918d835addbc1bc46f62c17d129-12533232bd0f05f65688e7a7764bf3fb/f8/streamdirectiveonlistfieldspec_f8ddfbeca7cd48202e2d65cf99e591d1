@@ -1,0 +1,72 @@
+dfdde69c142bb3cb9ab083964bfdd616
+"use strict";
+
+var _streamDirectiveOnListField = require("../../src/validations/stream-directive-on-list-field.js");
+var _harness = require("./harness.js");
+function expectErrors(queryStr) {
+  return (0, _harness.expectValidationErrors)(_streamDirectiveOnListField.StreamDirectiveOnListFieldRule, queryStr);
+}
+function expectValid(queryStr) {
+  expectErrors(queryStr).toDeepEqual([]);
+}
+describe('Validate: Stream directive on list field', () => {
+  it('Stream on list field', () => {
+    expectValid(`
+      fragment objectFieldSelection on Human {
+        pets @stream(initialCount: 0) {
+          name
+        }
+      }
+    `);
+  });
+  it('Stream on non-null list field', () => {
+    expectValid(`
+      fragment objectFieldSelection on Human {
+        relatives @stream(initialCount: 0) {
+          name
+        }
+      }
+    `);
+  });
+  it("Doesn't validate other directives on list fields", () => {
+    expectValid(`
+    fragment objectFieldSelection on Human {
+      pets @include(if: true) {
+        name
+      }
+    }
+    `);
+  });
+  it("Doesn't validate other directives on non-list fields", () => {
+    expectValid(`
+      fragment objectFieldSelection on Human {
+        pets {
+          name @include(if: true)
+        }
+      }
+    `);
+  });
+  it("Doesn't validate misplaced stream directives", () => {
+    expectValid(`
+      fragment objectFieldSelection on Human {
+        ... @stream(initialCount: 0) {
+          name
+        }
+      }
+    `);
+  });
+  it('reports errors when stream is used on non-list field', () => {
+    expectErrors(`
+      fragment objectFieldSelection on Human {
+        name @stream(initialCount: 0)
+      }
+    `).toDeepEqual([{
+      message: 'Stream directive cannot be used on non-list field "name" on type "Human".',
+      locations: [{
+        line: 3,
+        column: 14
+      }]
+    }]);
+  });
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfc3RyZWFtRGlyZWN0aXZlT25MaXN0RmllbGQiLCJyZXF1aXJlIiwiX2hhcm5lc3MiLCJleHBlY3RFcnJvcnMiLCJxdWVyeVN0ciIsImV4cGVjdFZhbGlkYXRpb25FcnJvcnMiLCJTdHJlYW1EaXJlY3RpdmVPbkxpc3RGaWVsZFJ1bGUiLCJleHBlY3RWYWxpZCIsInRvRGVlcEVxdWFsIiwiZGVzY3JpYmUiLCJpdCIsIm1lc3NhZ2UiLCJsb2NhdGlvbnMiLCJsaW5lIiwiY29sdW1uIl0sInNvdXJjZXMiOlsic3RyZWFtLWRpcmVjdGl2ZS1vbi1saXN0LWZpZWxkLnNwZWMudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgU3RyZWFtRGlyZWN0aXZlT25MaXN0RmllbGRSdWxlIH0gZnJvbSAnLi4vLi4vc3JjL3ZhbGlkYXRpb25zL3N0cmVhbS1kaXJlY3RpdmUtb24tbGlzdC1maWVsZC5qcyc7XG5pbXBvcnQgeyBleHBlY3RWYWxpZGF0aW9uRXJyb3JzIH0gZnJvbSAnLi9oYXJuZXNzLmpzJztcblxuZnVuY3Rpb24gZXhwZWN0RXJyb3JzKHF1ZXJ5U3RyOiBzdHJpbmcpIHtcbiAgcmV0dXJuIGV4cGVjdFZhbGlkYXRpb25FcnJvcnMoU3RyZWFtRGlyZWN0aXZlT25MaXN0RmllbGRSdWxlLCBxdWVyeVN0cik7XG59XG5cbmZ1bmN0aW9uIGV4cGVjdFZhbGlkKHF1ZXJ5U3RyOiBzdHJpbmcpIHtcbiAgZXhwZWN0RXJyb3JzKHF1ZXJ5U3RyKS50b0RlZXBFcXVhbChbXSk7XG59XG5cbmRlc2NyaWJlKCdWYWxpZGF0ZTogU3RyZWFtIGRpcmVjdGl2ZSBvbiBsaXN0IGZpZWxkJywgKCkgPT4ge1xuICBpdCgnU3RyZWFtIG9uIGxpc3QgZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0VmFsaWQoYFxuICAgICAgZnJhZ21lbnQgb2JqZWN0RmllbGRTZWxlY3Rpb24gb24gSHVtYW4ge1xuICAgICAgICBwZXRzIEBzdHJlYW0oaW5pdGlhbENvdW50OiAwKSB7XG4gICAgICAgICAgbmFtZVxuICAgICAgICB9XG4gICAgICB9XG4gICAgYCk7XG4gIH0pO1xuXG4gIGl0KCdTdHJlYW0gb24gbm9uLW51bGwgbGlzdCBmaWVsZCcsICgpID0+IHtcbiAgICBleHBlY3RWYWxpZChgXG4gICAgICBmcmFnbWVudCBvYmplY3RGaWVsZFNlbGVjdGlvbiBvbiBIdW1hbiB7XG4gICAgICAgIHJlbGF0aXZlcyBAc3RyZWFtKGluaXRpYWxDb3VudDogMCkge1xuICAgICAgICAgIG5hbWVcbiAgICAgICAgfVxuICAgICAgfVxuICAgIGApO1xuICB9KTtcblxuICBpdChcIkRvZXNuJ3QgdmFsaWRhdGUgb3RoZXIgZGlyZWN0aXZlcyBvbiBsaXN0IGZpZWxkc1wiLCAoKSA9PiB7XG4gICAgZXhwZWN0VmFsaWQoYFxuICAgIGZyYWdtZW50IG9iamVjdEZpZWxkU2VsZWN0aW9uIG9uIEh1bWFuIHtcbiAgICAgIHBldHMgQGluY2x1ZGUoaWY6IHRydWUpIHtcbiAgICAgICAgbmFtZVxuICAgICAgfVxuICAgIH1cbiAgICBgKTtcbiAgfSk7XG5cbiAgaXQoXCJEb2Vzbid0IHZhbGlkYXRlIG90aGVyIGRpcmVjdGl2ZXMgb24gbm9uLWxpc3QgZmllbGRzXCIsICgpID0+IHtcbiAgICBleHBlY3RWYWxpZChgXG4gICAgICBmcmFnbWVudCBvYmplY3RGaWVsZFNlbGVjdGlvbiBvbiBIdW1hbiB7XG4gICAgICAgIHBldHMge1xuICAgICAgICAgIG5hbWUgQGluY2x1ZGUoaWY6IHRydWUpXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICBgKTtcbiAgfSk7XG5cbiAgaXQoXCJEb2Vzbid0IHZhbGlkYXRlIG1pc3BsYWNlZCBzdHJlYW0gZGlyZWN0aXZlc1wiLCAoKSA9PiB7XG4gICAgZXhwZWN0VmFsaWQoYFxuICAgICAgZnJhZ21lbnQgb2JqZWN0RmllbGRTZWxlY3Rpb24gb24gSHVtYW4ge1xuICAgICAgICAuLi4gQHN0cmVhbShpbml0aWFsQ291bnQ6IDApIHtcbiAgICAgICAgICBuYW1lXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICBgKTtcbiAgfSk7XG5cbiAgaXQoJ3JlcG9ydHMgZXJyb3JzIHdoZW4gc3RyZWFtIGlzIHVzZWQgb24gbm9uLWxpc3QgZmllbGQnLCAoKSA9PiB7XG4gICAgZXhwZWN0RXJyb3JzKGBcbiAgICAgIGZyYWdtZW50IG9iamVjdEZpZWxkU2VsZWN0aW9uIG9uIEh1bWFuIHtcbiAgICAgICAgbmFtZSBAc3RyZWFtKGluaXRpYWxDb3VudDogMClcbiAgICAgIH1cbiAgICBgKS50b0RlZXBFcXVhbChbXG4gICAgICB7XG4gICAgICAgIG1lc3NhZ2U6ICdTdHJlYW0gZGlyZWN0aXZlIGNhbm5vdCBiZSB1c2VkIG9uIG5vbi1saXN0IGZpZWxkIFwibmFtZVwiIG9uIHR5cGUgXCJIdW1hblwiLicsXG4gICAgICAgIGxvY2F0aW9uczogW3sgbGluZTogMywgY29sdW1uOiAxNCB9XSxcbiAgICAgIH0sXG4gICAgXSk7XG4gIH0pO1xufSk7XG4iXSwibWFwcGluZ3MiOiI7O0FBQUEsSUFBQUEsMkJBQUEsR0FBQUMsT0FBQTtBQUNBLElBQUFDLFFBQUEsR0FBQUQsT0FBQTtBQUVBLFNBQVNFLFlBQVlBLENBQUNDLFFBQWdCLEVBQUU7RUFDdEMsT0FBTyxJQUFBQywrQkFBc0IsRUFBQ0MsMERBQThCLEVBQUVGLFFBQVEsQ0FBQztBQUN6RTtBQUVBLFNBQVNHLFdBQVdBLENBQUNILFFBQWdCLEVBQUU7RUFDckNELFlBQVksQ0FBQ0MsUUFBUSxDQUFDLENBQUNJLFdBQVcsQ0FBQyxFQUFFLENBQUM7QUFDeEM7QUFFQUMsUUFBUSxDQUFDLDBDQUEwQyxFQUFFLE1BQU07RUFDekRDLEVBQUUsQ0FBQyxzQkFBc0IsRUFBRSxNQUFNO0lBQy9CSCxXQUFXLENBQUM7QUFDaEI7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLEtBQUssQ0FBQztFQUNKLENBQUMsQ0FBQztFQUVGRyxFQUFFLENBQUMsK0JBQStCLEVBQUUsTUFBTTtJQUN4Q0gsV0FBVyxDQUFDO0FBQ2hCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUM7RUFDSixDQUFDLENBQUM7RUFFRkcsRUFBRSxDQUFDLGtEQUFrRCxFQUFFLE1BQU07SUFDM0RILFdBQVcsQ0FBQztBQUNoQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsS0FBSyxDQUFDO0VBQ0osQ0FBQyxDQUFDO0VBRUZHLEVBQUUsQ0FBQyxzREFBc0QsRUFBRSxNQUFNO0lBQy9ESCxXQUFXLENBQUM7QUFDaEI7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLEtBQUssQ0FBQztFQUNKLENBQUMsQ0FBQztFQUVGRyxFQUFFLENBQUMsOENBQThDLEVBQUUsTUFBTTtJQUN2REgsV0FBVyxDQUFDO0FBQ2hCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUM7RUFDSixDQUFDLENBQUM7RUFFRkcsRUFBRSxDQUFDLHNEQUFzRCxFQUFFLE1BQU07SUFDL0RQLFlBQVksQ0FBQztBQUNqQjtBQUNBO0FBQ0E7QUFDQSxLQUFLLENBQUMsQ0FBQ0ssV0FBVyxDQUFDLENBQ2I7TUFDRUcsT0FBTyxFQUFFLDJFQUEyRTtNQUNwRkMsU0FBUyxFQUFFLENBQUM7UUFBRUMsSUFBSSxFQUFFLENBQUM7UUFBRUMsTUFBTSxFQUFFO01BQUcsQ0FBQztJQUNyQyxDQUFDLENBQ0YsQ0FBQztFQUNKLENBQUMsQ0FBQztBQUNKLENBQUMsQ0FBQyIsImlnbm9yZUxpc3QiOltdfQ==
