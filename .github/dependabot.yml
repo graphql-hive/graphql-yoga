@@ -18,6 +18,14 @@ updates:
     schedule:
       interval: 'daily'
     versioning-strategy: increase-if-necessary
+    cooldown:
+      default-days: 3
+      exclude:
+        - '@graphql-hive/*'
+        - '@graphql-mesh/*'
+        - '@graphql-tools/*'
+        - '@whatwg-node/*'
+        - '@types/node'
     groups:
       whatwg-node:
         patterns:
