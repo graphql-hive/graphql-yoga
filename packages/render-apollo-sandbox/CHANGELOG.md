@@ -1,5 +1,13 @@
 # @graphql-yoga/render-apollo-sandbox
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`4b43efd`](https://github.com/graphql-hive/graphql-yoga/commit/4b43efd8f39a7200c4401a5efbd4dbff772b3355)]:
+  - graphql-yoga@5.21.1
+
 ## 0.7.0
 
 ### Patch Changes

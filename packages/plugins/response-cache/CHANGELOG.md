@@ -1,5 +1,27 @@
 # @graphql-yoga/plugin-response-cache
 
+## 3.23.1
+
+### Patch Changes
+
+- [#4492](https://github.com/graphql-hive/graphql-yoga/pull/4492)
+  [`fbd8436`](https://github.com/graphql-hive/graphql-yoga/commit/fbd84362d9fc9a404a232f5aaae90eb773163203)
+  Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Include the
+  `Last-Modified` header in early `304 Not Modified` responses returned by the response-cache
+  plugin's `onRequest` short-circuit path.
+
+  Previously, this path returned only `ETag`. Now it returns both `ETag` and `Last-Modified` from
+  cached response metadata so conditional revalidation responses are consistent with the original
+  cached `200` response headers.
+
+  This improves interoperability with HTTP intermediaries and edge caches that rely on both
+  validators (`If-None-Match` and `If-Modified-Since`) during revalidation, helping avoid unstable
+  cache states when only one validator is present in a `304` response.
+
+- Updated dependencies
+  [[`4b43efd`](https://github.com/graphql-hive/graphql-yoga/commit/4b43efd8f39a7200c4401a5efbd4dbff772b3355)]:
+  - graphql-yoga@5.21.1
+
 ## 3.23.0
 
 ### Patch Changes
