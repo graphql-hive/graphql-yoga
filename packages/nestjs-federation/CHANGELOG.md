@@ -1,5 +1,13 @@
 # @graphql-yoga/nestjs-federation
 
+## 3.22.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.22.2
+  - @graphql-yoga/plugin-apollo-inline-trace@3.21.2
+
 ## 3.22.1
 
 ### Patch Changes
