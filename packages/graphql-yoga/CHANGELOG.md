@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.21.2
+
+### Patch Changes
+
+- [#4518](https://github.com/graphql-hive/graphql-yoga/pull/4518)
+  [`39b55ba`](https://github.com/graphql-hive/graphql-yoga/commit/39b55bada507c8796e84bdbac1dccc81bce8cff0)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Fix provenance attestations when publishing
+  with pnpm
+
 ## 5.21.1
 
 ### Patch Changes
