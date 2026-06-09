@@ -462,7 +462,7 @@ importers:
         version: 3.5.10(@graphql-authz/core@1.3.2(graphql@16.13.2))(graphql@16.13.2)
       '@whatwg-node/server-plugin-cookies':
         specifier: ^1.0.5
-        version: 1.0.5
+        version: 1.0.7(@whatwg-node/server@0.11.0)
       bun:
         specifier: ^1.2.7
         version: 1.3.14
@@ -527,7 +527,7 @@ importers:
     dependencies:
       '@whatwg-node/server-plugin-cookies':
         specifier: ^1.0.3
-        version: 1.0.5
+        version: 1.0.7(@whatwg-node/server@0.11.0)
       graphql:
         specifier: 16.13.2
         version: 16.13.2
@@ -3690,7 +3690,7 @@ importers:
         version: 1.3.2
       '@whatwg-node/server-plugin-cookies':
         specifier: ^1.0.3
-        version: 1.0.5
+        version: 1.0.7(@whatwg-node/server@0.11.0)
       jsonwebtoken:
         specifier: ^9.0.0
         version: 9.0.3
@@ -10843,9 +10843,11 @@ packages:
     resolution: {integrity: sha512-Nst5JdK47VIl9UcGwtv2Rcgyn5lWtZ0/mhRQ4G8NN2isxpq2TO30iqHzmwoJycjWuyUfg3GFXqP/gFHXeV57IA==}
     engines: {node: '>=16.0.0'}
 
-  '@whatwg-node/server-plugin-cookies@1.0.5':
-    resolution: {integrity: sha512-9WLknXeFzN5fNtpaY6fEAGs4IVYxZWKnSOSWtoTkZ3/CWZL+h34VL9QRzhV71YPc8MQ9Y1/5now1NbZVepKjWg==}
+  '@whatwg-node/server-plugin-cookies@1.0.7':
+    resolution: {integrity: sha512-6G0+mCGM2y89AofisWcORe835XQni0L9nBsCSfQu2H9bpLk9sS4/8cWfXlAMF8zZN9Ebsevbb0TBdKVc8btZDg==}
     engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@whatwg-node/server': ^0.10.0 || ^0.11.0
 
   '@whatwg-node/server@0.10.18':
     resolution: {integrity: sha512-kMwLlxUbduttIgaPdSkmEarFpP+mSY8FEm+QWMBRJwxOHWkri+cxd8KZHO9EMrB9vgUuz+5WEaCawaL5wGVoXg==}
@@ -17918,8 +17920,8 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-is@19.2.6:
-    resolution: {integrity: sha512-XjBR15BhXuylgWGuslhDKqlSayuqvqBX91BP8pauG8kd1zY8kotkNWbXksTCNRarse4kuGbe2kIY05ARtwNIvw==}
+  react-is@19.2.7:
+    resolution: {integrity: sha512-kZFnouyVv7eP/Phmrlo9FK+zcAdriZJvzxXHF1Sl1P377WSGe2G/JxVolhTrB/jeV47lKImhNUsijjHAAbcl/A==}
 
   react-medium-image-zoom@5.4.5:
     resolution: {integrity: sha512-58QSIRK6X3uw2fSTejJRnH0JuKTZl7ZJYX+sAMaYx4YTEm33gsNdnP5RuQSCnBiAvisQeErqZWAT31bR89WB6g==}
@@ -19688,7 +19690,7 @@ packages:
     engines: {node: '>=8'}
 
   uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/e0f56ebb4b349017f006e14d1cd29052f2a7121d:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/e0f56ebb4b349017f006e14d1cd29052f2a7121d}
+    resolution: {gitHosted: true, integrity: sha512-QlTHqq+Dgdfhw55oQ1laP8QCKOK/np1I8QbQFi3+oDzyip0/avIY7dxo+HfmPiUduKJ4D0puaX0ApFAek41qPA==, tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/e0f56ebb4b349017f006e14d1cd29052f2a7121d}
     version: 20.67.0
 
   uc.micro@2.1.0:
@@ -19747,6 +19749,10 @@ packages:
 
   undici@7.25.0:
     resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
+    engines: {node: '>=20.18.1'}
+
+  undici@7.27.1:
+    resolution: {integrity: sha512-UDdpiex+mzigiyrXrGbiUaF4HzTNhKbh2vRNFaTMzcqmLIPrZxaCtwo/1TMSuWoM1Xz3WiTo9KdgI3kRqYzJGg==}
     engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.24:
@@ -25127,7 +25133,7 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       http-cache-semantics: 4.2.0
-      undici: 7.25.0
+      undici: 7.27.1
 
   '@miniflare/core@2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)':
     dependencies:
@@ -25139,7 +25145,7 @@ snapshots:
       dotenv: 10.0.0
       kleur: 4.1.5
       set-cookie-parser: 2.7.2
-      undici: 7.25.0
+      undici: 7.27.1
       urlpattern-polyfill: 4.0.3
 
   '@miniflare/d1@2.14.4':
@@ -25152,14 +25158,14 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       '@miniflare/storage-memory': 2.14.4
-      undici: 7.25.0
+      undici: 7.27.1
 
   '@miniflare/html-rewriter@2.14.4':
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       html-rewriter-wasm: 0.4.1
-      undici: 7.25.0
+      undici: 7.27.1
 
   '@miniflare/kv@2.14.4':
     dependencies:
@@ -25173,7 +25179,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.25.0
+      undici: 7.27.1
 
   '@miniflare/runner-vm@2.14.4':
     dependencies:
@@ -25228,7 +25234,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.25.0
+      undici: 7.27.1
       ws: 8.20.1
     transitivePeerDependencies:
       - bufferutil
@@ -29352,10 +29358,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@whatwg-node/server-plugin-cookies@1.0.5':
+  '@whatwg-node/server-plugin-cookies@1.0.7(@whatwg-node/server@0.11.0)':
     dependencies:
       '@whatwg-node/cookie-store': 0.2.3
-      '@whatwg-node/server': 0.10.18
+      '@whatwg-node/server': 0.11.0
       tslib: 2.8.1
 
   '@whatwg-node/server@0.10.18':
@@ -38487,7 +38493,7 @@ snapshots:
       '@jest/schemas': 30.4.1
       ansi-styles: 5.2.0
       react-is-18: react-is@18.3.1
-      react-is-19: react-is@19.2.6
+      react-is-19: react-is@19.2.7
 
   pretty-ms@9.3.0:
     dependencies:
@@ -38713,7 +38719,7 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-is@19.2.6: {}
+  react-is@19.2.7: {}
 
   react-medium-image-zoom@5.4.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
@@ -41093,6 +41099,8 @@ snapshots:
 
   undici@7.25.0: {}
 
+  undici@7.27.1: {}
+
   unenv@2.0.0-rc.24:
     dependencies:
       pathe: 2.0.3
@@ -41369,7 +41377,7 @@ snapshots:
       pump: 3.0.4
       qs: 6.15.2
       type-fest: 4.41.0
-      undici: 7.25.0
+      undici: 7.27.1
       ylru: 1.4.0
 
   urllib@4.9.0:
@@ -41379,7 +41387,7 @@ snapshots:
       mime-types: 2.1.35
       qs: 6.15.2
       type-fest: 4.41.0
-      undici: 7.25.0
+      undici: 7.27.1
       ylru: 2.0.0
 
   urlpattern-polyfill@10.1.0: {}
