@@ -163,7 +163,7 @@ describe('Rate-Limiter', () => {
       assertSingleExecutionValue(result);
 
       expect(result.errors!.length).toBe(1);
-      expect(result.errors![0]!.message).toBe(`too many calls for ${identifyFn({})}`);
+      expect(result.errors![0]!.message).toBe(`too many calls for ${identifyFn({}, {})}`);
       expect(result.errors![0]!.path).toEqual(['limited']);
     });
   });
