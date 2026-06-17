@@ -45,7 +45,10 @@ export {
   type Options,
 };
 
-export type IdentifyFn<ContextType = unknown> = (context: ContextType) => string;
+export type IdentifyFn<ContextType = unknown> = (
+  context: ContextType,
+  args: Record<string, unknown>,
+) => string;
 
 interface RateLimitExecutionParams<ContextType = unknown> {
   root: unknown;
@@ -97,14 +100,30 @@ export type RateLimiterPluginOptions = {
 export interface ConfigByField extends RateLimitDirectiveArgs {
   type: string;
   field: string;
+  /**
+   * Override the identity function for this specific field. Receives the context and the
+   * resolved field argument values, and must return a string that uniquely identifies the
+   * caller. Takes precedence over the plugin-level `identifyFn`.
+   *
+   * Use this when the identity for a field comes from a combination of context and arguments,
+   * for example to rate limit unauthenticated requests per argument value.
+   *
+   * @example
+   * // rate limit per product id for unauthenticated requests for `getProduct(id: ID!)` field
+   * identifyFn: (ctx, args) => String(args.id)
+   */
   identifyFn?: IdentifyFn;
   /**
-   * A template string to build the rate limit identity key from the execution context.
-   * Supports `{args.argName}` and `{context.propName}` interpolation.
+   * A template string that builds the rate limit identity key from the execution context.
+   * Supports `{args.argName}` and `{context.propName}` dot-path interpolation via lodash.get.
+   * Takes precedence over `identifyFn` when set.
    *
-   * Example: `"{args.productId}"` or `"{context.ip}"`
+   * Use this as a lightweight alternative to `identifyFn` when the identity can be expressed
+   * as a single field path rather than a function.
    *
-   * When set, takes precedence over `identifyFn` for this field.
+   * @example
+   * identifier: "{args.id}"       // per-argument bucket
+   * identifier: "{context.ip}"    // per-ip bucket, no auth needed
    */
   identifier?: string;
 }
@@ -123,7 +142,7 @@ const getTypeInfo = memoize1(function getTypeInfo(schema: GraphQLSchema) {
 export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLimiterContext> => {
   const rateLimiterFn = getGraphQLRateLimiter({
     ...options,
-    identifyContext: options.identifyFn,
+    identifyContext: context => options.identifyFn(context, {}),
   });
 
   const interpolateMessage = options.interpolateMessage || defaultInterpolateMessageFn;
@@ -231,7 +250,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 
               const identifier = rateLimitConfig?.identifier
                 ? resolveIdentifierTemplate(rateLimitConfig.identifier, getArgValues, context)
-                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
+                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context, getArgValues());
 
               const executionArgs = {
                 identifier,
