@@ -45,6 +45,13 @@ export {
   type Options,
 };
 
+/**
+ * Returns a string that uniquely identifies the caller for rate limiting.
+ *
+ * Receives the execution context and the resolved field argument values. Note that `args` is
+ * only populated when the function is invoked via `configByField`. When used as the plugin-level
+ * `identifyFn` for directive-based rate limiting, `args` will be an empty object.
+ */
 export type IdentifyFn<ContextType = unknown> = (
   context: ContextType,
   args: Record<string, unknown>,
@@ -101,29 +108,25 @@ export interface ConfigByField extends RateLimitDirectiveArgs {
   type: string;
   field: string;
   /**
-   * Override the identity function for this specific field. Receives the context and the
-   * resolved field argument values, and must return a string that uniquely identifies the
-   * caller. Takes precedence over the plugin-level `identifyFn`.
+   * Override the identity function for this specific field. Takes precedence over the
+   * plugin-level `identifyFn`.
    *
-   * Use this when the identity for a field comes from a combination of context and arguments,
-   * for example to rate limit unauthenticated requests per argument value.
+   * Unlike the plugin-level `identifyFn`, this is always called with the resolved field
+   * argument values, making it suitable for unauthenticated rate limiting keyed on an argument.
    *
    * @example
-   * // rate limit per product id for unauthenticated requests for `getProduct(id: ID!)` field
    * identifyFn: (ctx, args) => String(args.id)
    */
   identifyFn?: IdentifyFn;
   /**
-   * A template string that builds the rate limit identity key from the execution context.
-   * Supports `{args.argName}` and `{context.propName}` dot-path interpolation via lodash.get.
-   * Takes precedence over `identifyFn` when set.
+   * A template string that builds the rate limit identity key using `{args.argName}` or
+   * `{context.propName}` dot-path interpolation. Takes precedence over `identifyFn` when set.
    *
-   * Use this as a lightweight alternative to `identifyFn` when the identity can be expressed
-   * as a single field path rather than a function.
+   * Use this as a concise alternative to `identifyFn` when the identity is a single path.
    *
    * @example
-   * identifier: "{args.id}"       // per-argument bucket
-   * identifier: "{context.ip}"    // per-ip bucket, no auth needed
+   * identifier: "{args.id}"      // one bucket per argument value
+   * identifier: "{context.ip}"   // one bucket per ip, no auth required
    */
   identifier?: string;
 }
