@@ -1,4 +1,3 @@
-import get from 'lodash.get';
 import { isPromise } from 'node:util/types';
 import type {
   GraphQLError,
@@ -16,6 +15,7 @@ import {
   visit,
   visitWithTypeInfo,
 } from 'graphql';
+import get from 'lodash.get';
 import picomatch from 'picomatch';
 import type { Plugin } from '@envelop/core';
 import {
@@ -220,9 +220,6 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               }
 
               const resolverRateLimitConfig = { ...rateLimitConfig };
-              const identifier = rateLimitConfig?.identifier
-                ? resolveIdentifierTemplate(rateLimitConfig.identifier, getArgValues, context)
-                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
 
               let args: Record<string, any> | null = null;
               function getArgValues(): Record<string, any> {
@@ -231,6 +228,10 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
                 }
                 return args ?? {};
               }
+
+              const identifier = rateLimitConfig?.identifier
+                ? resolveIdentifierTemplate(rateLimitConfig.identifier, getArgValues, context)
+                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
 
               const executionArgs = {
                 identifier,
