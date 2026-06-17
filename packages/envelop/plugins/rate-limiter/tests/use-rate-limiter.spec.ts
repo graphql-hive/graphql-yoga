@@ -512,6 +512,46 @@ describe('Rate-Limiter', () => {
       expect(result.errors).toBeUndefined();
     }
   });
+  it('should rate limit per-arg using identityArgs in configByField', async () => {
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          getProduct(id: ID!): String
+        }
+      `,
+      resolvers: {
+        Query: {
+          getProduct: (_root, args) => args['id'] as string,
+        },
+      },
+    });
+    const testkit = createTestkit(
+      [
+        useRateLimiter({
+          identifyFn: () => 'anonymous',
+          configByField: [
+            {
+              type: 'Query',
+              field: 'getProduct',
+              max: 1,
+              window: '60s',
+              identityArgs: ['id'],
+            },
+          ],
+        }),
+      ],
+      schema,
+    );
+    const r1 = await testkit.execute(`{ getProduct(id: "A") }`);
+    expect(r1).toEqual({ data: { getProduct: 'A' } });
+    // second call for the same id is rate limited
+    const r2 = await testkit.execute(`{ getProduct(id: "A") }`);
+    assertSingleExecutionValue(r2);
+    expect(r2.errors?.[0]?.message).toBe("You are trying to access 'getProduct' too often");
+    // different id gets its own bucket
+    const r3 = await testkit.execute(`{ getProduct(id: "B") }`);
+    expect(r3).toEqual({ data: { getProduct: 'B' } });
+  });
   it('should rate limit per-arg when identifier template uses {args.*}', async () => {
     const schema = makeExecutableSchema({
       typeDefs: /* GraphQL */ `

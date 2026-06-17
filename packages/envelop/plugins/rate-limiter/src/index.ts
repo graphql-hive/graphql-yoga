@@ -87,6 +87,13 @@ export type RateLimitDirectiveArgs = {
   max?: number;
   window?: string;
   message?: string;
+  /**
+   * Field argument names whose values are included in the rate limit key, creating a separate
+   * bucket per unique combination of values. Equivalent to `@rateLimit(identityArgs: [...])`.
+   *
+   * @example
+   * identityArgs: ['id']  // one bucket per unique id argument value
+   */
   identityArgs?: string[];
   arrayLengthField?: string;
   readOnly?: boolean;
