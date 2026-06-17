@@ -13,7 +13,7 @@ describe('Rate-Limiter', () => {
     const schemaWithDirective = makeExecutableSchema({
       typeDefs: `
     ${DIRECTIVE_SDL}
-    
+
     type Query {
       limited: String @rateLimit(
         max: 1,
@@ -49,7 +49,7 @@ describe('Rate-Limiter', () => {
               readOnly: Boolean
               uncountRejected: Boolean
             ) on FIELD_DEFINITION
-    
+
             type Query {
               limited: String @customDirective(
                 max: 1,
@@ -131,7 +131,7 @@ describe('Rate-Limiter', () => {
       const schema = makeExecutableSchema({
         typeDefs: `
       ${DIRECTIVE_SDL}
-      
+
       type Query {
         limited: String @rateLimit(
           max: 1,
@@ -511,5 +511,81 @@ describe('Rate-Limiter', () => {
       expect(result).toEqual({ data: { unlimitedField: 'unlimited' } });
       expect(result.errors).toBeUndefined();
     }
+  });
+  it('should rate limit per-arg when identifier template uses {args.*}', async () => {
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          getProduct(id: ID!): String
+        }
+      `,
+      resolvers: {
+        Query: {
+          getProduct: (_root, args) => args['id'] as string,
+        },
+      },
+    });
+    const testkit = createTestkit(
+      [
+        useRateLimiter({
+          identifyFn: () => 'anonymous',
+          configByField: [
+            {
+              type: 'Query',
+              field: 'getProduct',
+              max: 1,
+              window: '60s',
+              identifier: '{args.id}',
+            },
+          ],
+        }),
+      ],
+      schema,
+    );
+    // first call for product A should succeed
+    const r1 = await testkit.execute(`{ getProduct(id: "A") }`);
+    expect(r1).toEqual({ data: { getProduct: 'A' } });
+    // second call for product A should be rate limited
+    const r2 = await testkit.execute(`{ getProduct(id: "A") }`);
+    assertSingleExecutionValue(r2);
+    expect(r2.errors?.[0]?.message).toBe("You are trying to access 'getProduct' too often");
+    // call for product B should succeed because it has its own bucket
+    const r3 = await testkit.execute(`{ getProduct(id: "B") }`);
+    expect(r3).toEqual({ data: { getProduct: 'B' } });
+  });
+  it('should rate limit per-context-value when identifier template uses {context.*}', async () => {
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          ping: String
+        }
+      `,
+      resolvers: { Query: { ping: () => 'pong' } },
+    });
+    const testkit = createTestkit(
+      [
+        useRateLimiter({
+          identifyFn: () => 'fallback',
+          configByField: [
+            {
+              type: 'Query',
+              field: 'ping',
+              max: 1,
+              window: '60s',
+              identifier: '{context.ip}',
+            },
+          ],
+        }),
+      ],
+      schema,
+    );
+    const r1 = await testkit.execute(`{ ping }`, {}, { ip: '1.2.3.4' });
+    expect(r1).toEqual({ data: { ping: 'pong' } });
+    const r2 = await testkit.execute(`{ ping }`, {}, { ip: '1.2.3.4' });
+    assertSingleExecutionValue(r2);
+    expect(r2.errors?.[0]?.message).toBe("You are trying to access 'ping' too often");
+    // different ip gets its own bucket
+    const r3 = await testkit.execute(`{ ping }`, {}, { ip: '9.9.9.9' });
+    expect(r3).toEqual({ data: { ping: 'pong' } });
   });
 });

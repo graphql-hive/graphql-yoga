@@ -1,3 +1,4 @@
+import get from 'lodash.get';
 import { isPromise } from 'node:util/types';
 import type {
   GraphQLError,
@@ -97,6 +98,15 @@ export interface ConfigByField extends RateLimitDirectiveArgs {
   type: string;
   field: string;
   identifyFn?: IdentifyFn;
+  /**
+   * A template string to build the rate limit identity key from the execution context.
+   * Supports `{args.argName}` and `{context.propName}` interpolation.
+   *
+   * Example: `"{args.productId}"` or `"{context.ip}"`
+   *
+   * When set, takes precedence over `identifyFn` for this field.
+   */
+  identifier?: string;
 }
 
 export const defaultInterpolateMessageFn: MessageInterpolator = (message, identifier) =>
@@ -137,6 +147,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
     type?: string;
     field?: string;
     identifyFn?: IdentifyFn;
+    identifier?: string;
     max?: number;
     window?: string;
     message?: string;
@@ -184,7 +195,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 
     rateLimitConfig.max = Number(rateLimitConfig.max);
 
-    if (rateLimitConfig?.identifyFn) {
+    if (rateLimitConfig?.identifyFn || rateLimitConfig?.identifier) {
       rateLimitConfig.identityArgs = ['identifier', ...(rateLimitConfig.identityArgs ?? [])];
     }
 
@@ -209,14 +220,16 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               }
 
               const resolverRateLimitConfig = { ...rateLimitConfig };
-              const identifier = (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
+              const identifier = rateLimitConfig?.identifier
+                ? resolveIdentifierTemplate(rateLimitConfig.identifier, getArgValues, context)
+                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
 
               let args: Record<string, any> | null = null;
-              function getArgValues() {
+              function getArgValues(): Record<string, any> {
                 if (!args && field) {
                   args = getArgumentValues(field, node, variableValues);
                 }
-                return args;
+                return args ?? {};
               }
 
               const executionArgs = {
@@ -342,6 +355,16 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 
 function interpolateByArgs(message: string, args: { [key: string]: string }) {
   return message.replace(/\{{([^)]*)\}}/g, (_, key) => args[key.trim()] as string);
+}
+
+function resolveIdentifierTemplate(
+  template: string,
+  getArgValues: () => Record<string, any>,
+  context: any,
+): string {
+  return template.replace(/\{([^}]+)\}/g, (_, path: string) =>
+    String(get({ args: getArgValues(), context }, path.trim()) ?? ''),
+  );
 }
 
 export { InMemoryStore } from './in-memory-store.js';
