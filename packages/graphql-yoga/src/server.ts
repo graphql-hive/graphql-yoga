@@ -85,6 +85,7 @@ import type {
 } from './types.js';
 import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
+import { processBatchedParams } from './utils/process-batched-params.js';
 
 /**
  * Configuration options for the server
@@ -704,6 +705,7 @@ export class YogaServer<
           if (response) {
             return response;
           }
+          requestParserResult = processBatchedParams(requestParserResult!);
           const getResultForParams = this.instrumentation?.operation
             ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
                 const instrumented = getInstrumented({ context, request: payload.request });
