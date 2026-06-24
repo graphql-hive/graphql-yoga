@@ -15,6 +15,7 @@ import {
   visit,
   visitWithTypeInfo,
 } from 'graphql';
+import get from 'lodash.get';
 import picomatch from 'picomatch';
 import type { Plugin } from '@envelop/core';
 import {
@@ -44,7 +45,17 @@ export {
   type Options,
 };
 
-export type IdentifyFn<ContextType = unknown> = (context: ContextType) => string;
+/**
+ * Returns a string that uniquely identifies the caller for rate limiting.
+ *
+ * Receives the execution context and the resolved field argument values. Note that `args` is
+ * only populated when the function is invoked via `configByField`. When used as the plugin-level
+ * `identifyFn` for directive-based rate limiting, `args` will be an empty object.
+ */
+export type IdentifyFn<ContextType = unknown> = (
+  context: ContextType,
+  args: Record<string, unknown>,
+) => string;
 
 interface RateLimitExecutionParams<ContextType = unknown> {
   root: unknown;
@@ -76,6 +87,13 @@ export type RateLimitDirectiveArgs = {
   max?: number;
   window?: string;
   message?: string;
+  /**
+   * Field argument names whose values are included in the rate limit key, creating a separate
+   * bucket per unique combination of values. Equivalent to `@rateLimit(identityArgs: [...])`.
+   *
+   * @example
+   * identityArgs: ['id']  // one bucket per unique id argument value
+   */
   identityArgs?: string[];
   arrayLengthField?: string;
   readOnly?: boolean;
@@ -96,7 +114,28 @@ export type RateLimiterPluginOptions = {
 export interface ConfigByField extends RateLimitDirectiveArgs {
   type: string;
   field: string;
+  /**
+   * Override the identity function for this specific field. Takes precedence over the
+   * plugin-level `identifyFn`.
+   *
+   * Unlike the plugin-level `identifyFn`, this is always called with the resolved field
+   * argument values, making it suitable for unauthenticated rate limiting keyed on an argument.
+   *
+   * @example
+   * identifyFn: (ctx, args) => String(args.id)
+   */
   identifyFn?: IdentifyFn;
+  /**
+   * A template string that builds the rate limit identity key using `{args.argName}` or
+   * `{context.propName}` dot-path interpolation. Takes precedence over `identifyFn` when set.
+   *
+   * Use this as a concise alternative to `identifyFn` when the identity is a single path.
+   *
+   * @example
+   * identifier: "{args.id}"      // one bucket per argument value
+   * identifier: "{context.ip}"   // one bucket per ip, no auth required
+   */
+  identifier?: string;
 }
 
 export const defaultInterpolateMessageFn: MessageInterpolator = (message, identifier) =>
@@ -113,7 +152,7 @@ const getTypeInfo = memoize1(function getTypeInfo(schema: GraphQLSchema) {
 export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLimiterContext> => {
   const rateLimiterFn = getGraphQLRateLimiter({
     ...options,
-    identifyContext: options.identifyFn,
+    identifyContext: context => options.identifyFn(context, {}),
   });
 
   const interpolateMessage = options.interpolateMessage || defaultInterpolateMessageFn;
@@ -137,6 +176,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
     type?: string;
     field?: string;
     identifyFn?: IdentifyFn;
+    identifier?: string;
     max?: number;
     window?: string;
     message?: string;
@@ -184,7 +224,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 
     rateLimitConfig.max = Number(rateLimitConfig.max);
 
-    if (rateLimitConfig?.identifyFn) {
+    if (rateLimitConfig?.identifyFn || rateLimitConfig?.identifier) {
       rateLimitConfig.identityArgs = ['identifier', ...(rateLimitConfig.identityArgs ?? [])];
     }
 
@@ -209,15 +249,18 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               }
 
               const resolverRateLimitConfig = { ...rateLimitConfig };
-              const identifier = (rateLimitConfig?.identifyFn ?? options.identifyFn)(context);
 
               let args: Record<string, any> | null = null;
-              function getArgValues() {
+              function getArgValues(): Record<string, any> {
                 if (!args && field) {
                   args = getArgumentValues(field, node, variableValues);
                 }
-                return args;
+                return args ?? {};
               }
+
+              const identifier = rateLimitConfig?.identifier
+                ? resolveIdentifierTemplate(rateLimitConfig.identifier, getArgValues, context)
+                : (rateLimitConfig?.identifyFn ?? options.identifyFn)(context, getArgValues());
 
               const executionArgs = {
                 identifier,
@@ -342,6 +385,16 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
 
 function interpolateByArgs(message: string, args: { [key: string]: string }) {
   return message.replace(/\{{([^)]*)\}}/g, (_, key) => args[key.trim()] as string);
+}
+
+function resolveIdentifierTemplate(
+  template: string,
+  getArgValues: () => Record<string, any>,
+  context: any,
+): string {
+  return template.replace(/\{([^}]+)\}/g, (_, path: string) =>
+    String(get({ args: getArgValues(), context }, path.trim()) ?? ''),
+  );
 }
 
 export { InMemoryStore } from './in-memory-store.js';
