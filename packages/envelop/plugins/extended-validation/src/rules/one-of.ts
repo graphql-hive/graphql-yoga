@@ -48,7 +48,7 @@ export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext,
               `Exactly one key must be specified for input for field "${fieldType.type.toString()}.${
                 node.name.value
               }"`,
-              [node],
+              { nodes: [node] },
             ),
           );
         }

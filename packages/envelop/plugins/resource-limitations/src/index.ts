@@ -133,7 +133,7 @@ export const ResourceLimitationValidationRule =
                         hasFirst,
                         hasLast,
                       }),
-                      fieldNode,
+                      { nodes: fieldNode },
                     ),
                   );
                 } else if ('first' in argumentValues && !argumentValues['last']) {
@@ -149,7 +149,7 @@ export const ResourceLimitationValidationRule =
                           argumentName: 'first',
                           fieldName: fieldDef.name,
                         }),
-                        fieldNode,
+                        { nodes: fieldNode },
                       ),
                     );
                   } else {
@@ -168,7 +168,7 @@ export const ResourceLimitationValidationRule =
                           argumentName: 'last',
                           fieldName: fieldDef.name,
                         }),
-                        fieldNode,
+                        { nodes: fieldNode },
                       ),
                     );
                   } else {
@@ -182,7 +182,7 @@ export const ResourceLimitationValidationRule =
                         hasFirst,
                         hasLast,
                       }),
-                      fieldNode,
+                      { nodes: fieldNode },
                     ),
                   );
                 }
@@ -208,7 +208,7 @@ export const ResourceLimitationValidationRule =
             context.reportError(
               new GraphQLError(
                 `Cannot request more than ${params.nodeCostLimit} nodes in a single document. Please split your operation into multiple sub operations or reduce the amount of requested nodes.`,
-                documentNode,
+                { nodes: documentNode },
               ),
             );
           }

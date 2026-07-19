@@ -61,6 +61,7 @@ patchedDependencies:
   '@miniflare/core': patches/@miniflare__core.patch
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
+  '@n1ru4l/in-memory-live-query-store@0.10.0': patches/@n1ru4l__in-memory-live-query-store@0.10.0.patch
 overrides:
   '@isaacs/brace-expansion': ^5.0.1
   brace-expansion: ^5.0.5
@@ -75,7 +76,12 @@ overrides:
   eslint-plugin-unicorn: ^56.0.1
   esbuild: ^0.27.0
   cookie: ^1.0.2
-  graphql: 16.13.2
+  graphql: 17.0.2
+  # @graphql-tools/utils <11.2.0's getArgumentValues() only reads the legacy
+  # GraphQLArgument.defaultValue property; it doesn't understand graphql-js 17's new
+  # `default: { value }` shape, so it wrongly rejects omitted-but-defaulted arguments on
+  # graphql-js 17's own introspection types (e.g. `includeDeprecated`) as "not provided".
+  '@graphql-tools/utils': ^11.2.0
   handlebars: ^4.7.9
   file-type: ^21.3.2
   flatted: ^3.4.0
@@ -107,3 +113,9 @@ overrides:
   socket.io-parser: ^4.2.6
   fast-xml-parser: ^5.3.8
   '@sveltejs/kit': ^2.53.3
+packageExtensions:
+  # published package's compiled output requires `tslib` but its package.json never
+  # declares it as a dependency, so pnpm's strict node_modules can't resolve it.
+  '@n1ru4l/graphql-live-query-patch-jsondiffpatch':
+    dependencies:
+      tslib: ^2.5.0

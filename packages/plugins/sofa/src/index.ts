@@ -1,4 +1,4 @@
-import type { ExecutionArgs, ExecutionResult, SubscriptionArgs } from 'graphql';
+import type { ExecutionArgs, ExecutionResult } from 'graphql';
 import type { Plugin, YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
 import { useSofa as createSofaHandler } from 'sofa-api';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
@@ -78,16 +78,16 @@ export function useSofa(config: SofaPluginConfig): Plugin {
         },
         subscribe(
           ...args:
-            | [SubscriptionArgs | ExecutionArgs]
+            | [ExecutionArgs]
             | [
-                schema: SubscriptionArgs['schema'],
-                document: SubscriptionArgs['document'],
-                rootValue?: SubscriptionArgs['rootValue'],
-                contextValue?: SubscriptionArgs['contextValue'],
-                variableValues?: SubscriptionArgs['variableValues'],
-                operationName?: SubscriptionArgs['operationName'],
-                fieldResolver?: SubscriptionArgs['fieldResolver'],
-                subscribeFieldResolver?: SubscriptionArgs['subscribeFieldResolver'],
+                schema: ExecutionArgs['schema'],
+                document: ExecutionArgs['document'],
+                rootValue?: ExecutionArgs['rootValue'],
+                contextValue?: ExecutionArgs['contextValue'],
+                variableValues?: ExecutionArgs['variableValues'],
+                operationName?: ExecutionArgs['operationName'],
+                fieldResolver?: ExecutionArgs['fieldResolver'],
+                subscribeFieldResolver?: ExecutionArgs['subscribeFieldResolver'],
               ]
         ) {
           const subscriptionArgs =

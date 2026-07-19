@@ -201,6 +201,15 @@ describe('oneOf', () => {
     ['AST via Directive', astSchema],
     ['Programmatic via extensions.oneOf', programmaticSchema],
   ])('%s', (_, testSchema) => {
+    // graphql-js 17 changed the wording of its built-in OneOf variable-coercion error, but that
+    // native check only applies to the AST/directive schema (real `isOneOf`); the programmatic
+    // schema uses a custom `extensions.oneOf` flag, so it only ever surfaces the extended-validation
+    // AST rule's own (version-independent) message.
+    const oneOfMustSpecifyExactlyOneKeyMessage =
+      testSchema === astSchema && versionInfo.major >= 17
+        ? 'Within OneOf Input Object type "UserUniqueCondition", exactly one field must be specified, and the value for that field must be non-null.'
+        : 'OneOf Input Object "UserUniqueCondition" must specify exactly one key.';
+
     describe('INPUT_OBJECT', () => {
       const DOCUMENT_WITH_WHOLE_INPUT = /* GraphQL */ `
         query user($input: UserUniqueCondition!) {
@@ -408,7 +417,7 @@ describe('oneOf', () => {
             variables: {
               username: 'test',
             },
-            expectedError: 'OneOf Input Object "UserUniqueCondition" must specify exactly one key.',
+            expectedError: oneOfMustSpecifyExactlyOneKeyMessage,
             skip: false,
           },
         ],
@@ -417,7 +426,7 @@ describe('oneOf', () => {
           {
             document: `query user { user(input: { id: 1, username: "t" }) { id }}`,
             variables: {},
-            expectedError: 'OneOf Input Object "UserUniqueCondition" must specify exactly one key.',
+            expectedError: oneOfMustSpecifyExactlyOneKeyMessage,
             skip: false,
           },
         ],
@@ -426,7 +435,7 @@ describe('oneOf', () => {
           {
             document: `query user { user(input: { id: null, username: "t" }) { id }}`,
             variables: {},
-            expectedError: 'OneOf Input Object "UserUniqueCondition" must specify exactly one key.',
+            expectedError: oneOfMustSpecifyExactlyOneKeyMessage,
             skip: false,
           },
         ],
@@ -435,7 +444,7 @@ describe('oneOf', () => {
           {
             document: `query user { user(input: { id: null, username: null }) { id }}`,
             variables: {},
-            expectedError: 'OneOf Input Object "UserUniqueCondition" must specify exactly one key.',
+            expectedError: oneOfMustSpecifyExactlyOneKeyMessage,
             skip: false,
           },
         ],
@@ -445,7 +454,9 @@ describe('oneOf', () => {
             document: DOCUMENT_WITH_WHOLE_INPUT,
             variables: {},
             expectedError:
-              'Variable "$input" of required type "UserUniqueCondition!" was not provided.',
+              versionInfo.major >= 17
+                ? 'Variable "$input" has invalid value: Expected a value of non-null type "UserUniqueCondition!" to be provided.'
+                : 'Variable "$input" of required type "UserUniqueCondition!" was not provided.',
             skip: false,
           },
         ],
@@ -531,7 +542,10 @@ describe('oneOf', () => {
             variables: {
               input: 1,
             },
-            expectedError: `Variable "$input" got invalid value 1; Expected type "UserUniqueCondition" to be an object.`,
+            expectedError:
+              versionInfo.major >= 17
+                ? `Variable "$input" has invalid value: Expected value of type "UserUniqueCondition" to be an object, found: 1.`
+                : `Variable "$input" got invalid value 1; Expected type "UserUniqueCondition" to be an object.`,
             skip: false,
           },
         ],
@@ -542,7 +556,10 @@ describe('oneOf', () => {
             variables: {
               input: 1,
             },
-            expectedError: `Variable "$input" got invalid value 1; Expected type "UserUniqueCondition" to be an object.`,
+            expectedError:
+              versionInfo.major >= 17
+                ? `Variable "$input" has invalid value: Expected value of type "UserUniqueCondition" to be an object, found: 1.`
+                : `Variable "$input" got invalid value 1; Expected type "UserUniqueCondition" to be an object.`,
             skip: false,
           },
         ],
@@ -553,7 +570,10 @@ describe('oneOf', () => {
             variables: {
               input: { a: 1 },
             },
-            expectedError: `Variable "$input" got invalid value { a: 1 }; Field "a" is not defined by type "UserUniqueCondition".`,
+            expectedError:
+              versionInfo.major >= 17
+                ? `Variable "$input" has invalid value: Expected value of type "UserUniqueCondition" not to include unknown field "a", found: { a: 1 }.`
+                : `Variable "$input" got invalid value { a: 1 }; Field "a" is not defined by type "UserUniqueCondition".`,
             skip: false,
           },
         ],

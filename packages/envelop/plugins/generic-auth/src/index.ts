@@ -17,6 +17,7 @@ import {
   isListType,
   isObjectType,
   isUnionType,
+  versionInfo,
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
@@ -326,17 +327,24 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                let variableValues: typeof args.variableValues | undefined;
+                let coercedVariableValues: typeof args.variableValues | undefined;
                 if (variableDefinitions?.length) {
                   const { coerced } = getVariableValues(
                     schema,
                     variableDefinitions,
                     args.variableValues || {},
                   );
-                  variableValues = coerced;
+                  coercedVariableValues = coerced;
                 } else {
-                  variableValues = args.variableValues;
+                  coercedVariableValues = args.variableValues;
                 }
+                // graphql-js 17 changed getDirectiveValues/getArgumentValues (used internally by
+                // @graphql-tools/utils' shouldIncludeNode) to expect a structured
+                // `{ sources, coerced }` VariableValues object instead of a flat map.
+                const variableValues =
+                  coercedVariableValues && versionInfo.major >= 17
+                    ? { sources: {}, coerced: coercedVariableValues }
+                    : coercedVariableValues;
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();

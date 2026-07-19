@@ -1,6 +1,6 @@
 import type {
-  ArgumentNode,
   DocumentNode,
+  FragmentArgumentNode,
   FragmentDefinitionNode,
   InlineFragmentNode,
 } from 'graphql';
@@ -25,7 +25,7 @@ export function applySelectionSetFragmentArguments(document: DocumentNode): Docu
           return;
         }
 
-        const fragmentArguments = new Map<string, ArgumentNode>();
+        const fragmentArguments = new Map<string, FragmentArgumentNode>();
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         for (const arg of fragmentNode.arguments) {

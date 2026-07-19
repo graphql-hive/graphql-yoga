@@ -11,7 +11,9 @@ export const createFilterOperationTypeRule =
       OperationDefinition(node) {
         if (!ops.has(node.operation)) {
           context.reportError(
-            new GraphQLError(`GraphQL operation type "${node.operation}" is not allowed.`, [node]),
+            new GraphQLError(`GraphQL operation type "${node.operation}" is not allowed.`, {
+              nodes: [node],
+            }),
           );
         }
       },
