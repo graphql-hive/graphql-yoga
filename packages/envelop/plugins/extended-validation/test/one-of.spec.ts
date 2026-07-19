@@ -201,10 +201,6 @@ describe('oneOf', () => {
     ['AST via Directive', astSchema],
     ['Programmatic via extensions.oneOf', programmaticSchema],
   ])('%s', (_, testSchema) => {
-    // graphql-js 17 changed the wording of its built-in OneOf variable-coercion error, but that
-    // native check only applies to the AST/directive schema (real `isOneOf`); the programmatic
-    // schema uses a custom `extensions.oneOf` flag, so it only ever surfaces the extended-validation
-    // AST rule's own (version-independent) message.
     const oneOfMustSpecifyExactlyOneKeyMessage =
       testSchema === astSchema && versionInfo.major >= 17
         ? 'Within OneOf Input Object type "UserUniqueCondition", exactly one field must be specified, and the value for that field must be non-null.'

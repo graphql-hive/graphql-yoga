@@ -77,10 +77,6 @@ overrides:
   esbuild: ^0.27.0
   cookie: ^1.0.2
   graphql: 17.0.2
-  # @graphql-tools/utils <11.2.0's getArgumentValues() only reads the legacy
-  # GraphQLArgument.defaultValue property; it doesn't understand graphql-js 17's new
-  # `default: { value }` shape, so it wrongly rejects omitted-but-defaulted arguments on
-  # graphql-js 17's own introspection types (e.g. `includeDeprecated`) as "not provided".
   '@graphql-tools/utils': ^11.2.0
   handlebars: ^4.7.9
   file-type: ^21.3.2
