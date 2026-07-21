@@ -52,12 +52,9 @@ overrides:
   fast-xml-parser: ^5.3.8
   '@sveltejs/kit': ^2.53.3
 
-packageExtensionsChecksum: sha256-HIf9UfsMMSWt6IjQqHa+CcuflvDLxEnvVBJWX1k6jhs=
-
 patchedDependencies:
   '@changesets/assemble-release-plan@6.0.10': d2c4b13effc3ff81da271bf5b4c821d5e6134c42e898a51f0bef21a802ec53a9
   '@miniflare/core': 4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100
-  '@n1ru4l/in-memory-live-query-store@0.10.0': 7683ac0e242b7e39a59117599cf0e44c810fd9129a3bc458db5ac7c276b51794
   bob-the-bundler: 2fc71d4bcad0392f8814f459235bcc439b149c1131f86194ccd880604c13742d
   jest-environment-node: 79c5105ac472fc69b6a0e51b0f4c44a493b2ac79215d7c773135e22c166a2cd9
   jest-leak-detector: 67305352d7898160a8e42f297a43b32ed9fbc2d8a653a662855952f752e55377
@@ -1550,8 +1547,8 @@ importers:
         specifier: 0.10.0
         version: 0.10.0(graphql@17.0.2)
       '@n1ru4l/in-memory-live-query-store':
-        specifier: 0.10.0
-        version: 0.10.0(patch_hash=7683ac0e242b7e39a59117599cf0e44c810fd9129a3bc458db5ac7c276b51794)(graphql@17.0.2)
+        specifier: 0.11.0
+        version: 0.11.0(graphql@17.0.2)
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -2684,8 +2681,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0(graphql@17.0.2)
       '@n1ru4l/in-memory-live-query-store':
-        specifier: ^0.10.0
-        version: 0.10.0(patch_hash=7683ac0e242b7e39a59117599cf0e44c810fd9129a3bc458db5ac7c276b51794)(graphql@17.0.2)
+        specifier: ^0.11.0
+        version: 0.11.0(graphql@17.0.2)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -3336,8 +3333,8 @@ importers:
         specifier: ^30.0.0
         version: 30.4.1
       '@n1ru4l/in-memory-live-query-store':
-        specifier: 0.10.0
-        version: 0.10.0(patch_hash=7683ac0e242b7e39a59117599cf0e44c810fd9129a3bc458db5ac7c276b51794)(graphql@17.0.2)
+        specifier: 0.11.0
+        version: 0.11.0(graphql@17.0.2)
       '@repeaterjs/repeater':
         specifier: ^3.0.4
         version: 3.0.6
@@ -7518,8 +7515,13 @@ packages:
     peerDependencies:
       graphql: 17.0.2
 
-  '@n1ru4l/in-memory-live-query-store@0.10.0':
-    resolution: {integrity: sha512-pt7bZgTPz9dk7ceoOp76KIbVFFlAPe0e5A07UiZ19fQy3JPvvoLRdjmnKbUh3VsEUUh8MyytFcFRguaeiidAYA==}
+  '@n1ru4l/graphql-live-query@0.11.0':
+    resolution: {integrity: sha512-rFvmverxiyKYJpCAwbXYz36ghi938gxTGv1uOXS+2YU3Q/pOHuNxBDQU0K0fcq2tVqJxyGGGThQsIAdMZ6Xs4w==}
+    peerDependencies:
+      graphql: 17.0.2
+
+  '@n1ru4l/in-memory-live-query-store@0.11.0':
+    resolution: {integrity: sha512-+EHea8nnfboQaxl1Peq9ckdWMzMUZj/GYiJMYQV6NJwXhIqvAp2QEsrMbVAVWMNKEAy3q06dSJEo6p477baevA==}
     peerDependencies:
       graphql: 17.0.2
 
@@ -25542,7 +25544,6 @@ snapshots:
       '@n1ru4l/graphql-live-query-patch': 0.7.0(graphql@17.0.2)
       '@n1ru4l/json-patch-plus': 0.2.0
       graphql: 17.0.2
-      tslib: 2.8.1
 
   '@n1ru4l/graphql-live-query-patch@0.7.0(graphql@17.0.2)':
     dependencies:
@@ -25553,10 +25554,14 @@ snapshots:
     dependencies:
       graphql: 17.0.2
 
-  '@n1ru4l/in-memory-live-query-store@0.10.0(patch_hash=7683ac0e242b7e39a59117599cf0e44c810fd9129a3bc458db5ac7c276b51794)(graphql@17.0.2)':
+  '@n1ru4l/graphql-live-query@0.11.0(graphql@17.0.2)':
+    dependencies:
+      graphql: 17.0.2
+
+  '@n1ru4l/in-memory-live-query-store@0.11.0(graphql@17.0.2)':
     dependencies:
       '@graphql-tools/utils': 11.2.0(graphql@17.0.2)
-      '@n1ru4l/graphql-live-query': 0.10.0(graphql@17.0.2)
+      '@n1ru4l/graphql-live-query': 0.11.0(graphql@17.0.2)
       '@repeaterjs/repeater': 3.0.6
       graphql: 17.0.2
 

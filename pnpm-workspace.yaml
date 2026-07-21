@@ -5,6 +5,8 @@ minimumReleaseAgeExclude:
   - '@graphql-mesh/*'
   - '@graphql-tools/*'
   - '@whatwg-node/*'
+  - '@n1ru4l/graphql-live-query@0.11.0'
+  - '@n1ru4l/in-memory-live-query-store@0.11.0'
 packages:
   - packages/*
   - packages/plugins/*
@@ -61,7 +63,6 @@ patchedDependencies:
   '@miniflare/core': patches/@miniflare__core.patch
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
-  '@n1ru4l/in-memory-live-query-store@0.10.0': patches/@n1ru4l__in-memory-live-query-store@0.10.0.patch
 overrides:
   '@isaacs/brace-expansion': ^5.0.1
   brace-expansion: ^5.0.5
@@ -109,9 +110,3 @@ overrides:
   socket.io-parser: ^4.2.6
   fast-xml-parser: ^5.3.8
   '@sveltejs/kit': ^2.53.3
-packageExtensions:
-  # published package's compiled output requires `tslib` but its package.json never
-  # declares it as a dependency, so pnpm's strict node_modules can't resolve it.
-  '@n1ru4l/graphql-live-query-patch-jsondiffpatch':
-    dependencies:
-      tslib: ^2.5.0
