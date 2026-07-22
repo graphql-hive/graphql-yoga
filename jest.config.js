@@ -23,6 +23,11 @@ if (process.env.INTEGRATION_TEST === 'true') {
   }
   testMatch.push('!**/examples/bun*/**');
   testMatch.push('**/examples/bun-pothos/__integration-tests__/bun-pothos.spec.ts');
+  // hackernews's postinstall skips codegen below Node 22 (`@graphql-codegen/cli`'s `listr2`
+  // dependency requires it), so its gitignored generated schema files won't exist there.
+  if (parseInt(process.versions.node.split('.')[0]) < 22) {
+    testMatch.push('!**/examples/hackernews/**');
+  }
   // Supports Node 18+ only, so we can ignore it in CI for now
   if (process.versions.node.split('.')[0] > 18) {
     projects.push(

@@ -1,10 +1,12 @@
-import type {
-  DocumentNode,
-  FragmentArgumentNode,
-  FragmentDefinitionNode,
-  InlineFragmentNode,
-} from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode, InlineFragmentNode, ValueNode } from 'graphql';
 import { Kind, visit } from 'graphql';
+
+// The fragment-arguments proposal's `FragmentArgumentNode` AST type only exists in graphql-js 17,
+// so we mirror its shape locally to stay compatible with graphql-js 15/16 too.
+interface FragmentArgumentNode {
+  readonly name: { readonly value: string };
+  readonly value: ValueNode;
+}
 
 export function applySelectionSetFragmentArguments(document: DocumentNode): DocumentNode | Error {
   const fragmentList = new Map<string, FragmentDefinitionNode>();

@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 26]
+        node-version: [18, 20, 22, 26]
         graphql-version: ['15.10.1', '16.12.0']
     steps:
       - name: Checkout Repository
@@ -110,7 +110,15 @@ jobs:
         run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        # examples/hackernews and examples/subscriptions run codegen via `@graphql-codegen/cli` in
+        # their postinstall, which needs Node.js >=22.13 (a `listr2` dependency). Skip installing them
+        # below that version so `pnpm install` doesn't fail for the whole job on older Node.js.
+        run: |
+          if [ "${{ matrix.node-version }}" -lt 22 ]; then
+            pnpm i --no-frozen-lockfile --filter='!example-hackernews' --filter='!example-subscriptions'
+          else
+            pnpm i --no-frozen-lockfile
+          fi
 
       - name: Build Packages
         run: pnpm build
@@ -135,7 +143,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20, 26]
+        node-version: [18, 20, 22, 26]
         graphql-version: ['15.10.1', '16.12.0']
     steps:
       - name: Checkout Repository
@@ -169,7 +177,15 @@ jobs:
         run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        # examples/hackernews and examples/subscriptions run codegen via `@graphql-codegen/cli` in
+        # their postinstall, which needs Node.js >=22.13 (a `listr2` dependency). Skip installing them
+        # below that version so `pnpm install` doesn't fail for the whole job on older Node.js.
+        run: |
+          if [ "${{ matrix.node-version }}" -lt 22 ]; then
+            pnpm i --no-frozen-lockfile --filter='!example-hackernews' --filter='!example-subscriptions'
+          else
+            pnpm i --no-frozen-lockfile
+          fi
 
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
