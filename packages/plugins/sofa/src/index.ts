@@ -87,7 +87,7 @@ export function useSofa(config: SofaPluginConfig): Plugin {
                 variableValues?: ExecutionArgs['variableValues'],
                 operationName?: ExecutionArgs['operationName'],
                 fieldResolver?: ExecutionArgs['fieldResolver'],
-                subscribeFieldResolver?: GraphQLFieldResolver<unknown, unknown>,
+                subscribeFieldResolver?: GraphQLFieldResolver<unknown, unknown> | null,
               ]
         ) {
           const subscriptionArgs =
