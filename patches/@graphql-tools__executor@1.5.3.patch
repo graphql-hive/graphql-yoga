@@ -67,7 +67,7 @@ index 57bf84ef65fe67807d934c5a7e6cbdb2eddf991d..399a95e36dce2626c11cb351a2a567bb
  import { createGraphQLError, hasOwnProperty, inspect, printPathArray } from '@graphql-tools/utils';
  /**
   * Prepares an object map of variableValues of the correct type based on the
-@@ -60,16 +64,42 @@ function coerceVariableValues(schema, varDefNodes, inputs, onError) {
+@@ -60,16 +64,49 @@ function coerceVariableValues(schema, varDefNodes, inputs, onError) {
              }));
              continue;
          }
@@ -81,7 +81,14 @@ index 57bf84ef65fe67807d934c5a7e6cbdb2eddf991d..399a95e36dce2626c11cb351a2a567bb
 +        // `validateInputValue` export to generate the equivalent error in that case, so we mirror
 +        // that here (feature-detected, since graphql-js 15/16's `coerceInputValue` still reports
 +        // errors via the 3rd callback argument and don't export `validateInputValue`).
-+        if (typeof graphqlNamespace.validateInputValue === 'function') {
++        // Some ESM bundlers (Next.js/Turbopack, Rollup/Vite) statically flag properties
++        // accessed on a namespace import that aren't exported by the linked module. Since
++        // graphql-js 15/16 never export `validateInputValue`, read it through a computed
++        // property access via an intermediate variable so those bundlers can't prove it's
++        // missing.
++        const validateInputValueKey = 'validateInputValue';
++        const validateInputValue = graphqlNamespace[validateInputValueKey];
++        if (typeof validateInputValue === 'function') {
 +            const coercedValue = coerceInputValue(value, varType);
 +            if (coercedValue !== undefined) {
 +                coercedValues[varName] = coercedValue;
@@ -92,7 +99,7 @@ index 57bf84ef65fe67807d934c5a7e6cbdb2eddf991d..399a95e36dce2626c11cb351a2a567bb
 -            }));
 -        });
 +            else {
-+                graphqlNamespace.validateInputValue(value, varType, (error, path) => {
++                validateInputValue(value, varType, (error, path) => {
 +                    let prefix = `Variable "$${varName}" got invalid value ` + inspect(value);
 +                    if (path.length > 0) {
 +                        prefix += ` at "${varName}${printPathArray(path)}"`;
