@@ -1,0 +1,121 @@
+diff --git a/cjs/execution/values.js b/cjs/execution/values.js
+index d4278d6c3286f7dc2de88b6ab30409c41489a7d4..1cb4e92e0c0b09f306784b01e288584e3de05ee3 100644
+--- a/cjs/execution/values.js
++++ b/cjs/execution/values.js
+@@ -63,16 +63,42 @@ function coerceVariableValues(schema, varDefNodes, inputs, onError) {
+             }));
+             continue;
+         }
+-        coercedValues[varName] = (0, graphql_1.coerceInputValue)(value, varType, (path, invalidValue, error) => {
+-            let prefix = `Variable "$${varName}" got invalid value ` + (0, utils_1.inspect)(invalidValue);
+-            if (path.length > 0) {
+-                prefix += ` at "${varName}${(0, utils_1.printPathArray)(path)}"`;
++        // graphql-js 17 changed `coerceInputValue` to a 2-arg function that no longer accepts an
++        // `onError` callback: invalid leaf values are silently coerced to `undefined` instead of
++        // reporting an error. graphql-js 17 itself pairs `coerceInputValue` with the new
++        // `validateInputValue` export to generate the equivalent error in that case, so we mirror
++        // that here (feature-detected, since graphql-js 15/16's `coerceInputValue` still reports
++        // errors via the 3rd callback argument and don't export `validateInputValue`).
++        if (typeof graphql_1.validateInputValue === 'function') {
++            const coercedValue = (0, graphql_1.coerceInputValue)(value, varType);
++            if (coercedValue !== undefined) {
++                coercedValues[varName] = coercedValue;
+             }
+-            onError((0, utils_1.createGraphQLError)(prefix + '; ' + error.message, {
+-                nodes: varDefNode,
+-                originalError: error,
+-            }));
+-        });
++            else {
++                (0, graphql_1.validateInputValue)(value, varType, (error, path) => {
++                    let prefix = `Variable "$${varName}" got invalid value ` + (0, utils_1.inspect)(value);
++                    if (path.length > 0) {
++                        prefix += ` at "${varName}${(0, utils_1.printPathArray)(path)}"`;
++                    }
++                    onError((0, utils_1.createGraphQLError)(prefix + '; ' + error.message, {
++                        nodes: varDefNode,
++                        originalError: error,
++                    }));
++                });
++            }
++        }
++        else {
++            coercedValues[varName] = (0, graphql_1.coerceInputValue)(value, varType, (path, invalidValue, error) => {
++                let prefix = `Variable "$${varName}" got invalid value ` + (0, utils_1.inspect)(invalidValue);
++                if (path.length > 0) {
++                    prefix += ` at "${varName}${(0, utils_1.printPathArray)(path)}"`;
++                }
++                onError((0, utils_1.createGraphQLError)(prefix + '; ' + error.message, {
++                    nodes: varDefNode,
++                    originalError: error,
++                }));
++            });
++        }
+     }
+     return coercedValues;
+ }
+diff --git a/esm/execution/values.js b/esm/execution/values.js
+index 57bf84ef65fe67807d934c5a7e6cbdb2eddf991d..399a95e36dce2626c11cb351a2a567bb16393809 100644
+--- a/esm/execution/values.js
++++ b/esm/execution/values.js
+@@ -1,4 +1,8 @@
+ import { coerceInputValue, isInputType, isNonNullType, print, typeFromAST, valueFromAST, } from 'graphql';
++// Namespace import (not a named import) so this doesn't fail to link against graphql-js 15/16,
++// which don't export `validateInputValue` at all. Accessing a missing property on a namespace
++// object is safe at runtime, unlike destructuring a named export that doesn't exist.
++import * as graphqlNamespace from 'graphql';
+ import { createGraphQLError, hasOwnProperty, inspect, printPathArray } from '@graphql-tools/utils';
+ /**
+  * Prepares an object map of variableValues of the correct type based on the
+@@ -60,16 +64,42 @@ function coerceVariableValues(schema, varDefNodes, inputs, onError) {
+             }));
+             continue;
+         }
+-        coercedValues[varName] = coerceInputValue(value, varType, (path, invalidValue, error) => {
+-            let prefix = `Variable "$${varName}" got invalid value ` + inspect(invalidValue);
+-            if (path.length > 0) {
+-                prefix += ` at "${varName}${printPathArray(path)}"`;
++        // graphql-js 17 changed `coerceInputValue` to a 2-arg function that no longer accepts an
++        // `onError` callback: invalid leaf values are silently coerced to `undefined` instead of
++        // reporting an error. graphql-js 17 itself pairs `coerceInputValue` with the new
++        // `validateInputValue` export to generate the equivalent error in that case, so we mirror
++        // that here (feature-detected, since graphql-js 15/16's `coerceInputValue` still reports
++        // errors via the 3rd callback argument and don't export `validateInputValue`).
++        if (typeof graphqlNamespace.validateInputValue === 'function') {
++            const coercedValue = coerceInputValue(value, varType);
++            if (coercedValue !== undefined) {
++                coercedValues[varName] = coercedValue;
+             }
+-            onError(createGraphQLError(prefix + '; ' + error.message, {
+-                nodes: varDefNode,
+-                originalError: error,
+-            }));
+-        });
++            else {
++                graphqlNamespace.validateInputValue(value, varType, (error, path) => {
++                    let prefix = `Variable "$${varName}" got invalid value ` + inspect(value);
++                    if (path.length > 0) {
++                        prefix += ` at "${varName}${printPathArray(path)}"`;
++                    }
++                    onError(createGraphQLError(prefix + '; ' + error.message, {
++                        nodes: varDefNode,
++                        originalError: error,
++                    }));
++                });
++            }
++        }
++        else {
++            coercedValues[varName] = coerceInputValue(value, varType, (path, invalidValue, error) => {
++                let prefix = `Variable "$${varName}" got invalid value ` + inspect(invalidValue);
++                if (path.length > 0) {
++                    prefix += ` at "${varName}${printPathArray(path)}"`;
++                }
++                onError(createGraphQLError(prefix + '; ' + error.message, {
++                    nodes: varDefNode,
++                    originalError: error,
++                }));
++            });
++        }
+     }
+     return coercedValues;
+ }

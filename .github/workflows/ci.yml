@@ -221,6 +221,61 @@ jobs:
               pnpm test:integration:leaks --ci;
             fi
 
+  graphql17:
+    name: unit & integration / graphql v17.0.2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          standalone: true
+
+      - name: Install Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.node-version'
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "store_path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-graphql-v17-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-graphql-v17-
+
+      - name: Install Dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Install Playwright Binaries
+        uses: ./.github/actions/install-playwright-binaries
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Run Unit Tests
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm run test:unit --ci
+
+      - name: Run Integration Tests
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          # file-upload-nexus uses `nexus`, which calls a graphql-js API removed in v17 and has no
+          # fix released upstream; exclude it here until nexus supports graphql-js 17.
+          command: >-
+            pnpm test:integration --ci --testPathIgnorePatterns='/file-upload-nexus\.spec\.ts$'
+
   apollo-federation-compatibility:
     runs-on: ubuntu-latest
     steps:
