@@ -1,49 +1,56 @@
-import type { ExecutionArgs, ExecutionResult } from 'graphql';
+import type { ExecutionArgs, validateSubscriptionArgs } from 'graphql';
 import { createSourceEventStream } from 'graphql';
 import type { ExecuteFunction, SubscribeFunction } from '@envelop/core';
 import { isAsyncIterable, makeSubscribe, mapAsyncIterator } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+
+type ValidateSubscriptionArgsFn = typeof validateSubscriptionArgs;
 
 // graphql-js 17 requires validating subscription args via `validateSubscriptionArgs` before calling
 // `createSourceEventStream`, and dropped the positional-args overload that graphql-js 15/16 support.
 // `validateSubscriptionArgs` doesn't exist prior to 17, and a static import of it would crash real ESM
 // consumers running graphql-js 15/16 (missing named exports fail at module-link time there), so it's
 // resolved dynamically once here and the presence check happens at runtime instead.
-const validateSubscriptionArgsPromise: Promise<
-  ((args: ExecutionArgs) => ReadonlyArray<Error> | ExecutionArgs) | undefined
-> = import('graphql').then(
+const validateSubscriptionArgsPromise: Promise<ValidateSubscriptionArgsFn | undefined> = import(
+  'graphql'
+).then(
   graphqlModule =>
-    (
-      graphqlModule as {
-        validateSubscriptionArgs?: (args: ExecutionArgs) => ReadonlyArray<Error> | ExecutionArgs;
-      }
-    ).validateSubscriptionArgs,
+    (graphqlModule as { validateSubscriptionArgs?: ValidateSubscriptionArgsFn })
+      .validateSubscriptionArgs,
 );
 
 function getSourceEventStream(
   args: ExecutionArgs,
-  validateSubscriptionArgs:
-    | ((args: ExecutionArgs) => ReadonlyArray<Error> | ExecutionArgs)
-    | undefined,
-) {
+  validateSubscriptionArgs: ValidateSubscriptionArgsFn | undefined,
+): ReturnType<typeof createSourceEventStream> {
   if (validateSubscriptionArgs) {
-    const validatedExecutionArgs = validateSubscriptionArgs(args);
-    if (!('schema' in validatedExecutionArgs)) {
-      return { errors: validatedExecutionArgs } as unknown as ExecutionResult;
+    const validatedArgs = validateSubscriptionArgs(args);
+    if (!('schema' in validatedArgs)) {
+      return { errors: validatedArgs };
     }
-    return (createSourceEventStream as unknown as (args: ExecutionArgs) => unknown)(
-      validatedExecutionArgs,
-    ) as ReturnType<typeof createSourceEventStream>;
+    return createSourceEventStream(validatedArgs);
   }
 
-  return (createSourceEventStream as any)(
+  // graphql-js 15/16's `createSourceEventStream` only has the legacy positional-args signature,
+  // which the installed (v17) type definitions no longer describe.
+  const legacyCreateSourceEventStream = createSourceEventStream as unknown as (
+    schema: ExecutionArgs['schema'],
+    document: ExecutionArgs['document'],
+    rootValue: ExecutionArgs['rootValue'],
+    contextValue: ExecutionArgs['contextValue'],
+    variableValues: ExecutionArgs['variableValues'],
+    operationName: ExecutionArgs['operationName'],
+    subscribeFieldResolver: ExecutionArgs['subscribeFieldResolver'],
+  ) => ReturnType<typeof createSourceEventStream>;
+
+  return legacyCreateSourceEventStream(
     args.schema,
     args.document,
     args.rootValue,
     args.contextValue,
     args.variableValues ?? undefined,
     args.operationName,
-    (args as any).subscribeFieldResolver,
+    args.subscribeFieldResolver,
   );
 }
 
@@ -62,7 +69,7 @@ export const subscribe = (execute: ExecuteFunction): SubscribeFunction =>
           () => getSourceEventStream(args, validateSubscriptionArgs),
           resultOrStream => {
             if (!isAsyncIterable(resultOrStream)) {
-              return resultOrStream as AsyncIterableIterator<ExecutionResult>;
+              return resultOrStream;
             }
 
             // Map every source value to a ExecutionResult value as described above.
