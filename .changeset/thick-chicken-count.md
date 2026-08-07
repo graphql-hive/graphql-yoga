@@ -58,3 +58,5 @@
 ---
 
 Update to support graphql-js 17
+
+Bump package versions, fix expected typing, and update compatability with subscribe.
