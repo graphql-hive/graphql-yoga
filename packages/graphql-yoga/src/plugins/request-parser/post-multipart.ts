@@ -83,7 +83,8 @@ function setObjectKeyPath(object: any, keyPath: string, value: any): void {
     if (isLastKey) {
       current[key] = value;
     } else {
-      if (!(key in current)) {
+      const isObject = typeof current[key] === 'object' && current[key] !== null;
+      if (!Object.hasOwn(current, key) || !isObject) {
         current[key] = {};
       }
       current = current[key];
