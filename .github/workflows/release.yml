@@ -31,10 +31,7 @@ jobs:
   alpha:
     if:
       github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-      github.repository && (github.actor != 'dependabot[bot]' && github.actor !=
-      'copilot-swe-agent[bot]' && github.actor != 'github-copilot[bot]' && (github.event_name ==
-      'push' || (github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming
-      Release Changes')))
+      github.repository && github.event.pull_request.title != 'Upcoming Release Changes'
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
     with:
       npmTag: alpha
@@ -48,9 +45,7 @@ jobs:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
     if:
       github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-      github.repository && github.event.pull_request.title == 'Upcoming Release Changes' &&
-      github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' && github.actor
-      != 'github-copilot[bot]'
+      github.repository && github.event.pull_request.title == 'Upcoming Release Changes'
     with:
       npmTag: rc
       restoreDeletedChangesets: false
