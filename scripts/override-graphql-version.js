@@ -116,7 +116,7 @@ for (const testPath of [`examples/apollo-federation`]) {
 
 // disable nexus testing with >=17 versions: nexus@1.3.0 (latest) peer-depends on
 // graphql "15.x || 16.x" and calls the removed `assertValidName` export at import time,
-// so it hard-crashes on graphql-js 17 until nexus publishes support.
+// so it hard-crashes on graphql-js 17
 const graphql17AndAbove = parseInt(graphqlVersion.split('.')[0]) >= 17;
 
 for (const testPath of [`examples/file-upload-nexus`]) {
