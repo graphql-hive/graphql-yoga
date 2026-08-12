@@ -24,6 +24,7 @@ jobs:
     with:
       releaseScript: release
       nodeVersion: 26
+      packageManager: pnpm
     secrets:
       githubToken: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,11 +40,12 @@ jobs:
       npmTag: alpha
       buildScript: build
       nodeVersion: 26
+      packageManager: pnpm
     secrets:
       githubToken: ${{ secrets.GITHUB_TOKEN }}
 
   rc:
-    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
+    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
     if:
       github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
       github.repository && github.event.pull_request.title == 'Upcoming Release Changes' &&
@@ -54,5 +56,6 @@ jobs:
       restoreDeletedChangesets: false
       buildScript: build
       nodeVersion: 26
+      packageManager: pnpm
     secrets:
       githubToken: ${{ secrets.GITHUB_TOKEN }}
