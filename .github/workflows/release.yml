@@ -1,25 +1,58 @@
-name: Stable Release
+name: release
 on:
   push:
     branches:
-      - 'main'
+      - master
+  pull_request:
+    branches:
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write
+  pull-requests: write
+  actions: write
+  contents: write
+
 jobs:
   stable:
-    permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
-      issues: write
-    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
-    if: github.event.pull_request.title != 'Upcoming Release Changes'
+    if: github.event_name == 'push'
+    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@main
     with:
       releaseScript: release
-      node-version-file: .node-version
+      nodeVersion: 26
     secrets:
-      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
-      npmToken: ${{ secrets.NPM_TOKEN }}
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  alpha:
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
+      github.repository && (github.actor != 'dependabot[bot]' && github.actor !=
+      'copilot-swe-agent[bot]' && github.actor != 'github-copilot[bot]' && (github.event_name ==
+      'push' || (github.event_name == 'pull_request' && github.event.pull_request.title != 'Upcoming
+      Release Changes')))
+    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
+    with:
+      npmTag: alpha
+      buildScript: build
+      nodeVersion: 26
+    secrets:
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  rc:
+    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@v1
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
+      github.repository && github.event.pull_request.title == 'Upcoming Release Changes' &&
+      github.actor != 'dependabot[bot]' && github.actor != 'copilot-swe-agent[bot]' && github.actor
+      != 'github-copilot[bot]'
+    with:
+      npmTag: rc
+      restoreDeletedChangesets: false
+      buildScript: build
+      nodeVersion: 26
+    secrets:
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
