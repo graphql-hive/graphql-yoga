@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.21.3
+
+### Patch Changes
+
+- [#4557](https://github.com/graphql-hive/graphql-yoga/pull/4557)
+  [`04014d2`](https://github.com/graphql-hive/graphql-yoga/commit/04014d248ed9300835b1550a0d53ff61d83023b5)
+  Thanks [@jdolle](https://github.com/jdolle)! - Patch prototype pollution vulnerability in
+  multipart parser
+
 ## 5.21.2
 
 ### Patch Changes
