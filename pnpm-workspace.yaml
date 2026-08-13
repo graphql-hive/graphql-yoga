@@ -62,11 +62,14 @@ patchedDependencies:
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
 overrides:
-  # @graphql-codegen/cli's listr2@10 dependency imports `styleText` from `node:util`,
-  # which isn't available until Node 20.12. Pin to the last listr2 major that doesn't
-  # use it, so codegen postinstall scripts in the examples still work on Node 18.
+  # @graphql-codegen/cli's listr2@10 and @inquirer/prompts@8 dependencies import
+  # `styleText` from `node:util`, which isn't available until Node 20.12 (and
+  # @inquirer/prompts@8's own engines field requires Node >=20.17). Pin both to the
+  # last majors that don't use it, so codegen postinstall scripts in the examples
+  # still work on Node 18.
   listr2: ^9.0.5
   '@inquirer/core': ^10.3.2
+  '@inquirer/prompts': ^7.10.1
   '@isaacs/brace-expansion': ^5.0.1
   brace-expansion: ^5.0.5
   minimatch: ^10.2.3
