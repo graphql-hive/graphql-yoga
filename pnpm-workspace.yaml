@@ -5,8 +5,6 @@ minimumReleaseAgeExclude:
   - '@graphql-mesh/*'
   - '@graphql-tools/*'
   - '@whatwg-node/*'
-  - '@n1ru4l/graphql-live-query@0.11.0'
-  - '@n1ru4l/in-memory-live-query-store@0.11.0'
 packages:
   - packages/*
   - packages/plugins/*
@@ -64,6 +62,10 @@ patchedDependencies:
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
 overrides:
+  # @graphql-codegen/cli's listr2@10 dependency imports `styleText` from `node:util`,
+  # which isn't available until Node 20.12. Pin to the last listr2 major that doesn't
+  # use it, so codegen postinstall scripts in the examples still work on Node 18.
+  listr2: ^9.0.5
   '@isaacs/brace-expansion': ^5.0.1
   brace-expansion: ^5.0.5
   minimatch: ^10.2.3

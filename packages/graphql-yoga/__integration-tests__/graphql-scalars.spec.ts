@@ -1,4 +1,4 @@
-import { version as graphqlVersion, specifiedScalarTypes } from 'graphql';
+import { specifiedScalarTypes } from 'graphql';
 import { resolvers as scalarsResolvers, typeDefs as scalarsTypeDefs } from 'graphql-scalars';
 import { createSchema, createYoga } from '../src/index.js';
 
