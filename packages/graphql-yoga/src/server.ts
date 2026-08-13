@@ -2,13 +2,7 @@
 import type { ExecutionResult } from 'graphql';
 import { parse, specifiedRules, validate } from 'graphql';
 import type { GetEnvelopedFn, PromiseOrValue } from '@envelop/core';
-import {
-  envelop,
-  isAsyncIterable,
-  useEngine,
-  useExtendContext,
-  useMaskedErrors,
-} from '@envelop/core';
+import { isAsyncIterable, useEngine, useExtendContext, useMaskedErrors } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import type { LogLevel, YogaLogger } from '@graphql-yoga/logger';
@@ -31,6 +25,7 @@ import type {
   ServerAdapterRequestHandler,
 } from '@whatwg-node/server';
 import { createServerAdapter, useCORS } from '@whatwg-node/server';
+import { envelop } from './envelop/envelop.js';
 import { handleError, isAbortError } from './error.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
