@@ -1,13 +1,20 @@
-import type { ExecutionArgs, ExecutionResult, validateSubscriptionArgs } from 'graphql';
+import type { ExecutionArgs, ExecutionResult, GraphQLError, GraphQLFieldResolver } from 'graphql';
 import { createSourceEventStream } from 'graphql';
 import type { ExecuteFunction, SubscribeFunction } from '@envelop/core';
 import { isAsyncIterable, makeSubscribe, mapAsyncIterator } from '@envelop/core';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
-type ValidateSubscriptionArgsFn = typeof validateSubscriptionArgs;
+// GraphQL backporting support
+type MaybePromise<T> = T | Promise<T>;
 
-// graphql-js 15/16's `createSourceEventStream` only has this legacy positional-args signature,
-// which the installed (v17) type definitions no longer describe.
+type ValidateSubscriptionArgsFn = (
+  args: ExecutionArgs,
+) => ReadonlyArray<GraphQLError> | ExecutionArgs;
+
+type ExecutionArgsWithSubscribeFieldResolver = ExecutionArgs & {
+  subscribeFieldResolver?: GraphQLFieldResolver<any, any> | null;
+};
+
 type LegacyCreateSourceEventStream = (
   schema: ExecutionArgs['schema'],
   document: ExecutionArgs['document'],
@@ -15,14 +22,9 @@ type LegacyCreateSourceEventStream = (
   contextValue: ExecutionArgs['contextValue'],
   variableValues: ExecutionArgs['variableValues'],
   operationName: ExecutionArgs['operationName'],
-  subscribeFieldResolver: ExecutionArgs['subscribeFieldResolver'],
-) => ReturnType<typeof createSourceEventStream>;
+  subscribeFieldResolver: GraphQLFieldResolver<any, any> | null | undefined,
+) => MaybePromise<AsyncIterable<unknown> | ExecutionResult>;
 
-// graphql-js 17 requires validating subscription args via `validateSubscriptionArgs` before calling
-// `createSourceEventStream`, and dropped the positional-args overload that graphql-js 15/16 support.
-// `validateSubscriptionArgs` doesn't exist prior to 17, and a static import of it would crash real ESM
-// consumers running graphql-js 15/16 (missing named exports fail at module-link time there), so it's
-// resolved dynamically once here and the presence check happens at runtime instead.
 const validateSubscriptionArgsPromise: Promise<ValidateSubscriptionArgsFn | undefined> = import(
   'graphql'
 ).then(
@@ -32,15 +34,19 @@ const validateSubscriptionArgsPromise: Promise<ValidateSubscriptionArgsFn | unde
 );
 
 function getSourceEventStream(
-  args: ExecutionArgs,
+  args: ExecutionArgsWithSubscribeFieldResolver,
   validateSubscriptionArgs: ValidateSubscriptionArgsFn | undefined,
-): ReturnType<typeof createSourceEventStream> {
+): MaybePromise<AsyncIterable<unknown> | ExecutionResult> {
   if (validateSubscriptionArgs) {
     const validatedArgs = validateSubscriptionArgs(args);
     if (!('schema' in validatedArgs)) {
       return { errors: validatedArgs };
     }
-    return createSourceEventStream(validatedArgs);
+    // Cast away the installed graphql version's own overloads here for backwards compatability
+    const createSourceEventStreamWithValidatedArgs = createSourceEventStream as unknown as (
+      args: ExecutionArgs,
+    ) => MaybePromise<AsyncIterable<unknown> | ExecutionResult>;
+    return createSourceEventStreamWithValidatedArgs(validatedArgs);
   }
 
   const legacyCreateSourceEventStream =
