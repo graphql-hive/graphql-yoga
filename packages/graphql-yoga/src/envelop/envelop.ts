@@ -1,4 +1,4 @@
-import { getInstrumented } from './instrumentation';
+import { getInstrumented } from './instrumentation.js';
 import type { EnvelopOrchestrator } from './orchestrator.js';
 import { createEnvelopOrchestrator } from './orchestrator.js';
 import type {

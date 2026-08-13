@@ -7,7 +7,7 @@ import type {
   PolymorphicSubscribeArguments,
   PromiseOrValue,
   SubscribeFunction,
-} from './types/index';
+} from './types/index.js';
 
 function getSubscribeArgs(args: PolymorphicSubscribeArguments): ExecutionArgs {
   return args.length === 1

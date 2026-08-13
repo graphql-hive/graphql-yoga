@@ -36,7 +36,7 @@ import type {
 } from '@envelop/types';
 import { handleMaybePromise, iterateAsync, iterateAsyncVoid } from '@whatwg-node/promise-helpers';
 import { documentStringMap } from './document-string-map.js';
-import { chain } from './instrumentation';
+import { chain } from './instrumentation.js';
 import {
   errorAsyncIterator,
   finalAsyncIterator,
@@ -44,7 +44,7 @@ import {
   makeExecute,
   makeSubscribe,
   mapAsyncIterator,
-} from './utils';
+} from './utils.js';
 
 export type EnvelopOrchestrator<
   InitialContext extends ArbitraryObject = ArbitraryObject,
