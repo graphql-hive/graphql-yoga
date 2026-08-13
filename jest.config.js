@@ -15,7 +15,7 @@ const projects = [];
 
 let testTimeout = undefined;
 
-const graphqlMajor = parseInt(require('graphql/package.json').version.split('.')[0]);
+const graphqlMajor = parseInt(require('graphql').version.split('.')[0]);
 
 if (process.env.INTEGRATION_TEST === 'true') {
   testTimeout = 10_000;
