@@ -95,24 +95,30 @@ if (pkg?.pnpm?.overrides) {
   setGraphqlOverrideInWorkspace(graphqlVersion);
 }
 
+function setIntegrationTestsEnabled(testPath, enabled) {
+  const enabledPathAbs = path.resolve(__dirname, '..', testPath, '__integration-tests__');
+  const disabledPathAbs = path.resolve(__dirname, '..', testPath, '__DISABLED_integration-tests__');
+  if (enabled) {
+    if (fs.existsSync(disabledPathAbs)) {
+      fs.renameSync(disabledPathAbs, enabledPathAbs);
+    }
+  } else if (fs.existsSync(enabledPathAbs)) {
+    fs.renameSync(enabledPathAbs, disabledPathAbs);
+  }
+}
+
 // disable apollo federation and sofa testing with <16 versions
 const graphql15AndLess = parseInt(graphqlVersion.split('.')[0]) <= 15;
 
 for (const testPath of [`examples/apollo-federation`]) {
-  if (graphql15AndLess) {
-    // disable
-    const testPathAbs = path.resolve(__dirname, '..', testPath, '__integration-tests__');
-    if (fs.existsSync(testPathAbs)) {
-      fs.renameSync(
-        testPathAbs,
-        path.resolve(__dirname, '..', testPath, '__DISABLED_integration-tests__'),
-      );
-    }
-  } else {
-    // enable if disabled
-    const testPathAbs = path.resolve(__dirname, '..', testPath, '__DISABLED_integration-tests__');
-    if (fs.existsSync(testPathAbs)) {
-      fs.renameSync(testPathAbs, path.resolve(__dirname, '..', testPath, '__integration-tests__'));
-    }
-  }
+  setIntegrationTestsEnabled(testPath, !graphql15AndLess);
+}
+
+// disable nexus testing with >=17 versions: nexus@1.3.0 (latest) peer-depends on
+// graphql "15.x || 16.x" and calls the removed `assertValidName` export at import time,
+// so it hard-crashes on graphql-js 17
+const graphql17AndAbove = parseInt(graphqlVersion.split('.')[0]) >= 17;
+
+for (const testPath of [`examples/file-upload-nexus`]) {
+  setIntegrationTestsEnabled(testPath, !graphql17AndAbove);
 }
