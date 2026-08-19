@@ -1,5 +1,21 @@
 # @envelop/validation-cache
 
+## 10.2.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/core@5.6.0
+
 ## 10.1.1
 
 ### Patch Changes
@@ -15,8 +31,8 @@
 - [#2782](https://github.com/graphql-hive/envelop/pull/2782)
   [`2c0ce13`](https://github.com/graphql-hive/envelop/commit/2c0ce1346fec9318478f453c3b8a05d1c096974e)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-  - Added dependency [`object-hash@^3.0.0` ↗︎](https://www.npmjs.com/package/object-hash/v/3.0.0) (to
-    `dependencies`)
+  - Added dependency [`object-hash@^3.0.0` ↗︎](https://www.npmjs.com/package/object-hash/v/3.0.0)
+    (to `dependencies`)
   - Removed dependency [`hash-it@^6.0.0` ↗︎](https://www.npmjs.com/package/hash-it/v/6.0.0) (from
     `dependencies`)
 - Updated dependencies
@@ -126,8 +142,8 @@
   [`e3c90116`](https://github.com/n1ru4l/envelop/commit/e3c9011640b73aaede4e5e472a5d45aab947165c)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:
@@ -180,8 +196,8 @@
 - [#1767](https://github.com/n1ru4l/envelop/pull/1767)
   [`0b127cc4`](https://github.com/n1ru4l/envelop/commit/0b127cc40f2e6a003a05cbeb0b6f004a08ada9d2)
   Thanks [@n1ru4l](https://github.com/n1ru4l)! - dependencies updates:
-  - Updated dependency [`lru-cache@^9.1.1` ↗︎](https://www.npmjs.com/package/lru-cache/v/9.1.1) (from
-    `^6.0.0`, in `dependencies`)
+  - Updated dependency [`lru-cache@^9.1.1` ↗︎](https://www.npmjs.com/package/lru-cache/v/9.1.1)
+    (from `^6.0.0`, in `dependencies`)
 
 - [#1728](https://github.com/n1ru4l/envelop/pull/1728)
   [`a36925c7`](https://github.com/n1ru4l/envelop/commit/a36925c7df0538f88b51682e4e23f4b16f6fae2b)

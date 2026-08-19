@@ -537,7 +537,7 @@ export class YogaServer<
       request: Request;
     },
     context: TServerContext,
-  ) => {
+  ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
 

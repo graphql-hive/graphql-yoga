@@ -11,6 +11,7 @@ import type {
 import {
   getNamedType,
   getOperationAST,
+  version as graphqlVersion,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
@@ -29,6 +30,14 @@ import {
 } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { removeEmptyOrUnusedNodes } from './utils.js';
+
+// graphql-js 17 changed `getDirectiveValues`'s `variableValues` parameter from a plain
+// `{ [name]: value }` map to the `{ sources, coerced }` wrapper produced by its own
+// `getVariableValues`. `@graphql-tools/utils`'s `shouldIncludeNode` (which delegates to
+// `getDirectiveValues` for `@skip`/`@include`) still passes the plain map through unchanged,
+// so under graphql-js 17 it crashes on any `@skip`/`@include` that references a variable.
+// Wrap the plain map to match until `@graphql-tools/utils` is updated for the new contract.
+const isGraphQL17OrAbove = parseInt(graphqlVersion.split('.')[0]!, 10) >= 17;
 
 export type ResolveUserFn<UserType, ContextType = DefaultContext> = (
   context: ContextType,
@@ -450,7 +459,10 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    if (variableValues && !shouldIncludeNode(variableValues, node)) {
+                    const directiveVariableValues = isGraphQL17OrAbove
+                      ? { coerced: variableValues, sources: {} }
+                      : variableValues;
+                    if (variableValues && !shouldIncludeNode(directiveVariableValues, node)) {
                       return;
                     }
 

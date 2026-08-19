@@ -15,6 +15,8 @@ const projects = [];
 
 let testTimeout = undefined;
 
+const graphqlMajor = parseInt(require('graphql').version.split('.')[0]);
+
 if (process.env.INTEGRATION_TEST === 'true') {
   testTimeout = 10_000;
   testMatch.push('<rootDir>/**/__integration-tests__/**/?(*.)+(spec|test).[jt]s?(x)');
@@ -23,6 +25,11 @@ if (process.env.INTEGRATION_TEST === 'true') {
   }
   testMatch.push('!**/examples/bun*/**');
   testMatch.push('**/examples/bun-pothos/__integration-tests__/bun-pothos.spec.ts');
+  // hackernews's postinstall skips codegen below Node 22 (`@graphql-codegen/cli`'s `listr2`
+  // dependency requires it), so its gitignored generated schema files won't exist there.
+  if (parseInt(process.versions.node.split('.')[0]) < 22) {
+    testMatch.push('!**/examples/hackernews/**');
+  }
   // Supports Node 18+ only, so we can ignore it in CI for now
   if (process.versions.node.split('.')[0] > 18) {
     projects.push(
@@ -30,6 +37,11 @@ if (process.env.INTEGRATION_TEST === 'true') {
       // giving Jest a string as project name will make it rely on jest.config files in the package subfolder
       '<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv',
     );
+  }
+  // nexus only supports graphql 15.x/16.x (calls `assertValidName`, removed in v17);
+  // sveltekit's @envelop/graphql-jit doesn't support v17 yet either.
+  if (graphqlMajor >= 17) {
+    testMatch.push('!**/examples/sveltekit/**', '!**/examples/file-upload-nexus/**');
   }
 } else {
   testMatch.push(

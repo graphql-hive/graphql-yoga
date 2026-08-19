@@ -62,6 +62,17 @@ patchedDependencies:
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
 overrides:
+  # @graphql-codegen/cli's listr2@10 and @inquirer/prompts@8 dependencies import
+  # `styleText` from `node:util`, which isn't available until Node 20.12 (and
+  # @inquirer/prompts@8's own engines field requires Node >=20.17), and its
+  # yargs@18 dependency pulls in yargs-parser@22 whose engines field requires
+  # Node >=20.19. Pin all of these to the last majors that still support Node 18,
+  # so codegen postinstall scripts in the examples still work on Node 18.
+  listr2: ^9.0.5
+  '@inquirer/core': ^10.3.2
+  '@inquirer/prompts': ^7.10.1
+  yargs: ^17.7.2
+  yargs-parser: ^21.1.1
   '@isaacs/brace-expansion': ^5.0.1
   brace-expansion: ^5.0.5
   minimatch: ^10.2.3
@@ -75,7 +86,6 @@ overrides:
   eslint-plugin-unicorn: ^56.0.1
   esbuild: ^0.27.0
   cookie: ^1.0.2
-  graphql: 16.13.2
   handlebars: ^4.7.9
   file-type: ^21.3.2
   flatted: ^3.4.0

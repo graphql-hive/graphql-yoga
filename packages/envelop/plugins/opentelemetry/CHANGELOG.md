@@ -1,5 +1,22 @@
 # @envelop/opentelemetry
 
+## 9.2.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/on-resolve@7.2.0
+  - @envelop/core@5.6.0
+
 ## 9.1.1
 
 ### Patch Changes
@@ -134,8 +151,8 @@
   [`75b73fb`](https://github.com/n1ru4l/envelop/commit/75b73fbc8b56f3b6e2efbb37dab42fb6c3ed171c)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
   - Updated dependency
-    [`@opentelemetry/api@^1.8.0` ↗︎](https://www.npmjs.com/package/@opentelemetry/api/v/1.8.0) (from
-    `^1.0.0`, in `dependencies`)
+    [`@opentelemetry/api@^1.8.0` ↗︎](https://www.npmjs.com/package/@opentelemetry/api/v/1.8.0)
+    (from `^1.0.0`, in `dependencies`)
 
 - Updated dependencies
   [[`dc1222f`](https://github.com/n1ru4l/envelop/commit/dc1222f440942ec796d72fb7ff0c77e03d29c58b)]:
@@ -216,8 +233,8 @@
     [`@envelop/on-resolve@^3.0.2` ↗︎](https://www.npmjs.com/package/@envelop/on-resolve/v/3.0.2)
     (from `^3.0.1`, in `dependencies`)
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:
