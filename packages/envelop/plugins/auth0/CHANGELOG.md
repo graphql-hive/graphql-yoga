@@ -1,5 +1,13 @@
 # @envelop/auth0
 
+## 9.2.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/core@5.6.0
+
 ## 9.1.1
 
 ### Patch Changes
@@ -119,8 +127,8 @@
   [`e3c90116`](https://github.com/n1ru4l/envelop/commit/e3c9011640b73aaede4e5e472a5d45aab947165c)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:
@@ -159,8 +167,9 @@
 - [#1814](https://github.com/n1ru4l/envelop/pull/1814)
   [`dab0b262`](https://github.com/n1ru4l/envelop/commit/dab0b2621d44b3ea2cc22f69c050a5e80100cd60)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-  - Updated dependency [`jsonwebtoken@^9.0.0` ↗︎](https://www.npmjs.com/package/jsonwebtoken/v/9.0.0)
-    (from `^8.5.1`, in `dependencies`)
+  - Updated dependency
+    [`jsonwebtoken@^9.0.0` ↗︎](https://www.npmjs.com/package/jsonwebtoken/v/9.0.0) (from `^8.5.1`,
+    in `dependencies`)
   - Updated dependency [`jwks-rsa@^3.0.1` ↗︎](https://www.npmjs.com/package/jwks-rsa/v/3.0.1) (from
     `^2.0.1`, in `dependencies`)
 

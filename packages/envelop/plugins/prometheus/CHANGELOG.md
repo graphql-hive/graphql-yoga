@@ -1,5 +1,22 @@
 # @envelop/prometheus
 
+## 14.2.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/on-resolve@7.2.0
+  - @envelop/core@5.6.0
+
 ## 14.1.1
 
 ### Patch Changes
@@ -409,8 +426,9 @@
 - [#1989](https://github.com/n1ru4l/envelop/pull/1989)
   [`fc7884fe`](https://github.com/n1ru4l/envelop/commit/fc7884fe69771196788e5b1653075a9ef9c29ddf)
   Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
-  - Updated dependency [`prom-client@^15.0.0` ↗︎](https://www.npmjs.com/package/prom-client/v/15.0.0)
-    (from `^13 || ^14.0.0`, in `peerDependencies`)
+  - Updated dependency
+    [`prom-client@^15.0.0` ↗︎](https://www.npmjs.com/package/prom-client/v/15.0.0) (from
+    `^13 || ^14.0.0`, in `peerDependencies`)
 
 - Updated dependencies
   [[`68e7a2a5`](https://github.com/n1ru4l/envelop/commit/68e7a2a59a2f9872652b4bae28f30c3a2fb70487)]:
@@ -427,8 +445,8 @@
     [`@envelop/on-resolve@^3.0.2` ↗︎](https://www.npmjs.com/package/@envelop/on-resolve/v/3.0.2)
     (from `^3.0.1`, in `dependencies`)
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:
