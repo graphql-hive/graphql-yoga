@@ -20,6 +20,11 @@ export async function fetchPackageInfoCachedAndRetried(
       retriesLeft,
       interval,
     );
+    // Many `@envelop/*` packages don't set a `description` in their `package.json`,
+    // so the npm registry response has no `description` field. Next.js fails to
+    // serialize `undefined` values returned from `getStaticProps`, so we fall back
+    // to a placeholder here instead.
+    result.description ??= 'Description not available';
     cache.set(cacheKey, result);
     return result;
   } catch (error) {
