@@ -78,7 +78,7 @@ jobs:
       GRAPHQL_VERSION: ${{ matrix.graphql-version }}
     strategy:
       matrix:
-        node-version: [18, 20, 26]
+        node-version: [18, 20, 24, 26]
         # graphql-js majors, all installed at once through npm aliases and picked at runtime by
         # jest through the `GRAPHQL_VERSION` env variable, see `scripts/graphql-versions.js`
         graphql-version: [15, 16, 17]
