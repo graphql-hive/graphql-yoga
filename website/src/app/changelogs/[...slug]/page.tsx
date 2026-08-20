@@ -2,13 +2,7 @@ import fs from 'node:fs/promises';
 import type { Metadata } from 'next/types';
 import fg from 'fast-glob';
 import type { NextPageProps } from '@theguild/components';
-import {
-  compileMdx,
-  convertToPageMap,
-  evaluate,
-  mergeMetaWithPageMap,
-  normalizePageMap,
-} from '@theguild/components/server';
+import { compileMdx, evaluate } from '@theguild/components/server';
 import { defaultNextraOptions } from '@theguild/components/server/next.config';
 import { useMDXComponents } from '../../../mdx-components';
 
@@ -30,21 +24,6 @@ export async function generateStaticParams() {
   const result = await getPackages();
   return result.map(slug => ({ slug }));
 }
-
-const { pageMap: _pageMap } = convertToPageMap({
-  filePaths: (await getPackages()).map(slug => slug.join('/')),
-  basePath: 'changelogs',
-});
-
-// @ts-expect-error -- ignore
-const changelogsPages = _pageMap[0].children;
-
-const changelogsPageMap = mergeMetaWithPageMap(changelogsPages, {
-  // Put Yoga at top
-  'graphql-yoga': '',
-});
-
-export const pageMap = normalizePageMap(changelogsPageMap);
 
 export async function generateMetadata(props: NextPageProps<'...slug'>): Promise<Metadata> {
   const params = await props.params;

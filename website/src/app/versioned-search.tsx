@@ -14,7 +14,7 @@ const DEFAULT_FILTERS = {
 };
 
 export function VersionedSearch() {
-  const pathname = usePathname().slice(1);
+  const pathname = (usePathname() ?? '').slice(1);
   const opts = VERSIONS.has(pathname)
     ? { filters: { version: pathname } }
     : //
