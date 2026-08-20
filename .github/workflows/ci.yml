@@ -48,7 +48,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile
+        run: pnpm i
 
       - name: Prettier
         run: pnpm prettier:check
@@ -109,7 +109,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile
+        run: pnpm i
 
       - name: Build Packages
         run: pnpm build
@@ -167,7 +167,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile
+        run: pnpm i
 
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
@@ -311,7 +311,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile
+        run: pnpm i
 
       - name: Build Packages
         run: pnpm build
