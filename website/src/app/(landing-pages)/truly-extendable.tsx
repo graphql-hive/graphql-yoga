@@ -29,7 +29,7 @@ export const TrulyExtendableSection: FC<ComponentProps<'section'>> = ({ classNam
         Truly extendable
       </Heading>
       <p className="mt-4 text-white/80">
-        Highly extendable through Envelop plugins, allowing customization to fit any
+        Highly extendable through plugins, allowing customization to fit any
         <br className="max-sm:hidden" /> development needs.
       </p>
       <div className="relative flex gap-6 xl:gap-20 2xl:gap-24 my-6 xl:my-12 max-xl:flex-col">
@@ -115,111 +115,111 @@ function InfoCardLink({ href, ...rest }: InfoCardProps.InfoCardLinkProps) {
 const ENVELOP_PLUGINS: { title: string; href: `https://${string}` }[] = [
   {
     title: 'useSentry',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/sentry',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/sentry',
   },
   {
     title: 'useStatsD',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/statsd',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/statsd',
   },
   {
     title: 'useSchema',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useSchemaByContext',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useValidationRule',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useErrorHandler',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useMaskedErrors',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useEngine',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useExtendContext',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useImmediateIntrospection',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/immediate-introspection',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/immediate-introspection',
   },
   {
     title: 'useLogger',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'usePayloadFormatter',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/core',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/core',
   },
   {
     title: 'useGraphQLJit',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/graphql-jit',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/graphql-jit',
   },
   {
     title: 'useParserCache',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/parser-cache',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/parser-cache',
   },
   {
     title: 'useValidationCache',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/validation-cache',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/validation-cache',
   },
   {
     title: 'useDataLoader',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/dataloader',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/dataloader',
   },
   {
     title: 'useApolloTracing',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/apollo-tracing',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/apollo-tracing',
   },
   {
     title: 'useApolloDataSources',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/apollo-datasources',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/apollo-datasources',
   },
   {
     title: 'useOpenTelemetry',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/opentelemetry',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/opentelemetry',
   },
   {
     title: 'useGenericAuth',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/generic-auth',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/generic-auth',
   },
   {
     title: 'useAuth0',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/auth0',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/auth0',
   },
   {
     title: 'useGraphQLModules',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/graphql-modules',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/graphql-modules',
   },
   {
     title: 'useRateLimiter',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/rate-limiter',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/rate-limiter',
   },
   {
     title: 'useDisableIntrospection',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/disable-introspection',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/disable-introspection',
   },
   {
     title: 'useFilterAllowedOperations',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/filter-operation-type',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/filter-operation-type',
   },
   {
     title: 'usePreloadAssets',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/preload-assets',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/preload-assets',
   },
   {
     title: 'usePersistedOperations',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/persisted-operations',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/persisted-operations',
   },
   {
     title: 'useHive',
@@ -227,47 +227,47 @@ const ENVELOP_PLUGINS: { title: string; href: `https://${string}` }[] = [
   },
   {
     title: 'useNewRelic',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/newrelic',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/newrelic',
   },
   {
     title: 'useLiveQuery',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/live-query',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/live-query',
   },
   {
     title: 'useFragmentArguments',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/fragment-arguments',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/fragment-arguments',
   },
   {
     title: 'useApolloServerErrors',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/apollo-server-errors',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/apollo-server-errors',
   },
   {
     title: 'useOperationFieldPermissions',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/operation-field-permissions',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/operation-field-permissions',
   },
   {
     title: 'useExtendedValidation',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/extended-validation',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/extended-validation',
   },
   {
     title: 'usePrometheus',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/prometheus',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/prometheus',
   },
   {
     title: 'useContextValuePerExecuteSubscriptionEvent',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/execute-subscription-event',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/execute-subscription-event',
   },
   {
     title: 'useResourceLimitations',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/resource-limitations',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/resource-limitations',
   },
   {
     title: 'useResponseCache',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/response-cache',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/response-cache',
   },
   {
     title: 'useApolloFederation',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/apollo-federation',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/apollo-federation',
   },
   {
     title: 'maxAliasesPlugin',
@@ -295,14 +295,14 @@ const ENVELOP_PLUGINS: { title: string; href: `https://${string}` }[] = [
   },
   {
     title: 'useDepthLimit',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/depth-limit',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/depth-limit',
   },
   {
     title: 'useGraphQLMiddleware',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/graphql-middleware',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/graphql-middleware',
   },
   {
     title: 'useOnResolve',
-    href: 'https://github.com/n1ru4l/envelop/tree/main/packages/plugins/on-resolve',
+    href: 'https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/on-resolve',
   },
 ];
