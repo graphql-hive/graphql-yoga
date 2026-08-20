@@ -8,7 +8,7 @@ import { VERSIONS } from './versioned-search';
 const ALLOWED_VERSION = new Set([...VERSIONS, 'v5']);
 
 export const VersionDropdown: FC = () => {
-  let segment = usePathname().split('/', 2)[1];
+  let segment = usePathname()?.split('/', 2)[1] ?? '';
   if (segment === 'docs') segment = 'v5';
   return (
     <VD

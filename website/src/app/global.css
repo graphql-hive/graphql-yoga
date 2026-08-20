@@ -5,3 +5,15 @@
 body {
   --nextra-content-width: 92rem;
 }
+
+/*
+ * The /v2, /v3 and /v4 docs are built from remote MDX fetched at request time, so
+ * Nextra's own page map (and therefore its sidebar) never learns about their pages
+ * and renders empty. Those routes render their own <VersionedSidebar> instead, so
+ * hide Nextra's here to avoid a redundant, empty one.
+ */
+body:has([data-version]) .nextra-sidebar,
+body:has([data-version]) .nextra-mobile-nav,
+body:has([data-version]) .nextra-hamburger {
+  display: none;
+}
