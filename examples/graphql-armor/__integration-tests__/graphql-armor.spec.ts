@@ -1,3 +1,4 @@
+import { versionInfo } from 'graphql';
 import { yoga } from '../src/yoga';
 
 describe('graphql-auth example integration', () => {
@@ -22,22 +23,24 @@ describe('graphql-auth example integration', () => {
   it('should get error for field suggestion', async () => {
     const response = await yoga.fetch(`http://yoga/graphql?query=query{books{titlee}}`);
     const body = await response.json();
-    expect(body.errors).toMatchInlineSnapshot(`
-[
-  {
-    "extensions": {
-      "code": "GRAPHQL_VALIDATION_FAILED",
-    },
-    "locations": [
-      {
-        "column": 13,
-        "line": 1,
-      },
-    ],
-    "message": "Cannot query field "titlee" on type "Book". [Suggestion hidden]",
-  },
-]
-`);
+
+    expect(body.errors).toHaveLength(1);
+    if (versionInfo.major >= 17) {
+      expect(body.errors.at(0)).toMatchObject({
+        extensions: {
+          code: 'GRAPHQL_VALIDATION_FAILED',
+        },
+        message: 'Cannot query field "titlee" on type "Book".',
+      });
+    } else {
+      expect(body.errors.at(0)).toMatchObject({
+        extensions: {
+          code: 'GRAPHQL_VALIDATION_FAILED',
+        },
+        message: 'Cannot query field "titlee" on type "Book". [Suggestion hidden]',
+      });
+    }
+
     expect(body.data).toBeFalsy();
   });
 });
