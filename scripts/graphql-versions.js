@@ -42,10 +42,6 @@ function getInstalledGraphQLVersions() {
   return versions.sort((a, b) => a.major - b.major);
 }
 
-/**
- * The versions to actually run tests against, honoring `GRAPHQL_VERSION`.
- * @returns {GraphQLVersion[]}
- */
 function getSelectedGraphQLVersions() {
   const installed = getInstalledGraphQLVersions();
   const selector = process.env.GRAPHQL_VERSION?.trim();
