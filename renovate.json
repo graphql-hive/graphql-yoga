@@ -32,6 +32,15 @@
         "!/husky/",
         "*"
       ]
+    },
+    {
+      "description": "graphql-js majors installed side by side for the test matrix must stay on their major",
+      "matchDepNames": ["graphql-15"],
+      "allowedVersions": "<16"
+    },
+    {
+      "matchDepNames": ["graphql-16"],
+      "allowedVersions": "<17"
     }
   ],
   "ignoreDeps": ["@sveltejs/kit", "graphiql", "graphql-yoga"],

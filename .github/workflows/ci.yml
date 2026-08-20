@@ -43,12 +43,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v16-
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        run: pnpm i --no-frozen-lockfile
 
       - name: Prettier
         run: pnpm prettier:check
@@ -74,10 +74,14 @@ jobs:
   unit:
     name: unit / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
     runs-on: ubuntu-latest
+    env:
+      GRAPHQL_VERSION: ${{ matrix.graphql-version }}
     strategy:
       matrix:
         node-version: [18, 20, 26]
-        graphql-version: ['15.10.1', '16.12.0', '17.0.2']
+        # graphql-js majors, all installed at once through npm aliases and picked at runtime by
+        # jest through the `GRAPHQL_VERSION` env variable, see `scripts/graphql-versions.js`
+        graphql-version: [15, 16, 17]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -100,17 +104,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.local/share/pnpm/store
-          key:
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
-            hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-
-      - name: Set GraphQL Version
-        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        run: pnpm i --no-frozen-lockfile
 
       - name: Build Packages
         run: pnpm build
@@ -132,11 +131,15 @@ jobs:
   integration:
     name: integration / nodejs v${{ matrix.node-version }} / graphql v${{ matrix.graphql-version }}
     runs-on: ubuntu-latest
+    env:
+      GRAPHQL_VERSION: ${{ matrix.graphql-version }}
     strategy:
       fail-fast: false
       matrix:
         node-version: [18, 20, 26]
-        graphql-version: ['15.10.1', '16.12.0', '17.0.2']
+        # graphql-js majors, all installed at once through npm aliases and picked at runtime by
+        # jest through the `GRAPHQL_VERSION` env variable, see `scripts/graphql-versions.js`
+        graphql-version: [15, 16, 17]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -159,17 +162,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.local/share/pnpm/store
-          key:
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-${{
-            hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v${{ matrix.graphql-version }}-
-
-      - name: Set GraphQL Version
-        run: node scripts/override-graphql-version.js ${{ matrix.graphql-version }}
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        run: pnpm i --no-frozen-lockfile
 
       - name: Install Playwright Binaries
         uses: ./.github/actions/install-playwright-binaries
@@ -225,9 +223,9 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v16-
+            ${{ runner.os }}-pnpm-store-
       - name: Install Dependencies
         run: pnpm i --no-frozen-lockfile
       - name: Build Packages
@@ -308,12 +306,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-store-graphql-v16-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-graphql-v16-
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile # no frozen-lockfile because we change the resolutions
+        run: pnpm i --no-frozen-lockfile
 
       - name: Build Packages
         run: pnpm build
