@@ -24,7 +24,6 @@ export {
   type Spread,
   type AsyncIterableIteratorOrValue,
   // useful for anyone creating a new envelop instance
-  envelop,
   errorAsyncIterator,
   finalAsyncIterator,
   handleStreamOrSingleExecutionResult,
@@ -42,6 +41,7 @@ export {
   usePayloadFormatter,
   withState,
 } from '@envelop/core';
+export { envelop } from './envelop/envelop.js';
 export {
   getInstrumentationAndPlugin,
   chain,
