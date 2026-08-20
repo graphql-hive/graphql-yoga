@@ -11,13 +11,9 @@ import {
   PRODUCTS,
   YogaIcon,
 } from '@theguild/components';
-import { getPageMap, HiveLayout } from '@theguild/components/server';
+import { HiveLayout } from '@theguild/components/server';
 import '@theguild/components/style.css';
-import { pageMap as changelogsPageMap } from './changelogs/[...slug]/page';
 import { rootMetadata, websiteDescription } from './metadata';
-import { pageMap as v2PageMap } from './v2/[[...slug]]/page';
-import { pageMap as v3PageMap } from './v3/[[...slug]]/page';
-import { pageMap as v4PageMap } from './v4/[[...slug]]/page';
 import { VersionDropdown } from './version-dropdown.client';
 import { VersionedSearch } from './versioned-search';
 import './global.css';
@@ -37,26 +33,7 @@ const neueMontreal = localFont({
 
 const RootLayout: FC<{
   children: ReactNode;
-}> = async ({ children }) => {
-  let [meta, ..._pageMap] = await getPageMap();
-  _pageMap = [
-    {
-      data: {
-        // @ts-expect-error -- ignore
-        ...meta.data,
-        changelogs: { type: 'page', title: 'Changelogs', theme: { layout: 'full' } },
-        v2: { type: 'page', title: 'Yoga 2 Docs' },
-        v3: { type: 'page', title: 'Yoga 3 Docs' },
-        v4: { type: 'page', title: 'Yoga 4 Docs' },
-      },
-    },
-    ..._pageMap,
-    { route: '/changelogs', name: 'changelogs', children: changelogsPageMap },
-    { route: '/v4', name: 'v4', children: v4PageMap },
-    { route: '/v3', name: 'v3', children: v3PageMap },
-    { route: '/v2', name: 'v2', children: v2PageMap },
-  ];
-
+}> = ({ children }) => {
   return (
     <HiveLayout
       className="[&>.light_#h-navmenu-container]:max-w-[1392px]"

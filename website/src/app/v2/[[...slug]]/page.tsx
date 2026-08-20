@@ -6,28 +6,22 @@ import {
   compileMdx,
   convertToPageMap,
   evaluate,
-  mergeMetaWithPageMap,
-  normalizePageMap,
   remarkLinkRewrite,
 } from '@theguild/components/server';
 import json from '../../../../remote-files/v2.json';
 import { useMDXComponents } from '../../../mdx-components';
 import { Giscus } from '../../giscus';
 import LegacyDocsBanner from '../../legacy-docs-banner.mdx';
+import { buildVersionedNav, type VersionedNavMeta } from '../../versioned-nav';
+import { VersionedSidebar } from '../../versioned-sidebar';
 
 const { branch, docsPath, filePaths, repo, user } = json;
 
 const VERSION = 2;
 
-const { mdxPages, pageMap: _pageMap } = convertToPageMap({
-  filePaths,
-  basePath: `v${VERSION}`,
-});
+const { mdxPages } = convertToPageMap({ filePaths, basePath: `v${VERSION}` });
 
-// @ts-expect-error -- ignore
-const v2Pages = _pageMap[0].children;
-
-const yogaPageMap = mergeMetaWithPageMap(v2Pages, {
+const navMeta: VersionedNavMeta = {
   index: 'Quick Start',
   features: {
     items: {
@@ -63,9 +57,9 @@ const yogaPageMap = mergeMetaWithPageMap(v2Pages, {
       'migration-from-yoga-v1': 'Yoga v1',
     },
   },
-});
+};
 
-export const pageMap = normalizePageMap(yogaPageMap);
+const navItems = buildVersionedNav(filePaths, VERSION, navMeta);
 
 const { wrapper: Wrapper, ...components } = useMDXComponents({
   Callout,
@@ -74,14 +68,7 @@ const { wrapper: Wrapper, ...components } = useMDXComponents({
   Tabs,
 });
 
-export default async function Page(props: NextPageProps<'...slug'>) {
-  const params = await props.params;
-  const route = (params.slug || []).join('/');
-  const filePath = mdxPages[route];
-
-  if (!filePath) {
-    notFound();
-  }
+async function getPageContent(filePath: string) {
   const response = await fetch(
     `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${docsPath}${filePath}`,
   );
@@ -96,20 +83,43 @@ export default async function Page(props: NextPageProps<'...slug'>) {
       ],
     },
   });
-  const { default: MDXContent, toc, metadata } = evaluate(rawJs, components);
+  return evaluate(rawJs, components);
+}
+
+export async function generateMetadata(props: NextPageProps<'...slug'>) {
+  const params = await props.params;
+  const route = (params.slug || []).join('/');
+  const filePath = mdxPages[route];
+  if (!filePath) return {};
+  const { metadata } = await getPageContent(filePath);
+  return { ...metadata, title: `[Old v${VERSION} docs] ${metadata.title || 'Yoga'}` };
+}
+
+export default async function Page(props: NextPageProps<'...slug'>) {
+  const params = await props.params;
+  const route = (params.slug || []).join('/');
+  const filePath = mdxPages[route];
+
+  if (!filePath) {
+    notFound();
+  }
+  const { default: MDXContent, toc, metadata } = await getPageContent(filePath);
 
   return (
-    <Wrapper
-      toc={toc}
-      metadata={metadata}
+    <div
+      className="mx-auto flex w-full flex-col gap-6 md:flex-row md:items-start md:gap-x-8"
       data-version={`v${VERSION}`}
       // https://pagefind.app/docs/filtering/#capturing-a-filter-value-from-an-attribute
       data-pagefind-filter="version[data-version]"
-      bottomContent={<Giscus />}
     >
-      <LegacyDocsBanner yogaVersion={VERSION} />
-      <MDXContent />
-    </Wrapper>
+      <VersionedSidebar items={navItems} />
+      <div className="min-w-0 flex-1">
+        <Wrapper toc={toc} metadata={metadata} bottomContent={<Giscus />}>
+          <LegacyDocsBanner yogaVersion={VERSION} />
+          <MDXContent />
+        </Wrapper>
+      </div>
+    </div>
   );
 }
 
