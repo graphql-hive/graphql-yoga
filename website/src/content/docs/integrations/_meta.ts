@@ -13,5 +13,6 @@ export default {
   'integration-with-hapi': 'Hapi',
   'integration-with-bun': 'Bun',
   'integration-with-uwebsockets': 'µWebSockets.js',
+  'integration-with-adonisjs': 'AdonisJS',
   'z-other-environments': 'Other Environments',
 };

@@ -1,0 +1,209 @@
+---
+description:
+  AdonisJS is a TypeScript-first web framework for Node.js. The @foadonis/graphql package ships a
+  GraphQL Yoga driver, so you can build code-first GraphQL APIs on top of the AdonisJS ecosystem.
+---
+
+import { Callout } from '@theguild/components'
+
+# Integration with AdonisJS
+
+[AdonisJS](https://adonisjs.com) is a TypeScript-first web framework for Node.js, shipping with a
+batteries-included ecosystem: an ORM ([Lucid](https://lucid.adonisjs.com)), authentication,
+authorization, validation and an IoC container.
+
+[`@foadonis/graphql`](https://friendsofadonis.com/docs/graphql) is a community package that brings
+GraphQL to AdonisJS. It is code-first (built on top of [TypeGraphQL](https://typegraphql.com), so
+your schema is derived from decorated classes) and supports GraphQL Yoga as a server driver.
+
+<Callout>
+  `@foadonis/graphql` is maintained by the [Friends of
+  Adonis](https://github.com/FriendsOfAdonis/FriendsOfAdonis) community, not by the GraphQL Yoga
+  team. This page covers the Yoga-specific parts; the [full documentation lives on
+  friendsofadonis.com](https://friendsofadonis.com/docs/graphql).
+</Callout>
+
+## Installation
+
+```sh
+node ace add @foadonis/graphql
+```
+
+The command prompts you for a driver, where you should pick **Yoga (graphql-yoga)**. It then
+installs the required dependencies (`graphql`, `graphql-yoga`, `graphql-scalars`,
+`@graphql-yoga/subscription` and `@graphql-yoga/plugin-disable-introspection`), registers the
+provider, and generates a `config/graphql.ts` file along with a demo resolver.
+
+## Configuration
+
+The Yoga driver is configured with `drivers.yoga()` in `config/graphql.ts`. It accepts every option
+of `createYoga`, including [plugins](/docs/features/envelop-plugins). The only exception is
+`schema`, which is built from your resolvers.
+
+```ts
+import env from '#start/env'
+import { defineConfig, drivers } from '@foadonis/graphql'
+import { useDisableIntrospection } from '@graphql-yoga/plugin-disable-introspection'
+
+const isDevelopment = env.get('NODE_ENV') === 'development'
+
+const graphqlConfig = defineConfig({
+  // Path to the GraphQL endpoint
+  path: '/graphql',
+  driver: drivers.yoga({
+    graphiql: isDevelopment,
+    plugins: isDevelopment ? [] : [useDisableIntrospection()]
+  }),
+  // Automatically emit the "schema.graphql" file
+  emitSchemaFile: true
+})
+
+export default graphqlConfig
+```
+
+<Callout type="warning">
+  Disabling [GraphiQL](/docs/features/graphiql) and [introspection](/docs/features/introspection) in
+  production is recommended, as they expose every operation your application supports. See [prepare
+  for production](/docs/prepare-for-production) for the complete checklist.
+</Callout>
+
+## Building the schema
+
+Types and resolvers are plain classes decorated with the decorators re-exported from
+`@foadonis/graphql`. Any class can become an `@ObjectType`, including a Lucid model.
+
+```ts filename="app/models/recipe.ts"
+import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { Field, ID, ObjectType } from '@foadonis/graphql'
+
+@ObjectType()
+export default class Recipe extends BaseModel {
+  @column({ isPrimary: true })
+  @Field(() => ID)
+  declare id: string
+
+  @column()
+  @Field()
+  declare title: string
+
+  @column()
+  @Field({ nullable: true })
+  declare description: string | null
+}
+```
+
+Resolvers are autoloaded from `app/graphql/resolvers` (with hot module reloading in development), so
+there is nothing to register manually.
+
+```ts filename="app/graphql/resolvers/recipe_resolver.ts"
+import Recipe from '#models/recipe'
+import { Arg, Mutation, Query, Resolver } from '@foadonis/graphql'
+
+@Resolver(Recipe)
+export default class RecipeResolver {
+  @Query(() => [Recipe])
+  recipes() {
+    return Recipe.all()
+  }
+
+  @Mutation(() => Recipe)
+  addRecipe(@Arg('title') title: string) {
+    return Recipe.create({ title })
+  }
+}
+```
+
+Start your app with `node ace serve` and GraphiQL is served at
+[`http://localhost:3000/graphql`](http://localhost:3000/graphql).
+
+## Context
+
+The Yoga context is the AdonisJS
+[`HttpContext`](https://docs.adonisjs.com/guides/concepts/http-context), which gives resolvers
+access to the request, the authenticated user and Bouncer.
+
+```ts
+import { HttpContext } from '@adonisjs/core/http'
+import { Ctx, Query, Resolver } from '@foadonis/graphql'
+
+@Resolver()
+export default class RecipeResolver {
+  @Query(() => [Recipe])
+  myRecipes(@Ctx() ctx: HttpContext) {
+    const user = ctx.auth.getUserOrFail()
+    return Recipe.query().where('authorId', user.id)
+  }
+}
+```
+
+## Subscriptions
+
+Subscriptions are powered by [`@graphql-yoga/subscription`](/docs/features/subscriptions). Configure
+a PubSub driver and a transport in `config/graphql.ts`:
+
+```ts
+import { defineConfig, drivers } from '@foadonis/graphql'
+
+export default defineConfig({
+  pubSub: drivers.pubsub.native(),
+  subscription: drivers.subscription.websocket({ path: '/graphql' })
+})
+```
+
+Then declare a `@Subscription` resolver and publish events through the `pubSub` service:
+
+```ts
+import Recipe from '#models/recipe'
+import { Arg, Mutation, Resolver, Root, Subscription } from '@foadonis/graphql'
+import graphql from '@foadonis/graphql/services/main'
+
+@Resolver()
+export default class RecipeResolver {
+  @Subscription({ topics: 'recipe:created' })
+  recipeCreated(@Root() payload: Recipe): Recipe {
+    return payload
+  }
+
+  @Mutation(() => Recipe)
+  async createRecipe(@Arg('title') title: string) {
+    const recipe = await Recipe.create({ title })
+    graphql.pubSub.publish('recipe:created', recipe)
+    return recipe
+  }
+}
+```
+
+<Callout>
+  The in-memory PubSub driver only broadcasts to the instance that published the event. When running
+  several instances behind a load balancer, use `drivers.pubsub.redis()` instead. See [distributed
+  PubSub](https://friendsofadonis.com/docs/graphql/subscriptions#distributed-pubsub).
+</Callout>
+
+## File uploads
+
+GraphQL Yoga implements the [GraphQL multipart request specification](/docs/features/file-uploads)
+out of the box, but the AdonisJS bodyparser must not consume the multipart stream first. Add your
+GraphQL endpoint to the `processManually` list:
+
+```ts filename="config/bodyparser.ts"
+import { defineConfig } from '@adonisjs/core/bodyparser'
+
+export default defineConfig({
+  multipart: {
+    autoProcess: true,
+    processManually: ['/graphql']
+  }
+})
+```
+
+Resolvers then receive a [WHATWG `File`](https://developer.mozilla.org/en-US/docs/Web/API/File)
+instance.
+
+## Further reading
+
+The [`@foadonis/graphql` documentation](https://friendsofadonis.com/docs/graphql) covers everything
+else, including
+[authorization with Bouncer and `@adonisjs/auth`](https://friendsofadonis.com/docs/graphql/authorization),
+[middlewares](https://friendsofadonis.com/docs/graphql/middlewares),
+[validation](https://friendsofadonis.com/docs/graphql/validation) and
+[custom decorators](https://friendsofadonis.com/docs/graphql/custom-decorators).
