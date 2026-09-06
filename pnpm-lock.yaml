@@ -1014,11 +1014,17 @@ importers:
         specifier: 6.0.2
         version: 6.0.2
 
-  examples/envelop/nexus:
+  examples/envelop/pothos:
     dependencies:
       '@envelop/core':
         specifier: '*'
-        version: 5.5.1
+        version: 5.6.0
+      '@pothos/core':
+        specifier: 4.13.1
+        version: 4.13.1(graphql@17.0.2)
+      '@pothos/plugin-relay':
+        specifier: ^4.7.1
+        version: 4.7.1(@pothos/core@4.13.1(graphql@17.0.2))(graphql@17.0.2)
       fastify:
         specifier: ^5.8.1
         version: 5.8.5
@@ -1028,9 +1034,6 @@ importers:
       graphql-helix:
         specifier: 1.13.0
         version: 1.13.0(graphql@17.0.2)
-      nexus:
-        specifier: 1.3.0
-        version: 1.3.0(graphql@17.0.2)
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -1291,28 +1294,6 @@ importers:
       eslint-config-next:
         specifier: 16.0.3
         version: 16.0.3(@typescript-eslint/parser@8.59.4(eslint@9.39.1(jiti@2.7.0))(typescript@6.0.2))(eslint@9.39.1(jiti@2.7.0))(typescript@6.0.2)
-      typescript:
-        specifier: 6.0.2
-        version: 6.0.2
-
-  examples/file-upload-nexus:
-    dependencies:
-      graphql:
-        specifier: 17.0.2
-        version: 17.0.2
-      graphql-yoga:
-        specifier: workspace:*
-        version: link:../../packages/graphql-yoga/dist
-      nexus:
-        specifier: ^1.3.0
-        version: 1.3.0(graphql@17.0.2)
-    devDependencies:
-      '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@swc/core@1.15.33(@swc/helpers@0.5.21))(@types/node@25.5.0)(typescript@6.0.2)
       typescript:
         specifier: 6.0.2
         version: 6.0.2
@@ -8647,11 +8628,22 @@ packages:
     peerDependencies:
       graphql: ^16.10.0
 
+  '@pothos/core@4.13.1':
+    resolution: {integrity: sha512-2hkLxmvrT7VnbiWAfYhfF09PjaHeflZ5HrBHYzU6Tn/P9tDviuZS7IS5xO4k/KnK5GkRo3YxDzXyn+HnkEkVNw==}
+    peerDependencies:
+      graphql: ^16.10.0 || ^17.0.0
+
   '@pothos/plugin-authz@3.5.10':
     resolution: {integrity: sha512-HIrz72+KnbvJjRKEtuy+c/J69jxET/yiSKLx/q3IV8FC4GyPKnPxlwuGlMczxlpK6+UG0gE0ziCAwY6LWEd2Yg==}
     peerDependencies:
       '@graphql-authz/core': '*'
       graphql: '>=15.1.0'
+
+  '@pothos/plugin-relay@4.7.1':
+    resolution: {integrity: sha512-aj0xgdcvktx0k6iOvtkfJvb6FYdoWnlQkDMumr1WQm7uTXsJOASYQndytfnS0/0wsctCF/UTTK6Y53+F0UIeMw==}
+    peerDependencies:
+      '@pothos/core': '*'
+      graphql: ^16.10.0 || ^17.0.0
 
   '@prisma/client-common@6.19.0':
     resolution: {integrity: sha512-NsTyE4Rv7ujbbtfL/PBHcdaRUQhWNcacOFkKy6oImVNMP/5T/mpSodbZgKEGdH69ITHLbSvgMXQO++erMLQjkw==}
@@ -15945,10 +15937,21 @@ packages:
       sass:
         optional: true
 
-  nexus@1.3.0:
-    resolution: {integrity: sha512-w/s19OiNOs0LrtP7pBmD9/FqJHvZLmCipVRt6v1PM8cRUYIbhEswyNKGHVoC4eHZGPSnD+bOf5A3+gnbt0A5/A==}
+  nextra-theme-docs@4.0.5:
+    resolution: {integrity: sha512-aF4HRjbVZvd+VWTssaieXFyJ7xVnGiKlJZ+WfxCG95izoHuYdY3dwibQTc32ERMXWAg//h/t7en5QggF3hKVaA==}
     peerDependencies:
-      graphql: 15.x || 16.x
+      next: '>=14'
+      nextra: 4.0.5
+      react: '>=18'
+      react-dom: '>=18'
+
+  nextra@4.0.5:
+    resolution: {integrity: sha512-wv1rzzQJtREGZDjdR7G41z3d7NewHvpmgNmPwEABIlEfgsmyEdMSZbrkn5jna8/2SUBsSio/lcBIGemkvuBtSA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      next: '>=14'
+      react: '>=18'
+      react-dom: '>=18'
 
   nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -21677,7 +21680,6 @@ snapshots:
       '@envelop/types': 5.2.1
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
-    optional: true
 
   '@envelop/instrumentation@1.0.0':
     dependencies:
@@ -21851,41 +21853,41 @@ snapshots:
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
 
   '@escape.tech/graphql-armor-cost-limit@2.4.3':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-aliases@2.6.2':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-depth@2.4.2':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-directives@2.3.1':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-tokens@2.5.1':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-types@0.7.0':
@@ -22562,7 +22564,7 @@ snapshots:
 
   '@graphql-tools/executor-common@1.0.6(graphql@17.0.2)':
     dependencies:
-      '@envelop/core': 5.5.1
+      '@envelop/core': 5.6.0
       '@graphql-tools/utils': 11.2.2(graphql@17.0.2)
       graphql: 17.0.2
 
@@ -25803,9 +25805,18 @@ snapshots:
     dependencies:
       graphql: 17.0.2
 
+  '@pothos/core@4.13.1(graphql@17.0.2)':
+    dependencies:
+      graphql: 17.0.2
+
   '@pothos/plugin-authz@3.5.10(@graphql-authz/core@1.3.2(graphql@17.0.2))(graphql@17.0.2)':
     dependencies:
       '@graphql-authz/core': 1.3.2(graphql@17.0.2)
+      graphql: 17.0.2
+
+  '@pothos/plugin-relay@4.7.1(@pothos/core@4.13.1(graphql@17.0.2))(graphql@17.0.2)':
+    dependencies:
+      '@pothos/core': 4.13.1(graphql@17.0.2)
       graphql: 17.0.2
 
   '@prisma/client-common@6.19.0(typescript@6.0.2)':
@@ -35295,11 +35306,70 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  nexus@1.3.0(graphql@17.0.2):
+  nextra-theme-docs@4.0.5(@types/react@19.2.15)(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(nextra@4.0.5(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@6.0.2))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0)):
     dependencies:
-      graphql: 17.0.2
-      iterall: 1.3.0
-      tslib: 2.8.1
+      '@headlessui/react': 2.2.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      clsx: 2.1.1
+      next: 16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-themes: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      nextra: 4.0.5(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@6.0.2)
+      react: 19.2.0
+      react-compiler-runtime: 0.0.0-experimental-22c6e49-20241219(react@19.2.0)
+      react-dom: 19.2.0(react@19.2.0)
+      scroll-into-view-if-needed: 3.1.0
+      zod: 3.25.76
+      zod-validation-error: 3.5.4(zod@3.25.76)
+      zustand: 5.0.13(@types/react@19.2.15)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - use-sync-external-store
+
+  nextra@4.0.5(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@6.0.2):
+    dependencies:
+      '@formatjs/intl-localematcher': 0.5.10
+      '@headlessui/react': 2.2.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@mdx-js/mdx': 3.1.1
+      '@napi-rs/simple-git': 0.1.22
+      '@shikijs/twoslash': 1.29.2(typescript@6.0.2)
+      '@theguild/remark-mermaid': 0.2.0(react@19.2.0)
+      '@theguild/remark-npm2yarn': 0.3.3
+      better-react-mathjax: 2.3.0(react@19.2.0)
+      clsx: 2.1.1
+      estree-util-to-js: 2.0.0
+      estree-util-value-to-estree: 3.5.0
+      fast-glob: 3.3.3
+      github-slugger: 2.0.0
+      hast-util-to-estree: 3.1.3
+      katex: 0.16.47
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-gfm: 3.1.0
+      mdast-util-to-hast: 13.2.1
+      negotiator: 1.0.0
+      next: 16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react: 19.2.0
+      react-compiler-runtime: 0.0.0-experimental-22c6e49-20241219(react@19.2.0)
+      react-dom: 19.2.0(react@19.2.0)
+      react-medium-image-zoom: 5.4.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      rehype-katex: 7.0.1
+      rehype-pretty-code: 0.14.0(shiki@1.29.2)
+      rehype-raw: 7.0.0
+      remark-frontmatter: 5.0.0
+      remark-gfm: 4.0.1
+      remark-math: 6.0.0
+      remark-reading-time: 2.1.0
+      remark-smartypants: 3.0.2
+      shiki: 1.29.2
+      slash: 5.1.0
+      title: 4.0.1
+      unist-util-remove: 4.0.0
+      unist-util-visit: 5.0.0
+      yaml: 2.9.0
+      zod: 3.25.76
+      zod-validation-error: 3.5.4(zod@3.25.76)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   nice-try@1.0.5: {}
 

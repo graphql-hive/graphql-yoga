@@ -24,7 +24,7 @@ npm i graphql-yoga graphql
 You will need to provide a schema to Yoga, there are many ways to assemble a GraphQL schema, here's
 just a few:
 
-<Tabs items={['graphql-yoga', '@graphql-tools/schema', 'Pothos', 'GraphQL Nexus', 'gqtx', 'graphql-js']}>
+<Tabs items={['graphql-yoga', '@graphql-tools/schema', 'Pothos', 'gqtx', 'graphql-js']}>
   <Tabs.Tab>
 Use the `createSchema` function included in Yoga. It actually reuses the [`makeExecutableSchema` from @graphql-tools/schema](https://www.graphql-tools.com/docs/generate-schema).
 
@@ -100,26 +100,6 @@ builder.queryType({
 })
 
 export const schema = builder.toSchema()
-```
-
-  </Tabs.Tab>
-
-  <Tabs.Tab>
-Declarative, Code-First GraphQL Schemas for JavaScript/TypeScript through [Nexus GraphQL](https://nexusjs.org/). Install it and create schema.
-
-```sh npm2yarn
-npm i nexus
-```
-
-```js title="schema.js"
-import { makeSchema, queryField } from 'nexus'
-
-const helloField = queryField('hello', {
-  type: 'String',
-  resolve: () => 'world'
-})
-
-export const schema = makeSchema({ types: [helloField] })
 ```
 
   </Tabs.Tab>

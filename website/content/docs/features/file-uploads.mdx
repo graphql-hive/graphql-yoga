@@ -124,52 +124,6 @@ createYoga({
 
 ## Third Party Integrations
 
-### Usage with GraphQL Nexus
-
-[GraphQL Nexus](https://nexusjs.org/) is a popular library for building GraphQL schemas with
-TypeScript. It provides a convenient API for defining GraphQL types and resolvers.
-
-```ts title="nexus-file-upload-example.ts"
-import { createServer } from 'http'
-import { createYoga } from 'graphql-yoga'
-import { arg, makeSchema, mutationField, nonNull, queryField, scalarType } from 'nexus'
-
-const FileScalar = scalarType({
-  name: 'File',
-  asNexusMethod: 'file',
-  description: 'The `File` scalar type represents a file upload.',
-  sourceType: 'File'
-})
-
-const greetings = queryField('greetings', {
-  type: 'String',
-  resolve: () => 'Hello World!'
-})
-
-const readTextFile = mutationField('readTextFile', {
-  type: 'String',
-  args: { file: nonNull(arg({ type: 'File' })) },
-  resolve: async (parent, { file }, ctx) => {
-    const textContent = await file.text()
-    return textContent
-  }
-})
-
-const schema = makeSchema({
-  types: [FileScalar, greetings, readTextFile]
-})
-
-const yoga = createYoga({
-  schema: schema
-})
-
-// Start the server and explore http://localhost:4000/graphql
-const server = createServer(yoga)
-server.listen(4000, () => {
-  console.info('Server is running on http://localhost:4000/graphql')
-})
-```
-
 ### Usage with S3
 
 Amazon S3 is a popular object storage service. You can use GraphQL Yoga to upload files to S3. In
