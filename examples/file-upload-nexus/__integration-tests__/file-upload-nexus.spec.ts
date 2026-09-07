@@ -29,7 +29,17 @@ describe('file-upload-nexus example integration', () => {
   });
 
   it('should read file text', async () => {
-    const sourceFilePath = path.join(__dirname, '..', '..', '..', 'website', 'public', 'logo.png');
+    const sourceFilePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'packages',
+      'graphql-yoga',
+      '__integration-tests__',
+      'fixtures',
+      'logo.png',
+    );
 
     const formData = new FormData();
     formData.set(
