@@ -21,7 +21,7 @@ export const createInMemoryCache = (params?: InMemoryCacheParameter): Cache => {
     max: params?.max ?? 1000,
     allowStale: false,
     noDisposeOnSet: true,
-    dispose(responseId) {
+    dispose(_value, responseId) {
       purgeResponse(responseId, false);
     },
   });
@@ -34,8 +34,13 @@ export const createInMemoryCache = (params?: InMemoryCacheParameter): Cache => {
     // get entities related to the response
     if (entityIds !== undefined) {
       for (const entityId of entityIds) {
-        // remove the response mapping from the entity
-        entityToResponseIds.get(entityId)?.delete(responseId);
+        const responseIds = entityToResponseIds.get(entityId);
+        if (responseIds) {
+          responseIds.delete(responseId);
+          if (responseIds.size === 0) {
+            entityToResponseIds.delete(entityId);
+          }
+        }
       }
       // remove all the entity mappings from the response
       responseIdToEntityIds.delete(responseId);
