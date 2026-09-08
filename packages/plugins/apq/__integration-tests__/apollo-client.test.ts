@@ -1,38 +1,14 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import crypto from 'node:crypto';
-import { parse, version } from 'graphql';
-import { createSchema, createYoga } from 'graphql-yoga';
+import { parse } from 'graphql';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
 import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries';
-import { useAPQ } from '@graphql-yoga/plugin-apq';
 
 function sha256(input: string) {
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
 describe('Automatic Persisted Queries', () => {
-  if (version.startsWith('15')) {
-    it('noop', () => {});
-    return;
-  }
-  const server = createYoga({
-    schema: createSchema({
-      typeDefs: /* GraphQL */ `
-        type Query {
-          foo: String
-        }
-      `,
-      resolvers: {
-        Query: {
-          foo() {
-            return 'bar';
-          },
-        },
-      },
-    }),
-    plugins: [useAPQ()],
-  });
-
   const linkChain = createPersistedQueryLink({ sha256 }).concat(
     new HttpLink({ uri: 'http://localhost:4000/graphql', fetch: (...args) => fetchSpy(...args) }),
   );
