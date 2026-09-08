@@ -1,0 +1,63 @@
+---
+description:
+  By default, Yoga will maintain a parsing and validation cache. If requests contain documents that
+  have been executed before, they will not be parsed and validated again.
+title: Parsing and Validation Caching
+---
+
+By default, Yoga will maintain a parsing and validation cache. If requests contain documents that
+have been executed before, they will not be parsed and validated again.
+
+Using the parser cache can improve performance up to ~60%, and using the validation cache up to ~50%
+(based on benchmarks).
+
+This behavior is built-in and can be optionally disabled using the `parserAndValidationCache`
+options:
+
+```ts title="Disable validation and parser caching" {7-8}
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { schema } from './my-schema'
+
+const yoga = createYoga({
+  schema,
+  parserAndValidationCache: false // disable parse and validate caching
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+Furthermore, you can provide your own cache store to both of these plugins by implementing the
+following interface:
+
+```ts title="Custom cache store" {11-14,18-22}
+import { createServer } from 'node:http'
+import { DocumentNode, validate } from 'graphql'
+import { createYoga } from 'graphql-yoga'
+import { documentCacheStore, errorCacheStore, validationCacheStore } from './my-cache'
+import { schema } from './my-schema'
+
+interface CacheStore<T> {
+  get(key: string): T | undefined
+  set(key: string, value: T): void
+}
+
+const yoga = createYoga({
+  schema,
+  parserAndValidationCache: {
+    documentCache: documentCacheStore as CacheStore<DocumentNode>,
+    errorCache: errorCacheStore as CacheStore<Error>,
+    validationCache: validationCacheStore as CacheStore<typeof validate>
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+Yoga uses a custom parser and validation cache plugin that's built-in.

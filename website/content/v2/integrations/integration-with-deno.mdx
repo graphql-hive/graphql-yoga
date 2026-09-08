@@ -1,0 +1,33 @@
+---
+description:
+  GraphQL Yoga provides you a cross-platform GraphQL Server. So you can easily integrate it into any
+  platform besides Node.js.
+title: Integration with Deno
+sidebarTitle: Deno
+---
+
+GraphQL Yoga provides you a cross-platform GraphQL Server. So you can easily integrate it into any
+platform besides Node.js. [Deno](https://deno.land) is a simple, modern and secure runtime for
+JavaScript and TypeScript that uses V8 and is built in Rust. But instead of `graphql-yoga` npm
+package, we will use `@graphql-yoga/common` which has an agnostic HTTP handler using
+[Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)'s
+[`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and
+[`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) objects.
+
+## Example
+
+```ts title="deno-example.ts"
+import { createServer } from 'https://cdn.skypack.dev/@graphql-yoga/common'
+import { serve } from 'https://deno.land/std/http/server.ts'
+
+const graphQLServer = createServer()
+
+serve(graphQLServer, { port: 4000 })
+
+console.log('Server is running on http://localhost:4000/graphql')
+```
+
+<Callout>
+  You can also check a full example on our GitHub repository
+  [here](https://github.com/dotansimha/graphql-yoga/tree/v2/examples/deno).
+</Callout>
