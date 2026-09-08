@@ -1,0 +1,86 @@
+---
+description:
+  Batching is the process of taking a group of requests, combining them into one, and making a
+  single request with the same data that all of the other queries would have made.
+title: Batching
+---
+
+Batching is the process of taking a group of requests, combining them into one, and making a single
+request with the same data that all of the other queries would have made. This is a way to reduce
+the number of requests that your application makes to the server.
+
+The Batching functionality is described via the
+[`Batching RFC`](https://github.com/graphql/graphql-over-http/blob/main/rfcs/Batching.md).
+
+## Enable Batching
+
+Batching is disabled by default, but you can enable it by setting the `batching` option to `true`:
+
+```ts title="Disable batching"
+import { createServer } from 'node:http'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+export const yoga = createYoga<ServerContext, UserContext>({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String!
+      }
+    `
+  }),
+  batching: true
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+```bash title="Execute batched operation"
+curl -X POST -H 'Content-Type: application/json' http://localhost:4000/graphql \
+  -d '[{"query": "{ hee: hello }"}, {"query": "{ ho: hello }"}]'
+```
+
+## Limit the amount of Batched Requests
+
+By default up to 10 GraphQL requests are allowed within a single HTTP request. If this amount is
+exceeded an error will be raised. You can customize this option by passing an object to the
+`batching` configuration option:
+
+```ts title="Limit the amount of Batched Requests to 2"
+import { createServer } from 'node:http'
+import { createSchema, createYoga } from 'graphql-yoga'
+
+export const yoga = createYoga<ServerContext, UserContext>({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String!
+      }
+    `
+  }),
+  batching: {
+    limit: 2
+  }
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+```bash title="Execute batched operation (exceed limit)"
+curl -X POST -H 'Content-Type: application/json' -i http://localhost:4000/graphql \
+  -d '[{"query": "{ hee: hello }"}, {"query": "{ ho: hello }"}, {"query": "{ holla: hello }"}]'
+```
+
+When exceeding the batching limit the HTTP status code will be
+[`413` (Payload Too Large)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/413).
+
+```json title="GraphQL Error response"
+{
+  "errors": [{ "message": "Batching is limited to 2 operations per request." }]
+}
+```
