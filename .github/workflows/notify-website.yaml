@@ -1,8 +1,8 @@
 name: notify-website
 
-# The docs at the-guild.dev/graphql/yoga-server are built by
-# the-guild-org/website, which fetches this repo's website/ folder (and the
-# package changelogs) at build time. Tell it to redeploy whenever that
+# The docs at the-guild.dev/graphql/yoga-server and the-guild.dev/graphql/envelop
+# are built by the-guild-org/website, which fetches this repo's website/ and
+# envelop-website/ folders (and the package changelogs) at build time. Tell it to redeploy whenever that
 # content changes.
 on:
   push:
@@ -10,7 +10,11 @@ on:
       - main
     paths:
       - website/**
+      - envelop-website/**
       - packages/**/CHANGELOG.md
+      # Plugin Hub pages render these readmes.
+      - packages/envelop/**/README.md
+      - packages/envelop/core/docs/*.md
 
 jobs:
   dispatch:
