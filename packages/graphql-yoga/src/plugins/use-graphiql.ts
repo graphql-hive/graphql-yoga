@@ -1,5 +1,5 @@
 import type { PromiseOrValue } from '@envelop/core';
-import type { YogaLogger } from '@graphql-yoga/logger';
+import { Logger } from '@graphql-hive/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
 import type { Plugin } from './types.js';
@@ -161,7 +161,7 @@ export interface GraphiQLPluginConfig<TServerContext> {
   getGraphQLEndpointURLPattern(): URLPattern;
   options?: GraphiQLOptionsOrFactory<TServerContext>;
   render?: GraphiQLRenderer;
-  logger?: YogaLogger;
+  logger?: Logger;
 }
 
 export type GraphiQLRenderer = (options: GraphiQLOptions) => PromiseOrValue<BodyInit>;

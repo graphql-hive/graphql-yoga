@@ -1,9 +1,9 @@
-/* eslint-disable no-console */
 import type { DocumentNode, ExecutionArgs, ExecutionResult } from 'graphql';
 import type { CompiledQuery, CompilerOptions } from 'graphql-jit';
 import { compileQuery, isCompiledQuery } from 'graphql-jit';
 import type { Plugin } from '@envelop/core';
 import { getDocumentString, makeExecute, makeSubscribe } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 type JSONStringifier = (result: any) => string;
@@ -38,9 +38,15 @@ export const useGraphQlJit = (
      * Custom cache instance
      */
     cache?: JITCache;
+    /**
+     * Logger used for the plugin's own diagnostic messages.
+     * @default new Logger()
+     */
+    logger?: Logger;
   } = {},
 ): Plugin => {
   const jitCacheByDocumentString = pluginOptions.cache;
+  const logger = pluginOptions.logger ?? new Logger();
 
   const jitCacheByDocument = new WeakMap<DocumentNode, JITCacheEntry>();
 
@@ -70,7 +76,7 @@ export const useGraphQlJit = (
         if (pluginOptions?.onError) {
           pluginOptions.onError(compilationResult);
         } else {
-          console.error(compilationResult);
+          logger.error({ err: compilationResult });
         }
         cacheEntry = {
           query: () => compilationResult,
