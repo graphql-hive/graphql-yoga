@@ -26,8 +26,8 @@ export interface RequestIdOptions<TContext> {
 
 export type GenerateRequestIdFn<TContext> = (payload: GenerateRequestIdPayload<TContext>) => string;
 
-export const defaultGenerateRequestId: GenerateRequestIdFn<any> = ({ fetchAPI }) =>
-  fetchAPI.crypto.randomUUID();
+export const defaultGenerateRequestId: GenerateRequestIdFn<any> = () =>
+  globalThis.crypto.randomUUID();
 export const defaultRequestIdHeader: string = 'x-request-id';
 
 /**

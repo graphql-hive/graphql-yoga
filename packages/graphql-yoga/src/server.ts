@@ -32,6 +32,7 @@ import type {
 } from '@whatwg-node/server';
 import { createServerAdapter, useCORS } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
+import { createLoggerFromLogging, getRequestLog } from './logger.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {

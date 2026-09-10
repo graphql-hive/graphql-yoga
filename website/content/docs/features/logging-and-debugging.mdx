@@ -83,7 +83,7 @@ const yoga = createYoga({
     // header to read the request id from, and to set on the response
     headerName: 'x-correlation-id',
     // used when the header is absent from the incoming request
-    generateRequestId: ({ request, fetchAPI, context }) => fetchAPI.crypto.randomUUID()
+    generateRequestId: ({ request, fetchAPI, context }) => crypto.randomUUID()
   }
   // or `requestId: false` to not correlate requests at all
 })
