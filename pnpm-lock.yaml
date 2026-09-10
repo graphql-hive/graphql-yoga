@@ -2257,6 +2257,9 @@ importers:
       '@apollo/utils.keyvaluecache':
         specifier: ^3.1.0
         version: 3.1.0
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2341,6 +2344,9 @@ importers:
 
   packages/envelop/plugins/auth0:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/promise-helpers':
         specifier: ^2.0.0
         version: 2.0.0
@@ -2566,6 +2572,9 @@ importers:
 
   packages/envelop/plugins/graphql-jit:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/promise-helpers':
         specifier: ^2.0.0
         version: 2.0.0
@@ -2699,6 +2708,9 @@ importers:
       '@envelop/on-resolve':
         specifier: workspace:^
         version: link:../on-resolve/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2951,6 +2963,9 @@ importers:
       '@envelop/extended-validation':
         specifier: workspace:^
         version: link:../extended-validation/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/utils':
         specifier: ^11.2.0
         version: 11.2.0(graphql@17.0.2)
@@ -2974,6 +2989,9 @@ importers:
 
   packages/envelop/plugins/response-cache:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/utils':
         specifier: ^11.2.0
         version: 11.2.0(graphql@17.0.2)
@@ -3021,6 +3039,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20231121.0
         version: 4.20260227.0
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       graphql:
         specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
@@ -3102,6 +3123,9 @@ importers:
 
   packages/envelop/plugins/statsd:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -3276,6 +3300,9 @@ importers:
       '@envelop/instrumentation':
         specifier: workspace:^
         version: link:../envelop/instrumentation/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/executor':
         specifier: ^2.0.0
         version: 2.0.0(graphql@17.0.2)
@@ -3285,9 +3312,6 @@ importers:
       '@graphql-tools/utils':
         specifier: ^11.2.0
         version: 11.2.0(graphql@17.0.2)
-      '@graphql-yoga/logger':
-        specifier: workspace:^
-        version: link:../logger/dist
       '@graphql-yoga/subscription':
         specifier: workspace:^
         version: link:../subscription/dist
@@ -3363,14 +3387,11 @@ importers:
         version: 6.0.2
     publishDirectory: dist
 
-  packages/logger:
-    dependencies:
-      tslib:
-        specifier: ^2.8.1
-        version: 2.8.1
-    publishDirectory: dist
-
   packages/nestjs:
+    dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
     devDependencies:
       '@nestjs/common':
         specifier: ^11.0.0
@@ -6337,6 +6358,21 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
+  '@graphql-hive/logger@1.1.1':
+    resolution: {integrity: sha512-fVUlEQCpnJnR/KJeEDHZbEDwEq4fMNTjKvicauCFMfxPLlcpIWdrscXpI/azwQkpsARyWPV0RnwdgjZIrFBmwQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@logtape/logtape': ^1.2.0 || ^2.0.0
+      pino: ^9.13.0 || ^10.0.0
+      winston: '*'
+    peerDependenciesMeta:
+      '@logtape/logtape':
+        optional: true
+      pino:
+        optional: true
+      winston:
+        optional: true
 
   '@graphql-hive/signal@2.0.0':
     resolution: {integrity: sha512-Pz8wB3K0iU6ae9S1fWfsmJX24CcGeTo6hE7T44ucmV/ALKRj+bxClmqrYcDT7v3f0d12Rh4FAXBb6gon+WkDpQ==}
@@ -22486,6 +22522,10 @@ snapshots:
       parse-filepath: 1.0.2
       tslib: 2.8.1
 
+  '@graphql-hive/logger@1.1.1(pino@10.3.1)':
+    optionalDependencies:
+      pino: 10.3.1
+
   '@graphql-hive/signal@2.0.0': {}
 
   '@graphql-tools/apollo-engine-loader@8.0.30(graphql@17.0.2)':
@@ -31975,7 +32015,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.3
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-nonce@1.0.1: {}
@@ -33044,7 +33084,7 @@ snapshots:
       call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.3
+      hasown: 2.0.4
 
   is-relative@1.0.0:
     dependencies:

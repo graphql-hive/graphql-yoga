@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
+import type { Logger } from '@graphql-hive/logger';
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { YogaLogger } from '@graphql-yoga/logger';
 import { InvalidContentLengthError, RequestBodyTooLargeError } from '@whatwg-node/server';
 import type { ResultProcessorInput } from './plugins/types.js';
 import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
@@ -81,7 +81,7 @@ function graphQLErrorFromBodyLimitError(
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
-  logger: YogaLogger,
+  logger: Logger,
 ): GraphQLError[] {
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
@@ -96,15 +96,13 @@ export function handleError(
   } else if (isRequestBodyLimitError(error)) {
     errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
+    maskedErrorsOpts._requestLogger = logger;
     const maskedError = maskedErrorsOpts.maskError(
       error,
       maskedErrorsOpts.errorMessage,
       maskedErrorsOpts.isDev,
     );
-
-    if (maskedError !== error) {
-      logger.error(error);
-    }
+    maskedErrorsOpts._requestLogger = undefined;
 
     errors.add(
       isGraphQLError(maskedError)
@@ -140,7 +138,7 @@ export function handleError(
       }),
     );
   } else {
-    logger.error(error);
+    logger.error({ err: error });
     errors.add(
       createGraphQLError('Unexpected error.', {
         extensions: {

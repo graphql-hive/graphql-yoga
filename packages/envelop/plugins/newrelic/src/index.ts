@@ -4,6 +4,7 @@ import newRelic from 'newrelic';
 import type { DefaultContext, Path, Plugin } from '@envelop/core';
 import { getDocumentString, isAsyncIterable } from '@envelop/core';
 import { useOnResolve } from '@envelop/on-resolve';
+import { Logger } from '@graphql-hive/logger';
 
 export enum AttributeName {
   COMPONENT_NAME = 'Envelop_NewRelic_Plugin',
@@ -38,6 +39,12 @@ export type UseNewRelicOptions = {
   skipError?: (error: GraphQLError) => boolean;
 
   shim?: any;
+  /**
+   * Logger used for the plugin's own diagnostic messages (not to be confused with the New Relic
+   * agent's instrumentation logger, used internally once the agent is available).
+   * @default new Logger()
+   */
+  logger?: Logger;
 };
 
 interface InternalOptions extends UseNewRelicOptions {
@@ -64,8 +71,8 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
   options.isResolverArgsRegex = options.includeResolverArgs instanceof RegExp;
   const instrumentationApi = rawOptions?.shim || newRelic?.shim;
   if (!instrumentationApi?.agent) {
-    // eslint-disable-next-line no-console
-    console.warn(
+    const logger = rawOptions?.logger ?? new Logger();
+    logger.warn(
       'Agent unavailable. Please check your New Relic Agent configuration and ensure New Relic is enabled.',
     );
     return {};

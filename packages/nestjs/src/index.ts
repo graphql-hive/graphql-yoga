@@ -4,6 +4,7 @@ import { GraphQLSchema, printSchema } from 'graphql';
 import {
   createYoga,
   filter,
+  getRequestId,
   mergeSchemas,
   pipe,
   YogaSchemaDefinition,
@@ -11,6 +12,14 @@ import {
   YogaServerOptions,
 } from 'graphql-yoga';
 import type { ExecutionParams } from 'subscriptions-transport-ws';
+import {
+  Logger as HiveLogger,
+  jsonStringify,
+  type Attributes,
+  type LogLevel,
+  type LogWriter,
+} from '@graphql-hive/logger';
+import { PinoLogWriter } from '@graphql-hive/logger/writers/pino';
 import { Injectable, Logger } from '@nestjs/common';
 import {
   AbstractGraphQLDriver,
@@ -18,6 +27,24 @@ import {
   GqlSubscriptionService,
   SubscriptionConfig,
 } from '@nestjs/graphql';
+
+class NestLogWriter implements LogWriter {
+  constructor(private nestLogger: Logger) {} // Logger here is @nestjs/common's Logger
+  write(level: LogLevel, attrs: Attributes | null | undefined, msg: string | null | undefined) {
+    const fullMessage = attrs ? `${msg ?? ''} ${jsonStringify(attrs)}` : (msg ?? undefined);
+    switch (level) {
+      case 'error':
+        return this.nestLogger.error(fullMessage);
+      case 'warn':
+        return this.nestLogger.warn(fullMessage);
+      case 'debug':
+      case 'trace':
+        return this.nestLogger.debug(fullMessage);
+      default:
+        return this.nestLogger.log(fullMessage);
+    }
+  }
+}
 
 export type YogaDriverPlatform = 'express' | 'fastify';
 
@@ -34,9 +61,16 @@ export type YogaDriverServerContext<Platform extends YogaDriverPlatform> =
 
 export type YogaDriverServerOptions<Platform extends YogaDriverPlatform> = Omit<
   YogaServerOptions<YogaDriverServerContext<Platform>, never>,
-  'context' | 'schema' | 'graphqlEndpoint'
+  'context' | 'schema' | 'graphqlEndpoint' | 'logging'
 > & {
   conditionalSchema?: YogaSchemaDefinition<YogaDriverServerContext<Platform>, never> | undefined;
+  /**
+   * Enable/disable logging or provide a custom logger.
+   * Passing `true` uses the underlying HTTP framework's own logger (Nest's `Logger` for Express,
+   * the Fastify instance's `log` for Fastify).
+   * @default false
+   */
+  logging?: boolean | HiveLogger | LogLevel | undefined;
 };
 
 export type YogaDriverServerInstance<Platform extends YogaDriverPlatform> = YogaServerInstance<
@@ -109,17 +143,6 @@ export abstract class AbstractYogaDriver<
 
     preStartHook?.(app);
 
-    // nest's logger doesnt have the info method
-    class LoggerWithInfo extends Logger {
-      constructor(context: string) {
-        super(context);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      info(message: any, ...args: any[]) {
-        this.log(message, ...args);
-      }
-    }
-
     const schema = this.mergeConditionalSchema<'express'>(conditionalSchema, options.schema);
 
     const yoga = createYoga<YogaDriverServerContext<'express'>>({
@@ -131,8 +154,10 @@ export abstract class AbstractYogaDriver<
       logging:
         options.logging == null
           ? false
-          : options.logging
-            ? new LoggerWithInfo('YogaDriver')
+          : options.logging === true
+            ? new HiveLogger({
+                writers: [new NestLogWriter(new Logger('YogaDriver'))],
+              })
             : options.logging,
     });
 
@@ -159,7 +184,12 @@ export abstract class AbstractYogaDriver<
       graphqlEndpoint: options.path,
       // disable logging by default
       // however, if `true` use fastify logger
-      logging: options.logging == null ? false : options.logging ? app.log : options.logging,
+      logging:
+        options.logging == null
+          ? false
+          : options.logging === true
+            ? new HiveLogger({ writers: [new PinoLogWriter(app.log)] })
+            : options.logging,
     });
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -271,14 +301,20 @@ export class YogaDriver<
         }
 
         config['graphql-ws'].onSubscribe = async (ctx, _id, params) => {
+          // @ts-expect-error context extra is from graphql-ws/lib/use/ws
+          const req = ctx.extra.request;
+          const requestId = getRequestId(req.headers?.['x-request-id'] as string | undefined, () =>
+            this.yoga.fetchAPI.crypto.randomUUID(),
+          );
+          const logger = this.yoga.logger.child({ requestId });
           const { schema, execute, subscribe, contextFactory, parse, validate } =
             this.yoga.getEnveloped({
               ...ctx,
-              // @ts-expect-error context extra is from graphql-ws/lib/use/ws
-              req: ctx.extra.request,
+              req,
               // @ts-expect-error context extra is from graphql-ws/lib/use/ws
               socket: ctx.extra.socket,
               params,
+              logger,
             });
 
           const args = {
@@ -312,14 +348,19 @@ export class YogaDriver<
           params: ExecutionParams,
           ws: WebSocket,
         ) => {
+          // @ts-expect-error upgradeReq does exist but is untyped
+          const req = ws.upgradeReq;
+          const requestId = getRequestId(req.headers?.['x-request-id'] as string | undefined, () =>
+            this.yoga.fetchAPI.crypto.randomUUID(),
+          );
+          const logger = this.yoga.logger.child({ requestId });
           const { schema, execute, subscribe, contextFactory, parse, validate } =
             this.yoga.getEnveloped({
               ...params.context,
-              req:
-                // @ts-expect-error upgradeReq does exist but is untyped
-                ws.upgradeReq,
+              req,
               socket: ws,
               params,
+              logger,
             });
 
           const args = {

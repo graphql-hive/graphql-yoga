@@ -1,5 +1,5 @@
 import type { GraphQLError, ResponsePath } from 'graphql';
-import type { FetchAPI, Plugin, YogaInitialContext, YogaLogger } from 'graphql-yoga';
+import type { FetchAPI, Logger, Plugin, YogaInitialContext } from 'graphql-yoga';
 import { createGraphQLError, isAsyncIterable, mapMaybePromise } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
@@ -112,7 +112,7 @@ export function useApolloInlineTrace(
  */
 export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions) {
   const ctxForReq = new WeakMap<Request, ApolloInlineRequestTraceContext>();
-  let logger: YogaLogger;
+  let logger: Logger;
 
   function createContext() {
     return {
@@ -127,7 +127,7 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
     try {
       ctxForReq.set(request, createContext());
     } catch (err) {
-      logger.error('Apollo inline error:', err);
+      logger.error({ err }, 'Apollo inline error:');
     }
   }
 

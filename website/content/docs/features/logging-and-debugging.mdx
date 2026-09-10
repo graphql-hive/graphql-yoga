@@ -29,13 +29,42 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 #### `debug`
 
 - All prior log levels
-- Processing of GraphQL parameters
-- Parsing of GraphQL parameters
+- Processing of GraphQL parameters, including the request path, `operationName` and variable count
+- Parsing of GraphQL parameters, and the resolved operation type
 - Execution or subscription start
 - Received GraphQL operation variables
 - Execution or subscription end
+- The status code of the HTTP response that was sent
 - [GraphiQL](https://github.com/graphql/graphiql) rendering
 - Health checks
+
+### Correlating logs for a request
+
+Every request is handled with its own child `Logger`, exposed as `context.logger`, that carries a
+`requestId` attribute. The id is taken from the incoming `x-request-id` header if present, or
+generated otherwise. All log lines produced while handling a given request — across parsing,
+parameters processing, execution and response processing — carry this attribute, so they can be
+correlated together (e.g. when grepping structured/JSON logs).
+
+```ts
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: (_, __, context) => {
+          context.logger.debug('resolving hello')
+          return 'world'
+        }
+      }
+    }
+  })
+})
+```
 
 ### Enabling Debug Logging
 
@@ -80,30 +109,26 @@ Specifying the log level of `warn` will only log `warn` and `error` messages bei
 
 ### Custom logger
 
-You can of course provide your own logger for piping to your favorite logging service/utility:
+You can of course provide your own logger for piping to your favorite logging service/utility by
+implementing a [`LogWriter`](https://the-guild.dev/graphql/hive/docs/logger) and passing it to a
+`Logger` instance:
 
 ```ts
 import { createServer } from 'node:http'
 import { createYoga } from 'graphql-yoga'
+import { Logger, LogWriter } from '@graphql-hive/logger'
 import { logger } from './my-logger.js'
 import { schema } from './my-schema.js'
 
+class MyLogWriter implements LogWriter {
+  write(level, attrs, msg) {
+    // do stuff
+  }
+}
+
 const yoga = createYoga({
   schema,
-  logging: {
-    debug(...args) {
-      logger.debug(...args)
-    },
-    info(...args) {
-      logger.info(...args)
-    },
-    warn(...args) {
-      logger.warn(...args)
-    },
-    error(...args) {
-      logger.error(...args)
-    }
-  }
+  logging: new Logger({ writers: [new MyLogWriter()] })
 })
 
 const server = createServer(yoga)
@@ -112,6 +137,39 @@ server.listen(4000, () => {
   console.info('Server is running on http://localhost:4000/graphql')
 })
 ```
+
+<Callout>
+  `@graphql-hive/logger` ships writers for common logging libraries out of the box, e.g.
+  `PinoLogWriter`, `WinstonLogWriter` and `LogTapeLogWriter`.
+</Callout>
+
+### Redacting Sensitive Data
+
+Yoga logs `operationName` at the `info` level, and the full GraphQL operation variables at the
+`debug` level, when processing a request. Since variables can carry sensitive data (passwords,
+tokens, etc.), configure the
+[`redact` option](https://the-guild.dev/graphql/hive/docs/logger/redacting) on your `Logger`
+instance to mask known-sensitive field names before they're serialized:
+
+```ts
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { Logger } from '@graphql-hive/logger'
+import { schema } from './my-schema.js'
+
+const yoga = createYoga({
+  schema,
+  logging: new Logger({
+    redact: ['variables.password', 'variables.token', 'variables.secret', 'headers.authorization']
+  })
+})
+```
+
+<Callout>
+  Redaction paths must name known field keys ahead of time — they won't catch differently-named
+  fields (e.g. `variables.userPassword`). Keep this list in sync with the sensitive fields in your
+  schema's input types.
+</Callout>
 
 Further hook into the logging system by leveraging
 [envelop](https://www.envelop.dev/plugins/use-logger)'s
