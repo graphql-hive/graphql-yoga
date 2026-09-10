@@ -11,8 +11,8 @@ function createInMemoryCacheWithMapSpy(...args: Parameters<typeof createInMemory
   const OriginalMap = global.Map;
 
   class SpiedMap extends OriginalMap {
-    constructor(...mapArgs: ConstructorParameters<typeof OriginalMap>) {
-      super(...mapArgs);
+    constructor() {
+      super();
       maps.push(this);
     }
   }
