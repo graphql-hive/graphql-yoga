@@ -1,3 +1,4 @@
+import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
@@ -229,6 +230,91 @@ data:
       ",
       ]
     `);
+  });
+
+  test('should keep issuing pings after momentary stream backpressure', async () => {
+    const d = createDeferredPromise();
+
+    const schema = createSchema({
+      typeDefs: /* GraphQL */ `
+        type Subscription {
+          hi: String!
+        }
+        type Query {
+          hi: String!
+        }
+      `,
+      resolvers: {
+        Subscription: {
+          hi: {
+            async *subscribe() {
+              await d.promise;
+            },
+          },
+        },
+      },
+    });
+
+    // Node's default fetch ponyfill stores a static `_read()` size, so it never
+    // reports WHATWG backpressure (`desiredSize === 0`). Deno, Bun, Workers, and
+    // Node's global streams do.
+    const yoga = createYoga({
+      schema,
+      fetchAPI: {
+        ReadableStream: globalThis.ReadableStream,
+        Response: globalThis.Response,
+        TextEncoder: globalThis.TextEncoder,
+      },
+    });
+
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'text/event-stream',
+      },
+      body: JSON.stringify({
+        query: /* GraphQL */ `
+          subscription {
+            hi
+          }
+        `,
+      }),
+    });
+
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+
+    const opening = await reader.read();
+    expect(decoder.decode(opening.value)).toBe(':\n\n');
+
+    // Default CountQueuingStrategy high-water mark is 1. The next ping fills the queue
+    // (desiredSize === 0). A second tick while unread is what a falsy desiredSize check
+    // treats as "stream dead", permanently clearing the timer.
+    await setTimeout$(300 * 3 + 80);
+
+    let pingCount = 0;
+    const deadline = Date.now() + 300 * 5 + 100;
+    while (pingCount < 3 && Date.now() < deadline) {
+      const remaining = deadline - Date.now();
+      const chunk = await Promise.race([
+        reader.read(),
+        setTimeout$(Math.max(remaining, 1)).then(() => null),
+      ]);
+      if (chunk == null || chunk.done || chunk.value == null) {
+        break;
+      }
+      for (const frame of decoder.decode(chunk.value).split('\n\n')) {
+        if (frame === ':') {
+          pingCount++;
+        }
+      }
+    }
+
+    d.resolve();
+    await reader.cancel();
+
+    expect(pingCount).toBeGreaterThanOrEqual(3);
   });
 
   test('erroring event stream should be handled (non GraphQL error)', async () => {
