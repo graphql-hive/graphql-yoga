@@ -249,6 +249,7 @@ data:
           hi: {
             async *subscribe() {
               await d.promise;
+              yield;
             },
           },
         },
