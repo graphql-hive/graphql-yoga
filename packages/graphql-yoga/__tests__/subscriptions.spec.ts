@@ -2,7 +2,7 @@ import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
-import { createSchema, createYoga, maskError } from '../src/index.js';
+import { createSchema, createYoga, getSSEProcessor, maskError } from '../src/index.js';
 import { eventStream } from './utilities.js';
 
 describe('Subscription', () => {
@@ -233,89 +233,70 @@ data:
   });
 
   test('should keep issuing pings after momentary stream backpressure', async () => {
-    const d = createDeferredPromise();
+    jest.useFakeTimers();
 
-    const schema = createSchema({
-      typeDefs: /* GraphQL */ `
-        type Subscription {
-          hi: String!
-        }
-        type Query {
-          hi: String!
-        }
-      `,
-      resolvers: {
-        Subscription: {
-          hi: {
-            async *subscribe() {
-              await d.promise;
-              yield;
-            },
-          },
-        },
-      },
-    });
+    let desiredSize: number | null = 1;
+    let pings = 0;
+    let cancelStream: (() => void | Promise<void>) | undefined;
+    const decoder = new TextDecoder();
 
     // Node's default fetch ponyfill stores a static `_read()` size, so it never
     // reports WHATWG backpressure (`desiredSize === 0`). Deno, Bun, Workers, and
-    // Node's global streams do.
-    const yoga = createYoga({
-      schema,
-      fetchAPI: {
-        ReadableStream: globalThis.ReadableStream,
-        Response: globalThis.Response,
-        TextEncoder: globalThis.TextEncoder,
-      },
-    });
+    // Node's global streams do. native streams also trip jest --detectLeaks, so we
+    // drive desiredSize on a fake controller instead.
+    try {
+      getSSEProcessor()(
+        { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) },
+        {
+          TextEncoder,
+          Response: class {
+            constructor(public body: unknown) {}
+          },
+          ReadableStream: class {
+            constructor(source: {
+              start(controller: {
+                readonly desiredSize: number | null;
+                enqueue(chunk: Uint8Array): void;
+                close(): void;
+                error(err: unknown): void;
+              }): void;
+              cancel?(reason?: unknown): void | Promise<void>;
+            }) {
+              cancelStream = () => source.cancel?.();
+              source.start({
+                get desiredSize() {
+                  return desiredSize;
+                },
+                enqueue(chunk) {
+                  if (decoder.decode(chunk) === ':\n\n') {
+                    pings++;
+                  }
+                },
+                close() {},
+                error() {},
+              });
+            }
+          },
+        } as never,
+        'text/event-stream',
+      );
 
-    const response = await yoga.fetch('http://yoga/graphql', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        accept: 'text/event-stream',
-      },
-      body: JSON.stringify({
-        query: /* GraphQL */ `
-          subscription {
-            hi
-          }
-        `,
-      }),
-    });
+      expect(pings).toBe(1);
 
-    const reader = response.body!.getReader();
-    const decoder = new TextDecoder();
+      // Default CountQueuingStrategy high-water mark is 1. The next ping fills the queue
+      // (desiredSize === 0). A second tick while unread is what a falsy desiredSize check
+      // treats as "stream dead", permanently clearing the timer.
+      desiredSize = 0;
+      await jest.advanceTimersByTimeAsync(300 * 3);
+      expect(pings).toBe(1);
 
-    const opening = await reader.read();
-    expect(decoder.decode(opening.value)).toBe(':\n\n');
-
-    // Default CountQueuingStrategy high-water mark is 1. The next ping fills the queue
-    // (desiredSize === 0). A second tick while unread is what a falsy desiredSize check
-    // treats as "stream dead", permanently clearing the timer.
-    await setTimeout$(300 * 3 + 80);
-
-    let pingCount = 0;
-    const deadline = Date.now() + 300 * 5 + 100;
-    while (pingCount < 3 && Date.now() < deadline) {
-      const remaining = deadline - Date.now();
-      const chunk = await Promise.race([
-        reader.read(),
-        setTimeout$(Math.max(remaining, 1)).then(() => null),
-      ]);
-      if (chunk == null || chunk.done || chunk.value == null) {
-        break;
-      }
-      for (const frame of decoder.decode(chunk.value).split('\n\n')) {
-        if (frame === ':') {
-          pingCount++;
-        }
-      }
+      desiredSize = 1;
+      await jest.advanceTimersByTimeAsync(300 * 3);
+      expect(pings).toBeGreaterThanOrEqual(4);
+    } finally {
+      await cancelStream?.();
+      jest.useRealTimers();
     }
-
-    d.resolve();
-    await reader.cancel();
-
-    expect(pingCount).toBeGreaterThanOrEqual(3);
   });
 
   test('erroring event stream should be handled (non GraphQL error)', async () => {
