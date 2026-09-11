@@ -1,5 +1,25 @@
 # graphql-yoga
 
+## 5.23.0
+
+### Patch Changes
+
+- [#4569](https://github.com/graphql-hive/graphql-yoga/pull/4569)
+  [`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d)
+  Thanks [@Urigo](https://github.com/Urigo)! - Serve the favicon of the built-in GraphiQL and
+  landing pages from a file that stays in the repository (`packages/render-graphiql/favicon.ico`)
+  now that the website sources moved.
+
+- [#4573](https://github.com/graphql-hive/graphql-yoga/pull/4573)
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)
+  Thanks [@cpruijsen](https://github.com/cpruijsen)! - Keep SSE keep-alive pings running when the
+  stream reports backpressure (`desiredSize === 0`) instead of treating a full queue as a closed
+  connection.
+
+- Updated dependencies
+  [[`b70ad4a`](https://github.com/graphql-hive/graphql-yoga/commit/b70ad4af7b29348900959f02f7426c32607ab22a)]:
+  - @graphql-yoga/subscription@5.1.0
+
 ## 5.22.0
 
 ### Minor Changes
