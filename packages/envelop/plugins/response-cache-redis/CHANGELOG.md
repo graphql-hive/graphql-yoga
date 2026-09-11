@@ -1,5 +1,13 @@
 # @envelop/response-cache-redis
 
+## 4.5.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ab4aeaa`](https://github.com/graphql-hive/graphql-yoga/commit/ab4aeaa85768f548328e8537dabdee25b88cf03c)]:
+  - @envelop/response-cache@9.3.0
+
 ## 4.4.0
 
 ### Minor Changes

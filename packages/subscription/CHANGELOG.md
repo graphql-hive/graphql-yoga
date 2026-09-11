@@ -1,5 +1,34 @@
 # @graphql-yoga/subscription
 
+## 5.1.0
+
+### Minor Changes
+
+- [#4341](https://github.com/graphql-hive/graphql-yoga/pull/4341)
+  [`b70ad4a`](https://github.com/graphql-hive/graphql-yoga/commit/b70ad4af7b29348900959f02f7426c32607ab22a)
+  Thanks [@wotan-allfather](https://github.com/wotan-allfather)! - feat: add configurable repeater
+  buffer to createPubSub
+
+  This allows users to configure how values are buffered when pushed faster than consumed,
+  preventing RepeaterOverflowError when more than 1024 pending pushes accumulate.
+
+  Available buffers from @repeaterjs/repeater:
+  - `FixedBuffer(capacity)` - allows N values to be pushed without waiting, throws when full
+  - `SlidingBuffer(capacity)` - discards oldest values when capacity is exceeded
+  - `DroppingBuffer(capacity)` - discards newest values when capacity is exceeded
+
+  Example:
+
+  ```ts
+  import { createPubSub, SlidingBuffer } from '@graphql-yoga/subscription'
+
+  const pubSub = createPubSub({
+    repeaterBuffer: new SlidingBuffer(256)
+  })
+  ```
+
+  Closes #3692
+
 ## 5.0.5
 
 ### Patch Changes
@@ -122,7 +151,6 @@
 - [#1761](https://github.com/dotansimha/graphql-yoga/pull/1761)
   [`b2407c6a`](https://github.com/dotansimha/graphql-yoga/commit/b2407c6addab136e3390bd4efa1fbbad7eb8dab8)
   Thanks [@ardatan](https://github.com/ardatan)! - **BREAKING**:
-
   - Drop `TypedEvent` in favor of
     [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent)
   - Use `@whatwg-node/events` as a ponyfill instead of `@whatwg-node/fetch`
