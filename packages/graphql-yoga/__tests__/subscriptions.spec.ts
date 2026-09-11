@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
-import { createSchema, createYoga, maskError } from '../src/index.js';
+import { createSchema, createYoga, getSSEProcessor, maskError } from '../src/index.js';
 import { eventStream } from './utilities.js';
 
 describe('Subscription', () => {
@@ -229,6 +229,73 @@ data:
       ",
       ]
     `);
+  });
+
+  test('should keep issuing pings after momentary stream backpressure', async () => {
+    jest.useFakeTimers();
+
+    let desiredSize: number | null = 1;
+    let pings = 0;
+    let cancelStream: (() => void | Promise<void>) | undefined;
+    const decoder = new TextDecoder();
+
+    // Node's default fetch ponyfill stores a static `_read()` size, so it never
+    // reports WHATWG backpressure (`desiredSize === 0`). Deno, Bun, Workers, and
+    // Node's global streams do. native streams also trip jest --detectLeaks, so we
+    // drive desiredSize on a fake controller instead.
+    try {
+      getSSEProcessor()(
+        { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) },
+        {
+          TextEncoder,
+          Response: class {
+            constructor(public body: unknown) {}
+          },
+          ReadableStream: class {
+            constructor(source: {
+              start(controller: {
+                readonly desiredSize: number | null;
+                enqueue(chunk: Uint8Array): void;
+                close(): void;
+                error(err: unknown): void;
+              }): void;
+              cancel?(reason?: unknown): void | Promise<void>;
+            }) {
+              cancelStream = () => source.cancel?.();
+              source.start({
+                get desiredSize() {
+                  return desiredSize;
+                },
+                enqueue(chunk) {
+                  if (decoder.decode(chunk) === ':\n\n') {
+                    pings++;
+                  }
+                },
+                close() {},
+                error() {},
+              });
+            }
+          },
+        } as never,
+        'text/event-stream',
+      );
+
+      expect(pings).toBe(1);
+
+      // Default CountQueuingStrategy high-water mark is 1. The next ping fills the queue
+      // (desiredSize === 0). A second tick while unread is what a falsy desiredSize check
+      // treats as "stream dead", permanently clearing the timer.
+      desiredSize = 0;
+      await jest.advanceTimersByTimeAsync(300 * 3);
+      expect(pings).toBe(1);
+
+      desiredSize = 1;
+      await jest.advanceTimersByTimeAsync(300 * 3);
+      expect(pings).toBeGreaterThanOrEqual(4);
+    } finally {
+      await cancelStream?.();
+      jest.useRealTimers();
+    }
   });
 
   test('erroring event stream should be handled (non GraphQL error)', async () => {
