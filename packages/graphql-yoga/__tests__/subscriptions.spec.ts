@@ -1,4 +1,3 @@
-import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
