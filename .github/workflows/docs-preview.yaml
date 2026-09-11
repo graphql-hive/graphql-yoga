@@ -1,7 +1,8 @@
 name: docs-preview
 
-# Asks the-guild-org/website (which builds and serves these docs at
-# the-guild.dev/graphql/yoga-server) to deploy a preview built with this PR's
+# Asks the-guild-org/website (which builds and serves the Yoga docs at
+# the-guild.dev/graphql/yoga-server and the Envelop docs at
+# the-guild.dev/graphql/envelop) to deploy a preview built with this PR's
 # content. Same-repo PRs only: the dispatch needs a secret, which fork PRs
 # don't receive — a maintainer can trigger the website repo's
 # yoga-docs-preview workflow manually for those.
@@ -10,6 +11,9 @@ on:
   pull_request:
     paths:
       - website/**
+      - envelop-website/**
+      - packages/envelop/**/README.md
+      - packages/envelop/core/docs/*.md
 
 jobs:
   request-preview:
@@ -33,10 +37,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          url="https://yoga-pr-${PR}.guild-dev-website.pages.dev/graphql/yoga-server"
+          base="https://yoga-pr-${PR}.guild-dev-website.pages.dev"
           marker="<!-- docs-preview-link -->"
           body="${marker}
-          📖 Docs preview (rebuilds on every push, ready ~10 min after each): ${url}"
+          📖 Docs preview (rebuilds on every push, ready ~10 min after each):
+          - Yoga: ${base}/graphql/yoga-server
+          - Envelop: ${base}/graphql/envelop"
           existing=$(gh api "repos/${{ github.repository }}/issues/${PR}/comments" \
             --jq ".[] | select(.body | startswith(\"${marker}\")) | .id" | head -1)
           if [ -z "$existing" ]; then

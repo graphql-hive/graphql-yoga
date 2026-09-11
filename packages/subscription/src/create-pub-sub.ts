@@ -1,5 +1,5 @@
 import type { TypedEventTarget } from '@graphql-yoga/typed-event-target';
-import { Repeater } from '@repeaterjs/repeater';
+import { Repeater, type RepeaterBuffer } from '@repeaterjs/repeater';
 import { CustomEvent } from '@whatwg-node/events';
 
 type PubSubPublishArgsByKey = {
@@ -31,6 +31,27 @@ export type ChannelPubSubConfig<TPubSubPublishArgsByKey extends PubSubPublishArg
    * An event dispatched on the event target MUST have a `data` property.
    */
   eventTarget?: PubSubEventTarget<TPubSubPublishArgsByKey>;
+  /**
+   * A buffer for the repeater that controls how values are buffered when pushed faster than consumed.
+   * By default, no buffer is used and a RepeaterOverflowError is thrown when more than 1024
+   * pending pushes accumulate.
+   *
+   * Available buffers from @repeaterjs/repeater:
+   * - FixedBuffer(capacity) - allows N values to be pushed without waiting, throws when full
+   * - SlidingBuffer(capacity) - discards oldest values when capacity is exceeded
+   * - DroppingBuffer(capacity) - discards newest values when capacity is exceeded
+   *
+   * @example
+   * ```ts
+   * import { createPubSub } from '@graphql-yoga/subscription';
+   * import { SlidingBuffer } from '@repeaterjs/repeater';
+   *
+   * const pubSub = createPubSub({
+   *   repeaterBuffer: new SlidingBuffer(256)
+   * });
+   * ```
+   */
+  repeaterBuffer?: RepeaterBuffer;
 };
 
 export type PubSub<TPubSubPublishArgsByKey extends PubSubPublishArgsByKey> = {
@@ -63,6 +84,7 @@ export const createPubSub = <TPubSubPublishArgsByKey extends PubSubPublishArgsBy
 ): PubSub<TPubSubPublishArgsByKey> => {
   const target =
     config?.eventTarget ?? (new EventTarget() as PubSubEventTarget<TPubSubPublishArgsByKey>);
+  const repeaterBuffer = config?.repeaterBuffer;
 
   return {
     publish<TKey extends Extract<keyof TPubSubPublishArgsByKey, string>>(
@@ -98,7 +120,7 @@ export const createPubSub = <TPubSubPublishArgsByKey extends PubSubPublishArgsBy
         function pubsubEventListener(event: PubSubEvent<TPubSubPublishArgsByKey, TKey>) {
           next(event.detail);
         }
-      });
+      }, repeaterBuffer);
     },
   };
 };
