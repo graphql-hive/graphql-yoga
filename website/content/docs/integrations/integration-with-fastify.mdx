@@ -24,6 +24,7 @@ npm i fastify graphql-yoga graphql
 ```ts
 import fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import { createYoga } from 'graphql-yoga'
+import { Logger, PinoLogWriter } from '@graphql-hive/logger'
 
 // This is the fastify instance you have created
 const app = fastify({ logger: true })
@@ -32,13 +33,8 @@ const yoga = createYoga<{
   req: FastifyRequest
   reply: FastifyReply
 }>({
-  // Integrate Fastify logger
-  logging: {
-    debug: (...args) => args.forEach(arg => app.log.debug(arg)),
-    info: (...args) => args.forEach(arg => app.log.info(arg)),
-    warn: (...args) => args.forEach(arg => app.log.warn(arg)),
-    error: (...args) => args.forEach(arg => app.log.error(arg))
-  }
+  // Integrate Fastify's Pino logger
+  logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
 })
 
 /**

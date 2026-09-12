@@ -11,6 +11,7 @@ import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
 import { useExtendedValidation } from '@envelop/extended-validation';
+import { Logger } from '@graphql-hive/logger';
 import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
 
 const getWrappedType = (
@@ -76,14 +77,21 @@ export type ResourceLimitationValidationRuleParams = {
   paginationArgumentMinimum: number;
   paginationArgumentTypes?: string[];
   reportNodeCost?: (cost: number, executionArgs: ExecutionArgs) => void;
+  /**
+   * Logger used for the rule's own diagnostic messages.
+   * @default new Logger()
+   */
+  logger?: Logger;
 };
 
 /**
  * Validate whether a user is allowed to execute a certain GraphQL operation.
  */
-export const ResourceLimitationValidationRule =
-  (params: ResourceLimitationValidationRuleParams): ExtendedValidationRule =>
-  (context, executionArgs) => {
+export const ResourceLimitationValidationRule = (
+  params: ResourceLimitationValidationRuleParams,
+): ExtendedValidationRule => {
+  const logger = params.logger ?? new Logger();
+  return (context, executionArgs) => {
     const { paginationArgumentMaximum, paginationArgumentMinimum } = params;
     const nodeCostStack: Array<number> = [];
     let totalNodeCost = 0;
@@ -112,8 +120,7 @@ export const ResourceLimitationValidationRule =
                 params.paginationArgumentTypes,
               );
               if (hasFirst === false && hasLast === false) {
-                // eslint-disable-next-line no-console
-                console.warn('Encountered paginated field without pagination arguments.');
+                logger.warn('Encountered paginated field without pagination arguments.');
               } else if (hasFirst === true || hasLast === true) {
                 if (
                   ('first' in argumentValues === false && 'last' in argumentValues === false) ||
@@ -210,6 +217,7 @@ export const ResourceLimitationValidationRule =
       },
     };
   };
+};
 
 type UseResourceLimitationsParams = {
   /**
@@ -236,6 +244,11 @@ type UseResourceLimitationsParams = {
    * @default false
    */
   extensions?: boolean;
+  /**
+   * Logger used for the plugin's own diagnostic messages.
+   * @default new Logger()
+   */
+  logger?: Logger;
 };
 
 export const useResourceLimitations = (params?: UseResourceLimitationsParams): Plugin => {
@@ -269,6 +282,7 @@ export const useResourceLimitations = (params?: UseResourceLimitationsParams): P
               paginationArgumentMaximum,
               paginationArgumentMinimum,
               paginationArgumentTypes: params?.paginationArgumentScalars,
+              logger: params?.logger,
               reportNodeCost: extensions
                 ? (nodeCost, ref) => {
                     nodeCostMap.set(ref, nodeCost);

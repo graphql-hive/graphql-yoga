@@ -1,4 +1,5 @@
-export * from '@graphql-yoga/logger';
+export { Logger, MemoryLogWriter } from '@graphql-hive/logger';
+export type { LogLevel } from '@graphql-hive/logger';
 export type {
   GraphiQLOptions,
   GraphiQLPluginConfig,
@@ -15,6 +16,7 @@ export * from './types.js';
 export { maskError } from './utils/mask-error.js';
 export { type OnParamsEventPayload, type Plugin, type Instrumentation } from './plugins/types.js';
 export { _createLRUCache, createLRUCache } from './utils/create-lru-cache.js';
+export { getRequestId } from './utils/request-id.js';
 export { mergeSchemas } from '@graphql-tools/schema';
 export {
   // Handy type utils
