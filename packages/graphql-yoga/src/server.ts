@@ -11,7 +11,7 @@ import {
   useMaskedErrors,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
-import { Logger, LogLevel } from '@graphql-hive/logger';
+import { Logger, type LogLevel } from '@graphql-hive/logger';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';

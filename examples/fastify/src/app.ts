@@ -1,5 +1,7 @@
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createSchema, createYoga, Repeater, useExecutionCancellation } from 'graphql-yoga';
+import { Logger } from '@graphql-hive/logger';
+import { PinoLogWriter } from '@graphql-hive/logger/writers/pino';
 
 export function buildApp(logging = true) {
   const app = fastify({
@@ -97,20 +99,7 @@ export function buildApp(logging = true) {
       },
     }),
     // Integrate Fastify Logger to Yoga
-    logging: {
-      debug: (...args) => {
-        for (const arg of args) app.log.debug(arg);
-      },
-      info: (...args) => {
-        for (const arg of args) app.log.info(arg);
-      },
-      warn: (...args) => {
-        for (const arg of args) app.log.warn(arg);
-      },
-      error: (...args) => {
-        for (const arg of args) app.log.error(arg);
-      },
-    },
+    logging: new Logger({ writers: [new PinoLogWriter(app.log)] }),
   });
 
   app.addContentTypeParser('multipart/form-data', {}, (_req, _payload, done) => done(null));
