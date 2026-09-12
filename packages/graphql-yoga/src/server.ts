@@ -715,7 +715,15 @@ export class YogaServer<
     const logger = this.logger.child({ requestId });
     // Exposed on the context (as `YogaInitialContext.logger`) so plugins, resolvers and the
     // rest of the request lifecycle can all log under the same correlation id.
-    Object.assign(serverContext, { logger });
+    // Uses defineProperty (not Object.assign) because some integrations (e.g. Egg) pass their
+    // own request context object through as `serverContext`, and it may already have a
+    // getter-only `logger` accessor on its prototype that a plain assignment would trip over.
+    Object.defineProperty(serverContext, 'logger', {
+      value: logger,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
 
     const instrumented = this.instrumentation && getInstrumented({ request });
 
