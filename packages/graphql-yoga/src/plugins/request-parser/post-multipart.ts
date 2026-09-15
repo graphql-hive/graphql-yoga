@@ -56,12 +56,23 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       return operations;
     },
     e => {
-      if (e instanceof Error && e.message.startsWith('File size limit exceeded: ')) {
-        throw createGraphQLError(e.message, {
+      if (e instanceof Error) {
+        if (e.message.startsWith('File size limit exceeded: ')) {
+          throw createGraphQLError(e.message, {
+            extensions: {
+              http: {
+                status: 413,
+              },
+              code: 'REQUEST_ENTITY_TOO_LARGE',
+            },
+          });
+        }
+        throw createGraphQLError(`POST body sent invalid multipart data: ${e.message}`, {
           extensions: {
             http: {
-              status: 413,
+              status: 400,
             },
+            code: 'BAD_REQUEST',
           },
         });
       }

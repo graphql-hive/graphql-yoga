@@ -24,9 +24,6 @@ describe('Multipart', () => {
     form.set('0', new Blob(['x']), 'x.txt');
     const response1 = await yoga.fetch('http://yoga/graphql', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       body: form,
     });
 
@@ -49,5 +46,21 @@ describe('Multipart', () => {
     });
     expect(response2.status).toBe(200);
     await expect(response2.json()).resolves.toMatchObject({ data: { hello: 'hello The Guild!' } });
+  });
+
+  it('should return 400 for malformed multipart data instead of a generic 500', async () => {
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        // missing the required `boundary` parameter
+        'Content-Type': 'multipart/form-data',
+      },
+      body: 'operations={"query":"{ hello }"}',
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      errors: [{ message: expect.stringContaining('POST body sent invalid multipart data') }],
+    });
   });
 });
