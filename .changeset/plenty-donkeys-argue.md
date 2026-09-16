@@ -1,5 +1,5 @@
 ---
-'graphql-yoga': major
+'graphql-yoga': minor
 ---
 
 Limit the size of incoming HTTP request bodies by default to protect against denial-of-service
@@ -9,7 +9,7 @@ Requests whose `Content-Length` exceeds the limit are rejected with an HTTP 413 
 the body is read, and the limit is also enforced while streaming the body so that requests with a
 missing, incorrect, or chunked-transfer-encoded body are covered too.
 
-The default limit is 1 MB. Configure it with the new `maxRequestBodySize` option, or set it to
+The default limit is 25 MB. Configure it with the new `maxRequestBodySize` option, or set it to
 `false` to disable the limit (not recommended unless an upstream reverse proxy already enforces
 one):
 
