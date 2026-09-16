@@ -2,8 +2,8 @@ import { createGraphQLError } from '@graphql-tools/utils';
 import type { FetchAPI } from '../../types.js';
 import type { Plugin } from '../types.js';
 
-function createRequestBodyTooLargeError(limit: number) {
-  return createGraphQLError(`Request body too large.`, {
+function createRequestBodyTooLargeError() {
+  return createGraphQLError(`Request body too large`, {
     extensions: {
       http: {
         status: 413,
@@ -42,7 +42,7 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
       transform(chunk, controller) {
         bytesRead += chunk.byteLength;
         if (bytesRead > limit) {
-          controller.error(createRequestBodyTooLargeError(limit));
+          controller.error(createRequestBodyTooLargeError());
           return;
         }
         controller.enqueue(chunk);
@@ -55,9 +55,9 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
     headers: request.headers,
     signal: request.signal,
     body: limitedBody,
-    // Required by some runtimes for streamed bodies; missing from `fetchAPI.Request`'s types.
+    // @ts-expect-error Required by some runtimes for streamed bodies; missing from `fetchAPI.Request`'s types.
     duplex: 'half',
-  } as RequestInit);
+  });
 }
 
 // Must run after all request parsers (built-in and user-provided) have registered, so
@@ -74,7 +74,7 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
           throw createInvalidContentLengthError();
         }
         if (Number(contentLength) > limit) {
-          throw createRequestBodyTooLargeError(limit);
+          throw createRequestBodyTooLargeError();
         }
       }
 
