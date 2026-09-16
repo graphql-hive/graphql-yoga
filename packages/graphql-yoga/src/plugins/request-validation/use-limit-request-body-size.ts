@@ -3,7 +3,7 @@ import type { FetchAPI } from '../../types.js';
 import type { Plugin } from '../types.js';
 
 function createRequestBodyTooLargeError(limit: number) {
-  return createGraphQLError(`Request body must not be larger than ${limit} bytes.`, {
+  return createGraphQLError(`Request body too large.`, {
     extensions: {
       http: {
         status: 413,
