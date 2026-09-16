@@ -24,7 +24,7 @@ describe('Request body size limit', () => {
     });
     expect(response.status).toBe(413);
     const body = await response.json();
-    expect(body.errors[0].message).toMatch(/must not be larger than 10 bytes/);
+    expect(body.errors[0].message).toMatch(/Request body too large/);
   });
 
   it('rejects a streamed POST body without Content-Length once it exceeds the limit', async () => {
@@ -45,7 +45,7 @@ describe('Request body size limit', () => {
     });
     expect(response.status).toBe(413);
     const body = await response.json();
-    expect(body.errors[0].message).toMatch(/must not be larger than 10 bytes/);
+    expect(body.errors[0].message).toMatch(/Request body too large/);
   });
 
   it('allows requests within the configured limit', async () => {
