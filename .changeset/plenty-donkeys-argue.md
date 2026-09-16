@@ -22,5 +22,3 @@ createYoga({
 
 Also return an HTTP 400 response for malformed `multipart/form-data` requests (e.g. a missing or
 invalid `boundary`), instead of masking the parse error as a generic 500 Internal Server Error.
-
-Fixes: GHSA-qqff-c8xf-m364
