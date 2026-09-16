@@ -66,10 +66,10 @@
 
 ### Breaking Changes
 
-- **Node**: minimum supported version is now Node 24. Node 18 and 20 are no longer supported. Future releases will only support Node >=22.
+- **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported. Future releases will only support Node >=22.
 - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer supported.
 
 ### Migration
 
-- If you're on Node 18/20, upgrade to Node 24 (or at least >=22) before upgrading this package.
+- If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
 - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
