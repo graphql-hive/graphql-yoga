@@ -1,5 +1,5 @@
 ---
-'graphql-yoga': patch
+'graphql-yoga': major
 ---
 
 Limit the size of incoming HTTP request bodies by default to protect against denial-of-service

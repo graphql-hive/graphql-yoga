@@ -392,14 +392,16 @@ export class YogaServer<
         match: isPOSTFormUrlEncodedRequest,
         parse: parsePOSTFormUrlEncodedRequest,
       }),
-      // Must run after the request parsers above so it wraps whichever parser was selected.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 1_000_000),
-      ),
       // Middlewares after the GraphQL execution
       useResultProcessors(),
 
       ...(options?.plugins ?? []),
+
+      // Must run after the request parsers above (including any registered by user plugins)
+      // so it wraps whichever parser ends up selected.
+      useLimitRequestBodySize(
+        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 1_000_000),
+      ),
 
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(

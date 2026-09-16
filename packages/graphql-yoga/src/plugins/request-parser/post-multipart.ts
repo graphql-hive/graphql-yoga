@@ -1,6 +1,7 @@
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { isAbortError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
@@ -56,6 +57,9 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       return operations;
     },
     e => {
+      if (isAbortError(e)) {
+        throw e;
+      }
       if (e instanceof Error) {
         if (e.message.startsWith('File size limit exceeded: ')) {
           throw createGraphQLError(e.message, {

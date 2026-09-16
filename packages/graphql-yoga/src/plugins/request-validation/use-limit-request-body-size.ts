@@ -13,6 +13,22 @@ function createRequestBodyTooLargeError(limit: number) {
   });
 }
 
+function createInvalidContentLengthError() {
+  return createGraphQLError('Content-Length header is invalid.', {
+    extensions: {
+      http: {
+        status: 400,
+      },
+      code: 'BAD_REQUEST',
+    },
+  });
+}
+
+// Only a single non-negative integer is a valid Content-Length. Anything else (non-numeric,
+// negative, or multiple comma-joined values as seen in request-smuggling attempts) is rejected
+// outright instead of being allowed to silently skip this check.
+const CONTENT_LENGTH_RE = /^\d+$/;
+
 // Covers requests with a missing/incorrect Content-Length (e.g. chunked transfer-encoding).
 export function limitRequestBodySize(request: Request, limit: number, fetchAPI: FetchAPI): Request {
   const body = request.body;
@@ -44,7 +60,8 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
   } as RequestInit);
 }
 
-// Must run after the built-in request parsers have registered, so `requestParser` is already set.
+// Must run after all request parsers (built-in and user-provided) have registered, so
+// `requestParser` reflects whichever one was ultimately selected.
 export function useLimitRequestBodySize(limit: number | false): Plugin {
   if (limit === false) {
     return {};
@@ -53,8 +70,10 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
     onRequestParse({ request, requestParser, setRequestParser, fetchAPI }) {
       const contentLength = request.headers.get('content-length');
       if (contentLength != null) {
-        const declaredSize = Number(contentLength);
-        if (Number.isFinite(declaredSize) && declaredSize > limit) {
+        if (!CONTENT_LENGTH_RE.test(contentLength)) {
+          throw createInvalidContentLengthError();
+        }
+        if (Number(contentLength) > limit) {
           throw createRequestBodyTooLargeError(limit);
         }
       }
