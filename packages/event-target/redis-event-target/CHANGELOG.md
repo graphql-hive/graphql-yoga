@@ -1,5 +1,18 @@
 # @graphql-yoga/redis-event-target
 
+## 3.0.4
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @graphql-yoga/typed-event-target@3.0.3
+
 ## 3.0.3
 
 ### Patch Changes
@@ -93,7 +106,6 @@
 - [#1761](https://github.com/dotansimha/graphql-yoga/pull/1761)
   [`b2407c6a`](https://github.com/dotansimha/graphql-yoga/commit/b2407c6addab136e3390bd4efa1fbbad7eb8dab8)
   Thanks [@ardatan](https://github.com/ardatan)! - **BREAKING**:
-
   - Drop `TypedEvent` in favor of
     [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent)
   - Use `@whatwg-node/events` as a ponyfill instead of `@whatwg-node/fetch`
