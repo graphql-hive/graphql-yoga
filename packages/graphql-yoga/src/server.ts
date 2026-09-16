@@ -188,7 +188,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
    * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).
    *
-   * @default 1_000_000 (1 MB)
+   * @default 25_000_000 (25 MB)
    */
   maxRequestBodySize?: number | false | undefined;
   /**
@@ -400,7 +400,7 @@ export class YogaServer<
       // Must run after the request parsers above (including any registered by user plugins)
       // so it wraps whichever parser ends up selected.
       useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 1_000_000),
+        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
       ),
 
       options?.parserAndValidationCache !== false &&
