@@ -1,0 +1,224 @@
+---
+description:
+  GraphQL Yoga supports the GraphQL Multipart Request Specification, allowing you to upload files
+  and consume the binary data inside GraphQL Resolvers via HTTP.
+title: File Uploads
+---
+
+GraphQL Yoga supports the
+[GraphQL Multipart Request Specification](https://github.com/jaydenseric/graphql-multipart-request-spec),
+allowing you to upload files and consume the binary data inside GraphQL Resolvers via HTTP.
+
+In GraphQL Yoga, you consume uploaded files or blobs as WHATWG standard
+[`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) or
+[`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) objects you might be familiar from
+the browser's API.
+[Check out the MDN documentation to learn more about `File` objects](https://developer.mozilla.org/en-US/docs/Web/API/File)
+
+You can use any kind of client supports GraphQL Upload specification.
+[Check out GraphQL Client solutions](https://github.com/jaydenseric/graphql-multipart-request-spec#client)
+
+## Quick start
+
+This guide will show you how to process a file upload in GraphQL Yoga in no time. All you need to do
+is adding a `File` scalar to your schema.
+
+```ts title="file-upload-example.ts" {8, 15, 23-26}
+import { createYoga } from 'graphql-yoga'
+import { createServer } from 'http'
+
+// Provide your schema
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      scalar File
+
+      type Query {
+        greetings: String!
+      }
+
+      type Mutation {
+        readTextFile(file: File!): String!
+        saveFile(file: File!): Boolean!
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'Hello World!'
+      },
+      Mutation: {
+        readTextFile: async (_, { file }: { file: File }) => {
+          const textContent = await file.text()
+          return textContent
+        }
+
+        saveFile: async (_, { file }: { file: File }) => {
+          try {
+            const fileArrayBuffer = await file.arrayBuffer()
+            await fs.promises.writeFile(
+              path.join(__dirname, file.name),
+              Buffer.from(fileArrayBuffer),
+            )
+          } catch (e) {
+            return false
+          }
+          return true
+        },
+      }
+    }
+  })
+})
+
+// Start the server and explore http://localhost:4000/graphql
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+After, starting the server, you can use [Curl](https://curl.se/) for testing your endpoint.
+
+```bash title="Terminal"
+curl localhost:4000/graphql \
+  -F operations='{ "query": "mutation ($file: File!) { readTextFile(file: $file) }", "variables": { "file": null } }' \
+  -F map='{ "0": ["variables.file"] }' \
+  -F 0=@mytext.txt
+```
+
+## Disabling Multipart/File Upload Processing
+
+If you want to disable multipart request processing for some reason, you can pass `multipart: false`
+to prevent Yoga from handling multipart requests.
+
+```ts
+createYoga({ multipart: false })
+```
+
+## Configuring Multipart Request Processing (only for Node.js)
+
+In Node.js, you can configure the limits of the multipart request processing such as maximum allowed
+file size, maximum numbers of files, etc.
+
+Fetch API's `Request.formData` method doesn't have any options to configure the limits of Multipart
+request processing. Instead we can configure our Fetch API ponyfill to manage that.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+import { createFetch } from '@whatwg-node/fetch'
+
+createYoga({
+  fetchAPI: createFetch({
+    formDataLimits: {
+      // Maximum allowed file size (in bytes)
+      fileSize: 1000000,
+      // Maximum allowed number of files
+      files: 10,
+      // Maximum allowed size of content (operations, variables etc...)
+      fieldSize: 1000000,
+      // Maximum allowed header size for form data
+      headerSize: 1000000
+    }
+  })
+})
+```
+
+## Third Party Integrations
+
+### Usage with GraphQL Nexus
+
+[GraphQL Nexus](https://nexusjs.org/) is a popular library for building GraphQL schemas with
+TypeScript. It provides a convenient API for defining GraphQL types and resolvers.
+
+```ts title="nexus-file-upload-example.ts"
+import { createServer } from 'http'
+import { createYoga } from 'graphql-yoga'
+import { arg, makeSchema, mutationField, nonNull, queryField, scalarType } from 'nexus'
+
+const FileScalar = scalarType({
+  name: 'File',
+  asNexusMethod: 'file',
+  description: 'The `File` scalar type represents a file upload.',
+  sourceType: 'File'
+})
+
+const greetings = queryField('greetings', {
+  type: 'String',
+  resolve: () => 'Hello World!'
+})
+
+const readTextFile = mutationField('readTextFile', {
+  type: 'String',
+  args: { file: nonNull(arg({ type: 'File' })) },
+  resolve: async (parent, { file }, ctx) => {
+    const textContent = await file.text()
+    return textContent
+  }
+})
+
+const schema = makeSchema({
+  types: [FileScalar, greetings, readTextFile]
+})
+
+const yoga = createYoga({
+  schema: schema
+})
+
+// Start the server and explore http://localhost:4000/graphql
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+### Usage with S3
+
+Amazon S3 is a popular object storage service. You can use GraphQL Yoga to upload files to S3. In
+this example, we will use the
+[AWS SDK for JavaScript v3](https://docs.aws.amazon.com/AWSJavaScriptSDK/docs/latest/).
+
+Note that S3 is a common protocol and you can use other storage providers than AWS.
+
+```ts title="file-upload-example.ts" {8, 15, 23-26}
+import { createServer } from 'http'
+import { createYoga } from 'graphql-yoga'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+
+const client = new S3Client({})
+
+// Provide your schema
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      scalar File
+
+      type Mutation {
+        upload(file: File!): Boolean!
+      }
+    `,
+    resolvers: {
+      Mutation: {
+        upload: async (_, { file }: { file: File }) => {
+          try {
+            await client.send(
+              new PutObjectCommand({
+                Bucket: 'test-bucket',
+                Key: file.name,
+                Body: Buffer.from(await file.arrayBuffer())
+              })
+            )
+            return true
+          } catch (e) {
+            return false
+          }
+        }
+      }
+    }
+  })
+})
+
+// Start the server and explore http://localhost:4000/graphql
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```

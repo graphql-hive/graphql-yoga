@@ -145,7 +145,11 @@ export function YogaGraphiQL(props: YogaGraphiQLProps): React.ReactElement {
   });
 
   const currentUrl = new URL(location.href);
-  const initialQueryFromUrl = currentUrl.searchParams.get('query') || props.query || initialQuery;
+  const hasCustomDefault = props.defaultQuery != null || props.defaultTabs != null;
+  const initialQueryFromUrl =
+    currentUrl.searchParams.get('query') ||
+    props.query ||
+    (hasCustomDefault ? undefined : initialQuery);
 
   const {
     query: deprecatedInitialQuery = initialQueryFromUrl,

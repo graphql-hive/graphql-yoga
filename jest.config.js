@@ -43,11 +43,6 @@ function createTestMatch(graphqlMajor) {
     if (graphqlMajor <= 15) {
       testMatch.push('!**/examples/apollo-federation/**');
     }
-    // nexus only supports graphql 15.x/16.x (calls `assertValidName`, removed in v17);
-    // sveltekit's @envelop/graphql-jit doesn't support v17 yet either.
-    if (graphqlMajor >= 17) {
-      testMatch.push('!**/examples/sveltekit/**', '!**/examples/file-upload-nexus/**');
-    }
   } else {
     testMatch.push(
       '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',

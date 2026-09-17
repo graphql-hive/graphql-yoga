@@ -37,11 +37,14 @@ export function getSSEProcessor(): ResultProcessor {
 
         // ping client every 12 seconds to keep the connection alive
         pingInterval = setInterval(() => {
-          if (!controller.desiredSize) {
+          // `null` is errored. `0` is backpressure or closed; do not treat it as terminal.
+          if (controller.desiredSize === null) {
             clearInterval(pingInterval);
             return;
           }
-          controller.enqueue(textEncoder.encode(':\n\n'));
+          if (controller.desiredSize > 0) {
+            controller.enqueue(textEncoder.encode(':\n\n'));
+          }
         }, pingIntervalMs) as unknown as number;
 
         if (isAsyncIterable(result)) {

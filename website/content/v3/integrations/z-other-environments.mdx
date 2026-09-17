@@ -1,0 +1,50 @@
+---
+description:
+  If you have a different environment that you want to integrate with, you can implement your
+  middleware/handler like the example below.
+title: Other Environments
+---
+
+If you have a different environment that you want to integrate with, you can implement your
+middleware/handler like the example below.
+
+GraphQL Yoga understands
+[WHATWG `Request` object](https://developer.mozilla.org/en-US/docs/Web/API/Request) object to
+consume your HTTP request. So you need an adapter implementation between your environment and WHATWG
+standard objects.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+
+const yoga = createYoga<MyRandomCtx>()
+
+export async function myMiddleware(req: MyRandomRequest, ctx: MyRandomCtx) {
+  // req.url is a full url here not a relative path
+  const response = await yoga.fetch(
+    req.url,
+    {
+      method: req.method,
+      headers: req.headers,
+      body: req.body // req.body should be a valid BodyInit like an AsyncIterable, a ReadableStream, a Node.js Readable, a string or a Buffer etc...
+    },
+    // Third parameter becomes your server context
+    ctx
+  )
+  // response is a WHATWG `Response` object
+
+  // Create a headers object for your middleware response
+  const headersObj = Object.fromEntries(response.headers.entries())
+
+  // Let's say your environment needs to return something like the below;
+  return {
+    statusCode: response.status,
+    body: response.body,
+    // static responses will disable subscriptions
+    // body: await response.text() If it accepts a string
+    // body: await response.json() If it accepts a json
+    // body: response.body if it accepts a ReadableStream or an AsyncIterable
+    // body: Readable.from(response.body) if it accepts a Node.js Readable
+    headers: headersObj // We assume that your environments accepts a regular JS object for response headers
+  }
+}
+```

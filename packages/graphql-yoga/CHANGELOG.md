@@ -1,5 +1,66 @@
 # graphql-yoga
 
+## 5.24.0
+
+### Minor Changes
+
+- [#4580](https://github.com/graphql-hive/graphql-yoga/pull/4580)
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Limit the size of incoming HTTP request
+  bodies by default to protect against denial-of-service attacks from oversized payloads.
+
+  Requests whose `Content-Length` exceeds the limit are rejected with an HTTP 413 response before
+  the body is read, and the limit is also enforced while streaming the body so that requests with a
+  missing, incorrect, or chunked-transfer-encoded body are covered too.
+
+  The default limit is 25 MB. Configure it with the new `maxRequestBodySize` option, or set it to
+  `false` to disable the limit (not recommended unless an upstream reverse proxy already enforces
+  one):
+
+  ```ts
+  createYoga({
+    // Allow bodies up to 25 MB
+    maxRequestBodySize: 25_000_000
+  })
+  ```
+
+  Also return an HTTP 400 response for malformed `multipart/form-data` requests (e.g. a missing or
+  invalid `boundary`), instead of masking the parse error as a generic 500 Internal Server Error.
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/instrumentation@1.0.1
+  - @envelop/core@5.6.1
+  - @graphql-yoga/subscription@5.1.1
+  - @graphql-yoga/logger@2.0.2
+
+## 5.23.0
+
+### Patch Changes
+
+- [#4569](https://github.com/graphql-hive/graphql-yoga/pull/4569)
+  [`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d)
+  Thanks [@Urigo](https://github.com/Urigo)! - Serve the favicon of the built-in GraphiQL and
+  landing pages from a file that stays in the repository (`packages/render-graphiql/favicon.ico`)
+  now that the website sources moved.
+
+- [#4573](https://github.com/graphql-hive/graphql-yoga/pull/4573)
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)
+  Thanks [@cpruijsen](https://github.com/cpruijsen)! - Keep SSE keep-alive pings running when the
+  stream reports backpressure (`desiredSize === 0`) instead of treating a full queue as a closed
+  connection.
+
+- Updated dependencies
+  [[`b70ad4a`](https://github.com/graphql-hive/graphql-yoga/commit/b70ad4af7b29348900959f02f7426c32607ab22a)]:
+  - @graphql-yoga/subscription@5.1.0
+
 ## 5.22.0
 
 ### Minor Changes

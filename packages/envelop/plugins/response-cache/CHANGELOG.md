@@ -1,5 +1,27 @@
 # @envelop/response-cache
 
+## 9.3.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/core@5.6.1
+
+## 9.3.0
+
+### Minor Changes
+
+- [#4571](https://github.com/graphql-hive/graphql-yoga/pull/4571)
+  [`ab4aeaa`](https://github.com/graphql-hive/graphql-yoga/commit/ab4aeaa85768f548328e8537dabdee25b88cf03c)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Fix the in-memory cache memory leak in
+  purgeResponse and LRUCache dispose issue (closes #4409, closes #4544)
+
 ## 9.2.0
 
 ### Minor Changes

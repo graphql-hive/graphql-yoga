@@ -1,0 +1,69 @@
+---
+description:
+  GraphQL Yoga makes it easy to test your GraphQL API. It has built-in support for HTTP injection.
+  You can use any testing framework of your choice.
+title: Testing
+---
+
+GraphQL Yoga makes it easy to test your GraphQL API. It has built-in support for HTTP injection. You
+can use any testing framework of your choice.
+
+## Using `inject`
+
+```ts
+import { createServer } from '@graphql-yoga/common'
+
+const yoga = createServer()
+
+const { response, executionResult } = await yoga.inject({
+  document: '{ greetings }'
+})
+
+console.assert(response.status === 200, 'Response status should be 200')
+console.assert(
+  executionResult.data.greetings === 'This is the `greetings` field of the root `Query` type',
+  `Expected 'This is the \`greetings\` field of the root \`Query\` type' but got ${executionResult.data.greetings}`
+)
+```
+
+## Using `fetch` to Test Just Like Browsers on Any JS Environment
+
+```ts
+import { createServer } from '@graphql-yoga/common'
+
+const yoga = createServer()
+
+const response = await yoga.fetch('http://localhost:4000/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: '{ greetings }'
+  })
+})
+
+console.assert(response.status === 200, 'Response status should be 200')
+const executionResult = await response.json()
+console.assert(
+  executionResult.data.greetings === 'This is the `greetings` field of the root `Query` type',
+  `Expected 'This is the \`greetings\` field of the root \`Query\` type' but got ${executionResult.data.greetings}`
+)
+```
+
+## Using `supertest` For Node.js
+
+```ts
+import { deepEqual } from 'node:assert'
+import request from 'supertest'
+import { createServer } from '@graphql-yoga/node'
+
+const yoga = createServer()
+
+const response = await request(yoga).post('/graphql').send({
+  query: '{ greetings }'
+})
+
+deepEqual(response.status, 200)
+deepEqual(response.body.data.greetings, 'This is the `greetings` field of the root `Query` type')
+```
