@@ -36,9 +36,18 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
     return request;
   }
 
+  // Workaround until the next version of whatwg-node automatically normalizes the request body
+  // Once the normalization implemented in whatwg-node, this workaround can be removed.
+  // Since the request body is the native ReadableStream, it conflicts the ponyfill implementation of the TransformStream.
+  // See https://github.com/graphql-hive/graphql-yoga/issues/4583
+  const TransformStreamCtor =
+    request.body instanceof globalThis.ReadableStream
+      ? globalThis.TransformStream
+      : fetchAPI.TransformStream;
+
   let bytesRead = 0;
   const limitedBody = body.pipeThrough(
-    new fetchAPI.TransformStream<Uint8Array, Uint8Array>({
+    new TransformStreamCtor<Uint8Array, Uint8Array>({
       transform(chunk, controller) {
         bytesRead += chunk.byteLength;
         if (bytesRead > limit) {
