@@ -4,15 +4,15 @@ import { parse, specifiedRules, validate } from 'graphql';
 import type { GetEnvelopedFn, PromiseOrValue } from '@envelop/core';
 import {
   envelop,
+  handleStreamOrSingleExecutionResult,
   isAsyncIterable,
   useEngine,
   useExtendContext,
   useMaskedErrors,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
+import { Logger, type LogLevel } from '@graphql-hive/logger';
 import { normalizedExecutor } from '@graphql-tools/executor';
-import type { LogLevel, YogaLogger } from '@graphql-yoga/logger';
-import { createLogger } from '@graphql-yoga/logger';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import {
@@ -86,6 +86,7 @@ import type {
 } from './types.js';
 import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
+import { getRequestId } from './utils/request-id.js';
 
 /**
  * Configuration options for the server
@@ -96,9 +97,9 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
 > & {
   /**
    * Enable/disable logging or provide a custom logger.
-   * @default true
+   * @default info
    */
-  logging?: boolean | YogaLogger | LogLevel | undefined;
+  logging?: false | Logger | LogLevel | undefined;
   /**
    * Prevent leaking unexpected errors to the client. We highly recommend enabling this in production.
    * If you throw `EnvelopError`/`GraphQLError` within your GraphQL resolvers then that error will be sent back to the client.
@@ -247,7 +248,7 @@ export class YogaServer<
    * Instance of envelop
    */
   public readonly getEnveloped: GetEnvelopedFn<TUserContext & TServerContext & YogaInitialContext>;
-  public logger: YogaLogger;
+  public logger: Logger;
   public fetchAPI: FetchAPI;
   protected plugins: Array<
     Plugin<TUserContext & TServerContext & YogaInitialContext, TServerContext, TUserContext>
@@ -282,16 +283,8 @@ export class YogaServer<
       }
     }
 
-    const logger = options?.logging == null ? true : options.logging;
-    this.logger =
-      typeof logger === 'boolean'
-        ? logger === true
-          ? createLogger()
-          : createLogger('silent')
-        : typeof logger === 'string'
-          ? createLogger(logger)
-          : logger;
-
+    const logging = options?.logging ?? 'info';
+    this.logger = logging instanceof Logger ? logging : new Logger({ level: logging });
     const maskErrorFn: MaskError =
       (typeof options?.maskedErrors === 'object' && options.maskedErrors.maskError) || maskError;
 
@@ -310,7 +303,8 @@ export class YogaServer<
               const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev);
 
               if (newError !== error) {
-                this.logger.error(error);
+                const requestLogger = this.maskedErrorsOpts?._requestLogger ?? this.logger;
+                requestLogger.error({ err: error });
               }
 
               maskedErrorSet.add(newError);
@@ -422,17 +416,31 @@ export class YogaServer<
       useCheckMethodForGraphQL(),
       // We make sure that the user doesn't send a mutation with GET
       usePreventMutationViaGET(),
-      // Make sure we always throw AbortError instead of masking it!
+      // Always throw AbortError instead of masking it, and stash this operation's logger for the
+      // next `maskError` call(s), since `useMaskedErrors` (registered right after) invokes
+      // `maskError` directly with no context of its own. For streamed/subscribed results we
+      // re-stash the logger via `onNext`, immediately before each chunk, rather than once up
+      // front in `onExecuteDone`/`onSubscribeResult` - `_requestLogger` is a single field shared
+      // across all in-flight requests, and a long-lived stream would otherwise leave it stale
+      // (and liable to be clobbered by another request) for its entire lifetime.
       maskedErrors !== null && {
-        onSubscribe() {
-          return {
-            onSubscribeError({ error }) {
-              if (isAbortError(error)) {
-                throw error;
-              }
-            },
-          };
-        },
+        onExecute: ({ args }) => ({
+          onExecuteDone: payload =>
+            handleStreamOrSingleExecutionResult(payload, () => {
+              this.maskedErrorsOpts!._requestLogger = args.contextValue.logger;
+            }),
+        }),
+        onSubscribe: ({ args }) => ({
+          onSubscribeError({ error }) {
+            if (isAbortError(error)) {
+              throw error;
+            }
+          },
+          onSubscribeResult: payload =>
+            handleStreamOrSingleExecutionResult(payload, () => {
+              this.maskedErrorsOpts!._requestLogger = args.contextValue.logger;
+            }),
+        }),
       },
       maskedErrors !== null && useMaskedErrors(maskedErrors),
       options?.allowedHeaders?.response != null &&
@@ -513,18 +521,27 @@ export class YogaServer<
     Object.assign(context, additionalContext);
 
     const enveloped = this.getEnveloped(context);
+    const logger = context.logger ?? this.logger;
 
-    this.logger.debug(`Processing GraphQL Parameters`);
+    logger.debug(
+      () => ({
+        path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
+        operationName: params.operationName,
+        variablesCount: params.variables ? Object.keys(params.variables).length : 0,
+        variables: params.variables,
+      }),
+      'Processing GraphQL Parameters',
+    );
     return handleMaybePromise(
       () =>
         handleMaybePromise(
-          () => processGraphQLParams({ params, enveloped }),
+          () => processGraphQLParams({ params, enveloped, logger }),
           result => {
-            this.logger.debug(`Processing GraphQL Parameters done.`);
+            logger.debug(`Processing GraphQL Parameters done.`);
             return result;
           },
           error => {
-            const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+            const errors = handleError(error, this.maskedErrorsOpts, logger);
 
             return {
               errors,
@@ -538,11 +555,11 @@ export class YogaServer<
             v => v,
             (error: Error) => {
               if (error.name === 'AbortError') {
-                this.logger.debug(`Request aborted`);
+                logger.debug(`Request aborted`);
                 throw error;
               }
 
-              const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+              const errors = handleError(error, this.maskedErrorsOpts, logger);
               return {
                 errors,
               };
@@ -618,6 +635,7 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
+    logger: Logger,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -668,7 +686,7 @@ export class YogaServer<
         if (response) {
           return { response };
         }
-        this.logger.debug(`Parsing request to extract GraphQL parameters`);
+        logger.debug(`Parsing request to extract GraphQL parameters`);
 
         if (!requestParser) {
           return {
@@ -712,6 +730,22 @@ export class YogaServer<
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
   ) => {
+    const requestId = getRequestId(request.headers.get('x-request-id'), () =>
+      this.fetchAPI.crypto.randomUUID(),
+    );
+    const logger = this.logger.child({ requestId });
+    // Exposed on the context (as `YogaInitialContext.logger`) so plugins, resolvers and the
+    // rest of the request lifecycle can all log under the same correlation id.
+    // Uses defineProperty (not Object.assign) because some integrations (e.g. Egg) pass their
+    // own request context object through as `serverContext`, and it may already have a
+    // getter-only `logger` accessor on its prototype that a plain assignment would trip over.
+    Object.defineProperty(serverContext, 'logger', {
+      value: logger,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+
     const instrumented = this.instrumentation && getInstrumented({ request });
 
     const parseRequest = this.instrumentation?.requestParse
@@ -720,7 +754,7 @@ export class YogaServer<
 
     return unfakePromise(
       fakePromise()
-        .then(() => parseRequest(request, serverContext))
+        .then(() => parseRequest(request, serverContext, logger))
         .then(({ response, requestParserResult }) => {
           if (response) {
             return response;
@@ -752,7 +786,7 @@ export class YogaServer<
                         )
                         // eslint-disable-next-line promise/no-nesting
                         .catch(error => {
-                          const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+                          const errors = handleError(error, this.maskedErrorsOpts, logger);
 
                           return {
                             errors,
@@ -780,13 +814,14 @@ export class YogaServer<
                 result,
                 fetchAPI: this.fetchAPI,
                 onResultProcessHooks: this.onResultProcessHooks,
+                logger,
                 serverContext,
               });
             },
           );
         })
         .catch(error => {
-          const errors = handleError(error, this.maskedErrorsOpts, this.logger);
+          const errors = handleError(error, this.maskedErrorsOpts, logger);
 
           const result = {
             errors,
@@ -797,6 +832,7 @@ export class YogaServer<
             result,
             fetchAPI: this.fetchAPI,
             onResultProcessHooks: this.onResultProcessHooks,
+            logger,
             serverContext,
           });
         }),

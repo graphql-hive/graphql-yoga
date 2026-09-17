@@ -1,5 +1,6 @@
 import { getOperationAST } from 'graphql';
 import type { GetEnvelopedFn } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 import type { ExecutionArgs } from '@graphql-tools/executor';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
@@ -12,6 +13,7 @@ export function processResult<TServerContext>({
   result,
   fetchAPI,
   onResultProcessHooks,
+  logger,
   serverContext,
 }: {
   request: Request;
@@ -21,6 +23,7 @@ export function processResult<TServerContext>({
    * Response Hooks
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
+  logger: Logger;
   serverContext: TServerContext & ServerAdapterInitialContext;
 }): MaybePromise<Response> {
   let resultProcessor: ResultProcessor | undefined;
@@ -30,8 +33,9 @@ export function processResult<TServerContext>({
 
   return handleMaybePromise(
     () =>
-      iterateAsync(onResultProcessHooks, onResultProcessHook =>
-        onResultProcessHook({
+      iterateAsync(onResultProcessHooks, onResultProcessHook => {
+        logger.debug('Running onResultProcess hook');
+        return onResultProcessHook({
           request,
           acceptableMediaTypes,
           result,
@@ -44,21 +48,34 @@ export function processResult<TServerContext>({
             acceptedMediaType = newAcceptedMimeType;
           },
           serverContext,
-        }),
-      ),
+        });
+      }),
     () => {
       // If no result processor found for this result, return an error
       if (!resultProcessor) {
-        return new fetchAPI.Response(null, {
+        logger.debug(
+          () => ({ accept: request.headers.get('accept'), acceptableMediaTypes }),
+          'No result processor matched, responding 406',
+        );
+        const response = new fetchAPI.Response(null, {
           status: 406,
           statusText: 'Not Acceptable',
           headers: {
             accept: acceptableMediaTypes.join('; charset=utf-8, '),
           },
         });
+        logger.debug(() => ({ status: response.status }), 'Sending response');
+        return response;
       }
 
-      return resultProcessor(result, fetchAPI, acceptedMediaType);
+      logger.debug(() => ({ acceptedMediaType }), 'Result processor selected');
+      return handleMaybePromise(
+        () => resultProcessor!(result, fetchAPI, acceptedMediaType),
+        response => {
+          logger.debug(() => ({ status: response.status }), 'Sending response');
+          return response;
+        },
+      );
     },
   );
 }
@@ -66,18 +83,30 @@ export function processResult<TServerContext>({
 export function processRequest({
   params,
   enveloped,
+  logger,
 }: {
   params: GraphQLParams;
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
+  logger: Logger;
 }) {
   // Parse GraphQLParams
+  let document;
+  try {
+    document = enveloped.parse(params.query!);
+  } catch (err) {
+    logger.debug(() => ({ err }), 'Parsing failed');
+    throw err;
+  }
 
-  const document = enveloped.parse(params.query!);
+  // Get the actual operation
+  const operation = getOperationAST(document, params.operationName);
+  logger.debug(() => ({ operationType: operation?.operation }), 'Parsed GraphQL document');
 
   // Validate parsed Document Node
   const errors = enveloped.validate(enveloped.schema, document);
 
   if (errors.length > 0) {
+    logger.debug(() => ({ errors }), 'Validation failed');
     return { errors };
   }
 
@@ -92,9 +121,6 @@ export function processRequest({
         variableValues: params.variables,
         operationName: params.operationName,
       };
-
-      // Get the actual operation
-      const operation = getOperationAST(document, params.operationName);
 
       // Choose the right executor
       const executeFn =

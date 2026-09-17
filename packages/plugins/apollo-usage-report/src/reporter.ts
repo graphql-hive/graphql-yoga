@@ -1,4 +1,4 @@
-import type { YogaLogger, YogaServer } from 'graphql-yoga';
+import type { Logger, YogaServer } from 'graphql-yoga';
 import { google, Report, ReportHeader } from '@apollo/usage-reporting-protobuf';
 import type { ApolloUsageReportOptions } from './index';
 import { OurReport } from './stats.js';
@@ -32,7 +32,7 @@ export class Reporter {
   constructor(
     options: ApolloUsageReportOptions,
     private yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
-    private logger: YogaLogger,
+    private logger: Logger,
   ) {
     this.options = {
       ...options,
@@ -40,7 +40,7 @@ export class Reporter {
       maxBatchUncompressedSize: options.maxBatchUncompressedSize ?? 4 * 1024 * 1024, // 4mb
       maxTraceSize: options.maxTraceSize ?? 10 * 1024 * 1024, // 10mb
       exportTimeout: options.exportTimeout ?? 30_000, // 30s
-      onError: options.onError ?? (err => this.logger.error('Failed to send report', err)),
+      onError: options.onError ?? (err => this.logger.error({ err }, 'Failed to send report')),
     };
     this.reportHeaders = {
       graphRef: getGraphRef(options),
@@ -133,14 +133,14 @@ export class Reporter {
 
         const result = await response.text();
         if (response.ok) {
-          this.logger.debug('Report sent:', result);
+          this.logger.debug({ result }, 'Report sent:');
           return;
         }
 
         throw result;
       } catch (err) {
         lastError = err;
-        this.logger.error('Failed to send report:', err);
+        this.logger.error({ err }, 'Failed to send report:');
       }
     }
 

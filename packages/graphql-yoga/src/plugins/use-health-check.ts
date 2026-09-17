@@ -1,15 +1,15 @@
-import type { YogaLogger } from '@graphql-yoga/logger';
+import { Logger } from '@graphql-hive/logger';
 import type { Plugin } from './types.js';
 
 export interface HealthCheckPluginOptions {
   id?: string;
-  logger?: YogaLogger;
+  logger?: Logger;
   endpoint?: string;
 }
 
 export function useHealthCheck({
   id = Date.now().toString(),
-  logger = console,
+  logger = new Logger(),
   endpoint = '/health',
 }: HealthCheckPluginOptions = {}): Plugin {
   return {

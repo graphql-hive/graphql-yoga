@@ -2,7 +2,7 @@ import type { DocumentNode, GraphQLSchema } from 'graphql';
 import { getOperationAST, Kind } from 'graphql';
 import {
   isAsyncIterable,
-  YogaLogger,
+  Logger,
   YogaServer,
   type Maybe,
   type Plugin,
@@ -117,7 +117,7 @@ export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
   reporter?: (
     options: ApolloUsageReportOptions,
     yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
-    logger: YogaLogger,
+    logger: Logger,
   ) => Reporter;
   /**
    * Called when all retry attempts to send a report to GraphOS endpoint failed.
@@ -155,6 +155,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   let currentSchema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
   let reporter: Reporter;
+  let logger: Logger;
 
   const setCurrentSchema = async (schema: GraphQLSchema) => {
     try {
@@ -163,19 +164,12 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
         schema,
       };
     } catch (error) {
-      logger.error('Failed to calculate schema hash: ', error);
+      logger.error({ err: error }, 'Failed to calculate schema hash: ');
     }
 
     // We don't want to block server start even if we failed to compute schema id
     schemaIdSet$ = undefined;
   };
-
-  const logger = Object.fromEntries(
-    (['error', 'warn', 'info', 'debug'] as const).map(level => [
-      level,
-      (...messages: unknown[]) => yoga.logger[level]('[ApolloUsageReport]', ...messages),
-    ]),
-  ) as YogaLogger;
 
   let clientNameFactory: StringFromRequestFn = req => req.headers.get('apollographql-client-name');
   if (typeof options.clientName === 'function') {
@@ -194,6 +188,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
       addPlugin({
         onYogaInit(args) {
           yoga = args.yoga;
+          logger = yoga.logger.child('ApolloUsageReport');
           reporter = makeReporter(options, yoga, logger);
 
           if (!getEnvVar('APOLLO_KEY', options.apiKey)) {

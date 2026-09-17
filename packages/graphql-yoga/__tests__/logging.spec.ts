@@ -1,42 +1,44 @@
-/* eslint-disable no-console */
 import { GraphQLError } from 'graphql';
 import { jest } from '@jest/globals';
-import { createGraphQLError, createLogger, createSchema, createYoga } from '../src';
+import { createGraphQLError, createSchema, createYoga, Logger, MemoryLogWriter } from '../src';
 
 describe('logging', () => {
   it('custom logger', async () => {
-    const logger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yogaApp = createYoga({
       logging: logger,
     });
 
     await yogaApp.fetch('http://yoga/graphql?query={greetings}');
 
-    expect(logger.debug).toHaveBeenCalledWith(`Parsing request to extract GraphQL parameters`);
+    expect(writer.logs).toContainEqual(
+      expect.objectContaining({
+        level: 'debug',
+        msg: 'Parsing request to extract GraphQL parameters',
+      }),
+    );
   });
   describe('default logger', () => {
     it(`doesn't print debug messages if DEBUG env var isn't set`, () => {
-      jest.spyOn(console, 'debug');
-      const logger = createLogger();
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ writers: [writer] });
       logger.debug('TEST');
 
-      expect(console.debug).not.toHaveBeenCalled();
+      expect(writer.logs).toEqual([]);
     });
     it(`prints debug messages if DEBUG env var is set`, () => {
       const originalValue = process.env['DEBUG'];
       try {
         process.env['DEBUG'] = '1';
 
-        jest.spyOn(console, 'debug').mockImplementationOnce(() => {});
-        const logger = createLogger();
+        const writer = new MemoryLogWriter();
+        const logger = new Logger({ writers: [writer] });
         logger.debug('TEST');
 
-        expect(console.debug).toHaveBeenCalled();
+        expect(writer.logs).toContainEqual(
+          expect.objectContaining({ level: 'debug', msg: 'TEST' }),
+        );
       } finally {
         process.env['DEBUG'] = originalValue;
       }
@@ -45,7 +47,8 @@ describe('logging', () => {
 
   describe('GraphQL error handling', () => {
     it('logs unexpected Errors', async () => {
-      const logger = createLogger('error');
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: 'error', writers: [writer] });
       const yoga = createYoga({
         logging: logger,
         schema: createSchema({
@@ -64,8 +67,6 @@ describe('logging', () => {
         }),
       });
 
-      const mock = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
-
       const response = await yoga.fetch('http://yoga/graphql', {
         method: 'POST',
         body: JSON.stringify({ query: '{hi}' }),
@@ -79,16 +80,19 @@ describe('logging', () => {
         `"{"errors":[{"message":"Unexpected error.","locations":[{"line":1,"column":2}],"path":["hi"],"extensions":{"code":"INTERNAL_SERVER_ERROR"}}],"data":{"hi":null}}"`,
       );
 
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(mock.mock.calls[0]).toMatchInlineSnapshot(`
-        [
-          [GraphQLError: The database connection failed.],
-        ]
-      `);
+      const errorLogs = writer.logs.filter(log => log.level === 'error');
+      expect(errorLogs).toHaveLength(1);
+      expect(errorLogs[0]).toEqual({
+        level: 'error',
+        attrs: {
+          err: expect.objectContaining({ message: 'The database connection failed.' }),
+          requestId: expect.any(String),
+        },
+      });
     });
 
     it('does not log unexpected GraphQL Errors (GraphQLError)', async () => {
-      const logger = createLogger('error');
+      const logger = new Logger({ level: 'error' });
       const yoga = createYoga({
         logging: logger,
         schema: createSchema({
@@ -126,7 +130,7 @@ describe('logging', () => {
     });
 
     it('does not log unexpeted GraphQL Errors (createGraphQLError)', async () => {
-      const logger = createLogger('error');
+      const logger = new Logger({ level: 'error' });
       const yoga = createYoga({
         logging: logger,
         schema: createSchema({

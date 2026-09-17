@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
-import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga';
+import { createSchema, createYoga, Logger, useExecutionCancellation } from 'graphql-yoga';
 
-const logger = createLogger('debug');
+const logger = new Logger({ level: 'debug' });
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `

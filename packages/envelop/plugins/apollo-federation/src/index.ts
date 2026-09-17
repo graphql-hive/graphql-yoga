@@ -8,15 +8,9 @@ import { getOperationAST, print, printSchema } from 'graphql';
 import { InMemoryLRUCache, type KeyValueCache } from '@apollo/utils.keyvaluecache';
 import type { Plugin } from '@envelop/core';
 import { getDocumentString } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 import type { CachePolicy } from './new-cache-policy.js';
 import { newCachePolicy } from './new-cache-policy.js';
-
-interface GatewayLogger {
-  warn(message: unknown): void;
-  debug(message: unknown): void;
-  info(message: unknown): void;
-  error(message: unknown): void;
-}
 
 type GatewayExecutor = (args: {
   document: DocumentNode;
@@ -30,7 +24,7 @@ type GatewayExecutor = (args: {
   cache: KeyValueCache;
   context: Record<string, any>;
   queryHash: string;
-  logger: GatewayLogger;
+  logger: Logger;
   metrics: any;
   source: string;
   operation: OperationDefinitionNode;
@@ -51,7 +45,7 @@ export interface ApolloFederationPluginConfig<TFederationGateway extends ApolloF
   gateway: TFederationGateway;
   metrics?: unknown;
   cache?: KeyValueCache;
-  logger?: GatewayLogger;
+  logger?: Logger;
   overallCachePolicy?: CachePolicy;
 }
 
@@ -64,7 +58,7 @@ export const useApolloFederation = <
   const {
     gateway,
     cache = new InMemoryLRUCache(),
-    logger = console,
+    logger = new Logger(),
     metrics = Object.create(null),
     overallCachePolicy = newCachePolicy(),
   } = options;
