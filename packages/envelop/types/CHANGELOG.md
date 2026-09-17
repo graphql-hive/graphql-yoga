@@ -1,5 +1,14 @@
 # @envelop/types
 
+## 5.2.2
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
 ## 5.2.1
 
 ### Patch Changes
@@ -135,7 +144,6 @@
 - [#1725](https://github.com/n1ru4l/envelop/pull/1725)
   [`c1eb2c09`](https://github.com/n1ru4l/envelop/commit/c1eb2c09ac535b076a5c13430c3892d98f7ef957)
   Thanks [@n1ru4l](https://github.com/n1ru4l)! - dependencies updates:
-
   - Updated dependency [`tslib@^2.5.0` ↗︎](https://www.npmjs.com/package/tslib/v/2.5.0) (from
     `^2.4.0`, in `dependencies`)
 
