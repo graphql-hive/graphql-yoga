@@ -4,85 +4,97 @@ import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from './fixtures/graphql/app.module';
 
-let app: INestApplication, url: string;
+// @nestjs/graphql v14 (as shipped for NestJS 12) dropped server-side support for the legacy
+// subscriptions-transport-ws protocol: `GqlSubscriptionService` no longer wires up anything for
+// it, so the client below would connect but never receive a response, hanging indefinitely.
+const nestjsGraphqlMajor = parseInt(
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  (require('@nestjs/graphql/package.json') as { version: string }).version.split('.')[0]!,
+  10,
+);
+const describeIfSupported = nestjsGraphqlMajor < 14 ? describe : describe.skip;
 
-beforeAll(async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      AppModule.forRoot({
-        subscriptions: {
-          'subscriptions-transport-ws': true,
-        },
+describeIfSupported('subscriptions-transport-ws', () => {
+  let app: INestApplication, url: string;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [
+        AppModule.forRoot({
+          subscriptions: {
+            'subscriptions-transport-ws': true,
+          },
+        }),
+      ],
+    }).compile();
+    app = module.createNestApplication();
+    await app.listen(0);
+    url = (await app.getUrl()) + '/graphql';
+  });
+
+  afterAll(() => app.close());
+
+  it('should subscribe using subscriptions-transport-ws', async () => {
+    const client = new SubscriptionClient(
+      url.replace('http', 'ws'),
+      {
+        lazy: true,
+        reconnectionAttempts: 0,
+      },
+      WebSocket,
+    );
+
+    await expect(
+      new Promise((resolve, reject) => {
+        const msgs: unknown[] = [];
+        const obs = client.request({
+          query: /* GraphQL */ `
+            subscription {
+              greetings
+            }
+          `,
+        });
+        obs.subscribe({
+          next(msg) {
+            msgs.push(msg);
+          },
+          error: reject,
+          complete: () => {
+            resolve(msgs);
+          },
+        });
       }),
-    ],
-  }).compile();
-  app = module.createNestApplication();
-  await app.listen(0);
-  url = (await app.getUrl()) + '/graphql';
-});
+    ).resolves.toMatchInlineSnapshot(`
+        [
+          {
+            "data": {
+              "greetings": "Hi",
+            },
+          },
+          {
+            "data": {
+              "greetings": "Bonjour",
+            },
+          },
+          {
+            "data": {
+              "greetings": "Hola",
+            },
+          },
+          {
+            "data": {
+              "greetings": "Ciao",
+            },
+          },
+          {
+            "data": {
+              "greetings": "Zdravo",
+            },
+          },
+        ]
+      `);
 
-afterAll(() => app.close());
-
-it('should subscribe using subscriptions-transport-ws', async () => {
-  const client = new SubscriptionClient(
-    url.replace('http', 'ws'),
-    {
-      lazy: true,
-      reconnectionAttempts: 0,
-    },
-    WebSocket,
-  );
-
-  await expect(
-    new Promise((resolve, reject) => {
-      const msgs: unknown[] = [];
-      const obs = client.request({
-        query: /* GraphQL */ `
-          subscription {
-            greetings
-          }
-        `,
-      });
-      obs.subscribe({
-        next(msg) {
-          msgs.push(msg);
-        },
-        error: reject,
-        complete: () => {
-          resolve(msgs);
-        },
-      });
-    }),
-  ).resolves.toMatchInlineSnapshot(`
-      [
-        {
-          "data": {
-            "greetings": "Hi",
-          },
-        },
-        {
-          "data": {
-            "greetings": "Bonjour",
-          },
-        },
-        {
-          "data": {
-            "greetings": "Hola",
-          },
-        },
-        {
-          "data": {
-            "greetings": "Ciao",
-          },
-        },
-        {
-          "data": {
-            "greetings": "Zdravo",
-          },
-        },
-      ]
-    `);
-
-  // somehow, even in lazy mode, it keeps the connection after subscriptions complete
-  client.close();
+    // somehow, even in lazy mode, it keeps the connection after subscriptions complete
+    client.close();
+  });
 });

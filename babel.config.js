@@ -4,9 +4,11 @@ module.exports = {
     '@babel/preset-typescript',
   ],
   plugins: [
+    './scripts/babel-plugin-transform-import-meta-url.js',
     'babel-plugin-transform-typescript-metadata',
     ['@babel/plugin-proposal-decorators', { legacy: true }],
     'babel-plugin-parameter-decorator',
     '@babel/plugin-transform-class-properties',
+    '@babel/plugin-transform-class-static-block',
   ],
 };

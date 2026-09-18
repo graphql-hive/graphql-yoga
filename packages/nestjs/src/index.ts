@@ -10,7 +10,10 @@ import {
   YogaServerInstance,
   YogaServerOptions,
 } from 'graphql-yoga';
-import type { ExecutionParams } from 'subscriptions-transport-ws';
+import type {
+  ExecutionParams,
+  ServerOptions as SubscriptionsTransportWsServerOptions,
+} from 'subscriptions-transport-ws';
 import { Injectable, Logger } from '@nestjs/common';
 import {
   AbstractGraphQLDriver,
@@ -65,12 +68,25 @@ export type YogaDriverConfig<Platform extends YogaDriverPlatform = 'express'> = 
       }
   );
 
+/**
+ * `@nestjs/graphql` v14 dropped `subscriptions-transport-ws` support (and its type) from
+ * `SubscriptionConfig`, so this is defined independently from the legacy `subscriptions-transport-ws`
+ * package to keep working across both `@nestjs/graphql` v13 and v14 peers.
+ */
+export type YogaDriverSubscriptionTransportWsConfig = Partial<
+  Pick<
+    SubscriptionsTransportWsServerOptions,
+    'onConnect' | 'onDisconnect' | 'onOperation' | 'keepAlive'
+  >
+> & {
+  path?: string;
+};
+
 export type YogaDriverSubscriptionConfig = {
   'graphql-ws'?: Omit<SubscriptionConfig['graphql-ws'], 'onSubscribe'>;
-  'subscriptions-transport-ws'?: Omit<
-    SubscriptionConfig['subscriptions-transport-ws'],
-    'onOperation'
-  >;
+  'subscriptions-transport-ws'?:
+    | Omit<YogaDriverSubscriptionTransportWsConfig, 'onOperation'>
+    | boolean;
 };
 
 export abstract class AbstractYogaDriver<
@@ -254,7 +270,10 @@ export class YogaDriver<
         throw new Error('Schema is required when using subscriptions');
       }
 
-      const config: SubscriptionConfig =
+      const config: {
+        'graphql-ws'?: SubscriptionConfig['graphql-ws'];
+        'subscriptions-transport-ws'?: YogaDriverSubscriptionTransportWsConfig | boolean;
+      } =
         options.subscriptions === true
           ? {
               'graphql-ws': true,
