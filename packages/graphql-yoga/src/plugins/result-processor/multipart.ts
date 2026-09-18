@@ -73,7 +73,7 @@ export function processMultipartResult(result: ResultProcessorInput, fetchAPI: F
       );
     },
     cancel(e) {
-      if (iterator.return) {
+      if (iterator && iterator.return) {
         return handleMaybePromise(
           () => iterator.return?.(e),
           () => {},
