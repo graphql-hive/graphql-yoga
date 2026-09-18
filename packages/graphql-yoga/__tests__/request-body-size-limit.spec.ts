@@ -78,4 +78,50 @@ describe('Request body size limit', () => {
     });
     expect(response.status).toBe(200);
   });
+
+  // Related to https://github.com/graphql-hive/graphql-yoga/issues/4583
+  describe('Native Request object with the native ReadableStream', () => {
+    it('errors correctly on larger bodies', async () => {
+      const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
+      const encoder = new globalThis.TextEncoder();
+      const payload = JSON.stringify({ query: '{ hello }' });
+      const stream = new globalThis.ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(encoder.encode(payload));
+          controller.close();
+        },
+      });
+      const request = new globalThis.Request('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: stream,
+        // @ts-expect-error Missing from `Request`'s types but required for streamed bodies.
+        duplex: 'half',
+      });
+      const response = await yoga.fetch(request);
+      expect(response.status).toBe(413);
+      const body = await response.json();
+      expect(body.errors[0].message).toMatch(/Request body too large/);
+    });
+  });
+  it('passes correctly on smaller bodies', async () => {
+    const yoga = createYoga({ schema, maxRequestBodySize: 1000, logging: false });
+    const encoder = new globalThis.TextEncoder();
+    const payload = JSON.stringify({ query: '{ hello }' });
+    const stream = new globalThis.ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(payload));
+        controller.close();
+      },
+    });
+    const request = new globalThis.Request('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: stream,
+      // @ts-expect-error Missing from `Request`'s types but required for streamed bodies.
+      duplex: 'half',
+    });
+    const response = await yoga.fetch(request);
+    expect(response.status).toBe(200);
+  });
 });
