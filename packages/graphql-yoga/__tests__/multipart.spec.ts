@@ -24,7 +24,7 @@ describe('Multipart', () => {
     const form = new FormData();
     form.set('operations', JSON.stringify({ query: '{ hello }', variables: {} }));
     form.set('map', JSON.stringify({ 0: [mapPath] }));
-    form.set('0', 'x');
+    form.set('0', new Blob(['x']), 'x.txt');
     return yoga.fetch('http://yoga/graphql', { method: 'POST', body: form });
   }
 

@@ -1,8 +1,8 @@
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { WebSocket } from 'ws';
-import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from './fixtures/graphql/app.module';
+import { useTestApp } from './utils/app';
 
 // @nestjs/graphql v14 (as shipped for NestJS 12) dropped server-side support for the legacy
 // subscriptions-transport-ws protocol: `GqlSubscriptionService` no longer wires up anything for
@@ -15,10 +15,8 @@ const nestjsGraphqlMajor = parseInt(
 const describeIfSupported = nestjsGraphqlMajor < 14 ? describe : describe.skip;
 
 describeIfSupported('subscriptions-transport-ws', () => {
-  let app: INestApplication, url: string;
-
-  beforeAll(async () => {
-    const module = await Test.createTestingModule({
+  const { getUrl } = useTestApp(() =>
+    Test.createTestingModule({
       imports: [
         AppModule.forRoot({
           subscriptions: {
@@ -26,17 +24,12 @@ describeIfSupported('subscriptions-transport-ws', () => {
           },
         }),
       ],
-    }).compile();
-    app = module.createNestApplication();
-    await app.listen(0);
-    url = (await app.getUrl()) + '/graphql';
-  });
-
-  afterAll(() => app.close());
+    }).compile(),
+  );
 
   it('should subscribe using subscriptions-transport-ws', async () => {
     const client = new SubscriptionClient(
-      url.replace('http', 'ws'),
+      getUrl().replace('http', 'ws'),
       {
         lazy: true,
         reconnectionAttempts: 0,
@@ -94,7 +87,6 @@ describeIfSupported('subscriptions-transport-ws', () => {
         ]
       `);
 
-    // somehow, even in lazy mode, it keeps the connection after subscriptions complete
     client.close();
   });
 });
