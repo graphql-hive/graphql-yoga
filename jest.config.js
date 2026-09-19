@@ -99,6 +99,12 @@ if (process.env.INTEGRATION_TEST === 'true') {
 const tsPathsModuleNameMapper = pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
   prefix: `${ROOT_DIR}/`,
 });
+// `graphql`/`graphql/*` are pinned in tsconfig's `paths` to a single canonical declaration file,
+// working around a TypeScript dual CJS/ESM declaration hazard (see tsconfig.json) - but that
+// points at a `.d.ts` file, which isn't valid runtime JS. `getGraphQLModuleNameMapper` below
+// already redirects `graphql` per-project to the right runtime version, so drop these two here.
+delete tsPathsModuleNameMapper['^graphql$'];
+delete tsPathsModuleNameMapper['^graphql/(.*)$'];
 
 const projects = graphqlVersions.map(graphqlVersion => ({
   // `jest --selectProjects graphql-16` runs only that version
@@ -119,6 +125,9 @@ const projects = graphqlVersions.map(graphqlVersion => ({
   ),
   testMatch: createTestMatch(graphqlVersion.major),
   testPathIgnorePatterns: ['<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv'],
+  // `@nestjs/*` v12 packages ship as ESM-only (no CJS build), so they need to go through Babel
+  // like our own source instead of being skipped as usual for `node_modules`.
+  transformIgnorePatterns: ['/node_modules/(?!(\\.pnpm/)?@nestjs)'],
   testTimeout: process.env.INTEGRATION_TEST === 'true' ? 10_000 : undefined,
   resolver: 'bob-the-bundler/jest-resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],

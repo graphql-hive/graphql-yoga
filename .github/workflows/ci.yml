@@ -114,6 +114,20 @@ jobs:
       - name: Build Packages
         run: pnpm build
 
+      - name: Cache Jest transform cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .cache/jest
+          # `@nestjs/*` (ESM-only) gets routed through Babel instead of being skipped like
+          # regular node_modules, see `transformIgnorePatterns` in jest.config.js - without a
+          # cache, transforming its whole dependency tree costs ~10s on the first nestjs spec
+          # that runs in each worker, enough to blow past jest's 5s default hook timeout.
+          key:
+            ${{ runner.os }}-jest-nestjs-node${{ matrix.node-version }}-gql${{
+            matrix.graphql-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-nestjs-node${{ matrix.node-version }}-gql${{ matrix.graphql-version }}-
+
       - name: Run Unit Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
