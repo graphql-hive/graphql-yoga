@@ -182,8 +182,9 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * built-in request parsers (JSON, GraphQL string, url-encoded and multipart).
    *
    * Requests whose `Content-Length` exceeds this value are rejected with an HTTP 413 response
-   * before the body is read. The limit is also enforced while streaming the body, so requests
-   * with a missing, incorrect, or chunked-transfer-encoded body are covered too.
+   * before the body is read. The limit is also enforced while streaming the body when
+   * `Content-Length` can't bound it: the header is missing (chunked transfer-encoding), or
+   * `Transfer-Encoding` or `Content-Encoding` is present.
    *
    * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
    * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).

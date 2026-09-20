@@ -29,7 +29,8 @@ function createInvalidContentLengthError() {
 // outright instead of being allowed to silently skip this check.
 const CONTENT_LENGTH_RE = /^\d+$/;
 
-// Covers requests with a missing/incorrect Content-Length (e.g. chunked transfer-encoding).
+// Covers requests whose body isn't bounded by Content-Length: the header is missing (e.g. chunked
+// transfer-encoding), or Transfer-Encoding or Content-Encoding is present.
 export function limitRequestBodySize(request: Request, limit: number, fetchAPI: FetchAPI): Request {
   const body = request.body;
   if (!body) {
@@ -82,6 +83,13 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
         }
         if (Number(contentLength) > limit) {
           throw createRequestBodyTooLargeError();
+        }
+        // A compliant HTTP parser frames the body to exactly this many bytes, so piping it through
+        // limitRequestBodySize would only add overhead. Transfer-Encoding overrides Content-Length,
+        // and a Content-Encoding body may already be decoded (useContentEncoding runs in onRequest)
+        // and grow past the declared length, so both keep the wrapper.
+        if (!request.headers.has('transfer-encoding') && !request.headers.has('content-encoding')) {
+          return;
         }
       }
 

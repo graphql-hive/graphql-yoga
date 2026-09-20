@@ -1,3 +1,5 @@
+import { gzipSync } from 'node:zlib';
+import { useContentEncoding } from '@whatwg-node/server';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
 
@@ -46,6 +48,77 @@ describe('Request body size limit', () => {
     expect(response.status).toBe(413);
     const body = await response.json();
     expect(body.errors[0].message).toMatch(/Request body too large/);
+  });
+
+  it('rejects a streamed body over the limit when Content-Length and Transfer-Encoding are both present', async () => {
+    const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
+    const encoder = new TextEncoder();
+    const payload = JSON.stringify({ query: '{ hello }' });
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(payload));
+        controller.close();
+      },
+    });
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': '5',
+        'Transfer-Encoding': 'chunked',
+      },
+      body: stream,
+      duplex: 'half',
+    });
+    expect(response.status).toBe(413);
+    const body = await response.json();
+    expect(body.errors[0].message).toMatch(/Request body too large/);
+  });
+
+  it('rejects a compressed body that exceeds the limit once decoded', async () => {
+    const yoga = createYoga({
+      schema,
+      maxRequestBodySize: 1000,
+      logging: false,
+      plugins: [useContentEncoding()],
+    });
+    const compressed = gzipSync(
+      JSON.stringify({ query: '{ hello }', variables: { padding: 'x'.repeat(50_000) } }),
+    );
+    expect(compressed.byteLength).toBeLessThan(1000);
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip',
+        'Content-Length': String(compressed.byteLength),
+      },
+      body: compressed,
+    });
+    expect(response.status).toBe(413);
+    const body = await response.json();
+    expect(body.errors[0].message).toMatch(/Request body too large/);
+  });
+
+  it('allows a compressed body that stays within the limit once decoded', async () => {
+    const yoga = createYoga({
+      schema,
+      maxRequestBodySize: 1000,
+      logging: false,
+      plugins: [useContentEncoding()],
+    });
+    const compressed = gzipSync(JSON.stringify({ query: '{ hello }' }));
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip',
+        'Content-Length': String(compressed.byteLength),
+      },
+      body: compressed,
+    });
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ data: { hello: 'world' } });
   });
 
   it('allows requests within the configured limit', async () => {
