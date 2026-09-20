@@ -5,16 +5,16 @@ This plugin collects errors and performance tracing for your execution flow, and
 
 This is how it looks like in Sentry for error tracking:
 
-![Example](https://raw.githubusercontent.com/graphql-hive/envelop/main/packages/plugins/sentry/error1.png)
-![Example](https://raw.githubusercontent.com/graphql-hive/envelop/main/packages/plugins/sentry/error2.png)
+![Example](https://raw.githubusercontent.com/graphql-hive/graphql-yoga/main/packages/envelop/plugins/sentry/error1.png)
+![Example](https://raw.githubusercontent.com/graphql-hive/graphql-yoga/main/packages/envelop/plugins/sentry/error2.png)
 
 > The operation name, document, variables are collected on errors, and the breadcrumbs that led to
 > the error. You can also add any custom values that you need.
 
 And for performance tracking:
 
-![Example](https://raw.githubusercontent.com/graphql-hive/envelop/main/packages/plugins/sentry/perf1.png)
-![Example](https://raw.githubusercontent.com/graphql-hive/envelop/main/packages/plugins/sentry/perf2.png)
+![Example](https://raw.githubusercontent.com/graphql-hive/graphql-yoga/main/packages/envelop/plugins/sentry/perf1.png)
+![Example](https://raw.githubusercontent.com/graphql-hive/graphql-yoga/main/packages/envelop/plugins/sentry/perf2.png)
 
 > You can get information about each resolver (including field and type names), it's execution time
 > and arguments. Also, in case of an error, the performance log and info are attached automatically

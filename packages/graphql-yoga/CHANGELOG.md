@@ -1,5 +1,116 @@
 # graphql-yoga
 
+## 5.24.1
+
+### Patch Changes
+
+- [#4586](https://github.com/graphql-hive/graphql-yoga/pull/4586)
+  [`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)
+  Thanks [@ardatan](https://github.com/ardatan)! - Fixes the issue thrown in the plugin that limits
+  the incoming request body's size, when the incoming `Request` object is not the instance of the
+  `fetchAPI.Request` which is usually the ponyfill implementation from `@whatwg-node/node-fetch`.
+
+  This will be fixed in the following breaking release in `@whatwg-node/node-fetch` but in order to
+  unblock the current users of GraphQL Yoga, a small normalization layer has been added to the
+  plugin as a temporary workaround.
+
+  Since the native `Request.body` is a native `ReadableStream`, that doesn't support other
+  `TransformStream` implementation to its `pipeThrough` method, the limiting implementation didn't
+  work properly.
+
+  When the user ran Yoga within Next.js that uses the native `Request` object, it threw a
+  `TypeError` which causes a cryptic `500 Internal Server Error` for Next.js users.
+
+  This workaround checks whether the incoming `Request`'s body object is an instance of the native
+  `ReadableStream` and applies the appropriate `TransformStream` implementation to ensure the
+  request body size limiting works correctly.
+
+## 5.24.0
+
+### Minor Changes
+
+- [#4580](https://github.com/graphql-hive/graphql-yoga/pull/4580)
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Limit the size of incoming HTTP request
+  bodies by default to protect against denial-of-service attacks from oversized payloads.
+
+  Requests whose `Content-Length` exceeds the limit are rejected with an HTTP 413 response before
+  the body is read, and the limit is also enforced while streaming the body so that requests with a
+  missing, incorrect, or chunked-transfer-encoded body are covered too.
+
+  The default limit is 25 MB. Configure it with the new `maxRequestBodySize` option, or set it to
+  `false` to disable the limit (not recommended unless an upstream reverse proxy already enforces
+  one):
+
+  ```ts
+  createYoga({
+    // Allow bodies up to 25 MB
+    maxRequestBodySize: 25_000_000
+  })
+  ```
+
+  Also return an HTTP 400 response for malformed `multipart/form-data` requests (e.g. a missing or
+  invalid `boundary`), instead of masking the parse error as a generic 500 Internal Server Error.
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/instrumentation@1.0.1
+  - @envelop/core@5.6.1
+  - @graphql-yoga/subscription@5.1.1
+  - @graphql-yoga/logger@2.0.2
+
+## 5.23.0
+
+### Patch Changes
+
+- [#4569](https://github.com/graphql-hive/graphql-yoga/pull/4569)
+  [`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d)
+  Thanks [@Urigo](https://github.com/Urigo)! - Serve the favicon of the built-in GraphiQL and
+  landing pages from a file that stays in the repository (`packages/render-graphiql/favicon.ico`)
+  now that the website sources moved.
+
+- [#4573](https://github.com/graphql-hive/graphql-yoga/pull/4573)
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)
+  Thanks [@cpruijsen](https://github.com/cpruijsen)! - Keep SSE keep-alive pings running when the
+  stream reports backpressure (`desiredSize === 0`) instead of treating a full queue as a closed
+  connection.
+
+- Updated dependencies
+  [[`b70ad4a`](https://github.com/graphql-hive/graphql-yoga/commit/b70ad4af7b29348900959f02f7426c32607ab22a)]:
+  - @graphql-yoga/subscription@5.1.0
+
+## 5.22.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/core@5.6.0
+
+## 5.21.3
+
+### Patch Changes
+
+- [#4557](https://github.com/graphql-hive/graphql-yoga/pull/4557)
+  [`04014d2`](https://github.com/graphql-hive/graphql-yoga/commit/04014d248ed9300835b1550a0d53ff61d83023b5)
+  Thanks [@jdolle](https://github.com/jdolle)! - Patch prototype pollution vulnerability in
+  multipart parser
+
 ## 5.21.2
 
 ### Patch Changes

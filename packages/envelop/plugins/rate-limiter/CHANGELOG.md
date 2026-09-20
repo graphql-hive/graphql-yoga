@@ -1,5 +1,36 @@
 # @envelop/rate-limiter
 
+## 10.2.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/on-resolve@7.2.1
+  - @envelop/core@5.6.1
+
+## 10.2.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/on-resolve@7.2.0
+  - @envelop/core@5.6.0
+
 ## 10.1.0
 
 ### Minor Changes

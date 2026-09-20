@@ -1,5 +1,29 @@
 # @graphql-yoga/graphiql
 
+## 4.5.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- [#4578](https://github.com/graphql-hive/graphql-yoga/pull/4578)
+  [`d5561d1`](https://github.com/graphql-hive/graphql-yoga/commit/d5561d1c007dc79007f2933c899c31912808068d)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Hide the initial boilerplate if the user has
+  set a default query or default tab. (closes #3979)
+
+## 4.5.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
 ## 4.4.4
 
 ### Patch Changes

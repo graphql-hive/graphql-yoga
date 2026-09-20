@@ -1,12 +1,16 @@
 {
   "name": "@graphql-yoga/plugin-jwt",
-  "version": "3.15.2",
+  "version": "3.18.1",
   "type": "module",
   "description": "jwt plugin for GraphQL Yoga.",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/jwt"
+  },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/plugins/jwt#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
   },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
   "license": "MIT",
@@ -37,7 +41,7 @@
     "check": "pnpm -w exec tsgo --pretty --noEmit"
   },
   "peerDependencies": {
-    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql": "^15.2.0 || ^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "dependencies": {
@@ -50,7 +54,7 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.0",
     "@types/ws": "^8.5.13",
-    "graphql": "16.12.0",
+    "graphql": "17.0.2",
     "graphql-scalars": "^1.22.2",
     "graphql-ws": "6.0.6",
     "graphql-yoga": "workspace:*",

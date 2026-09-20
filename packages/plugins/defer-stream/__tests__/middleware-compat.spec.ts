@@ -19,7 +19,6 @@ function createResolverWrappingPlugin(callLog: string[]) {
       schema: GraphQLSchema;
       replaceSchema: (s: GraphQLSchema) => void;
     }) {
-      // @ts-expect-error - we know it is forbidden
       if (schema.extensions?.[wrappingAppliedSymbol]) {
         return;
       }
@@ -120,7 +119,6 @@ describe('Middleware Compatibility', () => {
             schema: GraphQLSchema;
             replaceSchema: (s: GraphQLSchema) => void;
           }) {
-            // @ts-expect-error - we know it is forbidden
             if (schema.extensions?.[middlewareAppliedSymbol]) {
               return;
             }

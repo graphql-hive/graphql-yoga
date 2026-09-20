@@ -1,5 +1,6 @@
 import Redis from 'ioredis-mock';
 import { createRedisEventTarget } from '@graphql-yoga/redis-event-target';
+import { DroppingBuffer, FixedBuffer, SlidingBuffer } from '@repeaterjs/repeater';
 import { createPubSub } from './create-pub-sub.js';
 
 async function collectAsyncIterableValues<TType>(
@@ -148,6 +149,91 @@ describe('createPubSub', () => {
 
       const result = await allValues;
       expect(result).toEqual([null, null, null]);
+    });
+  });
+
+  describe('repeaterBuffer', () => {
+    it('uses SlidingBuffer to handle overflow', async () => {
+      const pubSub = createPubSub<{
+        a: [number];
+      }>({
+        repeaterBuffer: new SlidingBuffer(3),
+      });
+
+      const sub = pubSub.subscribe('a');
+      const allValues = collectAsyncIterableValues(sub);
+
+      // Push more values than buffer capacity
+      // First value (1) goes directly to the waiting consumer
+      // Remaining values go to buffer: 2,3,4,5
+      // SlidingBuffer(3) keeps last 3, so 2 slides out → buffer has [3,4,5]
+      pubSub.publish('a', 1);
+      pubSub.publish('a', 2);
+      pubSub.publish('a', 3);
+      pubSub.publish('a', 4);
+      pubSub.publish('a', 5);
+
+      setImmediate(() => {
+        sub.return();
+      });
+
+      const result = await allValues;
+      // First value (1) bypasses buffer, then buffer drains [3,4,5]
+      expect(result).toEqual([1, 3, 4, 5]);
+    });
+
+    it('uses DroppingBuffer to handle overflow', async () => {
+      const pubSub = createPubSub<{
+        a: [number];
+      }>({
+        repeaterBuffer: new DroppingBuffer(3),
+      });
+
+      const sub = pubSub.subscribe('a');
+      const allValues = collectAsyncIterableValues(sub);
+
+      // Push more values than buffer capacity
+      // First value (1) goes directly to the waiting consumer
+      // Remaining values go to buffer: 2,3,4,5
+      // DroppingBuffer(3) keeps first 3, so 5 is dropped → buffer has [2,3,4]
+      pubSub.publish('a', 1);
+      pubSub.publish('a', 2);
+      pubSub.publish('a', 3);
+      pubSub.publish('a', 4);
+      pubSub.publish('a', 5);
+
+      setImmediate(() => {
+        sub.return();
+      });
+
+      const result = await allValues;
+      // First value (1) bypasses buffer, then buffer drains [2,3,4]
+      expect(result).toEqual([1, 2, 3, 4]);
+    });
+
+    it('uses FixedBuffer with higher capacity', async () => {
+      const pubSub = createPubSub<{
+        a: [number];
+      }>({
+        repeaterBuffer: new FixedBuffer(5),
+      });
+
+      const sub = pubSub.subscribe('a');
+      const allValues = collectAsyncIterableValues(sub);
+
+      pubSub.publish('a', 1);
+      pubSub.publish('a', 2);
+      pubSub.publish('a', 3);
+      pubSub.publish('a', 4);
+      pubSub.publish('a', 5);
+
+      setImmediate(() => {
+        sub.return();
+      });
+
+      const result = await allValues;
+      // FixedBuffer with capacity 5 keeps all 5 values
+      expect(result).toEqual([1, 2, 3, 4, 5]);
     });
   });
 });

@@ -1,5 +1,42 @@
 # @envelop/response-cache-redis
 
+## 4.5.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/response-cache@9.3.1
+
+## 4.5.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ab4aeaa`](https://github.com/graphql-hive/graphql-yoga/commit/ab4aeaa85768f548328e8537dabdee25b88cf03c)]:
+  - @envelop/response-cache@9.3.0
+
+## 4.4.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/response-cache@9.2.0
+
 ## 4.3.1
 
 ### Patch Changes

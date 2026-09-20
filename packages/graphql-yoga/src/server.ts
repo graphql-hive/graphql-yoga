@@ -51,6 +51,7 @@ import { useCheckGraphQLQueryParams } from './plugins/request-validation/use-che
 import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check-method-for-graphql.js';
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
+import { useLimitRequestBodySize } from './plugins/request-validation/use-limit-request-body-size.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
 import type {
   Instrumentation,
@@ -176,6 +177,20 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    */
   multipart?: boolean | undefined;
   id?: string | undefined;
+  /**
+   * Limit the size (in bytes) of the incoming HTTP request body that will be read by the
+   * built-in request parsers (JSON, GraphQL string, url-encoded and multipart).
+   *
+   * Requests whose `Content-Length` exceeds this value are rejected with an HTTP 413 response
+   * before the body is read. The limit is also enforced while streaming the body, so requests
+   * with a missing, incorrect, or chunked-transfer-encoded body are covered too.
+   *
+   * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
+   * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).
+   *
+   * @default 25_000_000 (25 MB)
+   */
+  maxRequestBodySize?: number | false | undefined;
   /**
    * Batching RFC Support configuration
    *
@@ -382,6 +397,12 @@ export class YogaServer<
 
       ...(options?.plugins ?? []),
 
+      // Must run after the request parsers above (including any registered by user plugins)
+      // so it wraps whichever parser ends up selected.
+      useLimitRequestBodySize(
+        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
+      ),
+
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(
           !options?.parserAndValidationCache || options?.parserAndValidationCache === true
@@ -542,7 +563,7 @@ export class YogaServer<
       request: Request;
     },
     context: TServerContext,
-  ) => {
+  ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
 

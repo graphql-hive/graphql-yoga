@@ -6,19 +6,12 @@ import type {
   GraphQLInputType,
   GraphQLType,
 } from 'graphql';
-import {
-  GraphQLError,
-  GraphQLInt,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  isScalarType,
-} from 'graphql';
+import { GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLObjectType, isScalarType } from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { getArgumentValues } from '@graphql-tools/utils';
+import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
 
 const getWrappedType = (
   graphqlType: GraphQLType,
@@ -127,13 +120,13 @@ export const ResourceLimitationValidationRule =
                   (argumentValues['first'] === null && argumentValues['last'] === null)
                 ) {
                   context.reportError(
-                    new GraphQLError(
+                    createGraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
                         hasLast,
                       }),
-                      fieldNode,
+                      { nodes: fieldNode },
                     ),
                   );
                 } else if ('first' in argumentValues && !argumentValues['last']) {
@@ -142,14 +135,14 @@ export const ResourceLimitationValidationRule =
                     argumentValues['first'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      new GraphQLError(
+                      createGraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
                           argumentName: 'first',
                           fieldName: fieldDef.name,
                         }),
-                        fieldNode,
+                        { nodes: fieldNode },
                       ),
                     );
                   } else {
@@ -161,14 +154,14 @@ export const ResourceLimitationValidationRule =
                     argumentValues['last'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      new GraphQLError(
+                      createGraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
                           argumentName: 'last',
                           fieldName: fieldDef.name,
                         }),
-                        fieldNode,
+                        { nodes: fieldNode },
                       ),
                     );
                   } else {
@@ -176,13 +169,13 @@ export const ResourceLimitationValidationRule =
                   }
                 } else {
                   context.reportError(
-                    new GraphQLError(
+                    createGraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
                         hasLast,
                       }),
-                      fieldNode,
+                      { nodes: fieldNode },
                     ),
                   );
                 }
@@ -206,9 +199,9 @@ export const ResourceLimitationValidationRule =
           }
           if (totalNodeCost > params.nodeCostLimit) {
             context.reportError(
-              new GraphQLError(
+              createGraphQLError(
                 `Cannot request more than ${params.nodeCostLimit} nodes in a single document. Please split your operation into multiple sub operations or reduce the amount of requested nodes.`,
-                documentNode,
+                { nodes: documentNode },
               ),
             );
           }

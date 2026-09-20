@@ -1,5 +1,64 @@
 # @graphql-yoga/nestjs-federation
 
+## 3.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.25.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.1
+
+## 3.25.0
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/apollo-federation@8.2.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.0
+  - @envelop/core@5.6.1
+  - @graphql-yoga/nestjs@3.25.0
+
+## 3.24.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.24.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.23.0
+
+## 3.23.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/apollo-federation@8.2.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.22.0
+  - @envelop/core@5.6.0
+  - @graphql-yoga/nestjs@3.23.0
+
+## 3.22.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.22.3
+  - @graphql-yoga/plugin-apollo-inline-trace@3.21.3
+
 ## 3.22.2
 
 ### Patch Changes

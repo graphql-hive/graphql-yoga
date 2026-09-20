@@ -1,0 +1,55 @@
+---
+description:
+  Koa is a new web framework designed by the team behind Express, which aims to be a smaller, more
+  expressive, and more robust foundation for web applications and APIs.
+title: Integration with Koa
+sidebarTitle: Koa
+---
+
+[Koa](https://koajs.com) is a new web framework designed by the team behind Express, which aims to
+be a smaller, more expressive, and more robust foundation for web applications and APIs. GraphQL
+Yoga can be integrated easily as a route to the existing Koa application with a few lines of code.
+[So you can benefit from middlewares written for Koa with GraphQL Yoga.](https://github.com/koajs/koa/wiki)
+
+## Installation
+
+```sh npm2yarn
+npm i @graphql-yoga/node koa graphql
+```
+
+## Example
+
+```ts
+import Koa from 'koa'
+import { createServer } from '@graphql-yoga/node'
+
+const app = new Koa()
+
+const graphQLServer = createServer<Koa.ParameterizedContext>()
+
+// Bind GraphQL Yoga to `/graphql` endpoint
+app.use(async ctx => {
+  // Second parameter adds Koa's context into GraphQL Context
+  const response = await graphQLServer.handleIncomingMessage(ctx.req, ctx)
+
+  // Set status code
+  ctx.status = response.status
+
+  // Set headers
+  response.headers.forEach((value, key) => {
+    ctx.append(key, value)
+  })
+
+  // Converts ReadableStream to a NodeJS Stream
+  ctx.body = response.body
+})
+
+app.listen(4000, () => {
+  console.log('Running a GraphQL API server at http://localhost:4000')
+})
+```
+
+<Callout>
+  You can also check a full example on our GitHub repository
+  [here](https://github.com/dotansimha/graphql-yoga/tree/v2/examples/koa).
+</Callout>

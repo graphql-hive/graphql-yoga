@@ -1,12 +1,16 @@
 {
   "name": "@graphql-yoga/plugin-disable-introspection",
-  "version": "2.22.2",
+  "version": "2.25.1",
   "type": "module",
   "description": "Disable Introspection plugin for GraphQL Yoga.",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/disable-introspection"
+  },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/plugins/disable-introspection#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
   },
   "author": "Laurin Quast <laurinquast@googlemail.com>",
   "license": "MIT",
@@ -37,14 +41,14 @@
     "check": "tsgo --pretty --noEmit"
   },
   "peerDependencies": {
-    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql": "^15.2.0 || ^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "dependencies": {
     "@whatwg-node/promise-helpers": "^1.3.2"
   },
   "devDependencies": {
-    "graphql": "16.12.0",
+    "graphql": "17.0.2",
     "graphql-yoga": "workspace:*"
   },
   "publishConfig": {

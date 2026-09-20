@@ -1,10 +1,12 @@
-import type {
-  ArgumentNode,
-  DocumentNode,
-  FragmentDefinitionNode,
-  InlineFragmentNode,
-} from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode, InlineFragmentNode, ValueNode } from 'graphql';
 import { Kind, visit } from 'graphql';
+
+// The fragment-arguments proposal's `FragmentArgumentNode` AST type only exists in graphql-js 17,
+// so we mirror its shape locally to stay compatible with graphql-js 15/16 too.
+interface FragmentArgumentNode {
+  readonly name: { readonly value: string };
+  readonly value: ValueNode;
+}
 
 export function applySelectionSetFragmentArguments(document: DocumentNode): DocumentNode | Error {
   const fragmentList = new Map<string, FragmentDefinitionNode>();
@@ -25,7 +27,7 @@ export function applySelectionSetFragmentArguments(document: DocumentNode): Docu
           return;
         }
 
-        const fragmentArguments = new Map<string, ArgumentNode>();
+        const fragmentArguments = new Map<string, FragmentArgumentNode>();
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         for (const arg of fragmentNode.arguments) {

@@ -1,0 +1,479 @@
+{
+  "tags": [
+    "tracing",
+    "metrics",
+    "core",
+    "errors",
+    "security",
+    "utilities",
+    "performance",
+    "caching",
+    "devtool",
+    "authentication",
+    "authorization",
+    "schema",
+    "subscription"
+  ],
+  "plugins": {
+    "use-sentry": {
+      "title": "useSentry",
+      "npmPackage": "@envelop/sentry",
+      "icon": "logos/sentry.svg",
+      "invertIconInDark": true,
+      "tags": ["tracing", "metrics", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/sentry/README.md"
+      }
+    },
+    "use-statsd": {
+      "title": "useStatsD",
+      "npmPackage": "@envelop/statsd",
+      "icon": "logos/datadog.svg",
+      "tags": ["metrics", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/statsd/README.md"
+      }
+    },
+    "use-schema": {
+      "title": "useSchema",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "schema"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-schema.md"
+      }
+    },
+    "use-schema-by-context": {
+      "title": "useSchemaByContext",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "schema"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-schema-by-context.md"
+      }
+    },
+    "use-validation-rule": {
+      "title": "useValidationRule",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-validation-rule.md"
+      }
+    },
+    "use-error-handler": {
+      "title": "useErrorHandler",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-error-handler.md"
+      }
+    },
+    "use-masked-errors": {
+      "title": "useMaskedErrors",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "errors", "security"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-masked-errors.md"
+      }
+    },
+    "use-engine": {
+      "title": "useEngine",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-engine.md"
+      }
+    },
+    "use-extend-context": {
+      "title": "useExtendContext",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-extend-context.md"
+      }
+    },
+    "use-immediate-introspection": {
+      "title": "useImmediateIntrospection",
+      "npmPackage": "@envelop/immediate-introspection",
+      "icon": "logo.png",
+      "tags": ["utilities", "performance"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/immediate-introspection/README.md"
+      }
+    },
+    "use-logger": {
+      "title": "useLogger",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-logger.md"
+      }
+    },
+    "use-payload-formatter": {
+      "title": "usePayloadFormatter",
+      "npmPackage": "@envelop/core",
+      "icon": "logo.png",
+      "tags": ["core", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/core/docs/use-payload-formatter.md"
+      }
+    },
+    "use-graphql-jit": {
+      "title": "useGraphQLJit",
+      "npmPackage": "@envelop/graphql-jit",
+      "icon": "logos/graphql.png",
+      "tags": ["performance"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/graphql-jit/README.md"
+      }
+    },
+    "use-parser-cache": {
+      "title": "useParserCache",
+      "npmPackage": "@envelop/parser-cache",
+      "icon": "logo.png",
+      "tags": ["performance", "caching"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/parser-cache/README.md"
+      }
+    },
+    "use-validation-cache": {
+      "title": "useValidationCache",
+      "npmPackage": "@envelop/validation-cache",
+      "icon": "logo.png",
+      "tags": ["performance", "caching"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/validation-cache/README.md"
+      }
+    },
+    "use-data-loader": {
+      "title": "useDataLoader",
+      "npmPackage": "@envelop/dataloader",
+      "icon": "logos/graphql.png",
+      "tags": ["performance", "caching"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/dataloader/README.md"
+      }
+    },
+    "use-apollo-tracing": {
+      "title": "useApolloTracing",
+      "npmPackage": "@envelop/apollo-tracing",
+      "icon": "logos/apollo.svg",
+      "invertIconInDark": true,
+      "tags": ["devtool", "metrics"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/apollo-tracing/README.md"
+      }
+    },
+    "use-apollo-datasources": {
+      "title": "useApolloDataSources",
+      "npmPackage": "@envelop/apollo-datasources",
+      "icon": "logos/apollo.svg",
+      "invertIconInDark": true,
+      "tags": ["devtool", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/apollo-datasources/README.md"
+      }
+    },
+    "use-open-telemetry": {
+      "title": "useOpenTelemetry",
+      "npmPackage": "@envelop/opentelemetry",
+      "icon": "logos/opentelemetry.png",
+      "tags": ["tracing", "metrics", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/opentelemetry/README.md"
+      }
+    },
+    "use-generic-auth": {
+      "title": "useGenericAuth",
+      "npmPackage": "@envelop/generic-auth",
+      "icon": "logos/generic_auth.png",
+      "invertIconInDark": true,
+      "tags": ["security", "authentication", "authorization"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/generic-auth/README.md"
+      }
+    },
+    "use-auth0": {
+      "title": "useAuth0",
+      "npmPackage": "@envelop/auth0",
+      "icon": "logos/auth0.png",
+      "tags": ["security", "authentication", "authorization"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/auth0/README.md"
+      }
+    },
+    "use-graphql-modules": {
+      "title": "useGraphQLModules",
+      "npmPackage": "@envelop/graphql-modules",
+      "icon": "logos/modules.svg",
+      "tags": ["schema", "utilities", "devtool"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/graphql-modules/README.md"
+      }
+    },
+    "use-rate-limiter": {
+      "title": "useRateLimiter",
+      "npmPackage": "@envelop/rate-limiter",
+      "icon": "logos/rate_limiter.png",
+      "invertIconInDark": true,
+      "tags": ["schema", "utilities", "security"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/rate-limiter/README.md"
+      }
+    },
+    "use-disable-introspection": {
+      "title": "useDisableIntrospection",
+      "npmPackage": "@envelop/disable-introspection",
+      "icon": "logos/graphql.png",
+      "tags": ["utilities", "security"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/disable-introspection/README.md"
+      }
+    },
+    "use-filter-allowed-operations": {
+      "title": "useFilterAllowedOperations",
+      "npmPackage": "@envelop/filter-operation-type",
+      "icon": "logos/graphql.png",
+      "tags": ["utilities", "security"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/filter-operation-type/README.md"
+      }
+    },
+    "use-preload-assets": {
+      "title": "usePreloadAssets",
+      "npmPackage": "@envelop/preload-assets",
+      "icon": "logos/assets.png",
+      "invertIconInDark": true,
+      "tags": ["utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/preload-assets/README.md"
+      }
+    },
+    "use-persisted-operations": {
+      "title": "usePersistedOperations",
+      "npmPackage": "@envelop/persisted-operations",
+      "icon": "logos/persisted_operations.png",
+      "invertIconInDark": true,
+      "tags": ["security", "performance"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/persisted-operations/README.md"
+      }
+    },
+    "use-graphql-hive": {
+      "title": "useHive",
+      "npmPackage": "@graphql-hive/envelop",
+      "icon": "logos/hive.svg",
+      "tags": ["tracing", "metrics", "devtool"],
+      "readme": {
+        "repo": "graphql-hive/console",
+        "path": "packages/libraries/envelop/README.md"
+      }
+    },
+    "use-newrelic": {
+      "title": "useNewRelic",
+      "npmPackage": "@envelop/newrelic",
+      "icon": "logos/newrelic.png",
+      "tags": ["tracing", "metrics", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/newrelic/README.md"
+      }
+    },
+    "use-live-query": {
+      "title": "useLiveQuery",
+      "npmPackage": "@envelop/live-query",
+      "icon": "logos/graphql.png",
+      "tags": ["utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/live-query/README.md"
+      }
+    },
+    "use-fragment-arguments": {
+      "title": "useFragmentArguments",
+      "npmPackage": "@envelop/fragment-arguments",
+      "icon": "logos/graphql.png",
+      "tags": ["utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/fragment-arguments/README.md"
+      }
+    },
+    "use-apollo-server-errors": {
+      "title": "useApolloServerErrors",
+      "npmPackage": "@envelop/apollo-server-errors",
+      "icon": "logos/apollo.svg",
+      "invertIconInDark": true,
+      "tags": ["utilities", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/apollo-server-errors/README.md"
+      }
+    },
+    "use-operation-field-permissions": {
+      "title": "useOperationFieldPermissions",
+      "npmPackage": "@envelop/operation-field-permissions",
+      "icon": "logos/graphql.png",
+      "tags": ["security", "authorization"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/operation-field-permissions/README.md"
+      }
+    },
+    "use-extended-validation": {
+      "title": "useExtendedValidation",
+      "npmPackage": "@envelop/extended-validation",
+      "icon": "logos/graphql.png",
+      "tags": ["devtool", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/extended-validation/README.md"
+      }
+    },
+    "use-prometheus": {
+      "title": "usePrometheus",
+      "npmPackage": "@envelop/prometheus",
+      "icon": "logos/prometheus.png",
+      "tags": ["metrics", "errors"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/prometheus/README.md"
+      }
+    },
+    "use-context-value-per-execute-subscription-event": {
+      "title": "useContextValuePerExecuteSubscriptionEvent",
+      "npmPackage": "@envelop/execute-subscription-event",
+      "icon": "logos/graphql.png",
+      "tags": ["utilities", "subscription"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/execute-subscription-event/README.md"
+      }
+    },
+    "use-resource-limitations": {
+      "title": "useResourceLimitations",
+      "npmPackage": "@envelop/resource-limitations",
+      "icon": "logos/rate_limiter.png",
+      "invertIconInDark": true,
+      "tags": ["schema", "utilities", "security"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/resource-limitations/README.md"
+      }
+    },
+    "use-response-cache": {
+      "title": "useResponseCache",
+      "npmPackage": "@envelop/response-cache",
+      "icon": "logo.png",
+      "tags": ["caching", "performance"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/response-cache/README.md"
+      }
+    },
+    "use-apollo-federation": {
+      "title": "useApolloFederation",
+      "npmPackage": "@envelop/apollo-federation",
+      "icon": "logos/apollo.svg",
+      "invertIconInDark": true,
+      "tags": ["schema", "utilities"],
+      "readme": {
+        "repo": "graphql-hive/graphql-yoga",
+        "path": "packages/envelop/plugins/apollo-federation/README.md"
+      }
+    },
+    "graphql-armor-max-aliases": {
+      "title": "maxAliasesPlugin",
+      "npmPackage": "@escape.tech/graphql-armor-max-aliases",
+      "icon": "logos/graphql-armor.svg",
+      "tags": ["performance", "security"],
+      "readme": {
+        "repo": "Escape-Technologies/graphql-armor",
+        "path": "packages/plugins/max-aliases/README.md"
+      }
+    },
+    "graphql-armor-max-depth": {
+      "title": "maxDepthPlugin",
+      "npmPackage": "@escape.tech/graphql-armor-max-depth",
+      "icon": "logos/graphql-armor.svg",
+      "tags": ["performance", "security"],
+      "readme": {
+        "repo": "Escape-Technologies/graphql-armor",
+        "path": "packages/plugins/max-depth/README.md"
+      }
+    },
+    "graphql-armor-max-directives": {
+      "title": "maxDirectivesPlugin",
+      "npmPackage": "@escape.tech/graphql-armor-max-directives",
+      "icon": "logos/graphql-armor.svg",
+      "tags": ["performance", "security"],
+      "readme": {
+        "repo": "Escape-Technologies/graphql-armor",
+        "path": "packages/plugins/max-directives/README.md"
+      }
+    },
+    "graphql-armor-max-tokens": {
+      "title": "maxTokensPlugin",
+      "npmPackage": "@escape.tech/graphql-armor-max-tokens",
+      "icon": "logos/graphql-armor.svg",
+      "tags": ["performance", "security"],
+      "readme": {
+        "repo": "Escape-Technologies/graphql-armor",
+        "path": "packages/plugins/max-tokens/README.md"
+      }
+    },
+    "graphql-armor-block-field-suggestions": {
+      "title": "blockFieldSuggestions",
+      "npmPackage": "@escape.tech/graphql-armor-block-field-suggestions",
+      "icon": "logos/graphql-armor.svg",
+      "tags": ["security"],
+      "readme": {
+        "repo": "Escape-Technologies/graphql-armor",
+        "path": "packages/plugins/block-field-suggestions/README.md"
+      }
+    },
+    "use-inngest": {
+      "title": "useInngest",
+      "npmPackage": "envelop-plugin-inngest",
+      "icon": "logos/inngest.png",
+      "tags": ["tracing", "metrics"],
+      "readme": {
+        "repo": "inngest/envelop-plugin-inngest",
+        "path": "packages/plugins/inngest/README.md"
+      }
+    }
+  }
+}

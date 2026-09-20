@@ -1,4 +1,4 @@
-import type { SubscriptionArgs } from 'graphql';
+import type { ExecutionArgs } from 'graphql';
 // eslint-disable-next-line no-restricted-imports
 import { execute } from 'graphql';
 import type { DefaultContext, Plugin, PromiseOrValue } from '@envelop/core';
@@ -8,7 +8,7 @@ import { subscribe } from './subscribe.js';
 
 export type ContextFactoryOptions = {
   /** The arguments with which the subscription was set up. */
-  args: SubscriptionArgs;
+  args: ExecutionArgs;
 };
 
 export type ContextFactoryHook<TContextValue> = {

@@ -1,6 +1,7 @@
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { isAbortError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
@@ -56,12 +57,26 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       return operations;
     },
     e => {
-      if (e instanceof Error && e.message.startsWith('File size limit exceeded: ')) {
-        throw createGraphQLError(e.message, {
+      if (isAbortError(e)) {
+        throw e;
+      }
+      if (e instanceof Error) {
+        if (e.message.startsWith('File size limit exceeded: ')) {
+          throw createGraphQLError(e.message, {
+            extensions: {
+              http: {
+                status: 413,
+              },
+              code: 'REQUEST_ENTITY_TOO_LARGE',
+            },
+          });
+        }
+        throw createGraphQLError(`POST body sent invalid multipart data: ${e.message}`, {
           extensions: {
             http: {
-              status: 413,
+              status: 400,
             },
+            code: 'BAD_REQUEST',
           },
         });
       }
@@ -83,7 +98,8 @@ function setObjectKeyPath(object: any, keyPath: string, value: any): void {
     if (isLastKey) {
       current[key] = value;
     } else {
-      if (!(key in current)) {
+      const isObject = typeof current[key] === 'object' && current[key] !== null;
+      if (!Object.hasOwn(current, key) || !isObject) {
         current[key] = {};
       }
       current = current[key];

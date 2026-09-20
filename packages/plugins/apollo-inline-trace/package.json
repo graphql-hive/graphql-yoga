@@ -1,12 +1,16 @@
 {
   "name": "@graphql-yoga/plugin-apollo-inline-trace",
-  "version": "3.21.2",
+  "version": "3.24.1",
   "type": "module",
   "description": "Apollo's federated tracing plugin for GraphQL Yoga.",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/apollo-inline-trace"
+  },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/plugins/apollo-inline-trace#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
   },
   "author": "Denis Badurina <badurinadenis@gmail.com>",
   "license": "MIT",
@@ -37,7 +41,7 @@
     "check": "tsgo --pretty --noEmit"
   },
   "peerDependencies": {
-    "graphql": "^15.2.0 || ^16.0.0",
+    "graphql": "^15.2.0 || ^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "dependencies": {
@@ -53,7 +57,7 @@
     "@graphql-tools/federation": "^4.0.0",
     "@whatwg-node/fetch": "^0.10.6",
     "@whatwg-node/server": "^0.11.0",
-    "graphql": "16.12.0",
+    "graphql": "17.0.2",
     "graphql-yoga": "workspace:*"
   },
   "publishConfig": {

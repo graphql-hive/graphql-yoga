@@ -1,4 +1,4 @@
-import { print } from 'graphql';
+import { print, type GraphQLDirective } from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { astFromDirective } from '@graphql-tools/utils';
 import { GraphQLLiveDirective, NoLiveMixedWithDeferStreamRule } from '@n1ru4l/graphql-live-query';
@@ -12,7 +12,7 @@ export type UseLiveQueryOptions = {
 
 export { GraphQLLiveDirective };
 
-export const GraphQLLiveDirectiveAST = astFromDirective(GraphQLLiveDirective);
+export const GraphQLLiveDirectiveAST = astFromDirective(GraphQLLiveDirective as GraphQLDirective);
 export const GraphQLLiveDirectiveSDL = print(GraphQLLiveDirectiveAST);
 
 export const useLiveQuery = (opts: UseLiveQueryOptions): Plugin => {

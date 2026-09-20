@@ -1,5 +1,60 @@
 # @graphql-yoga/plugin-persisted-operations
 
+## 3.24.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)]:
+  - graphql-yoga@5.24.1
+
+## 3.24.0
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871),
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)]:
+  - graphql-yoga@5.24.0
+
+## 3.23.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d),
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)]:
+  - graphql-yoga@5.23.0
+
+## 3.22.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - graphql-yoga@5.22.0
+
+## 3.21.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`04014d2`](https://github.com/graphql-hive/graphql-yoga/commit/04014d248ed9300835b1550a0d53ff61d83023b5)]:
+  - graphql-yoga@5.21.3
+
 ## 3.21.2
 
 ### Patch Changes
