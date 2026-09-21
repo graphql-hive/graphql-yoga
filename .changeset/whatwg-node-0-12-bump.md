@@ -15,4 +15,4 @@
 
 - `engines.node` is now `>=22.15.0` (aligned with whatwg-node 0.12+/0.13).
 - `@envelop/core` no longer exports `mapMaybePromise` (removed upstream in `@whatwg-node/promise-helpers` v2). Use `handleMaybePromise(() => value, ...)` instead.
-- `@whatwg-node/fetch` no longer exports `crypto`; use the platform `crypto` global.
+- `@whatwg-node/fetch` no longer exports `crypto`; use the platform `crypto` global. `TextEncoder` still comes from `fetchAPI` where hashing goes through Yoga’s FetchAPI.

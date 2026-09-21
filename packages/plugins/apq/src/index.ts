@@ -2,8 +2,13 @@ import type { Plugin, PromiseOrValue } from 'graphql-yoga';
 import { createGraphQLError, createLRUCache } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
-export function hashSHA256(text: string) {
-  const inputUint8Array = new TextEncoder().encode(text);
+export function hashSHA256(
+  text: string,
+  api: {
+    TextEncoder: (typeof globalThis)['TextEncoder'];
+  } = globalThis,
+) {
+  const inputUint8Array = new api.TextEncoder().encode(text);
   return handleMaybePromise(
     () => crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array),
     arrayBuf => {
@@ -34,7 +39,7 @@ export function createInMemoryAPQStore(options: APQStoreOptions = {}): APQStore 
 
 export interface APQOptions {
   store?: APQStore;
-  hash?: (str: string) => PromiseOrValue<string>;
+  hash?: (str: string, api: { TextEncoder: typeof TextEncoder }) => PromiseOrValue<string>;
   responseConfig?: {
     /**
      * If set true, status code of the response (if the query
@@ -79,7 +84,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
   const { store = createInMemoryAPQStore(), hash = hashSHA256, responseConfig = {} } = options;
 
   return {
-    onParams({ params, setParams }) {
+    onParams({ params, setParams, fetchAPI }) {
       const persistedQueryData = decodeAPQExtension(params.extensions?.['persistedQuery']);
 
       if (persistedQueryData === null) {
@@ -108,7 +113,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
         );
       }
       return handleMaybePromise(
-        () => hash(params.query!),
+        () => hash(params.query!, fetchAPI),
         expectedHash => {
           if (persistedQueryData.sha256Hash !== expectedHash) {
             throw createGraphQLError('PersistedQueryMismatch', {

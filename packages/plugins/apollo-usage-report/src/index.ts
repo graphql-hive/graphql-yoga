@@ -159,7 +159,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   const setCurrentSchema = async (schema: GraphQLSchema) => {
     try {
       currentSchema = {
-        id: await hashSHA256(printSchemaWithDirectives(schema)),
+        id: await hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI),
         schema,
       };
     } catch (error) {
@@ -344,8 +344,13 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   };
 }
 
-export async function hashSHA256(text: string) {
-  const inputUint8Array = new TextEncoder().encode(text);
+export async function hashSHA256(
+  text: string,
+  api: {
+    TextEncoder: (typeof globalThis)['TextEncoder'];
+  } = globalThis,
+) {
+  const inputUint8Array = new api.TextEncoder().encode(text);
   const arrayBuf = await crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array);
   const outputUint8Array = new Uint8Array(arrayBuf);
 
