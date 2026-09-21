@@ -1,5 +1,4 @@
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { HTTPError } from '@whatwg-node/server';
 import {
   InvalidContentLengthError,
   RequestBodyTooLargeError,
@@ -8,26 +7,36 @@ import {
 import type { FetchAPI } from '../../types.js';
 import type { Plugin } from '../types.js';
 
-function graphqlErrorFromHTTPError(error: HTTPError) {
-  const code =
-    error instanceof RequestBodyTooLargeError || error.status === 413
-      ? 'REQUEST_ENTITY_TOO_LARGE'
-      : error instanceof InvalidContentLengthError || error.status === 400
-        ? 'BAD_REQUEST'
-        : 'BAD_REQUEST';
+function graphqlErrorFromBodyLimitError(
+  error: RequestBodyTooLargeError | InvalidContentLengthError,
+) {
+  if (error instanceof RequestBodyTooLargeError) {
+    return createGraphQLError(error.message, {
+      extensions: {
+        http: {
+          status: 413,
+          ...(error.headers ? { headers: error.headers } : {}),
+        },
+        code: 'REQUEST_ENTITY_TOO_LARGE',
+      },
+    });
+  }
   return createGraphQLError(error.message, {
     extensions: {
       http: {
-        status: error.status,
+        status: 400,
         ...(error.headers ? { headers: error.headers } : {}),
       },
-      code,
+      code: 'BAD_REQUEST',
     },
   });
 }
 
-function responseFromError(error: HTTPError, fetchAPI: FetchAPI): Response {
-  const gqlError = graphqlErrorFromHTTPError(error);
+function responseFromError(
+  error: RequestBodyTooLargeError | InvalidContentLengthError,
+  fetchAPI: FetchAPI,
+): Response {
+  const gqlError = graphqlErrorFromBodyLimitError(error);
   return new fetchAPI.Response(JSON.stringify({ errors: [gqlError] }), {
     status: error.status,
     headers: {
@@ -45,7 +54,19 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
   if (limit === false) {
     return {};
   }
-  return useLimitRequestBodySizeHTTP(limit, { responseFromError }) as Plugin;
+  return useLimitRequestBodySizeHTTP(limit, {
+    responseFromError: (error, fetchAPI) => {
+      if (
+        !(error instanceof RequestBodyTooLargeError || error instanceof InvalidContentLengthError)
+      ) {
+        return new fetchAPI.Response(error.message, {
+          status: error.status,
+          headers: error.headers,
+        });
+      }
+      return responseFromError(error, fetchAPI);
+    },
+  }) as Plugin;
 }
 
-export { RequestBodyTooLargeError, InvalidContentLengthError, graphqlErrorFromHTTPError };
+export { RequestBodyTooLargeError, InvalidContentLengthError };

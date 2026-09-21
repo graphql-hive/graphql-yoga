@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaLogger } from '@graphql-yoga/logger';
+import { InvalidContentLengthError, RequestBodyTooLargeError } from '@whatwg-node/server';
 import type { ResultProcessorInput } from './plugins/types.js';
 import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
@@ -44,17 +45,10 @@ export function isAbortError(error: unknown): error is DOMException {
   );
 }
 
-export function isHTTPError(
+export function isRequestBodyLimitError(
   error: unknown,
-): error is Error & { status: number; headers?: HeadersInit; name: string } {
-  return (
-    typeof error === 'object' &&
-    error != null &&
-    typeof (error as { status?: unknown }).status === 'number' &&
-    ((error as { name?: string }).name === 'HTTPError' ||
-      (error as { name?: string }).name === 'RequestBodyTooLargeError' ||
-      (error as { name?: string }).name === 'InvalidContentLengthError')
-  );
+): error is RequestBodyTooLargeError | InvalidContentLengthError {
+  return error instanceof RequestBodyTooLargeError || error instanceof InvalidContentLengthError;
 }
 
 export function handleError(
@@ -72,23 +66,29 @@ export function handleError(
     }
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
-  } else if (isHTTPError(error)) {
-    // Intentional HTTP-layer failures (e.g. body size limit) — preserve status for the client.
-    const code =
-      error.status === 413
-        ? 'REQUEST_ENTITY_TOO_LARGE'
-        : error.status === 400
-          ? 'BAD_REQUEST'
-          : undefined;
+  } else if (error instanceof RequestBodyTooLargeError) {
     errors.add(
       createGraphQLError(error.message, {
         originalError: error,
         extensions: {
           http: {
-            status: error.status,
+            status: 413,
             ...(error.headers ? { headers: error.headers } : {}),
           },
-          ...(code ? { code } : {}),
+          code: 'REQUEST_ENTITY_TOO_LARGE',
+        },
+      }),
+    );
+  } else if (error instanceof InvalidContentLengthError) {
+    errors.add(
+      createGraphQLError(error.message, {
+        originalError: error,
+        extensions: {
+          http: {
+            status: 400,
+            ...(error.headers ? { headers: error.headers } : {}),
+          },
+          code: 'BAD_REQUEST',
         },
       }),
     );
