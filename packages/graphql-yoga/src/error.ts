@@ -44,6 +44,19 @@ export function isAbortError(error: unknown): error is DOMException {
   );
 }
 
+export function isHTTPError(
+  error: unknown,
+): error is Error & { status: number; headers?: HeadersInit; name: string } {
+  return (
+    typeof error === 'object' &&
+    error != null &&
+    typeof (error as { status?: unknown }).status === 'number' &&
+    ((error as { name?: string }).name === 'HTTPError' ||
+      (error as { name?: string }).name === 'RequestBodyTooLargeError' ||
+      (error as { name?: string }).name === 'InvalidContentLengthError')
+  );
+}
+
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
@@ -59,6 +72,26 @@ export function handleError(
     }
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
+  } else if (isHTTPError(error)) {
+    // Intentional HTTP-layer failures (e.g. body size limit) — preserve status for the client.
+    const code =
+      error.status === 413
+        ? 'REQUEST_ENTITY_TOO_LARGE'
+        : error.status === 400
+          ? 'BAD_REQUEST'
+          : undefined;
+    errors.add(
+      createGraphQLError(error.message, {
+        originalError: error,
+        extensions: {
+          http: {
+            status: error.status,
+            ...(error.headers ? { headers: error.headers } : {}),
+          },
+          ...(code ? { code } : {}),
+        },
+      }),
+    );
   } else if (maskedErrorsOpts) {
     const maskedError = maskedErrorsOpts.maskError(
       error,

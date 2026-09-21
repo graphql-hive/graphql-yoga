@@ -361,6 +361,10 @@ export class YogaServer<
         endpoint: options?.healthCheckEndpoint,
       }),
       options?.cors !== false && useCORS(options?.cors),
+      // HTTP-level body size limit (whatwg-node onRequest) before GraphQL parsing.
+      useLimitRequestBodySize(
+        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
+      ),
       options?.graphiql !== false &&
         useGraphiQL({
           getGraphQLEndpoint: () => this._graphqlEndpoint,
@@ -396,12 +400,6 @@ export class YogaServer<
       useResultProcessors(),
 
       ...(options?.plugins ?? []),
-
-      // Must run after the request parsers above (including any registered by user plugins)
-      // so it wraps whichever parser ends up selected.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
-      ),
 
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(
