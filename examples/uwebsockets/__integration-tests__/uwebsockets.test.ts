@@ -26,7 +26,7 @@ describe('uWebSockets', () => {
     client = createClient({
       url: `ws://localhost:${port}/graphql`,
       webSocketImpl: ws,
-      generateID: () => crypto.randomUUID(),
+      generateID: () => globalThis.crypto.randomUUID(),
     });
   });
   afterAll(async () => {

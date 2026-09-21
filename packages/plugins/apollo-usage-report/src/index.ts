@@ -167,7 +167,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   const setCurrentSchema = async (schema: GraphQLSchema) => {
     try {
       currentSchema = {
-        id: await hashSHA256(printSchemaWithDirectives(schema), yoga.fetchAPI),
+        id: await hashSHA256(printSchemaWithDirectives(schema)),
         schema,
       };
     } catch (error) {
