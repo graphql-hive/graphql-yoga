@@ -42,7 +42,7 @@ export interface APQOptions {
   store?: APQStore;
   hash?: (
     str: string,
-    api: { crypto: Crypto; TextEncoder: typeof TextEncoder },
+    api?: { crypto: Crypto; TextEncoder: typeof TextEncoder },
   ) => PromiseOrValue<string>;
   responseConfig?: {
     /**
@@ -88,7 +88,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
   const { store = createInMemoryAPQStore(), hash = hashSHA256, responseConfig = {} } = options;
 
   return {
-    onParams({ params, setParams, fetchAPI }) {
+    onParams({ params, setParams }) {
       const persistedQueryData = decodeAPQExtension(params.extensions?.['persistedQuery']);
 
       if (persistedQueryData === null) {
@@ -117,7 +117,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
         );
       }
       return handleMaybePromise(
-        () => hash(params.query!, fetchAPI),
+        () => hash(params.query!),
         expectedHash => {
           if (persistedQueryData.sha256Hash !== expectedHash) {
             throw createGraphQLError('PersistedQueryMismatch', {
