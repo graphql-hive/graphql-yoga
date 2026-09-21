@@ -11,12 +11,7 @@ import type {
   PromiseOrValue,
   SubscribeFunction,
 } from '@envelop/types';
-import {
-  fakePromise,
-  handleMaybePromise,
-  isPromise,
-  type MaybePromise,
-} from '@whatwg-node/promise-helpers';
+import { fakePromise, isPromise } from '@whatwg-node/promise-helpers';
 
 export const envelopIsIntrospectionSymbol = Symbol('ENVELOP_IS_INTROSPECTION');
 
@@ -203,12 +198,3 @@ export function errorAsyncIterator<TInput>(
 }
 
 export { isPromise };
-
-/** @deprecated Prefer `handleMaybePromise(() => input, ...)` from `@whatwg-node/promise-helpers`. */
-export function mapMaybePromise<TInput, TOutput>(
-  input: MaybePromise<TInput>,
-  onSuccess: (value: TInput) => MaybePromise<TOutput>,
-  onError?: (error: unknown) => MaybePromise<TOutput>,
-): MaybePromise<TOutput> {
-  return handleMaybePromise(() => input, onSuccess, onError);
-}

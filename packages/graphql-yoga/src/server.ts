@@ -30,8 +30,13 @@ import type {
   ServerAdapterOptions,
   ServerAdapterRequestHandler,
 } from '@whatwg-node/server';
-import { createServerAdapter, useCORS } from '@whatwg-node/server';
-import { handleError, isAbortError } from './error.js';
+import { createServerAdapter, useCORS, useLimitRequestBodySize } from '@whatwg-node/server';
+import {
+  handleError,
+  isAbortError,
+  isRequestBodyLimitError,
+  responseFromBodyLimitError,
+} from './error.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
@@ -51,7 +56,6 @@ import { useCheckGraphQLQueryParams } from './plugins/request-validation/use-che
 import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check-method-for-graphql.js';
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
-import { useLimitRequestBodySize } from './plugins/request-validation/use-limit-request-body-size.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
 import type {
   Instrumentation,
@@ -362,9 +366,15 @@ export class YogaServer<
       }),
       options?.cors !== false && useCORS(options?.cors),
       // HTTP-level body size limit (whatwg-node onRequest) before GraphQL parsing.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
-      ),
+      options?.maxRequestBodySize !== false &&
+        (useLimitRequestBodySize(options?.maxRequestBodySize ?? 25_000_000, {
+          responseFromError: (error, fetchAPI) => {
+            if (!isRequestBodyLimitError(error)) {
+              throw error;
+            }
+            return responseFromBodyLimitError(error, fetchAPI);
+          },
+        }) as Plugin),
       options?.graphiql !== false &&
         useGraphiQL({
           getGraphQLEndpoint: () => this._graphqlEndpoint,

@@ -51,6 +51,49 @@ export function isRequestBodyLimitError(
   return error instanceof RequestBodyTooLargeError || error instanceof InvalidContentLengthError;
 }
 
+function graphQLErrorFromBodyLimitError(
+  error: RequestBodyTooLargeError | InvalidContentLengthError,
+): GraphQLError {
+  if (error instanceof RequestBodyTooLargeError) {
+    return createGraphQLError(error.message, {
+      originalError: error,
+      extensions: {
+        http: {
+          status: 413,
+          ...(error.headers ? { headers: error.headers } : {}),
+        },
+        code: 'REQUEST_ENTITY_TOO_LARGE',
+      },
+    });
+  }
+  return createGraphQLError(error.message, {
+    originalError: error,
+    extensions: {
+      http: {
+        status: 400,
+        ...(error.headers ? { headers: error.headers } : {}),
+      },
+      code: 'BAD_REQUEST',
+    },
+  });
+}
+
+export function responseFromBodyLimitError(
+  error: RequestBodyTooLargeError | InvalidContentLengthError,
+  fetchAPI: { Response: typeof Response },
+): Response {
+  return new fetchAPI.Response(
+    JSON.stringify({ errors: [graphQLErrorFromBodyLimitError(error)] }),
+    {
+      status: error.status,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        ...error.headers,
+      },
+    },
+  );
+}
+
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
@@ -66,32 +109,8 @@ export function handleError(
     }
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
-  } else if (error instanceof RequestBodyTooLargeError) {
-    errors.add(
-      createGraphQLError(error.message, {
-        originalError: error,
-        extensions: {
-          http: {
-            status: 413,
-            ...(error.headers ? { headers: error.headers } : {}),
-          },
-          code: 'REQUEST_ENTITY_TOO_LARGE',
-        },
-      }),
-    );
-  } else if (error instanceof InvalidContentLengthError) {
-    errors.add(
-      createGraphQLError(error.message, {
-        originalError: error,
-        extensions: {
-          http: {
-            status: 400,
-            ...(error.headers ? { headers: error.headers } : {}),
-          },
-          code: 'BAD_REQUEST',
-        },
-      }),
-    );
+  } else if (isRequestBodyLimitError(error)) {
+    errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
     const maskedError = maskedErrorsOpts.maskError(
       error,
