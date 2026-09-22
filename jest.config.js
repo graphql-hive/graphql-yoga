@@ -120,6 +120,7 @@ const projects = graphqlVersions.map(graphqlVersion => ({
   testMatch: createTestMatch(graphqlVersion.major),
   testPathIgnorePatterns: ['<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv'],
   testTimeout: process.env.INTEGRATION_TEST === 'true' ? 10_000 : undefined,
+  transformIgnorePatterns: '/node_modules/(@nestjs)',
   resolver: 'bob-the-bundler/jest-resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 }));

@@ -2,20 +2,11 @@ import { serverAudits } from 'graphql-http';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { fetch } from '@whatwg-node/fetch';
-import { AppModule } from './fixtures/graphql/app.module';
 
 let app: INestApplication, url: string;
 
 beforeAll(async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      AppModule.forRoot({
-        subscriptions: {
-          'graphql-ws': true,
-        },
-      }),
-    ],
-  }).compile();
+  const module = await Test.createTestingModule({}).compile();
   app = module.createNestApplication();
   await app.listen(0);
   url = (await app.getUrl()) + '/graphql';
