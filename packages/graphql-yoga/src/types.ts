@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
-import { Logger } from '@graphql-hive/logger';
+import type { Logger } from '@graphql-hive/logger';
 import type { createFetch } from '@whatwg-node/fetch';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
 
@@ -19,7 +19,17 @@ export interface GraphQLParams<
   extensions?: TExtensions;
 }
 
-export interface YogaInitialContext extends ServerAdapterInitialContext {
+export interface YogaConfigContext {
+  /**
+   * The logger to use throughout Yoga and its plugins.
+   *
+   * Within a request, this is a request-scoped child logger carrying a `requestId` attribute,
+   * so every log line produced while handling that request can be correlated together.
+   */
+  log: Logger;
+}
+
+export interface YogaInitialContext extends ServerAdapterInitialContext, YogaConfigContext {
   /**
    * GraphQL Parameters
    */
@@ -28,12 +38,6 @@ export interface YogaInitialContext extends ServerAdapterInitialContext {
    * An object describing the HTTP request.
    */
   request: Request;
-  /**
-   * A request-scoped logger.
-   * Carries a `requestId` attribute so every log line produced while handling this request
-   * can be correlated together.
-   */
-  logger: Logger;
 }
 
 export type CORSOptions =

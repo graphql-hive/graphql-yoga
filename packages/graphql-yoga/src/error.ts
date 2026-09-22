@@ -81,22 +81,22 @@ function graphQLErrorFromBodyLimitError(
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
-  logger: Logger,
+  log: Logger,
 ): GraphQLError[] {
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
     for (const singleError of error.errors) {
-      const handledErrors = handleError(singleError, maskedErrorsOpts, logger);
+      const handledErrors = handleError(singleError, maskedErrorsOpts, log);
       for (const handledError of handledErrors) {
         errors.add(handledError);
       }
     }
   } else if (isAbortError(error)) {
-    logger.debug('Request aborted');
+    log.debug('Request aborted');
   } else if (isRequestBodyLimitError(error)) {
     errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
-    maskedErrorsOpts._requestLogger = logger;
+    maskedErrorsOpts._requestLogger = log;
     const maskedError = maskedErrorsOpts.maskError(
       error,
       maskedErrorsOpts.errorMessage,
@@ -138,7 +138,7 @@ export function handleError(
       }),
     );
   } else {
-    logger.error({ err: error });
+    log.error({ err: error });
     errors.add(
       createGraphQLError('Unexpected error.', {
         extensions: {

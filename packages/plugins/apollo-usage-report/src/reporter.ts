@@ -32,7 +32,7 @@ export class Reporter {
   constructor(
     options: ApolloUsageReportOptions,
     private yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
-    private logger: Logger,
+    private log: Logger,
   ) {
     this.options = {
       ...options,
@@ -40,7 +40,7 @@ export class Reporter {
       maxBatchUncompressedSize: options.maxBatchUncompressedSize ?? 4 * 1024 * 1024, // 4mb
       maxTraceSize: options.maxTraceSize ?? 10 * 1024 * 1024, // 10mb
       exportTimeout: options.exportTimeout ?? 30_000, // 30s
-      onError: options.onError ?? (err => this.logger.error({ err }, 'Failed to send report')),
+      onError: options.onError ?? (err => this.log.error({ err }, 'Failed to send report')),
     };
     this.reportHeaders = {
       graphRef: getGraphRef(options),
@@ -112,7 +112,7 @@ export class Reporter {
     let lastError: unknown;
     for (let tries = 0; tries < 5; tries++) {
       try {
-        this.logger.debug(`Sending report (try ${tries}/5)`);
+        this.log.debug(`Sending report (try ${tries}/5)`);
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -133,14 +133,14 @@ export class Reporter {
 
         const result = await response.text();
         if (response.ok) {
-          this.logger.debug({ result }, 'Report sent:');
+          this.log.debug({ result });
           return;
         }
 
         throw result;
       } catch (err) {
         lastError = err;
-        this.logger.error({ err }, 'Failed to send report:');
+        this.log.error({ err });
       }
     }
 

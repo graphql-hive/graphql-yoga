@@ -1,6 +1,6 @@
 import { getOperationAST } from 'graphql';
 import type { GetEnvelopedFn } from '@envelop/core';
-import { Logger } from '@graphql-hive/logger';
+import type { Logger } from '@graphql-hive/logger';
 import type { ExecutionArgs } from '@graphql-tools/executor';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
@@ -13,7 +13,7 @@ export function processResult<TServerContext>({
   result,
   fetchAPI,
   onResultProcessHooks,
-  logger,
+  log,
   serverContext,
 }: {
   request: Request;
@@ -23,7 +23,7 @@ export function processResult<TServerContext>({
    * Response Hooks
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
-  logger: Logger;
+  log: Logger;
   serverContext: TServerContext & ServerAdapterInitialContext;
 }): MaybePromise<Response> {
   let resultProcessor: ResultProcessor | undefined;
@@ -34,7 +34,7 @@ export function processResult<TServerContext>({
   return handleMaybePromise(
     () =>
       iterateAsync(onResultProcessHooks, onResultProcessHook => {
-        logger.debug('Running onResultProcess hook');
+        log.debug('Running onResultProcess hook');
         return onResultProcessHook({
           request,
           acceptableMediaTypes,
@@ -53,7 +53,7 @@ export function processResult<TServerContext>({
     () => {
       // If no result processor found for this result, return an error
       if (!resultProcessor) {
-        logger.debug(
+        log.debug(
           () => ({ accept: request.headers.get('accept'), acceptableMediaTypes }),
           'No result processor matched, responding 406',
         );
@@ -64,15 +64,15 @@ export function processResult<TServerContext>({
             accept: acceptableMediaTypes.join('; charset=utf-8, '),
           },
         });
-        logger.debug(() => ({ status: response.status }), 'Sending response');
+        log.debug(() => ({ status: response.status }), 'Sending response');
         return response;
       }
 
-      logger.debug(() => ({ acceptedMediaType }), 'Result processor selected');
+      log.debug(() => ({ acceptedMediaType }), 'Result processor selected');
       return handleMaybePromise(
         () => resultProcessor!(result, fetchAPI, acceptedMediaType),
         response => {
-          logger.debug(() => ({ status: response.status }), 'Sending response');
+          log.debug(() => ({ status: response.status }), 'Sending response');
           return response;
         },
       );
@@ -83,30 +83,30 @@ export function processResult<TServerContext>({
 export function processRequest({
   params,
   enveloped,
-  logger,
+  log,
 }: {
   params: GraphQLParams;
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
-  logger: Logger;
+  log: Logger;
 }) {
   // Parse GraphQLParams
   let document;
   try {
     document = enveloped.parse(params.query!);
   } catch (err) {
-    logger.debug(() => ({ err }), 'Parsing failed');
+    log.debug(() => ({ err }), 'Parsing failed');
     throw err;
   }
 
   // Get the actual operation
   const operation = getOperationAST(document, params.operationName);
-  logger.debug(() => ({ operationType: operation?.operation }), 'Parsed GraphQL document');
+  log.debug(() => ({ operationType: operation?.operation }), 'Parsed GraphQL document');
 
   // Validate parsed Document Node
   const errors = enveloped.validate(enveloped.schema, document);
 
   if (errors.length > 0) {
-    logger.debug(() => ({ errors }), 'Validation failed');
+    log.debug(() => ({ errors }), 'Validation failed');
     return { errors };
   }
 

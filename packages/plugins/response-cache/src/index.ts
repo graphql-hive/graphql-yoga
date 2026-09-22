@@ -80,10 +80,10 @@ export function useResponseCache<TContext = YogaInitialContext>(
     options?.buildResponseCacheKey || defaultBuildResponseCacheKey;
   const cache = options.cache ?? createInMemoryCache();
   const enabled = options.enabled ?? (() => true);
-  let logger: Logger;
+  let log: Logger;
   return {
     onYogaInit({ yoga }) {
-      logger = yoga.logger;
+      log = yoga.log;
     },
     onPluginInit({ addPlugin }) {
       addPlugin(
@@ -101,7 +101,7 @@ export function useResponseCache<TContext = YogaInitialContext>(
             } else {
               shouldCache = !result.errors?.length;
               if (!shouldCache) {
-                logger.debug(
+                log.debug(
                   '[useResponseCache] Decided not to cache the response because it contains errors',
                 );
               }
