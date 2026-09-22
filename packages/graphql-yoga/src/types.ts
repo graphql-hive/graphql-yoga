@@ -38,12 +38,6 @@ export interface YogaInitialContext extends ServerAdapterInitialContext, YogaCon
    * An object describing the HTTP request.
    */
   request: Request;
-  /**
-   * A request-scoped logger.
-   * Carries a `requestId` attribute so every log line produced while handling this request
-   * can be correlated together.
-   */
-  logger: Logger;
 }
 
 export type CORSOptions =
