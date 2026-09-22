@@ -41,7 +41,10 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
   // Since the request body is the native ReadableStream, it conflicts the ponyfill implementation of the TransformStream.
   // See https://github.com/graphql-hive/graphql-yoga/issues/4583
   const TransformStreamCtor =
-    request.body instanceof ReadableStream ? globalThis.TransformStream : fetchAPI.TransformStream;
+    typeof globalThis.ReadableStream !== 'undefined' &&
+    request.body instanceof globalThis.ReadableStream
+      ? globalThis.TransformStream
+      : fetchAPI.TransformStream;
 
   let bytesRead = 0;
   const limitedBody = body.pipeThrough(

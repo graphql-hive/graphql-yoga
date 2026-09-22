@@ -3,6 +3,23 @@ import { jest } from '@jest/globals';
 import { createGraphQLError, createSchema, createYoga, Logger, MemoryLogWriter } from '../src';
 
 describe('logging', () => {
+  describe('option', () => {
+    it('logs at the `info` level by default', () => {
+      expect(createYoga({}).log.level).toBe('info');
+      expect(createYoga({ logging: true }).log.level).toBe('info');
+    });
+    it('is disabled with `false`', () => {
+      expect(createYoga({ logging: false }).log.level).toBe(false);
+    });
+    it('accepts a log level', () => {
+      expect(createYoga({ logging: 'warn' }).log.level).toBe('warn');
+    });
+    it('accepts a logger', () => {
+      const logger = new Logger({ level: 'trace' });
+      expect(createYoga({ logging: logger }).log).toBe(logger);
+    });
+  });
+
   it('custom logger', async () => {
     const writer = new MemoryLogWriter();
     const logger = new Logger({ level: 'debug', writers: [writer] });

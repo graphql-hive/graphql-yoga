@@ -11,7 +11,7 @@ import {
   useMaskedErrors,
 } from '@envelop/core';
 import { chain, getInstrumented } from '@envelop/instrumentation';
-import { Logger, type LogLevel } from '@graphql-hive/logger';
+import { type Logger, type LogLevel } from '@graphql-hive/logger';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import * as defaultFetchAPI from '@whatwg-node/fetch';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
@@ -32,6 +32,7 @@ import type {
 } from '@whatwg-node/server';
 import { createServerAdapter, useCORS } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
+import { createLoggerFromLogging, getRequestLog } from './logger.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
@@ -65,11 +66,14 @@ import type {
   RequestParser,
   ResultProcessorInput,
 } from './plugins/types.js';
+import { useConfigInServerContext } from './plugins/use-config-in-server-context.js';
 import type { GraphiQLOptions, GraphiQLOptionsOrFactory } from './plugins/use-graphiql.js';
 import { useGraphiQL } from './plugins/use-graphiql.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
 import type { ParserAndValidationCacheOptions } from './plugins/use-parser-and-validation-cache.js';
 import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
+import type { RequestIdOptions } from './plugins/use-request-id.js';
+import { useRequestId } from './plugins/use-request-id.js';
 import { useRequestParser } from './plugins/use-request-parser.js';
 import { useResultProcessors } from './plugins/use-result-processor.js';
 import type { YogaSchemaDefinition } from './plugins/use-schema.js';
@@ -81,12 +85,12 @@ import type {
   FetchAPI,
   GraphQLParams,
   MaskError,
+  YogaConfigContext,
   YogaInitialContext,
   YogaMaskedErrorOpts,
 } from './types.js';
 import { isResponse } from './utils/is-response.js';
 import { maskError } from './utils/mask-error.js';
-import { getRequestId } from './utils/request-id.js';
 
 /**
  * Configuration options for the server
@@ -96,10 +100,23 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
   'plugins'
 > & {
   /**
-   * Enable/disable logging or provide a custom logger.
-   * @default info
+   * Enable, disable or implement a custom logger for logging.
+   *
+   * @default true
+   *
+   * @see https://the-guild.dev/graphql/yoga-server/docs/features/logging-and-debugging
    */
-  logging?: false | Logger | LogLevel | undefined;
+  logging?: boolean | Logger | LogLevel | undefined;
+  /**
+   * Enable, disable or configure the request id.
+   *
+   * The request id is taken from the `x-request-id` header of the incoming request, or generated
+   * when the header is absent. It is added to the `log`ger available in the context as the
+   * `requestId` attribute, and set on the outgoing response's headers.
+   *
+   * @default true
+   */
+  requestId?: boolean | RequestIdOptions<TServerContext> | undefined;
   /**
    * Prevent leaking unexpected errors to the client. We highly recommend enabling this in production.
    * If you throw `EnvelopError`/`GraphQLError` within your GraphQL resolvers then that error will be sent back to the client.
@@ -248,7 +265,7 @@ export class YogaServer<
    * Instance of envelop
    */
   public readonly getEnveloped: GetEnvelopedFn<TUserContext & TServerContext & YogaInitialContext>;
-  public logger: Logger;
+  public log: Logger;
   public fetchAPI: FetchAPI;
   protected plugins: Array<
     Plugin<TUserContext & TServerContext & YogaInitialContext, TServerContext, TUserContext>
@@ -283,8 +300,9 @@ export class YogaServer<
       }
     }
 
-    const logging = options?.logging ?? 'info';
-    this.logger = logging instanceof Logger ? logging : new Logger({ level: logging });
+    this.log = createLoggerFromLogging(options?.logging);
+    const configContext: YogaConfigContext = { log: this.log };
+
     const maskErrorFn: MaskError =
       (typeof options?.maskedErrors === 'object' && options.maskedErrors.maskError) || maskError;
 
@@ -303,8 +321,8 @@ export class YogaServer<
               const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev);
 
               if (newError !== error) {
-                const requestLogger = this.maskedErrorsOpts?._requestLogger ?? this.logger;
-                requestLogger.error({ err: error });
+                const requestLog = this.maskedErrorsOpts?._requestLogger ?? this.log;
+                requestLog.error({ err: error });
               }
 
               maskedErrorSet.add(newError);
@@ -334,10 +352,20 @@ export class YogaServer<
         subscribe: normalizedExecutor,
         specifiedRules,
       }),
+      // Make the config (and therefore the logger) available in the server context of every
+      // request. Registered first so that everything after it can rely on `log` being there.
+      useConfigInServerContext({ configContext }),
       // Use the schema provided by the user
       !!options?.schema && useSchema(options.schema),
       options?.allowedHeaders?.request != null &&
         useAllowedRequestHeaders(options.allowedHeaders.request),
+      // Scope the logger of each request to its request id. Registered after the request headers
+      // have been filtered, so that a request id is only taken from an allowed header, but before
+      // the plugins that log while short-circuiting a request (health checks, GraphiQL).
+      options?.requestId !== false &&
+        useRequestId<TServerContext>(
+          typeof options?.requestId === 'object' ? options.requestId : undefined,
+        ),
       options?.context != null &&
         useExtendContext(initialContext => {
           if (options?.context) {
@@ -351,7 +379,7 @@ export class YogaServer<
       // Middlewares before processing the incoming HTTP request
       useHealthCheck({
         id: this.id,
-        logger: this.logger,
+        log: this.log,
         endpoint: options?.healthCheckEndpoint,
       }),
       options?.cors !== false && useCORS(options?.cors),
@@ -361,7 +389,7 @@ export class YogaServer<
           getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
           options: options?.graphiql,
           render: options?.renderGraphiQL,
-          logger: this.logger,
+          log: this.log,
         }),
       // Middlewares before the GraphQL execution
       useRequestParser({
@@ -427,7 +455,7 @@ export class YogaServer<
         onExecute: ({ args }) => ({
           onExecuteDone: payload =>
             handleStreamOrSingleExecutionResult(payload, () => {
-              this.maskedErrorsOpts!._requestLogger = args.contextValue.logger;
+              this.maskedErrorsOpts!._requestLogger = args.contextValue.log;
             }),
         }),
         onSubscribe: ({ args }) => ({
@@ -438,7 +466,7 @@ export class YogaServer<
           },
           onSubscribeResult: payload =>
             handleStreamOrSingleExecutionResult(payload, () => {
-              this.maskedErrorsOpts!._requestLogger = args.contextValue.logger;
+              this.maskedErrorsOpts!._requestLogger = args.contextValue.log;
             }),
         }),
       },
@@ -507,6 +535,10 @@ export class YogaServer<
     return this._graphqlEndpointURLPattern;
   }
 
+  private getLog(serverContext: Partial<YogaConfigContext> | undefined): Logger {
+    return getRequestLog(serverContext, this.log);
+  }
+
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
     const additionalContext =
       context['request'] === request
@@ -521,9 +553,9 @@ export class YogaServer<
     Object.assign(context, additionalContext);
 
     const enveloped = this.getEnveloped(context);
-    const logger = context.logger ?? this.logger;
+    const log = getRequestLog(context, this.log);
 
-    logger.debug(
+    log.debug(
       () => ({
         path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
         operationName: params.operationName,
@@ -535,13 +567,13 @@ export class YogaServer<
     return handleMaybePromise(
       () =>
         handleMaybePromise(
-          () => processGraphQLParams({ params, enveloped, logger }),
+          () => processGraphQLParams({ params, enveloped, log }),
           result => {
-            logger.debug(`Processing GraphQL Parameters done.`);
+            log.debug(`Processing GraphQL Parameters done.`);
             return result;
           },
           error => {
-            const errors = handleError(error, this.maskedErrorsOpts, logger);
+            const errors = handleError(error, this.maskedErrorsOpts, log);
 
             return {
               errors,
@@ -555,11 +587,11 @@ export class YogaServer<
             v => v,
             (error: Error) => {
               if (error.name === 'AbortError') {
-                logger.debug(`Request aborted`);
+                log.debug(`Request aborted`);
                 throw error;
               }
 
-              const errors = handleError(error, this.maskedErrorsOpts, logger);
+              const errors = handleError(error, this.maskedErrorsOpts, log);
               return {
                 errors,
               };
@@ -635,7 +667,6 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
-    logger: Logger,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -686,7 +717,7 @@ export class YogaServer<
         if (response) {
           return { response };
         }
-        logger.debug(`Parsing request to extract GraphQL parameters`);
+        this.getLog(serverContext).debug(`Parsing request to extract GraphQL parameters`);
 
         if (!requestParser) {
           return {
@@ -730,21 +761,9 @@ export class YogaServer<
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
   ) => {
-    const requestId = getRequestId(request.headers.get('x-request-id'), () =>
-      this.fetchAPI.crypto.randomUUID(),
-    );
-    const logger = this.logger.child({ requestId });
-    // Exposed on the context (as `YogaInitialContext.logger`) so plugins, resolvers and the
-    // rest of the request lifecycle can all log under the same correlation id.
-    // Uses defineProperty (not Object.assign) because some integrations (e.g. Egg) pass their
-    // own request context object through as `serverContext`, and it may already have a
-    // getter-only `logger` accessor on its prototype that a plain assignment would trip over.
-    Object.defineProperty(serverContext, 'logger', {
-      value: logger,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
+    // `useConfigInServerContext` and `useRequestId` have put the request-scoped logger in the
+    // server context by now, so everything logged for this request is correlated by its id
+    const log = this.getLog(serverContext);
 
     const instrumented = this.instrumentation && getInstrumented({ request });
 
@@ -754,7 +773,7 @@ export class YogaServer<
 
     return unfakePromise(
       fakePromise()
-        .then(() => parseRequest(request, serverContext, logger))
+        .then(() => parseRequest(request, serverContext))
         .then(({ response, requestParserResult }) => {
           if (response) {
             return response;
@@ -786,7 +805,7 @@ export class YogaServer<
                         )
                         // eslint-disable-next-line promise/no-nesting
                         .catch(error => {
-                          const errors = handleError(error, this.maskedErrorsOpts, logger);
+                          const errors = handleError(error, this.maskedErrorsOpts, log);
 
                           return {
                             errors,
@@ -814,14 +833,14 @@ export class YogaServer<
                 result,
                 fetchAPI: this.fetchAPI,
                 onResultProcessHooks: this.onResultProcessHooks,
-                logger,
+                log,
                 serverContext,
               });
             },
           );
         })
         .catch(error => {
-          const errors = handleError(error, this.maskedErrorsOpts, logger);
+          const errors = handleError(error, this.maskedErrorsOpts, log);
 
           const result = {
             errors,
@@ -832,7 +851,7 @@ export class YogaServer<
             result,
             fetchAPI: this.fetchAPI,
             onResultProcessHooks: this.onResultProcessHooks,
-            logger,
+            log,
             serverContext,
           });
         }),
