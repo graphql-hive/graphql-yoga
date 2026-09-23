@@ -556,7 +556,7 @@ describe('jwt plugin', () => {
         signingKeyProviders: [createInlineSigningKeyProvider(secret)],
         tokenLookupLocations: [extractFromCookie({ name: 'auth' })],
       },
-      [useCookies<any>()],
+      [useCookies<any>() as any],
     );
     const token = buildJWT({ sub: '123' }, { key: secret }, '');
     const response = await test.queryWithCookieAuth(token);
@@ -606,7 +606,7 @@ describe('jwt plugin', () => {
           }),
         ],
       },
-      [useCookies<any>()],
+      [useCookies<any>() as any],
     );
     const token = buildJWT({ sub: '123' }, { key: secret }, '');
 

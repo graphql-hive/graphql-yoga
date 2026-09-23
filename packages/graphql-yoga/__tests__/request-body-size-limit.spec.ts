@@ -124,4 +124,33 @@ describe('Request body size limit', () => {
     const response = await yoga.fetch(request);
     expect(response.status).toBe(200);
   });
+
+  it('rejects a streamed multipart POST body once it exceeds the limit with 413', async () => {
+    const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
+    const encoder = new TextEncoder();
+    // Minimal multipart body; size exceeds maxRequestBodySize=10 while streaming.
+    const payload = [
+      '--boundary',
+      'Content-Disposition: form-data; name="operations"',
+      '',
+      JSON.stringify({ query: '{ hello }' }),
+      '--boundary--',
+      '',
+    ].join('\r\n');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(payload));
+        controller.close();
+      },
+    });
+    const response = await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'multipart/form-data; boundary=boundary' },
+      body: stream,
+      duplex: 'half',
+    });
+    expect(response.status).toBe(413);
+    const body = await response.json();
+    expect(body.errors[0].message).toMatch(/Request body too large/);
+  });
 });

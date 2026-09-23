@@ -30,8 +30,13 @@ import type {
   ServerAdapterOptions,
   ServerAdapterRequestHandler,
 } from '@whatwg-node/server';
-import { createServerAdapter, useCORS } from '@whatwg-node/server';
-import { handleError, isAbortError } from './error.js';
+import { createServerAdapter, useCORS, useLimitRequestBodySize } from '@whatwg-node/server';
+import {
+  handleError,
+  isAbortError,
+  isRequestBodyLimitError,
+  responseFromBodyLimitError,
+} from './error.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
@@ -51,7 +56,6 @@ import { useCheckGraphQLQueryParams } from './plugins/request-validation/use-che
 import { useCheckMethodForGraphQL } from './plugins/request-validation/use-check-method-for-graphql.js';
 import { useHTTPValidationError } from './plugins/request-validation/use-http-validation-error.js';
 import { useLimitBatching } from './plugins/request-validation/use-limit-batching.js';
-import { useLimitRequestBodySize } from './plugins/request-validation/use-limit-request-body-size.js';
 import { usePreventMutationViaGET } from './plugins/request-validation/use-prevent-mutation-via-get.js';
 import type {
   Instrumentation,
@@ -181,9 +185,10 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * Limit the size (in bytes) of the incoming HTTP request body that will be read by the
    * built-in request parsers (JSON, GraphQL string, url-encoded and multipart).
    *
-   * Requests whose `Content-Length` exceeds this value are rejected with an HTTP 413 response
-   * before the body is read. The limit is also enforced while streaming the body, so requests
-   * with a missing, incorrect, or chunked-transfer-encoded body are covered too.
+   * Requests whose `Content-Length` exceeds this value (or whose `Content-Length` is invalid)
+   * are rejected with an HTTP 413/400 response before the body is read. Bodies are also counted
+   * while streaming, so requests with a missing, wrong, or chunked-transfer-encoded body cannot
+   * bypass the limit.
    *
    * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
    * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).
@@ -361,6 +366,16 @@ export class YogaServer<
         endpoint: options?.healthCheckEndpoint,
       }),
       options?.cors !== false && useCORS(options?.cors),
+      // HTTP-level body size limit (whatwg-node onRequest) before GraphQL parsing.
+      options?.maxRequestBodySize !== false &&
+        (useLimitRequestBodySize(options?.maxRequestBodySize ?? 25_000_000, {
+          responseFromError: (error, fetchAPI) => {
+            if (!isRequestBodyLimitError(error)) {
+              throw error;
+            }
+            return responseFromBodyLimitError(error, fetchAPI);
+          },
+        }) as Plugin),
       options?.graphiql !== false &&
         useGraphiQL({
           getGraphQLEndpoint: () => this._graphqlEndpoint,
@@ -396,12 +411,6 @@ export class YogaServer<
       useResultProcessors(),
 
       ...(options?.plugins ?? []),
-
-      // Must run after the request parsers above (including any registered by user plugins)
-      // so it wraps whichever parser ends up selected.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
-      ),
 
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(
