@@ -252,6 +252,19 @@ export type BatchingOptions =
     };
 
 /**
+ * Counts the GraphQL errors carried by a result, for the per-request summary log.
+ * Returns `undefined` for a streaming result (subscription/SSE), whose errors (if any) surface
+ * progressively while the response streams rather than being known up front.
+ */
+function countErrors(result: ResultProcessorInput): number | undefined {
+  if (isAsyncIterable(result)) {
+    return undefined;
+  }
+  const results = Array.isArray(result) ? result : [result];
+  return results.reduce((count, result) => count + (result.errors?.length ?? 0), 0);
+}
+
+/**
  * Base class that can be extended to create a GraphQL server with any HTTP server framework.
  * @internal
  */
@@ -279,6 +292,8 @@ export class YogaServer<
   private onResultProcessHooks: OnResultProcess<TServerContext>[];
   private maskedErrorsOpts: YogaMaskedErrorOpts | null;
   private id: string;
+  /** Operation type resolved for a given params object, read back for the per-request summary log. */
+  private operationTypeByParams = new WeakMap<GraphQLParams, string | undefined>();
 
   // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
   private _graphqlEndpoint: string;
@@ -567,7 +582,14 @@ export class YogaServer<
     return handleMaybePromise(
       () =>
         handleMaybePromise(
-          () => processGraphQLParams({ params, enveloped, log }),
+          () =>
+            processGraphQLParams({
+              params,
+              enveloped,
+              log,
+              onOperationType: operationType =>
+                this.operationTypeByParams.set(params, operationType),
+            }),
           result => {
             log.debug(`Processing GraphQL Parameters done.`);
             return result;
@@ -764,6 +786,7 @@ export class YogaServer<
     // `useConfigInServerContext` and `useRequestId` have put the request-scoped logger in the
     // server context by now, so everything logged for this request is correlated by its id
     const log = this.getLog(serverContext);
+    const start = performance.now();
 
     const instrumented = this.instrumentation && getInstrumented({ request });
 
@@ -771,10 +794,15 @@ export class YogaServer<
       ? instrumented!.asyncFn(this.instrumentation?.requestParse, this.parseRequest)
       : this.parseRequest;
 
+    let requestParserResult: GraphQLParams | GraphQLParams[] | undefined;
+    let errorCount: number | undefined;
+
     return unfakePromise(
       fakePromise()
         .then(() => parseRequest(request, serverContext))
-        .then(({ response, requestParserResult }) => {
+        .then(parseResult => {
+          requestParserResult = parseResult.requestParserResult;
+          const { response, requestParserResult: parserResult } = parseResult;
           if (response) {
             return response;
           }
@@ -790,9 +818,9 @@ export class YogaServer<
             : this.getResultForParams;
           return handleMaybePromise(
             () =>
-              (Array.isArray(requestParserResult)
+              (Array.isArray(parserResult)
                 ? Promise.all(
-                    requestParserResult.map(params =>
+                    parserResult.map(params =>
                       fakePromise()
                         .then(() =>
                           getResultForParams(
@@ -815,12 +843,13 @@ export class YogaServer<
                   )
                 : getResultForParams(
                     {
-                      params: requestParserResult,
+                      params: parserResult,
                       request,
                     },
                     serverContext,
                   )) as ResultProcessorInput,
             result => {
+              errorCount = countErrors(result);
               const tracedProcessResult = this.instrumentation?.resultProcess
                 ? instrumented!.asyncFn(
                     this.instrumentation.resultProcess,
@@ -841,6 +870,7 @@ export class YogaServer<
         })
         .catch(error => {
           const errors = handleError(error, this.maskedErrorsOpts, log);
+          errorCount = errors.length;
 
           const result = {
             errors,
@@ -854,6 +884,28 @@ export class YogaServer<
             log,
             serverContext,
           });
+        })
+        .then(response => {
+          log.info(
+            () => ({
+              method: request.method,
+              path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
+              operationName: Array.isArray(requestParserResult)
+                ? undefined
+                : requestParserResult?.operationName,
+              operationType: Array.isArray(requestParserResult)
+                ? undefined
+                : requestParserResult && this.operationTypeByParams.get(requestParserResult),
+              batchedOperations: Array.isArray(requestParserResult)
+                ? requestParserResult.length
+                : undefined,
+              status: response.status,
+              errorCount,
+              durationMs: Math.round(performance.now() - start),
+            }),
+            'Request processed',
+          );
+          return response;
         }),
     );
   };
