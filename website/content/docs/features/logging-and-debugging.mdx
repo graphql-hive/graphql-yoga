@@ -19,21 +19,24 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 #### `warn`
 
 - All prior log levels
-- deprecation notices
+- Yoga does not currently emit any automatic `warn`-level logs
 
 #### `info`
 
 - All prior log levels
-- Information about the current state of the system
+- A one-line "Request processed" summary, logged once per HTTP request, carrying the method, path,
+  `operationName` and `operationType` (or `batchedOperations` count for a batched request), the
+  response status code, the GraphQL error count and the request's duration in milliseconds
+- Background task events, for plugins that run one (e.g.
+  [`useManagedFederation`](/docs/features/apollo-federation#using-apollo-managed-federation) logs
+  when a new supergraph schema is loaded, or when it's retrying after a failed load)
 
 #### `debug`
 
 - All prior log levels
-- Processing of GraphQL parameters, including the request path, `operationName` and variable count
+- Processing of GraphQL parameters, including the request path, `operationName`, variable count and
+  the variables themselves
 - Parsing of GraphQL parameters, and the resolved operation type
-- Execution or subscription start
-- Received GraphQL operation variables
-- Execution or subscription end
 - The status code of the HTTP response that was sent
 - [GraphiQL](https://github.com/graphql/graphiql) rendering
 - Health checks

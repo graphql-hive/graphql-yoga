@@ -84,10 +84,13 @@ export function processRequest({
   params,
   enveloped,
   log,
+  onOperationType,
 }: {
   params: GraphQLParams;
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
   log: Logger;
+  /** Reports the resolved operation type once known, for the per-request summary log. */
+  onOperationType?: (operationType: string | undefined) => void;
 }) {
   // Parse GraphQLParams
   let document;
@@ -100,6 +103,7 @@ export function processRequest({
 
   // Get the actual operation
   const operation = getOperationAST(document, params.operationName);
+  onOperationType?.(operation?.operation);
   log.debug(() => ({ operationType: operation?.operation }), 'Parsed GraphQL document');
 
   // Validate parsed Document Node
