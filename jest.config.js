@@ -50,10 +50,9 @@ function createTestMatch(graphqlMajor) {
     );
   }
 
-  // Skip for Node 20 and below
-  if (nodeMajor <= 20) {
-    testMatch.push('!**/nestjs/**');
-  }
+  // NestJS 12 is ESM-only, so its tests run in their own standalone project (see
+  // `standaloneProjects` below) instead of the per-graphql-version CJS projects.
+  testMatch.push('!**/nestjs/**');
 
   if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
     testMatch.push('!**/graphql-scalars.spec.ts');
@@ -120,7 +119,6 @@ const projects = graphqlVersions.map(graphqlVersion => ({
   testMatch: createTestMatch(graphqlVersion.major),
   testPathIgnorePatterns: ['<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv'],
   testTimeout: process.env.INTEGRATION_TEST === 'true' ? 10_000 : undefined,
-  transformIgnorePatterns: '/node_modules/(@nestjs)',
   resolver: 'bob-the-bundler/jest-resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 }));
