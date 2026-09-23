@@ -6,9 +6,9 @@ import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
-export function isPOSTJsonRequest(request: Request) {
+export function isPOSTJsonRequest(request: Request, allowQueryMethod = false) {
   return (
-    request.method === 'POST' &&
+    (request.method === 'POST' || (allowQueryMethod && request.method === 'QUERY')) &&
     (isContentTypeMatch(request, 'application/json') ||
       isContentTypeMatch(request, 'application/graphql+json'))
   );
