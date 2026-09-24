@@ -50,10 +50,9 @@ function createTestMatch(graphqlMajor) {
     );
   }
 
-  // Skip for Node 20 and below
-  if (nodeMajor <= 20) {
-    testMatch.push('!**/nestjs/**');
-  }
+  // NestJS 12 is ESM-only, so its tests run in their own standalone project (see
+  // `standaloneProjects` below) instead of the per-graphql-version CJS projects.
+  testMatch.push('!**/nestjs/**');
 
   if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
     testMatch.push('!**/graphql-scalars.spec.ts');

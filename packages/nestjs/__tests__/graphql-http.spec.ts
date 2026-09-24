@@ -8,13 +8,7 @@ let app: INestApplication, url: string;
 
 beforeAll(async () => {
   const module = await Test.createTestingModule({
-    imports: [
-      AppModule.forRoot({
-        subscriptions: {
-          'graphql-ws': true,
-        },
-      }),
-    ],
+    imports: [AppModule.forRoot({})],
   }).compile();
   app = module.createNestApplication();
   await app.listen(0);
