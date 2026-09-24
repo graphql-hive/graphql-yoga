@@ -5,8 +5,11 @@ import { isAbortError, isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
-export function isPOSTMultipartRequest(request: Request): boolean {
-  return request.method === 'POST' && isContentTypeMatch(request, 'multipart/form-data');
+export function isPOSTMultipartRequest(request: Request, allowQueryMethod = false): boolean {
+  return (
+    (request.method === 'POST' || (allowQueryMethod && request.method === 'QUERY')) &&
+    isContentTypeMatch(request, 'multipart/form-data')
+  );
 }
 
 export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQLParams> {
