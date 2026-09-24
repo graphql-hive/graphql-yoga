@@ -139,6 +139,33 @@ describe('useOpenTelemetry', () => {
     expect(actual[1]?.name).toBe('query.anonymous');
   });
 
+  it('should end resolver span even when the resolver throws', async () => {
+    const exporter = new InMemorySpanExporter();
+    const testInstance = createTestkit(
+      [useTestOpenTelemetry(exporter, { resolvers: true })],
+      schema,
+    );
+
+    const queryStr = /* GraphQL */ `
+      query error {
+        error
+      }
+    `;
+
+    const resp = await testInstance.execute(queryStr);
+
+    assertSingleValue(resp);
+    expect(resp.errors).toBeTruthy();
+
+    const actual = exporter.getFinishedSpans();
+    // Before the fix, the resolver span was never ended on error, so it
+    // never reached the exporter and only the execution span showed up here.
+    expect(actual.length).toBe(2);
+    expect(actual[0]?.name).toBe('Query.error');
+    expect(actual[0]?.events[0]?.name).toBe('exception');
+    expect(actual[1]?.name).toBe('query.error');
+  });
+
   it('Should add default resolver spans if enabled / unspecified', async () => {
     const exporter = new InMemorySpanExporter();
     const testInstance = createTestkit(
