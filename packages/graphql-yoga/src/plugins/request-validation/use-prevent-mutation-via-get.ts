@@ -25,7 +25,7 @@ export function assertMutationViaGet(
     });
   }
 
-  if (operation.operation === 'mutation' && (method === 'GET' || method === 'QUERY')) {
+  if (operation.operation === 'mutation' && method === 'GET') {
     throw createGraphQLError('Can only perform a mutation operation from a POST request.', {
       extensions: {
         http: {

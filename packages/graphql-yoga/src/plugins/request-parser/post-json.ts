@@ -7,9 +7,9 @@ import { isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
-export function isPOSTJsonRequest(request: Request, allowQueryMethod = false) {
+export function isPOSTJsonRequest(request: Request) {
   return (
-    (request.method === 'POST' || (allowQueryMethod && request.method === 'QUERY')) &&
+    request.method === 'POST' &&
     (isContentTypeMatch(request, 'application/json') ||
       isContentTypeMatch(request, 'application/graphql+json'))
   );
