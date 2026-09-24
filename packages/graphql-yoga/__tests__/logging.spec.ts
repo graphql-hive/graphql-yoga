@@ -184,4 +184,135 @@ describe('logging', () => {
       expect(logger.error).toHaveBeenCalledTimes(0);
     });
   });
+
+  describe('request summary', () => {
+    it('logs a `Request processed` summary at the `info` level', async () => {
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: 'info', writers: [writer] });
+      const yoga = createYoga({
+        logging: logger,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              greetings: String
+            }
+          `,
+        }),
+      });
+
+      const response = await yoga.fetch(
+        'http://yoga/graphql?query=query+Greet{greetings}&operationName=Greet',
+        { headers: { accept: 'application/graphql-response+json' } },
+      );
+
+      expect(writer.logs).toContainEqual(
+        expect.objectContaining({
+          level: 'info',
+          msg: 'Request processed',
+          attrs: expect.objectContaining({
+            method: 'GET',
+            path: '/graphql',
+            operationName: 'Greet',
+            operationType: 'query',
+            status: response.status,
+            errorCount: 0,
+            durationMs: expect.any(Number),
+          }),
+        }),
+      );
+    });
+
+    it('counts the GraphQL errors carried by the response', async () => {
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: 'info', writers: [writer] });
+      const yoga = createYoga({
+        logging: logger,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              hi: String
+            }
+          `,
+          resolvers: {
+            Query: {
+              hi() {
+                throw new Error('The database connection failed.');
+              },
+            },
+          },
+        }),
+      });
+
+      await yoga.fetch('http://yoga/graphql?query={hi}', {
+        headers: { accept: 'application/graphql-response+json' },
+      });
+
+      expect(writer.logs).toContainEqual(
+        expect.objectContaining({
+          level: 'info',
+          msg: 'Request processed',
+          attrs: expect.objectContaining({ status: 200, errorCount: 1 }),
+        }),
+      );
+    });
+
+    it('reports `batchedOperations` instead of a single operation name/type for batched requests', async () => {
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: 'info', writers: [writer] });
+      const yoga = createYoga({
+        logging: logger,
+        batching: true,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              hello: String
+              bye: String
+            }
+          `,
+          resolvers: {
+            Query: {
+              hello: () => 'hello',
+              bye: () => 'bye',
+            },
+          },
+        }),
+      });
+
+      await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify([{ query: '{hello}' }, { query: '{bye}' }]),
+      });
+
+      expect(writer.logs).toContainEqual(
+        expect.objectContaining({
+          level: 'info',
+          msg: 'Request processed',
+          attrs: expect.objectContaining({
+            batchedOperations: 2,
+            errorCount: 0,
+          }),
+        }),
+      );
+    });
+
+    it('does not log the summary when logging is disabled', async () => {
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: false, writers: [writer] });
+      const yoga = createYoga({
+        logging: logger,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              greetings: String
+            }
+          `,
+        }),
+      });
+
+      await yoga.fetch('http://yoga/graphql?query={greetings}');
+
+      expect(writer.logs).toEqual([]);
+    });
+  });
 });
