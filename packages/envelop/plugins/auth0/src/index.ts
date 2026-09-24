@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
-
 import type { DecodeOptions, VerifyOptions } from 'jsonwebtoken';
 import jwtPkg from 'jsonwebtoken';
 import * as JwksRsa from 'jwks-rsa';
 import type { Plugin } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 const { decode, verify } = jwtPkg;
@@ -22,6 +21,11 @@ export type Auth0PluginOptions = {
   extendContextField?: '_auth0' | string;
   tokenType?: string;
   headerName?: string;
+  /**
+   * Logger used for the plugin's own diagnostic messages.
+   * @default new Logger()
+   */
+  logger?: Logger;
 };
 
 export class UnauthenticatedError extends Error {}
@@ -50,6 +54,7 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
   const contextField = options.extendContextField || '_auth0';
   const tokenType = options.tokenType || 'Bearer';
   const headerName = options.headerName || 'authorization';
+  const logger = options.logger ?? new Logger();
 
   const extractFn =
     options.extractTokenFn ||
@@ -81,7 +86,7 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
           throw new Error(`Invalid value provided for header "${headerName}"!`);
         }
       } else {
-        console.warn(
+        logger.warn(
           `useAuth0 plugin unable to locate your request or headers on the execution context. Please make sure to pass that, or provide custom "extractTokenFn" function.`,
         );
       }

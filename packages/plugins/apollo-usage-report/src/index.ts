@@ -1,12 +1,14 @@
 import type { DocumentNode, GraphQLSchema } from 'graphql';
 import { getOperationAST, Kind } from 'graphql';
 import {
+  getRequestLog,
   isAsyncIterable,
-  YogaLogger,
+  Logger,
   YogaServer,
   type Maybe,
   type Plugin,
   type PromiseOrValue,
+  type YogaConfigContext,
   type YogaInitialContext,
 } from 'graphql-yoga';
 import {
@@ -117,7 +119,7 @@ export type ApolloUsageReportOptions = ApolloInlineTracePluginOptions & {
   reporter?: (
     options: ApolloUsageReportOptions,
     yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>,
-    logger: YogaLogger,
+    log: Logger,
   ) => Reporter;
   /**
    * Called when all retry attempts to send a report to GraphOS endpoint failed.
@@ -155,6 +157,12 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   let currentSchema: { id: string; schema: GraphQLSchema } | undefined;
   let yoga: YogaServer<Record<string, unknown>, Record<string, unknown>>;
   let reporter: Reporter;
+  let defaultLog: Logger;
+
+  const getLog = (context: Partial<YogaConfigContext> | undefined) => {
+    const log = getRequestLog(context, defaultLog);
+    return log === defaultLog ? log : log.child('ApolloUsageReport');
+  };
 
   const setCurrentSchema = async (schema: GraphQLSchema) => {
     try {
@@ -163,19 +171,12 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
         schema,
       };
     } catch (error) {
-      logger.error('Failed to calculate schema hash: ', error);
+      defaultLog.error({ err: error });
     }
 
     // We don't want to block server start even if we failed to compute schema id
     schemaIdSet$ = undefined;
   };
-
-  const logger = Object.fromEntries(
-    (['error', 'warn', 'info', 'debug'] as const).map(level => [
-      level,
-      (...messages: unknown[]) => yoga.logger[level]('[ApolloUsageReport]', ...messages),
-    ]),
-  ) as YogaLogger;
 
   let clientNameFactory: StringFromRequestFn = req => req.headers.get('apollographql-client-name');
   if (typeof options.clientName === 'function') {
@@ -194,7 +195,8 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
       addPlugin({
         onYogaInit(args) {
           yoga = args.yoga;
-          reporter = makeReporter(options, yoga, logger);
+          defaultLog = yoga.log.child('ApolloUsageReport');
+          reporter = makeReporter(options, yoga, defaultLog);
 
           if (!getEnvVar('APOLLO_KEY', options.apiKey)) {
             throw new Error(
@@ -235,7 +237,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
           return function onParseEnd({ result, context }) {
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
             if (!ctx) {
-              logger.debug(
+              getLog(context).debug(
                 'operation tracing context not found, this operation will not be traced.',
               );
               return;
@@ -267,7 +269,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
           return ({ valid, context }) => {
             const ctx = ctxForReq.get(context.request)?.traces.get(context);
             if (!ctx) {
-              logger.debug(
+              getLog(context).debug(
                 'operation tracing context not found, this operation will not be traced.',
               );
               return;
@@ -296,21 +298,22 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
         },
 
         onResultProcess({ request, result, serverContext }) {
+          const log = getLog(serverContext as Partial<YogaConfigContext>);
           // TODO: Handle async iterables ?
           if (isAsyncIterable(result)) {
-            logger.debug('async iterable results not implemented for now');
+            log.debug('async iterable results not implemented for now');
             return;
           }
 
           const reqCtx = ctxForReq.get(request);
           if (!reqCtx) {
-            logger.debug('operation tracing context not found, this operation will not be traced.');
+            log.debug('operation tracing context not found, this operation will not be traced.');
             return;
           }
 
           for (const trace of reqCtx.traces.values()) {
             if (!trace.schemaId || !trace.operationKey) {
-              logger.debug('Misformed trace, missing operation key or schema id');
+              log.debug('Misformed trace, missing operation key or schema id');
               continue;
             }
 

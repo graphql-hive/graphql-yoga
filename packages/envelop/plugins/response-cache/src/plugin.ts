@@ -26,6 +26,7 @@ import type {
   Plugin,
 } from '@envelop/core';
 import { getDocumentString, isAsyncIterable } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 import {
   getDirective,
   MapperKind,
@@ -58,10 +59,13 @@ export type BuildResponseCacheKeyFunction = (params: {
 
 export type GetDocumentStringFunction = (executionArgs: ExecutionArgs) => string;
 
-export type ShouldCacheResultFunction = (params: {
-  cacheKey: string;
-  result: ExecutionResult;
-}) => boolean;
+export type ShouldCacheResultFunction = (
+  params: {
+    cacheKey: string;
+    result: ExecutionResult;
+  },
+  logger?: Logger,
+) => boolean;
 
 export type UseResponseCacheParameter<PluginContext extends Record<string, any> = {}> = {
   cache?: Cache | ((ctx: Record<string, any>) => Cache);
@@ -152,6 +156,11 @@ export type UseResponseCacheParameter<PluginContext extends Record<string, any> 
    * Hook that when TTL is calculated, allows to modify the TTL value.
    */
   onTtl?: ResponseCacheOnTtlFunction<PluginContext>;
+  /**
+   * Logger used for the plugin's own diagnostic messages.
+   * @default new Logger()
+   */
+  logger?: Logger;
 };
 
 export type ResponseCacheOnTtlFunction<PluginContext> = (payload: {
@@ -186,10 +195,9 @@ export const defaultBuildResponseCacheKey = (params: {
  *
  * By default, results with errors (unexpected, EnvelopError, or GraphQLError) are not cached.
  */
-export const defaultShouldCacheResult: ShouldCacheResultFunction = (params): boolean => {
+export const defaultShouldCacheResult: ShouldCacheResultFunction = (params, logger): boolean => {
   if (params.result.errors) {
-    // eslint-disable-next-line no-console
-    console.warn('[useResponseCache] Failed to cache due to errors');
+    (logger ?? new Logger()).warn('[useResponseCache] Failed to cache due to errors');
     return false;
   }
 
@@ -315,7 +323,8 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   invalidateViaMutation = true,
   buildResponseCacheKey = defaultBuildResponseCacheKey,
   getDocumentString = defaultGetDocumentString,
-  shouldCacheResult = defaultShouldCacheResult,
+  logger = new Logger(),
+  shouldCacheResult = params => defaultShouldCacheResult(params, logger),
   onTtl,
   includeExtensionMetadata = typeof process === 'undefined'
     ? false
@@ -329,8 +338,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   // never cache Introspections
   ttlPerSchemaCoordinate = { 'Query.__schema': 0, ...ttlPerSchemaCoordinate };
   if (ttlPerType) {
-    // eslint-disable-next-line no-console
-    console.warn(
+    logger.warn(
       '[useResponseCache] `ttlForType` is deprecated. To migrate, merge it with `ttlForSchemaCoordinate` option',
     );
     for (const [typeName, ttl] of Object.entries(ttlPerType)) {
@@ -439,8 +447,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         return {
           onExecuteDone(params) {
             if (!executed) {
-              // eslint-disable-next-line no-console
-              console.warn(
+              logger.warn(
                 '[useResponseCache] The cached execute function was not called, another plugin might have overwritten it. Please check your plugin order.',
               );
             }
@@ -509,8 +516,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
 
         const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
         if (cacheInstance == null) {
-          // eslint-disable-next-line no-console
-          console.warn(
+          logger.warn(
             '[useResponseCache] Cache instance is not available for the context. Skipping invalidation.',
           );
           return;
@@ -570,8 +576,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         cacheKey => {
           const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
           if (cacheInstance == null) {
-            // eslint-disable-next-line no-console
-            console.warn(
+            logger.warn(
               '[useResponseCache] Cache instance is not available for the context. Skipping cache lookup.',
             );
           }
@@ -603,7 +608,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
                   });
                 }
 
-                if (skip || !shouldCacheResult({ cacheKey, result }) || finalTtl === 0) {
+                if (skip || !shouldCacheResult({ cacheKey, result }, logger) || finalTtl === 0) {
                   if (includeExtensionMetadata) {
                     setResult(resultWithMetadata(result, { hit: false, didCache: false }));
                   }

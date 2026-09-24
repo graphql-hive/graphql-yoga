@@ -42,8 +42,18 @@ export function useManagedFederation(options: ManagedFederationPluginOptions = {
       ensureSupergraphManager().addEventListener(
         'log',
         ({ detail: { level, message, source } }: SupergraphSchemaManagerLogEvent) => {
-          yoga.logger[level](
+          yoga.log[level](
             `[ManagedFederation]${source === 'uplink' ? ' <UPLINK>' : ''} ${message}`,
+          );
+        },
+      );
+
+      ensureSupergraphManager().addEventListener(
+        'schema',
+        ({ detail: { supergraphSdl } }: SupergraphSchemaManagerSchemaEvent) => {
+          yoga.log.info(
+            { supergraphSdlLength: supergraphSdl.length },
+            '[ManagedFederation] Supergraph schema loaded.',
           );
         },
       );
@@ -55,12 +65,14 @@ export function useManagedFederation(options: ManagedFederationPluginOptions = {
             return options.onFailure(error, delayInSeconds);
           }
           const message = (error as { message: string })?.message ?? error;
-          yoga.logger.error(
+          yoga.log.error(
+            { message },
             `[ManagedFederation] Failed to load supergraph schema.${
               message ? ` Last error: ${message}` : ''
             }`,
           );
-          yoga.logger.info(
+          yoga.log.info(
+            { delayInSeconds },
             `[ManagedFederation] No failure handler provided. Retrying in ${delayInSeconds}s.`,
           );
           ensureSupergraphManager().start(delayInSeconds);

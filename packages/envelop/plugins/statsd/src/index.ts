@@ -1,6 +1,7 @@
 import type { StatsD } from 'hot-shots';
 import type { AfterParseEventPayload, Plugin } from '@envelop/core';
 import { isAsyncIterable, isIntrospectionOperationString } from '@envelop/core';
+import { Logger } from '@graphql-hive/logger';
 
 export interface StatsDPluginOptions {
   client: StatsD;
@@ -12,6 +13,11 @@ export interface StatsDPluginOptions {
    * <prefix>.operations.count (default: graphql)
    */
   prefix?: string;
+  /**
+   * Logger used for the plugin's own diagnostic messages.
+   * @default new Logger()
+   */
+  logger?: Logger;
 }
 
 export const metricNames = {
@@ -46,7 +52,7 @@ function getTags(context: PluginInternalContext) {
 }
 
 export const useStatsD = (options: StatsDPluginOptions): Plugin<PluginInternalContext> => {
-  const { client, prefix = 'graphql', skipIntrospection = false } = options;
+  const { client, prefix = 'graphql', skipIntrospection = false, logger = new Logger() } = options;
 
   function createMetricName(name: string) {
     return `${prefix}.${name}`;
@@ -112,8 +118,7 @@ export const useStatsD = (options: StatsDPluginOptions): Plugin<PluginInternalCo
           const latency = Date.now() - args.contextValue[statsDPluginExecutionStartTimeSymbol];
 
           if (isAsyncIterable(result)) {
-            // eslint-disable-next-line no-console
-            console.warn(
+            logger.warn(
               `Plugin "statsd" encountered a AsyncIterator which is not supported yet, so tracing data is not available for the operation.`,
             );
             return;
