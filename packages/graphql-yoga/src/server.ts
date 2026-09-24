@@ -180,19 +180,6 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * @default true
    */
   multipart?: boolean | undefined;
-  /**
-   * Whether to allow the `QUERY` HTTP method, as described in the
-   * `graphql-over-http` spec proposal.
-   *
-   * `QUERY` requests carry the GraphQL params in the request body, exactly
-   * like `POST`, but are treated as safe/read-only like `GET` (sending a
-   * mutation over `QUERY` is rejected).
-   *
-   * @see https://github.com/graphql/graphql-over-http/pull/411
-   *
-   * @default true
-   */
-  queryMethod?: boolean | undefined;
   id?: string | undefined;
   /**
    * Limit the size (in bytes) of the incoming HTTP request body that will be read by the
@@ -348,8 +335,6 @@ export class YogaServer<
       }
     }
 
-    const allowQueryMethod = options?.queryMethod !== false;
-
     this.graphqlEndpoint = options?.graphqlEndpoint || '/graphql';
 
     this.plugins = [
@@ -405,21 +390,21 @@ export class YogaServer<
         parse: parseGETRequest,
       }),
       useRequestParser({
-        match: request => isPOSTJsonRequest(request, allowQueryMethod),
+        match: isPOSTJsonRequest,
         parse: parsePOSTJsonRequest,
       }),
       options?.multipart !== false &&
         useRequestParser({
-          match: request => isPOSTMultipartRequest(request, allowQueryMethod),
+          match: isPOSTMultipartRequest,
           parse: parsePOSTMultipartRequest,
         }),
 
       useRequestParser({
-        match: request => isPOSTGraphQLStringRequest(request, allowQueryMethod),
+        match: isPOSTGraphQLStringRequest,
         parse: parsePOSTGraphQLStringRequest,
       }),
       useRequestParser({
-        match: request => isPOSTFormUrlEncodedRequest(request, allowQueryMethod),
+        match: isPOSTFormUrlEncodedRequest,
         parse: parsePOSTFormUrlEncodedRequest,
       }),
       // Middlewares after the GraphQL execution
@@ -443,8 +428,8 @@ export class YogaServer<
           typeof options?.landingPage === 'function' ? options.landingPage : undefined,
       }),
       // We check the method after user-land plugins because the plugin might support more methods (like graphql-sse).
-      useCheckMethodForGraphQL({ queryMethod: allowQueryMethod }),
-      // We make sure that the user doesn't send a mutation with GET or QUERY
+      useCheckMethodForGraphQL(),
+      // We make sure that the user doesn't send a mutation with GET
       usePreventMutationViaGET(),
       // Make sure we always throw AbortError instead of masking it!
       maskedErrors !== null && {
