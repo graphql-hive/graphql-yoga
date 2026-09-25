@@ -39,20 +39,11 @@ function createTestMatch(graphqlMajor) {
     if (nodeMajor < 22) {
       testMatch.push('!**/examples/hackernews/**');
     }
-    // apollo federation and sofa don't support graphql 15
-    if (graphqlMajor <= 15) {
-      testMatch.push('!**/examples/apollo-federation/**');
-    }
   } else {
     testMatch.push(
       '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',
       '!**/__integration-tests__/**',
     );
-  }
-
-  // Skip for Node 20 and below
-  if (nodeMajor <= 20) {
-    testMatch.push('!**/nestjs/**');
   }
 
   if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
@@ -86,14 +77,11 @@ function createTestMatch(graphqlMajor) {
 const standaloneProjects = [];
 
 if (process.env.INTEGRATION_TEST === 'true') {
-  // Supports Node 18+ only, so we can ignore it in CI for now
-  if (nodeMajor > 18) {
-    standaloneProjects.push(
-      // Cloudflare plugin tests need very different build settings
-      // giving Jest a string as project name will make it rely on jest.config files in the package subfolder
-      '<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv',
-    );
-  }
+  standaloneProjects.push(
+    // Cloudflare plugin tests need very different build settings
+    // giving Jest a string as project name will make it rely on jest.config files in the package subfolder
+    '<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv',
+  );
 }
 
 const tsPathsModuleNameMapper = pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {

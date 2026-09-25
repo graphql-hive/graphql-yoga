@@ -92,9 +92,13 @@ test('onParams -> replaces the params handler correctly', async () => {
   const body = await result.json();
   expect(body).toEqual({ data: { hello: 'world' } });
   expect(paramsHandler).toHaveBeenCalledTimes(1);
-  expect(paramsHandler).toHaveBeenCalledWith(
-    expect.objectContaining({ params, request, context: expect.objectContaining(serverContext) }),
-  );
+  const paramsHandlerCallArgs = paramsHandler.mock.calls[0]![0];
+  expect(paramsHandlerCallArgs.params).toEqual(params);
+  expect(paramsHandlerCallArgs.context).toEqual(expect.objectContaining(serverContext));
+  // Compared as a boolean (not `toHaveBeenCalledWith`/`objectContaining` directly) so a failure
+  // never triggers a deep-equality walk (or pretty-format) over the stream-backed Request
+  // object, which can crash on some Node versions.
+  expect(paramsHandlerCallArgs.request === request).toBe(true);
 });
 
 test('context value identity stays the same in all hooks', async () => {
