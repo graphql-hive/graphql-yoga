@@ -7,7 +7,7 @@
 ### Dependencies
 
 - Bump `@whatwg-node/server` to `^0.13.0`, `@whatwg-node/fetch` to `^0.12.0`, and `@whatwg-node/promise-helpers` to `^2.0.0`.
-- Request body size limiting uses `@whatwg-node/server`'s `useLimitRequestBodySize` directly (HTTP `onRequest`) with GraphQL error JSON via `responseFromError`.
+- Request body size limiting now wraps the selected request parser (HTTP `onRequestParse`) instead of replacing the request at `onRequest`, so `context.request` (and the `Request` object seen by plugin hooks) always stays the exact object passed to `yoga.fetch`. It still uses `@whatwg-node/server`'s `RequestBodyTooLargeError`/`InvalidContentLengthError` for GraphQL error JSON.
 - Unread request bodies are discarded after the response is decided (keep-alive friendly).
 - Incoming global `Request` instances automatically use the native Fetch API (`pickRightFetchAPI`), so Next.js no longer needs `fetchAPI: { Response }`.
 

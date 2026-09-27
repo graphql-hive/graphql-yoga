@@ -78,22 +78,6 @@ function graphQLErrorFromBodyLimitError(
   });
 }
 
-export function responseFromBodyLimitError(
-  error: RequestBodyTooLargeError | InvalidContentLengthError,
-  fetchAPI: { Response: typeof Response },
-): Response {
-  return new fetchAPI.Response(
-    JSON.stringify({ errors: [graphQLErrorFromBodyLimitError(error)] }),
-    {
-      status: error.status,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        ...error.headers,
-      },
-    },
-  );
-}
-
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
