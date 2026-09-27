@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaLogger } from '@graphql-yoga/logger';
+import { InvalidContentLengthError, RequestBodyTooLargeError } from '@whatwg-node/server';
 import type { ResultProcessorInput } from './plugins/types.js';
 import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
@@ -44,6 +45,39 @@ export function isAbortError(error: unknown): error is DOMException {
   );
 }
 
+export function isRequestBodyLimitError(
+  error: unknown,
+): error is RequestBodyTooLargeError | InvalidContentLengthError {
+  return error instanceof RequestBodyTooLargeError || error instanceof InvalidContentLengthError;
+}
+
+function graphQLErrorFromBodyLimitError(
+  error: RequestBodyTooLargeError | InvalidContentLengthError,
+): GraphQLError {
+  if (error instanceof RequestBodyTooLargeError) {
+    return createGraphQLError(error.message, {
+      originalError: error,
+      extensions: {
+        http: {
+          status: 413,
+          ...(error.headers ? { headers: error.headers } : {}),
+        },
+        code: 'REQUEST_ENTITY_TOO_LARGE',
+      },
+    });
+  }
+  return createGraphQLError(error.message, {
+    originalError: error,
+    extensions: {
+      http: {
+        status: 400,
+        ...(error.headers ? { headers: error.headers } : {}),
+      },
+      code: 'BAD_REQUEST',
+    },
+  });
+}
+
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
@@ -59,6 +93,8 @@ export function handleError(
     }
   } else if (isAbortError(error)) {
     logger.debug('Request aborted');
+  } else if (isRequestBodyLimitError(error)) {
+    errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
     const maskedError = maskedErrorsOpts.maskError(
       error,

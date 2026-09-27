@@ -181,9 +181,10 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * Limit the size (in bytes) of the incoming HTTP request body that will be read by the
    * built-in request parsers (JSON, GraphQL string, url-encoded and multipart).
    *
-   * Requests whose `Content-Length` exceeds this value are rejected with an HTTP 413 response
-   * before the body is read. The limit is also enforced while streaming the body, so requests
-   * with a missing, incorrect, or chunked-transfer-encoded body are covered too.
+   * Requests whose `Content-Length` exceeds this value (or whose `Content-Length` is invalid)
+   * are rejected with an HTTP 413/400 response before the body is read. Bodies are also counted
+   * while streaming, so requests with a missing, wrong, or chunked-transfer-encoded body cannot
+   * bypass the limit.
    *
    * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
    * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).
@@ -399,9 +400,8 @@ export class YogaServer<
 
       // Must run after the request parsers above (including any registered by user plugins)
       // so it wraps whichever parser ends up selected.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
-      ),
+      options?.maxRequestBodySize !== false &&
+        useLimitRequestBodySize(options?.maxRequestBodySize ?? 25_000_000),
 
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(

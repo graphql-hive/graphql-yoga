@@ -1,6 +1,6 @@
 import { Client, createClient } from 'graphql-ws';
 import ws from 'ws';
-import { crypto, fetch } from '@whatwg-node/fetch';
+import { fetch } from '@whatwg-node/fetch';
 
 describe('uWebSockets', () => {
   let uws: typeof import('uWebSockets.js');

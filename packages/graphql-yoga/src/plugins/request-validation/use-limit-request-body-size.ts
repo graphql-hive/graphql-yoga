@@ -1,28 +1,6 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { InvalidContentLengthError, RequestBodyTooLargeError } from '@whatwg-node/server';
 import type { FetchAPI } from '../../types.js';
 import type { Plugin } from '../types.js';
-
-function createRequestBodyTooLargeError() {
-  return createGraphQLError(`Request body too large`, {
-    extensions: {
-      http: {
-        status: 413,
-      },
-      code: 'REQUEST_ENTITY_TOO_LARGE',
-    },
-  });
-}
-
-function createInvalidContentLengthError() {
-  return createGraphQLError('Content-Length header is invalid.', {
-    extensions: {
-      http: {
-        status: 400,
-      },
-      code: 'BAD_REQUEST',
-    },
-  });
-}
 
 // Only a single non-negative integer is a valid Content-Length. Anything else (non-numeric,
 // negative, or multiple comma-joined values as seen in request-smuggling attempts) is rejected
@@ -36,10 +14,8 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
     return request;
   }
 
-  // Workaround until the next version of whatwg-node automatically normalizes the request body
-  // Once the normalization implemented in whatwg-node, this workaround can be removed.
-  // Since the request body is the native ReadableStream, it conflicts the ponyfill implementation of the TransformStream.
-  // See https://github.com/graphql-hive/graphql-yoga/issues/4583
+  // Since the request body is the native ReadableStream, it conflicts with the ponyfill
+  // implementation of the TransformStream. See https://github.com/graphql-hive/graphql-yoga/issues/4583
   const TransformStreamCtor =
     request.body instanceof ReadableStream ? globalThis.TransformStream : fetchAPI.TransformStream;
 
@@ -49,7 +25,7 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
       transform(chunk, controller) {
         bytesRead += chunk.byteLength;
         if (bytesRead > limit) {
-          controller.error(createRequestBodyTooLargeError());
+          controller.error(new RequestBodyTooLargeError());
           return;
         }
         controller.enqueue(chunk);
@@ -68,7 +44,9 @@ export function limitRequestBodySize(request: Request, limit: number, fetchAPI: 
 }
 
 // Must run after all request parsers (built-in and user-provided) have registered, so
-// `requestParser` reflects whichever one was ultimately selected.
+// `requestParser` reflects whichever one was ultimately selected. The size-limited request is
+// only ever passed to that parser, never assigned back to the outer `request`, so
+// `context.request`/plugin hooks keep seeing the exact `Request` object the caller passed in.
 export function useLimitRequestBodySize(limit: number | false): Plugin {
   if (limit === false) {
     return {};
@@ -78,10 +56,10 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
       const contentLength = request.headers.get('content-length');
       if (contentLength != null) {
         if (!CONTENT_LENGTH_RE.test(contentLength)) {
-          throw createInvalidContentLengthError();
+          throw new InvalidContentLengthError();
         }
         if (Number(contentLength) > limit) {
-          throw createRequestBodyTooLargeError();
+          throw new RequestBodyTooLargeError();
         }
       }
 
