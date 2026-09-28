@@ -1,5 +1,4 @@
 ---
-'@envelop/response-cache-cloudflare-kv': major
 '@graphql-yoga/nestjs-federation': major
 '@graphql-yoga/nestjs': major
 'graphql-yoga': patch
