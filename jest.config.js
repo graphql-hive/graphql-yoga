@@ -84,9 +84,9 @@ function createTestMatch(graphqlMajor) {
 /** Projects that bring their own jest config, so they run once instead of per graphql version. */
 const standaloneProjects = [];
 
-// nestjs's open handles/leaks don't play well with --detectOpenHandles/--detectLeaks, so it's
-// excluded from that run.
-if (!process.env.LEAKS_TEST) {
+// nestjs has no `__integration-tests__` files, and its open handles/leaks don't play well with
+// --detectOpenHandles/--detectLeaks, so it's excluded from those runs.
+if (process.env.INTEGRATION_TEST !== 'true' && !process.env.LEAKS_TEST) {
   standaloneProjects.push('<rootDir>/packages/nestjs');
 }
 
