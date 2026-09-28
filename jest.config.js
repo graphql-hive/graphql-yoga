@@ -84,6 +84,12 @@ function createTestMatch(graphqlMajor) {
 /** Projects that bring their own jest config, so they run once instead of per graphql version. */
 const standaloneProjects = [];
 
+// nestjs's open handles/leaks don't play well with --detectOpenHandles/--detectLeaks, so it's
+// excluded from that run.
+if (!process.env.LEAKS_TEST) {
+  standaloneProjects.push('<rootDir>/packages/nestjs');
+}
+
 if (process.env.INTEGRATION_TEST === 'true') {
   // Supports Node 18+ only, so we can ignore it in CI for now
   if (nodeMajor > 18) {
@@ -124,9 +130,6 @@ const projects = graphqlVersions.map(graphqlVersion => ({
   ),
   testMatch: createTestMatch(graphqlVersion.major),
   testPathIgnorePatterns: ['<rootDir>/packages/envelop/plugins/response-cache-cloudflare-kv'],
-  // `@nestjs/*` v12 packages ship as ESM-only (no CJS build), so they need to go through Babel
-  // like our own source instead of being skipped as usual for `node_modules`.
-  transformIgnorePatterns: ['/node_modules/(?!(\\.pnpm/)?@nestjs)'],
   testTimeout: process.env.INTEGRATION_TEST === 'true' ? 10_000 : undefined,
   resolver: 'bob-the-bundler/jest-resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],

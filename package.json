@@ -45,15 +45,13 @@
     "start:docs": "pnpm --filter=website dev",
     "test:integration": "node scripts/ensure-playwright-chromium.js && cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
-    "test:unit": "jest --detectOpenHandles && pnpm run test:unit:nestjs",
-    "test:unit:leaks": "cross-env LEAKS_TEST=true jest --detectOpenHandles --detectLeaks",
-    "test:unit:nestjs": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --config packages/nestjs/jest.config.cjs"
+    "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
+    "test:unit:leaks": "cross-env LEAKS_TEST=true pnpm run test:unit --detectLeaks"
   },
   "devDependencies": {
     "@babel/core": "7.28.5",
     "@babel/plugin-proposal-decorators": "7.28.0",
     "@babel/plugin-transform-class-properties": "7.27.1",
-    "@babel/plugin-transform-class-static-block": "7.27.1",
     "@babel/preset-env": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
     "@changesets/changelog-github": "0.5.2",
