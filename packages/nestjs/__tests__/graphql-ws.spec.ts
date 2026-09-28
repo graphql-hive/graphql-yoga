@@ -1,24 +1,22 @@
 import { createClient } from 'graphql-ws';
 import { WebSocket } from 'ws';
+import { INestApplication } from '@nestjs/common/interfaces/index.js';
 import { Test } from '@nestjs/testing';
-import { AppModule } from './fixtures/graphql/app.module';
-import { useTestApp } from './utils/app';
 
-const { getUrl } = useTestApp(() =>
-  Test.createTestingModule({
-    imports: [
-      AppModule.forRoot({
-        subscriptions: {
-          'graphql-ws': true,
-        },
-      }),
-    ],
-  }).compile(),
-);
+let app: INestApplication, url: string;
+
+beforeAll(async () => {
+  const module = await Test.createTestingModule({}).compile();
+  app = module.createNestApplication();
+  await app.listen(0);
+  url = (await app.getUrl()) + '/graphql';
+});
+
+afterAll(() => app.close());
 
 it('should subscribe using graphql-ws', async () => {
   const client = createClient({
-    url: getUrl().replace('http', 'ws'),
+    url: url.replace('http', 'ws'),
     webSocketImpl: WebSocket,
     lazy: true,
     retryAttempts: 0,

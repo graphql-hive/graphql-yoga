@@ -129,6 +129,7 @@ const projects = graphqlVersions.map(graphqlVersion => ({
   // like our own source instead of being skipped as usual for `node_modules`.
   transformIgnorePatterns: ['/node_modules/(?!(\\.pnpm/)?@nestjs)'],
   testTimeout: process.env.INTEGRATION_TEST === 'true' ? 10_000 : undefined,
+  transformIgnorePatterns: '/node_modules/(@nestjs)',
   resolver: 'bob-the-bundler/jest-resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 }));
