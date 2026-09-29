@@ -8,8 +8,6 @@ Remove the built-in `subscriptions` driver option and its `graphql-ws` /
 `subscriptions-transport-ws` wiring (previously implemented via `@nestjs/graphql`'s
 `GqlSubscriptionService`).
 
-Update the tsconfig to build paths purposefully to remove conflicts when building federation nestjs and nestjs packages. 
-
 Fix open handle leak in multipart tests.
 
 `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
