@@ -375,6 +375,10 @@ export class YogaServer<
       !!options?.schema && useSchema(options.schema),
       options?.allowedHeaders?.request != null &&
         useAllowedRequestHeaders(options.allowedHeaders.request),
+      // Filter response headers before anything sets its own (like the request id, right below)
+      // so those additions aren't stripped afterwards.
+      options?.allowedHeaders?.response != null &&
+        useAllowedResponseHeaders(options.allowedHeaders.response),
       // Scope the logger of each request to its request id. Registered after the request headers
       // have been filtered, so that a request id is only taken from an allowed header, but before
       // the plugins that log while short-circuiting a request (health checks, GraphiQL).
@@ -486,8 +490,6 @@ export class YogaServer<
         }),
       },
       maskedErrors !== null && useMaskedErrors(maskedErrors),
-      options?.allowedHeaders?.response != null &&
-        useAllowedResponseHeaders(options.allowedHeaders.response),
       // We handle validation errors at the end
       useHTTPValidationError(),
     ];

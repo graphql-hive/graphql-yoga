@@ -1191,6 +1191,9 @@ importers:
 
   examples/fastify:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/fetch':
         specifier: ^0.12.0
         version: 0.12.0
@@ -3388,13 +3391,6 @@ importers:
       typescript:
         specifier: 6.0.2
         version: 6.0.2
-    publishDirectory: dist
-
-  packages/logger:
-    dependencies:
-      tslib:
-        specifier: ^2.8.1
-        version: 2.8.1
     publishDirectory: dist
 
   packages/nestjs:

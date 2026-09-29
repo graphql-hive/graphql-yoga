@@ -110,6 +110,14 @@ describe('request id', () => {
     );
   });
 
+  it('survives allowedHeaders.response filtering', async () => {
+    const { yoga } = createTestYoga({ allowedHeaders: { response: ['content-type'] } });
+
+    const response = await query(yoga);
+
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String));
+  });
+
   it('can be disabled', async () => {
     const { yoga, writer } = createTestYoga({ schema, requestId: false });
 

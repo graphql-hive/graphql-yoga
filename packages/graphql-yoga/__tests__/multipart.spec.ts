@@ -1,4 +1,3 @@
-import { Blob, FormData } from '@whatwg-node/fetch';
 import { createSchema } from '../src/schema';
 import { createYoga } from '../src/server';
 

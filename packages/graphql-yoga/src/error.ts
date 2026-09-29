@@ -60,7 +60,7 @@ function graphQLErrorFromBodyLimitError(
       extensions: {
         http: {
           status: 413,
-          ...(error.headers ? { headers: error.headers } : {}),
+          ...(Object.keys(error.headers).length > 0 ? { headers: error.headers } : {}),
         },
         code: 'REQUEST_ENTITY_TOO_LARGE',
       },
@@ -71,7 +71,7 @@ function graphQLErrorFromBodyLimitError(
     extensions: {
       http: {
         status: 400,
-        ...(error.headers ? { headers: error.headers } : {}),
+        ...(Object.keys(error.headers).length > 0 ? { headers: error.headers } : {}),
       },
       code: 'BAD_REQUEST',
     },
