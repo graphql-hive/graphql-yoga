@@ -102,12 +102,6 @@ if (process.env.INTEGRATION_TEST === 'true') {
 const tsPathsModuleNameMapper = pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
   prefix: `${ROOT_DIR}/`,
 });
-// `graphql`/`graphql/*` are pinned in tsconfig's `paths` to a single canonical declaration file,
-// working around a TypeScript dual CJS/ESM declaration hazard (see tsconfig.json) - but that
-// points at a `.d.ts` file, which isn't valid runtime JS. `getGraphQLModuleNameMapper` below
-// already redirects `graphql` per-project to the right runtime version, so drop these two here.
-delete tsPathsModuleNameMapper['^graphql$'];
-delete tsPathsModuleNameMapper['^graphql/(.*)$'];
 
 const projects = graphqlVersions.map(graphqlVersion => ({
   // `jest --selectProjects graphql-16` runs only that version

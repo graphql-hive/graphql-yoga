@@ -11,12 +11,6 @@ const tsconfig = require(TSCONFIG);
 const moduleNameMapper = pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
   prefix: `${PROJECT_ROOT}/`,
 });
-// `graphql`/`graphql/*` are pinned in tsconfig's `paths` to a single canonical declaration file,
-// working around a TypeScript dual CJS/ESM declaration hazard (see tsconfig.json) - but that
-// points at a `.d.ts` file, which isn't valid runtime JS. Drop these so `graphql` resolves
-// normally through node module resolution instead.
-delete moduleNameMapper['^graphql$'];
-delete moduleNameMapper['^graphql/(.*)$'];
 
 /** @type {import('jest').Config} */
 module.exports = {
