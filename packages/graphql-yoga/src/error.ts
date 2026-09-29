@@ -96,13 +96,12 @@ export function handleError(
   } else if (isRequestBodyLimitError(error)) {
     errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
-    maskedErrorsOpts._requestLogger = log;
     const maskedError = maskedErrorsOpts.maskError(
       error,
       maskedErrorsOpts.errorMessage,
       maskedErrorsOpts.isDev,
+      log,
     );
-    maskedErrorsOpts._requestLogger = undefined;
 
     errors.add(
       isGraphQLError(maskedError)

@@ -73,16 +73,21 @@ export type YogaMaskedErrorOpts = {
   maskError: MaskError;
   errorMessage: string;
   isDev?: boolean;
-  /**
-   * Request-scoped logger for `maskError` to use, since it has no context of its own.
-   * Set by `handleError` (error.ts) just before calling `maskError`. When envelop's
-   * `useMaskedErrors` calls `maskError` directly (subscription/streaming errors), this
-   * isn't set, and `maskError` falls back to the server's base logger.
-   */
-  _requestLogger?: Logger;
 };
 
-export type MaskError = (error: unknown, message: string, isDev?: boolean) => Error;
+export type MaskError = (
+  error: unknown,
+  message: string,
+  isDev?: boolean,
+  /**
+   * Request-scoped logger, so a logged error can be correlated with the request that caused
+   * it. Passed by whichever caller has the request's context: `handleError` (error.ts) for the
+   * HTTP path, or envelop's `useMaskedErrors` itself for subscription/streaming errors (it gets
+   * one from the context it's given at the point of the call). Falls back to the server's base
+   * logger when unset (e.g. an error before context could be built).
+   */
+  log?: Logger,
+) => Error;
 
 export type MaybeArray<T> = T | T[];
 

@@ -14,6 +14,8 @@
 '@envelop/response-cache': minor
 '@envelop/response-cache-cloudflare-kv': minor
 '@envelop/apollo-federation': major
+'@envelop/core': minor
+'@envelop/types': minor
 ---
 
 Update to use the hive logger. (closes #4048)
@@ -33,6 +35,8 @@ New `debug`-level log lines were added for:
 - the response status code once a result has been processed into an HTTP `Response`
 - a successfully fetched signing key in `@graphql-yoga/plugin-jwt`
 - a successfully loaded supergraph schema in `@graphql-yoga/apollo-managed-federation` (`info` level, mirroring the existing failure log)
+
+Errors masked by `useMaskedErrors` are now logged through the request's correlated logger too, so a masked error can be traced back to the request that produced it. To make this possible without shared mutable state, `@envelop/core`'s `MaskError` type (and `UseMaskedErrorsOpts`) gained an optional third `context` argument, populated from whichever GraphQL context is available at the point of the call; `@envelop/types`' `SubscribeErrorHookPayload` (and `SubscribeErrorHook`) gained a `context` field to support this for subscriptions that error before ever yielding a result.
 
 `MemoryLogWriter` is now re-exported from `graphql-yoga` for tests that need to observe logs written by these per-request child loggers (spying on logger instance methods directly does not work for child loggers, since `Logger.child()` returns an independent instance that only shares writers/level with its parent).
 

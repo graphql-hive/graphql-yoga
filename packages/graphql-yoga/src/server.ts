@@ -4,7 +4,6 @@ import { parse, specifiedRules, validate } from 'graphql';
 import type { GetEnvelopedFn, PromiseOrValue } from '@envelop/core';
 import {
   envelop,
-  handleStreamOrSingleExecutionResult,
   isAsyncIterable,
   useEngine,
   useExtendContext,
@@ -330,15 +329,18 @@ export class YogaServer<
         : {
             errorMessage: 'Unexpected error.',
             ...(typeof options?.maskedErrors === 'object' ? options.maskedErrors : {}),
-            maskError: (error, message) => {
+            // `log` is the request-scoped logger to correlate this error with the request
+            // that caused it. Passed explicitly by `handleError` (error.ts) for the HTTP
+            // path; for subscription/streaming errors, `useMaskedErrors` calls this via the
+            // adapter below, which pulls it off the GraphQL context it's given.
+            maskError: (error, message, _isDev, log) => {
               if (maskedErrorSet.has(error as Error)) {
                 return error as Error;
               }
               const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev);
 
               if (newError !== error) {
-                const requestLog = this.maskedErrorsOpts?._requestLogger ?? this.log;
-                requestLog.error({ err: error });
+                (log ?? this.log).error({ err: error });
               }
 
               maskedErrorSet.add(newError);
@@ -463,33 +465,25 @@ export class YogaServer<
       useCheckMethodForGraphQL(),
       // We make sure that the user doesn't send a mutation with GET
       usePreventMutationViaGET(),
-      // Always throw AbortError instead of masking it, and stash this operation's logger for the
-      // next `maskError` call(s), since `useMaskedErrors` (registered right after) invokes
-      // `maskError` directly with no context of its own. For streamed/subscribed results we
-      // re-stash the logger via `onNext`, immediately before each chunk, rather than once up
-      // front in `onExecuteDone`/`onSubscribeResult` - `_requestLogger` is a single field shared
-      // across all in-flight requests, and a long-lived stream would otherwise leave it stale
-      // (and liable to be clobbered by another request) for its entire lifetime.
+      // Always throw AbortError instead of masking it.
       maskedErrors !== null && {
-        onExecute: ({ args }) => ({
-          onExecuteDone: payload =>
-            handleStreamOrSingleExecutionResult(payload, () => {
-              this.maskedErrorsOpts!._requestLogger = args.contextValue.log;
-            }),
-        }),
-        onSubscribe: ({ args }) => ({
+        onSubscribe: () => ({
           onSubscribeError({ error }) {
             if (isAbortError(error)) {
               throw error;
             }
           },
-          onSubscribeResult: payload =>
-            handleStreamOrSingleExecutionResult(payload, () => {
-              this.maskedErrorsOpts!._requestLogger = args.contextValue.log;
-            }),
         }),
       },
-      maskedErrors !== null && useMaskedErrors(maskedErrors),
+      maskedErrors !== null &&
+        useMaskedErrors({
+          errorMessage: maskedErrors.errorMessage,
+          // `useMaskedErrors` only ever gives us the GraphQL context, not a logger directly,
+          // so pull the request-scoped logger off it and forward it to the real `maskError`
+          // (defined above) as an explicit argument, rather than a logger stashed elsewhere.
+          maskError: (error, message, context?: YogaInitialContext) =>
+            maskedErrors!.maskError(error, message, undefined, context?.log),
+        }),
       // We handle validation errors at the end
       useHTTPValidationError(),
     ];
