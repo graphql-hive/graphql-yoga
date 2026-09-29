@@ -50,8 +50,12 @@ function createTestMatch(graphqlMajor) {
     );
   }
 
-  // NestJS 12 is ESM-only, so its tests run in their own standalone project (see
-  // `standaloneProjects` below) instead of the per-graphql-version CJS projects.
+  // NestJS 12 is ESM-only, so its tests run via their own `jest --config packages/nestjs/...`
+  // invocation (see `test:unit:nestjs`) instead of the per-graphql-version CJS projects here.
+  // Folding it into this multi-project config instead - even as a standalone project entry - runs
+  // it in the same process as the CJS projects, which under `--detectOpenHandles` triggers
+  // infinite recursion in jest-util's global property interception (`Reflect.set` inside
+  // `originalSetter`) and hangs/crashes.
   testMatch.push('!**/nestjs/**');
 
   if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
@@ -83,12 +87,6 @@ function createTestMatch(graphqlMajor) {
 
 /** Projects that bring their own jest config, so they run once instead of per graphql version. */
 const standaloneProjects = [];
-
-// nestjs has no `__integration-tests__` files, and its open handles/leaks don't play well with
-// --detectOpenHandles/--detectLeaks, so it's excluded from those runs.
-if (process.env.INTEGRATION_TEST !== 'true' && !process.env.LEAKS_TEST) {
-  standaloneProjects.push('<rootDir>/packages/nestjs');
-}
 
 if (process.env.INTEGRATION_TEST === 'true') {
   // Supports Node 18+ only, so we can ignore it in CI for now
