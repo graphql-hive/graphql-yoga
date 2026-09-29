@@ -42,11 +42,11 @@ export const useGraphQlJit = (
      * Logger used for the plugin's own diagnostic messages.
      * @default new Logger()
      */
-    logger?: Logger;
+    log?: Logger;
   } = {},
 ): Plugin => {
   const jitCacheByDocumentString = pluginOptions.cache;
-  const logger = pluginOptions.logger ?? new Logger();
+  const log = pluginOptions.log ?? new Logger();
 
   const jitCacheByDocument = new WeakMap<DocumentNode, JITCacheEntry>();
 
@@ -76,7 +76,7 @@ export const useGraphQlJit = (
         if (pluginOptions?.onError) {
           pluginOptions.onError(compilationResult);
         } else {
-          logger.error({ err: compilationResult });
+          log.error({ err: compilationResult });
         }
         cacheEntry = {
           query: () => compilationResult,

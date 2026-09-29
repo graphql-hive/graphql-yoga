@@ -81,7 +81,7 @@ export type ResourceLimitationValidationRuleParams = {
    * Logger used for the rule's own diagnostic messages.
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 };
 
 /**
@@ -90,7 +90,7 @@ export type ResourceLimitationValidationRuleParams = {
 export const ResourceLimitationValidationRule = (
   params: ResourceLimitationValidationRuleParams,
 ): ExtendedValidationRule => {
-  const logger = params.logger ?? new Logger();
+  const log = params.log ?? new Logger();
   return (context, executionArgs) => {
     const { paginationArgumentMaximum, paginationArgumentMinimum } = params;
     const nodeCostStack: Array<number> = [];
@@ -120,7 +120,7 @@ export const ResourceLimitationValidationRule = (
                 params.paginationArgumentTypes,
               );
               if (hasFirst === false && hasLast === false) {
-                logger.warn('Encountered paginated field without pagination arguments.');
+                log.warn('Encountered paginated field without pagination arguments.');
               } else if (hasFirst === true || hasLast === true) {
                 if (
                   ('first' in argumentValues === false && 'last' in argumentValues === false) ||
@@ -248,7 +248,7 @@ type UseResourceLimitationsParams = {
    * Logger used for the plugin's own diagnostic messages.
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 };
 
 export const useResourceLimitations = (params?: UseResourceLimitationsParams): Plugin => {
@@ -282,7 +282,7 @@ export const useResourceLimitations = (params?: UseResourceLimitationsParams): P
               paginationArgumentMaximum,
               paginationArgumentMinimum,
               paginationArgumentTypes: params?.paginationArgumentScalars,
-              logger: params?.logger,
+              log: params?.log,
               reportNodeCost: extensions
                 ? (nodeCost, ref) => {
                     nodeCostMap.set(ref, nodeCost);

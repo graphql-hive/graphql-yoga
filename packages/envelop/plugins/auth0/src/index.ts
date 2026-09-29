@@ -25,7 +25,7 @@ export type Auth0PluginOptions = {
    * Logger used for the plugin's own diagnostic messages.
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 };
 
 export class UnauthenticatedError extends Error {}
@@ -54,7 +54,7 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
   const contextField = options.extendContextField || '_auth0';
   const tokenType = options.tokenType || 'Bearer';
   const headerName = options.headerName || 'authorization';
-  const logger = options.logger ?? new Logger();
+  const log = options.log ?? new Logger();
 
   const extractFn =
     options.extractTokenFn ||
@@ -86,7 +86,7 @@ export const useAuth0 = <TOptions extends Auth0PluginOptions>(
           throw new Error(`Invalid value provided for header "${headerName}"!`);
         }
       } else {
-        logger.warn(
+        log.warn(
           `useAuth0 plugin unable to locate your request or headers on the execution context. Please make sure to pass that, or provide custom "extractTokenFn" function.`,
         );
       }

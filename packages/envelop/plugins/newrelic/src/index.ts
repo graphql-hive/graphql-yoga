@@ -44,7 +44,7 @@ export type UseNewRelicOptions = {
    * agent's instrumentation logger, used internally once the agent is available).
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 };
 
 interface InternalOptions extends UseNewRelicOptions {
@@ -71,8 +71,8 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
   options.isResolverArgsRegex = options.includeResolverArgs instanceof RegExp;
   const instrumentationApi = rawOptions?.shim || newRelic?.shim;
   if (!instrumentationApi?.agent) {
-    const logger = rawOptions?.logger ?? new Logger();
-    logger.warn(
+    const log = rawOptions?.log ?? new Logger();
+    log.warn(
       'Agent unavailable. Please check your New Relic Agent configuration and ensure New Relic is enabled.',
     );
     return {};
@@ -81,8 +81,8 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
     .getOrCreateMetric(`Supportability/ExternalModules/${AttributeName.COMPONENT_NAME}`)
     .incrementCallCount();
 
-  const logger = instrumentationApi.logger.child({ component: AttributeName.COMPONENT_NAME });
-  logger.info(`${AttributeName.COMPONENT_NAME} registered`);
+  const log = instrumentationApi.logger.child({ component: AttributeName.COMPONENT_NAME });
+  log.info(`${AttributeName.COMPONENT_NAME} registered`);
 
   return {
     onPluginInit({ addPlugin }) {
@@ -91,12 +91,12 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
           useOnResolve(({ args: resolversArgs, info }) => {
             const transaction = instrumentationApi.agent.tracer.getTransaction();
             if (!transaction) {
-              logger.trace('No transaction found. Not recording resolver.');
+              log.trace('No transaction found. Not recording resolver.');
               return () => {};
             }
             const transactionNameState = transaction.nameState;
             if (!transactionNameState) {
-              logger.trace('No transaction name state found. Not recording resolver.');
+              log.trace('No transaction name state found. Not recording resolver.');
               return () => {};
             }
             const delimiter = transactionNameState.delimiter;
@@ -105,7 +105,7 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
             const formattedPath = flattenPath(path, delimiter);
             const currentSegment = instrumentationApi.getActiveSegment();
             if (!currentSegment) {
-              logger.trace(
+              log.trace(
                 'No active segment found at resolver call. Not recording resolver (%s).',
                 formattedPath,
               );
@@ -118,7 +118,7 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
               currentSegment,
             );
             if (!resolverSegment) {
-              logger.trace('Resolver segment was not created (%s).', formattedPath);
+              log.trace('Resolver segment was not created (%s).', formattedPath);
               return () => {};
             }
             resolverSegment.start();
@@ -148,7 +148,7 @@ export const useNewRelic = (rawOptions?: UseNewRelicOptions): Plugin => {
     onExecute({ args }) {
       const rootOperation = getOperationAST(args.document, args.operationName);
       if (!rootOperation) {
-        logger.trace('No root operation found. Not recording transaction.');
+        log.trace('No root operation found. Not recording transaction.');
         return;
       }
       const operationType = rootOperation.operation;

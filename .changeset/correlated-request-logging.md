@@ -35,12 +35,12 @@ New `debug`-level log lines were added for:
 
 `MemoryLogWriter` is now re-exported from `graphql-yoga` for tests that need to observe logs written by these per-request child loggers (spying on logger instance methods directly does not work for child loggers, since `Logger.child()` returns an independent instance that only shares writers/level with its parent).
 
-The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` internally (`newrelic`, `auth0`, `resource-limitations`, `statsd`, `graphql-jit`, `response-cache`, `response-cache-cloudflare-kv`) now accept an optional `logger` option (backed by `@graphql-hive/logger`) for their own diagnostic messages, defaulting to `new Logger()` so console-based output is unchanged if you don't provide one.
+The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` internally (`newrelic`, `auth0`, `resource-limitations`, `statsd`, `graphql-jit`, `response-cache`, `response-cache-cloudflare-kv`) now accept an optional `log` option (backed by `@graphql-hive/logger`) for their own diagnostic messages, defaulting to `new Logger()` so console-based output is unchanged if you don't provide one.
 
 ### Breaking Changes
 
 - The logger in the contexts is now called `log` instead of `logger`, matching Hive Gateway: `context.logger` is now `context.log`, and the Yoga instance's `yoga.logger` is now `yoga.log`. 
-- The `logger` option of the built-in plugin configs is now called `log` too (`GraphiQLPluginConfig`, `HealthCheckPluginOptions`).
+- The `logger` option of the built-in plugin configs is now called `log` too (`GraphiQLPluginConfig`, `HealthCheckPluginOptions`), and likewise for the `logger` option of `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`, `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`.
 - `@graphql-yoga/nestjs` now logs through Nest's own `Logger` by default (like `@graphql-hive/nestjs` does), instead of not logging at all. Pass `logging: false` to keep the previous behaviour. Passing `logging: true` now logs at the `info` level through Yoga's default (console) logger instead of the HTTP framework's logger - to keep logging through Fastify's Pino instance, pass it explicitly:
 
   ```ts

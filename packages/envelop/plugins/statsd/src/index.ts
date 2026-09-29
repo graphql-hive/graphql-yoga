@@ -17,7 +17,7 @@ export interface StatsDPluginOptions {
    * Logger used for the plugin's own diagnostic messages.
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 }
 
 export const metricNames = {
@@ -52,7 +52,7 @@ function getTags(context: PluginInternalContext) {
 }
 
 export const useStatsD = (options: StatsDPluginOptions): Plugin<PluginInternalContext> => {
-  const { client, prefix = 'graphql', skipIntrospection = false, logger = new Logger() } = options;
+  const { client, prefix = 'graphql', skipIntrospection = false, log = new Logger() } = options;
 
   function createMetricName(name: string) {
     return `${prefix}.${name}`;
@@ -118,7 +118,7 @@ export const useStatsD = (options: StatsDPluginOptions): Plugin<PluginInternalCo
           const latency = Date.now() - args.contextValue[statsDPluginExecutionStartTimeSymbol];
 
           if (isAsyncIterable(result)) {
-            logger.warn(
+            log.warn(
               `Plugin "statsd" encountered a AsyncIterator which is not supported yet, so tracing data is not available for the operation.`,
             );
             return;

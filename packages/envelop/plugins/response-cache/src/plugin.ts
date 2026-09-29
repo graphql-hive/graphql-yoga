@@ -64,7 +64,7 @@ export type ShouldCacheResultFunction = (
     cacheKey: string;
     result: ExecutionResult;
   },
-  logger?: Logger,
+  log?: Logger,
 ) => boolean;
 
 export type UseResponseCacheParameter<PluginContext extends Record<string, any> = {}> = {
@@ -160,7 +160,7 @@ export type UseResponseCacheParameter<PluginContext extends Record<string, any> 
    * Logger used for the plugin's own diagnostic messages.
    * @default new Logger()
    */
-  logger?: Logger;
+  log?: Logger;
 };
 
 export type ResponseCacheOnTtlFunction<PluginContext> = (payload: {
@@ -195,9 +195,9 @@ export const defaultBuildResponseCacheKey = (params: {
  *
  * By default, results with errors (unexpected, EnvelopError, or GraphQLError) are not cached.
  */
-export const defaultShouldCacheResult: ShouldCacheResultFunction = (params, logger): boolean => {
+export const defaultShouldCacheResult: ShouldCacheResultFunction = (params, log): boolean => {
   if (params.result.errors) {
-    (logger ?? new Logger()).warn('[useResponseCache] Failed to cache due to errors');
+    (log ?? new Logger()).warn('[useResponseCache] Failed to cache due to errors');
     return false;
   }
 
@@ -323,8 +323,8 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   invalidateViaMutation = true,
   buildResponseCacheKey = defaultBuildResponseCacheKey,
   getDocumentString = defaultGetDocumentString,
-  logger = new Logger(),
-  shouldCacheResult = params => defaultShouldCacheResult(params, logger),
+  log = new Logger(),
+  shouldCacheResult = params => defaultShouldCacheResult(params, log),
   onTtl,
   includeExtensionMetadata = typeof process === 'undefined'
     ? false
@@ -338,7 +338,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   // never cache Introspections
   ttlPerSchemaCoordinate = { 'Query.__schema': 0, ...ttlPerSchemaCoordinate };
   if (ttlPerType) {
-    logger.warn(
+    log.warn(
       '[useResponseCache] `ttlForType` is deprecated. To migrate, merge it with `ttlForSchemaCoordinate` option',
     );
     for (const [typeName, ttl] of Object.entries(ttlPerType)) {
@@ -447,7 +447,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         return {
           onExecuteDone(params) {
             if (!executed) {
-              logger.warn(
+              log.warn(
                 '[useResponseCache] The cached execute function was not called, another plugin might have overwritten it. Please check your plugin order.',
               );
             }
@@ -516,7 +516,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
 
         const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
         if (cacheInstance == null) {
-          logger.warn(
+          log.warn(
             '[useResponseCache] Cache instance is not available for the context. Skipping invalidation.',
           );
           return;
@@ -576,7 +576,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         cacheKey => {
           const cacheInstance = cacheFactory(onExecuteParams.args.contextValue);
           if (cacheInstance == null) {
-            logger.warn(
+            log.warn(
               '[useResponseCache] Cache instance is not available for the context. Skipping cache lookup.',
             );
           }
@@ -608,7 +608,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
                   });
                 }
 
-                if (skip || !shouldCacheResult({ cacheKey, result }, logger) || finalTtl === 0) {
+                if (skip || !shouldCacheResult({ cacheKey, result }, log) || finalTtl === 0) {
                   if (includeExtensionMetadata) {
                     setResult(resultWithMetadata(result, { hit: false, didCache: false }));
                   }
