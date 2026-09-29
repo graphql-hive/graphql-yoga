@@ -4,6 +4,7 @@
     "declaration": true,
     "verbatimModuleSyntax": false,
     "rootDir": "./packages",
+    "customConditions": ["module-sync"],
     "paths": {
       "graphql-yoga": ["./packages/graphql-yoga/src/index.ts"],
       "@graphql-yoga/subscription": ["./packages/subscription/src/index.ts"],
@@ -17,12 +18,7 @@
       "@envelop/types": ["./packages/envelop/types/src/index.ts"],
       "@envelop/instrumentation": ["./packages/envelop/instrumentation/src/index.ts"],
       "@envelop/*": ["./packages/envelop/plugins/*/src/index.ts"],
-      "@graphql-yoga/*": ["./packages/*/src/index.ts"],
-      // `graphql`/`graphql/*` are pinned to a single canonical declaration file here (build-only,
-      // not in the root tsconfig.json) to work around a TypeScript dual CJS/ESM declaration hazard
-      // that only surfaces in bob's CommonJS build pass under `moduleResolution: bundler`.
-      "graphql": ["./node_modules/graphql/index.d.ts"],
-      "graphql/*": ["./node_modules/graphql/*"]
+      "@graphql-yoga/*": ["./packages/*/src/index.ts"]
     }
   },
   "exclude": [
