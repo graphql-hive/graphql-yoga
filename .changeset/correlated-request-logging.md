@@ -13,6 +13,7 @@
 '@envelop/graphql-jit': minor
 '@envelop/response-cache': minor
 '@envelop/response-cache-cloudflare-kv': minor
+'@envelop/apollo-federation': major
 ---
 
 Update to use the hive logger. (closes #4048)
@@ -41,6 +42,7 @@ The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` 
 
 - The logger in the contexts is now called `log` instead of `logger`, matching Hive Gateway: `context.logger` is now `context.log`, and the Yoga instance's `yoga.logger` is now `yoga.log`. 
 - The `logger` option of the built-in plugin configs is now called `log` too (`GraphiQLPluginConfig`, `HealthCheckPluginOptions`), and likewise for the `logger` option of `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`, `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`.
+- The `logger` option of `@envelop/apollo-federation`'s `useApolloFederation` (kept under its existing name, unlike the plugins above) is now typed as `Logger` from `@graphql-hive/logger` instead of a loosely-typed `{ warn, debug, info, error }` interface, and it now defaults to `new Logger()` instead of the global `console`.
 - `@graphql-yoga/nestjs` now logs through Nest's own `Logger` by default (like `@graphql-hive/nestjs` does), instead of not logging at all. Pass `logging: false` to keep the previous behaviour. Passing `logging: true` now logs at the `info` level through Yoga's default (console) logger instead of the HTTP framework's logger - to keep logging through Fastify's Pino instance, pass it explicitly:
 
   ```ts
