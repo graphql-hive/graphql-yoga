@@ -24,7 +24,15 @@ import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { Browser, chromium, ElementHandle, Page } from 'playwright';
 import { fakePromise } from '@whatwg-node/server';
 import type { CORSOptions, GraphiQLOptions } from '../src/index.js';
-import { ansiCodes, createSchema, createYoga, Repeater } from '../src/index.js';
+import { createSchema, createYoga, Repeater } from '../src/index.js';
+
+const ansiCodes = {
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  reset: '\x1b[0m',
+} as const;
 
 let resolveOnReturn: VoidFunction;
 const timeoutsSignal = new AbortController();

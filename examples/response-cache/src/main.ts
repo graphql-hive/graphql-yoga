@@ -33,7 +33,7 @@ export const create = (config?: Omit<UseResponseCacheParameter, 'session'>, port
         ...config,
       }),
     ],
-    logging: port !== undefined,
+    logging: port !== undefined ? 'info' : false,
   });
 
   const server = createServer(yoga);

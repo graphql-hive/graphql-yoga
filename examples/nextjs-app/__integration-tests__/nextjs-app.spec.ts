@@ -62,6 +62,7 @@ describe('nextjs 13 App Router', () => {
       date: null,
       'keep-alive': null,
       connection: null,
+      'x-request-id': null,
     }).toMatchInlineSnapshot(`
 {
   "connection": null,
@@ -70,6 +71,7 @@ describe('nextjs 13 App Router', () => {
   "keep-alive": null,
   "transfer-encoding": "chunked",
   "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+  "x-request-id": null,
 }
 `);
 

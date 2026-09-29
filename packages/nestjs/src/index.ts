@@ -3,7 +3,10 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { GraphQLSchema, printSchema } from 'graphql';
 import {
   createYoga,
+  defaultGenerateRequestId,
+  defaultRequestIdHeader,
   filter,
+  getRequestId,
   mergeSchemas,
   pipe,
   YogaSchemaDefinition,
@@ -11,13 +14,40 @@ import {
   YogaServerOptions,
 } from 'graphql-yoga';
 import type { ExecutionParams } from 'subscriptions-transport-ws';
-import { Injectable, Logger } from '@nestjs/common';
+import { Logger as HiveLogger, type LogLevel } from '@graphql-hive/logger';
+import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import {
   AbstractGraphQLDriver,
   GqlModuleOptions,
   GqlSubscriptionService,
   SubscriptionConfig,
 } from '@nestjs/graphql';
+
+/**
+ * Creates a logger writing through Nest's own {@link NestLogger}, so that Yoga's logs are
+ * formatted and transported like the rest of the application's.
+ */
+function createNestHiveLogger(context = 'YogaDriver'): HiveLogger {
+  const nestLog = new NestLogger(context);
+  return new HiveLogger({
+    writers: [
+      {
+        write(level, attrs, msg) {
+          switch (level) {
+            case 'trace':
+              nestLog.verbose(msg, attrs);
+              break;
+            case 'info':
+              nestLog.log(msg, attrs);
+              break;
+            default:
+              nestLog[level](msg, attrs);
+          }
+        },
+      },
+    ],
+  });
+}
 
 export type YogaDriverPlatform = 'express' | 'fastify';
 
@@ -34,9 +64,17 @@ export type YogaDriverServerContext<Platform extends YogaDriverPlatform> =
 
 export type YogaDriverServerOptions<Platform extends YogaDriverPlatform> = Omit<
   YogaServerOptions<YogaDriverServerContext<Platform>, never>,
-  'context' | 'schema' | 'graphqlEndpoint'
+  'context' | 'schema' | 'graphqlEndpoint' | 'logging'
 > & {
   conditionalSchema?: YogaSchemaDefinition<YogaDriverServerContext<Platform>, never> | undefined;
+  /**
+   * Enable, disable or implement a custom logger for logging.
+   *
+   * When omitted, Yoga logs through Nest's own `Logger`.
+   *
+   * @default Nest's `Logger`
+   */
+  logging?: boolean | HiveLogger | LogLevel | undefined;
 };
 
 export type YogaDriverServerInstance<Platform extends YogaDriverPlatform> = YogaServerInstance<
@@ -109,31 +147,14 @@ export abstract class AbstractYogaDriver<
 
     preStartHook?.(app);
 
-    // nest's logger doesnt have the info method
-    class LoggerWithInfo extends Logger {
-      constructor(context: string) {
-        super(context);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      info(message: any, ...args: any[]) {
-        this.log(message, ...args);
-      }
-    }
-
     const schema = this.mergeConditionalSchema<'express'>(conditionalSchema, options.schema);
 
     const yoga = createYoga<YogaDriverServerContext<'express'>>({
       ...options,
       schema,
       graphqlEndpoint: options.path,
-      // disable logging by default
-      // however, if `true` use nest logger
-      logging:
-        options.logging == null
-          ? false
-          : options.logging
-            ? new LoggerWithInfo('YogaDriver')
-            : options.logging,
+      // log through nest by default
+      logging: options.logging ?? createNestHiveLogger(),
     });
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -157,9 +178,8 @@ export abstract class AbstractYogaDriver<
       ...options,
       schema,
       graphqlEndpoint: options.path,
-      // disable logging by default
-      // however, if `true` use fastify logger
-      logging: options.logging == null ? false : options.logging ? app.log : options.logging,
+      // log through nest by default
+      logging: options.logging ?? createNestHiveLogger(),
     });
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -254,6 +274,12 @@ export class YogaDriver<
         throw new Error('Schema is required when using subscriptions');
       }
 
+      const requestIdOpts = typeof options.requestId === 'object' ? options.requestId : undefined;
+      const requestIdHeaderName = (
+        requestIdOpts?.headerName || defaultRequestIdHeader
+      ).toLowerCase();
+      const generateRequestId = requestIdOpts?.generateRequestId || defaultGenerateRequestId;
+
       const config: SubscriptionConfig =
         options.subscriptions === true
           ? {
@@ -271,14 +297,26 @@ export class YogaDriver<
         }
 
         config['graphql-ws'].onSubscribe = async (ctx, _id, params) => {
+          // @ts-expect-error context extra is from graphql-ws/lib/use/ws
+          const req = ctx.extra.request;
+          const requestId = getRequestId(
+            req.headers?.[requestIdHeaderName] as string | undefined,
+            () =>
+              generateRequestId({
+                request: req as unknown as Request,
+                fetchAPI: this.yoga.fetchAPI,
+                context: ctx as unknown as YogaDriverServerContext<Platform>,
+              }),
+          );
+          const log = this.yoga.log.child({ requestId });
           const { schema, execute, subscribe, contextFactory, parse, validate } =
             this.yoga.getEnveloped({
               ...ctx,
-              // @ts-expect-error context extra is from graphql-ws/lib/use/ws
-              req: ctx.extra.request,
+              req,
               // @ts-expect-error context extra is from graphql-ws/lib/use/ws
               socket: ctx.extra.socket,
               params,
+              log,
             });
 
           const args = {
@@ -312,14 +350,25 @@ export class YogaDriver<
           params: ExecutionParams,
           ws: WebSocket,
         ) => {
+          // @ts-expect-error upgradeReq does exist but is untyped
+          const req = ws.upgradeReq;
+          const requestId = getRequestId(
+            req.headers?.[requestIdHeaderName] as string | undefined,
+            () =>
+              generateRequestId({
+                request: req as unknown as Request,
+                fetchAPI: this.yoga.fetchAPI,
+                context: params.context,
+              }),
+          );
+          const log = this.yoga.log.child({ requestId });
           const { schema, execute, subscribe, contextFactory, parse, validate } =
             this.yoga.getEnveloped({
               ...params.context,
-              req:
-                // @ts-expect-error upgradeReq does exist but is untyped
-                ws.upgradeReq,
+              req,
               socket: ws,
               params,
+              log,
             });
 
           const args = {

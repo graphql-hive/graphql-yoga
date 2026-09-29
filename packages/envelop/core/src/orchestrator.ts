@@ -410,7 +410,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
             ),
           () => {
             const afterCalls: SubscribeResultHook<PluginsContext>[] = [];
-            const subscribeErrorHandlers: SubscribeErrorHook[] = [];
+            const subscribeErrorHandlers: SubscribeErrorHook<PluginsContext>[] = [];
 
             for (const { onSubscribeResult, onSubscribeError } of afterCallbacks) {
               if (onSubscribeResult) {
@@ -477,6 +477,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                         setError: err => {
                           error = err;
                         },
+                        context: context as PluginsContext,
                       });
                     }
                     throw error;

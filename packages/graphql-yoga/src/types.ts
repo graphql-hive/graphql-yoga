@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
+import type { Logger } from '@graphql-hive/logger';
 import type { createFetch } from '@whatwg-node/fetch';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
 
@@ -18,7 +19,17 @@ export interface GraphQLParams<
   extensions?: TExtensions;
 }
 
-export interface YogaInitialContext extends ServerAdapterInitialContext {
+export interface YogaConfigContext {
+  /**
+   * The logger to use throughout Yoga and its plugins.
+   *
+   * Within a request, this is a request-scoped child logger carrying a `requestId` attribute,
+   * so every log line produced while handling that request can be correlated together.
+   */
+  log: Logger;
+}
+
+export interface YogaInitialContext extends ServerAdapterInitialContext, YogaConfigContext {
   /**
    * GraphQL Parameters
    */
@@ -64,7 +75,19 @@ export type YogaMaskedErrorOpts = {
   isDev?: boolean;
 };
 
-export type MaskError = (error: unknown, message: string, isDev?: boolean) => Error;
+export type MaskError = (
+  error: unknown,
+  message: string,
+  isDev?: boolean,
+  /**
+   * Request-scoped logger, so a logged error can be correlated with the request that caused
+   * it. Passed by whichever caller has the request's context: `handleError` (error.ts) for the
+   * HTTP path, or envelop's `useMaskedErrors` itself for subscription/streaming errors (it gets
+   * one from the context it's given at the point of the call). Falls back to the server's base
+   * logger when unset (e.g. an error before context could be built).
+   */
+  log?: Logger,
+) => Error;
 
 export type MaybeArray<T> = T | T[];
 

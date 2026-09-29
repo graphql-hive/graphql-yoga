@@ -779,7 +779,7 @@ const createTestServer = (
 ) => {
   const yoga = createYoga({
     schema,
-    logging: !!process.env['DEBUG'],
+    logging: process.env['DEBUG'] ? 'debug' : false,
     plugins: [...initPlugins, useJWT(options), ...afterPlugins],
   });
 
