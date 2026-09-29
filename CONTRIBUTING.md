@@ -21,10 +21,10 @@
 ### GraphQL versions
 
 Every supported `graphql-js` major is installed side by side through npm aliases in the root
-`package.json` (`graphql-15`, `graphql-16`, next to the primary `graphql` dependency), so a single
-`pnpm install` is enough to test against all of them. Jest creates one project per version and
-redirects every `graphql` import to the selected copy at runtime, so switching versions never
-requires re-installing the workspace.
+`package.json` (`graphql-16`, next to the primary `graphql` dependency), so a single `pnpm install`
+is enough to test against all of them. Jest creates one project per version and redirects every
+`graphql` import to the selected copy at runtime, so switching versions never requires re-installing
+the workspace.
 
 By default all installed versions run:
 

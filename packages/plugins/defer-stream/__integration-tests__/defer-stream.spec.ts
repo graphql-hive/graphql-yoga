@@ -3,7 +3,13 @@ import { createServer, get } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import fetchMultipart from 'fetch-multipart-graphql';
-import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga';
+import {
+  createSchema,
+  createYoga,
+  Logger,
+  MemoryLogWriter,
+  useExecutionCancellation,
+} from 'graphql-yoga';
 import { ExecutionResult } from '@graphql-tools/utils';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
@@ -121,10 +127,8 @@ it('memory/cleanup leak by source that never publishes a value', async () => {
     },
   };
 
-  const logger = createLogger('silent');
-  const debugLogger = jest.fn();
-
-  logger.debug = debugLogger;
+  const writer = new MemoryLogWriter();
+  const logger = new Logger({ level: 'debug', writers: [writer] });
   const yoga = createYoga({
     schema: createSchema({
       typeDefs: /* GraphQL */ `
@@ -203,11 +207,15 @@ Content-Length: 33
     await setTimeout$(50);
     expect(sourceGotCleanedUp).toBe(true);
 
-    expect(debugLogger.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Processing GraphQL Parameters done.'],
-      ['Request aborted'],
+    expect(writer.logs.filter(log => log.level === 'debug').map(log => log.msg)).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Processing GraphQL Parameters done.',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
+      'Request aborted',
     ]);
   } finally {
     d.resolve();
