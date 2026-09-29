@@ -57,7 +57,6 @@
 '@graphql-yoga/subscription': major
 '@graphql-yoga/plugin-apq': major
 '@graphql-yoga/plugin-jwt': major
-'@graphql-yoga/logger': major
 '@graphql-yoga/nestjs': major
 '@graphql-yoga/apollo-managed-federation': minor
 '@graphql-yoga/plugin-apollo-usage-report': minor
