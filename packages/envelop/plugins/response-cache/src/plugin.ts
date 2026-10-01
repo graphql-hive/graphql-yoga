@@ -816,8 +816,7 @@ function removeMetadataFieldsFromResult(
     const value = data[key];
     if (Array.isArray(value)) {
       data[key] = removeMetadataFieldsFromResult(value, onEntity);
-    }
-    if (value !== null && typeof value === 'object') {
+    } else if (value !== null && typeof value === 'object') {
       data[key] = removeMetadataFieldsFromResult(value as Record<string, unknown>, onEntity);
     }
   }
