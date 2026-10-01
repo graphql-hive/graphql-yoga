@@ -1,9 +1,12 @@
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DynamicModule, Module } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { YogaDriver, YogaDriverConfig } from '../../../src';
 import { CatsModule } from './cats/cats.module';
+
+const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 @Module({})
 export class AppModule {
@@ -17,7 +20,7 @@ export class AppModule {
         GraphQLModule.forRoot<YogaDriverConfig>({
           ...options,
           driver: YogaDriver,
-          typePaths: [join(__dirname, '**', '*.graphql')],
+          typePaths: [join(dirname, '**', '*.graphql')],
         }),
       ],
     };
