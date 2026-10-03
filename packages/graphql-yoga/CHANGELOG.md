@@ -1,5 +1,24 @@
 # graphql-yoga
 
+## 5.24.2
+
+### Patch Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Remove the built-in `subscriptions` driver
+  option and its `graphql-ws` / `subscriptions-transport-ws` wiring (previously implemented via
+  `@nestjs/graphql`'s `GqlSubscriptionService`).
+
+  Fix open handle leak in multipart tests.
+
+  `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
+  `subscriptions-transport-ws`, and the driver-level `graphql-ws` integration held a socket open
+  after shutdown. Rather than keep a partial, driver-managed subscriptions setup, `YogaDriver` and
+  `YogaFederationDriver` no longer accept a `subscriptions` option. Wire up subscriptions yourself
+  using GraphQL Yoga's own subscription support (e.g. the `graphql-ws` package, or
+  `@graphql-yoga/plugin-graphql-sse`) the same way you would for a standalone `graphql-yoga` server.
+
 ## 5.24.1
 
 ### Patch Changes

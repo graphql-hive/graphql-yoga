@@ -1,5 +1,14 @@
 # @envelop/newrelic
 
+## 10.2.2
+
+### Patch Changes
+
+- [#4514](https://github.com/graphql-hive/graphql-yoga/pull/4514)
+  [`ec75be3`](https://github.com/graphql-hive/graphql-yoga/commit/ec75be3721254d12846ad3fe2badd508ffda23ea)
+  Thanks [@beaumontjonathan](https://github.com/beaumontjonathan)! - Bump newrelic latest peer
+  dependency from 11 to 14
+
 ## 10.2.1
 
 ### Patch Changes
