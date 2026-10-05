@@ -13,7 +13,9 @@ export interface RequestIdOptions<TContext> {
   /**
    * Function to generate a request ID
    *
-   * Ignored when `headerName` is available in the request headers
+   * Ignored when `headerName` is available in the request headers, or when the host
+   * integration already assigned an id to the native request object (see
+   * {@link getHostRequestId}).
    */
   generateRequestId?: GenerateRequestIdFn<TContext>;
   /**
@@ -31,12 +33,27 @@ export const defaultGenerateRequestId: GenerateRequestIdFn<any> = () =>
 export const defaultRequestIdHeader: string = 'x-request-id';
 
 /**
+ * Reads a request id the host integration already assigned to the native request object it
+ * passes through the server context (e.g. Fastify's `request.id`, or an Express/Koa
+ * request-id middleware that sets `req.id`), before Yoga ever saw the request.
+ *
+ * This lets Yoga's own id generation defer to a host's existing correlation id instead of
+ * minting an unrelated one of its own, without the host needing to disable `useRequestId` and
+ * reimplement the logger scoping it provides.
+ */
+function getHostRequestId(serverContext: unknown): string | undefined {
+  const req = (serverContext as { req?: { id?: unknown } } | null | undefined)?.req;
+  return typeof req?.id === 'string' && req.id.length > 0 ? req.id : undefined;
+}
+
+/**
  * Correlates everything happening while handling a request under a single request id.
  *
- * The id is taken from the `x-request-id` header of the incoming request, or generated when
- * the header is absent (or carries an unusable value - see {@link getRequestId}). It is then
- * added to the server context's `log`ger as the `requestId` attribute, and set on the outgoing
- * response's headers.
+ * The id is taken from the `x-request-id` header of the incoming request if present (and
+ * usable - see {@link getRequestId}); otherwise, a request id the host integration already set
+ * on the native request object (see {@link getHostRequestId}) is reused; otherwise, one is
+ * generated. It is then added to the server context's `log`ger as the `requestId` attribute,
+ * and set on the outgoing response's headers.
  */
 export function useRequestId<TServerContext extends Record<string, any>>(
   opts?: RequestIdOptions<TServerContext>,
@@ -47,12 +64,15 @@ export function useRequestId<TServerContext extends Record<string, any>>(
   const generateRequestId = opts?.generateRequestId || defaultGenerateRequestId;
   return {
     onRequest({ request, fetchAPI, serverContext }) {
-      const requestId = getRequestId(request.headers.get(headerName), () =>
-        generateRequestId({
-          request,
-          fetchAPI,
-          context: serverContext as unknown as TServerContext,
-        }),
+      const requestId = getRequestId(
+        request.headers.get(headerName),
+        () =>
+          getHostRequestId(serverContext) ??
+          generateRequestId({
+            request,
+            fetchAPI,
+            context: serverContext as unknown as TServerContext,
+          }),
       );
       requestIdByRequest.set(request, requestId);
       // `useConfigInServerContext` runs before this plugin and puts the logger in the server

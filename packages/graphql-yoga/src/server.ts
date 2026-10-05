@@ -109,9 +109,11 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
   /**
    * Enable, disable or configure the request id.
    *
-   * The request id is taken from the `x-request-id` header of the incoming request, or generated
-   * when the header is absent. It is added to the `log`ger available in the context as the
-   * `requestId` attribute, and set on the outgoing response's headers.
+   * The request id is taken from the `x-request-id` header of the incoming request if present;
+   * otherwise, a request id the host integration already assigned to the native request object
+   * (e.g. Fastify's `request.id`) is reused if there is one; otherwise, one is generated. It is
+   * added to the `log`ger available in the context as the `requestId` attribute, and set on the
+   * outgoing response's headers.
    *
    * @default true
    */
