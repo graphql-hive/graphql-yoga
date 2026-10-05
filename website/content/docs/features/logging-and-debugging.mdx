@@ -45,11 +45,12 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 ### Correlating logs for a request
 
 Every request is handled with its own child `Logger`, exposed as `context.log`, that carries a
-`requestId` attribute. The id is taken from the incoming `x-request-id` header if present, or
-generated otherwise, and is set on the outgoing response's `x-request-id` header. All log lines
-produced while handling a given request — across parsing, parameters processing, execution and
-response processing — carry this attribute, so they can be correlated together (e.g. when grepping
-structured/JSON logs).
+`requestId` attribute. The id is taken from the incoming `x-request-id` header if present;
+otherwise, if the host integration already assigned an id to the native request object (e.g.
+Fastify's `request.id`), that id is reused; otherwise, one is generated. The id is set on the
+outgoing response's `x-request-id` header. All log lines produced while handling a given request —
+across parsing, parameters processing, execution and response processing — carry this attribute, so
+they can be correlated together (e.g. when grepping structured/JSON logs).
 
 ```ts
 const yoga = createYoga({

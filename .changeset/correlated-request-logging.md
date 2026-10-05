@@ -22,7 +22,7 @@ Update to use the hive logger. (closes #4048)
 
 Add correlated, per-request debug logging across the HTTP and GraphQL execution lifecycle.
 
-Every incoming request now gets its own child `Logger` (available as `context.log`), tagged with a `requestId` attribute taken from the incoming `x-request-id` header or generated otherwise, so all `debug`/`info`/`error` log lines produced while handling that request can be correlated together. The id is also set on the outgoing response's `x-request-id` header.
+Every incoming request now gets its own child `Logger` (available as `context.log`), tagged with a `requestId` attribute taken from the incoming `x-request-id` header, or reused from a request id the host integration already assigned to the native request object (e.g. Fastify's `request.id`), or generated otherwise, so all `debug`/`info`/`error` log lines produced while handling that request can be correlated together. The id is also set on the outgoing response's `x-request-id` header. This means `useRequestId` can be left enabled alongside a host's own request-id/correlation setup without the two minting conflicting ids - the host no longer has to pass `requestId: false` just to avoid that.
 
 The logger is put in the server context by the new `useConfigInServerContext` plugin (also ported from Hive Gateway), which makes the server's config context - `{ log }` - available to every plugin hook, including the ones short-circuiting a request (GraphiQL, health and readiness checks).
 

@@ -56,6 +56,36 @@ describe('request id', () => {
     );
   });
 
+  it('reuses a request id the host already assigned to the native request object', async () => {
+    const { yoga, writer } = createTestYoga();
+
+    const response = await yoga.fetch(
+      'http://yoga/graphql?query={hello}',
+      { headers: { accept: 'application/graphql-response+json' } },
+      { req: { id: 'host-assigned-id' } },
+    );
+
+    expect(response.headers.get('x-request-id')).toBe('host-assigned-id');
+    expect(writer.logs).toContainEqual(
+      expect.objectContaining({
+        msg: 'resolving hello',
+        attrs: { requestId: 'host-assigned-id' },
+      }),
+    );
+  });
+
+  it('prefers the incoming header over a host-assigned id on the native request object', async () => {
+    const { yoga } = createTestYoga();
+
+    const response = await yoga.fetch(
+      'http://yoga/graphql?query={hello}',
+      { headers: { accept: 'application/graphql-response+json', 'x-request-id': 'from-header' } },
+      { req: { id: 'host-assigned-id' } },
+    );
+
+    expect(response.headers.get('x-request-id')).toBe('from-header');
+  });
+
   it('falls back to a generated id for an empty header', async () => {
     const { yoga } = createTestYoga();
 
