@@ -46,6 +46,14 @@ function createTestMatch(graphqlMajor) {
     );
   }
 
+  // NestJS 12 is ESM-only, so its tests run via their own `jest --config packages/nestjs/...`
+  // invocation (see `test:unit:nestjs`) instead of the per-graphql-version CJS projects here.
+  // Folding it into this multi-project config instead - even as a standalone project entry - runs
+  // it in the same process as the CJS projects, which under `--detectOpenHandles` triggers
+  // infinite recursion in jest-util's global property interception (`Reflect.set` inside
+  // `originalSetter`) and hangs/crashes.
+  testMatch.push('!**/nestjs/**');
+
   if (nodeMajor <= 26 && process.env.LEAKS_TEST) {
     testMatch.push('!**/graphql-scalars.spec.ts');
   }
