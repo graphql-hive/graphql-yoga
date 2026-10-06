@@ -6,15 +6,13 @@ import {
   GraphQLSchema,
   GraphQLString,
 } from 'graphql';
-import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { fetch } from '@whatwg-node/fetch';
 import { AppModule } from './fixtures/graphql/app.module';
+import { useTestApp } from './utils/app';
 
-let app: INestApplication, url: string;
-
-beforeAll(async () => {
-  const module = await Test.createTestingModule({
+const { getUrl } = useTestApp(() =>
+  Test.createTestingModule({
     imports: [
       AppModule.forRoot({
         conditionalSchema: async () => {
@@ -53,16 +51,11 @@ beforeAll(async () => {
         },
       }),
     ],
-  }).compile();
-  app = module.createNestApplication();
-  await app.listen(0);
-  url = (await app.getUrl()) + '/graphql';
-});
-
-afterAll(() => app.close());
+  }).compile(),
+);
 
 it('should return query result', async () => {
-  const res = await fetch(url, {
+  const res = await fetch(getUrl(), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -95,7 +88,7 @@ it('should return query result', async () => {
 });
 
 it('should return query result for conditional schema', async () => {
-  const res = await fetch(url, {
+  const res = await fetch(getUrl(), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
