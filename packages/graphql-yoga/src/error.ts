@@ -1,9 +1,13 @@
 import { GraphQLError } from 'graphql';
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaLogger } from '@graphql-yoga/logger';
-import { InvalidContentLengthError, RequestBodyTooLargeError } from '@whatwg-node/server';
+import {
+  HTTPError,
+  InvalidContentLengthError,
+  RequestBodyTooLargeError,
+} from '@whatwg-node/server';
 import type { ResultProcessorInput } from './plugins/types.js';
-import type { GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
+import type { FetchAPI, GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
 declare module 'graphql' {
   interface GraphQLErrorExtensions {
@@ -76,6 +80,28 @@ function graphQLErrorFromBodyLimitError(
       code: 'BAD_REQUEST',
     },
   });
+}
+
+// Passed as `responseFromError` to `@whatwg-node/server`'s `useLimitRequestBodySize` so the
+// early (Content-Length based) rejection responds with a GraphQL-shaped error body instead of
+// that plugin's plain-text default.
+export function responseFromBodyLimitError(
+  error: HTTPError,
+  fetchAPI: Pick<FetchAPI, 'Response'>,
+): Response {
+  if (!isRequestBodyLimitError(error)) {
+    throw error;
+  }
+  return new fetchAPI.Response(
+    JSON.stringify({ errors: [graphQLErrorFromBodyLimitError(error)] }),
+    {
+      status: error.status,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        ...error.headers,
+      },
+    },
+  );
 }
 
 export function handleError(

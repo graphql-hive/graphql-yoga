@@ -563,6 +563,7 @@ export class YogaServer<
       request: Request;
     },
     context: TServerContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
@@ -583,7 +584,7 @@ export class YogaServer<
             setResult(newResult) {
               result = newResult;
             },
-            fetchAPI: this.fetchAPI,
+            fetchAPI,
             context,
           }),
         ),
@@ -618,6 +619,7 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -629,7 +631,7 @@ export class YogaServer<
   > => {
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
-        url = new this.fetchAPI.URL(request.url, 'http://localhost');
+        url = new fetchAPI.URL(request.url, 'http://localhost');
         return Reflect.get(url, prop, url);
       },
     }) as URL;
@@ -658,7 +660,7 @@ export class YogaServer<
                     response = res;
                     endEarly();
                   },
-                  fetchAPI: this.fetchAPI,
+                  fetchAPI,
                 }),
               requestParseHookResult => requestParseHookResult?.onRequestParseDone,
             ),
@@ -672,7 +674,7 @@ export class YogaServer<
 
         if (!requestParser) {
           return {
-            response: new this.fetchAPI.Response(null, {
+            response: new fetchAPI.Response(null, {
               status: 415,
               statusText: 'Unsupported Media Type',
             }),
@@ -711,6 +713,7 @@ export class YogaServer<
   handle: ServerAdapterRequestHandler<TServerContext> = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ) => {
     const instrumented = this.instrumentation && getInstrumented({ request });
 
@@ -720,19 +723,23 @@ export class YogaServer<
 
     return unfakePromise(
       fakePromise()
-        .then(() => parseRequest(request, serverContext))
+        .then(() => parseRequest(request, serverContext, fetchAPI))
         .then(({ response, requestParserResult }) => {
           if (response) {
             return response;
           }
           const getResultForParams = this.instrumentation?.operation
-            ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
+            ? (
+                payload: { request: Request; params: GraphQLParams },
+                context: any,
+                fetchAPI: FetchAPI,
+              ) => {
                 const instrumented = getInstrumented({ context, request: payload.request });
                 const tracedHandler = instrumented.asyncFn(
                   this.instrumentation?.operation,
                   this.getResultForParams,
                 );
-                return tracedHandler(payload, context);
+                return tracedHandler(payload, context, fetchAPI);
               }
             : this.getResultForParams;
           return handleMaybePromise(
@@ -748,6 +755,7 @@ export class YogaServer<
                               request,
                             },
                             Object.create(serverContext),
+                            fetchAPI,
                           ),
                         )
                         // eslint-disable-next-line promise/no-nesting
@@ -766,6 +774,7 @@ export class YogaServer<
                       request,
                     },
                     serverContext,
+                    fetchAPI,
                   )) as ResultProcessorInput,
             result => {
               const tracedProcessResult = this.instrumentation?.resultProcess
@@ -778,7 +787,7 @@ export class YogaServer<
               return tracedProcessResult({
                 request,
                 result,
-                fetchAPI: this.fetchAPI,
+                fetchAPI,
                 onResultProcessHooks: this.onResultProcessHooks,
                 serverContext,
               });
@@ -795,7 +804,7 @@ export class YogaServer<
           return processResult({
             request,
             result,
-            fetchAPI: this.fetchAPI,
+            fetchAPI,
             onResultProcessHooks: this.onResultProcessHooks,
             serverContext,
           });

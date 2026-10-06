@@ -125,6 +125,69 @@ describe('Request body size limit', () => {
     expect(response.status).toBe(200);
   });
 
+  // Regression test for https://github.com/graphql-hive/graphql-yoga/issues/4583 at the
+  // `YogaServer.handle` level: a plugin that composes streams with `fetchAPI.TransformStream`
+  // (the pattern `@whatwg-node/server`'s own `useContentEncoding` plugin uses) must be handed
+  // the adapter's auto-detected native `fetchAPI`, not the fixed ponyfill one, whenever the
+  // incoming request is a genuine native `Request`/`ReadableStream`. Otherwise
+  // `request.body.pipeThrough(new fetchAPI.TransformStream(...))` throws a cross-realm
+  // `TypeError` instead of composing.
+  it('hands onRequestParse plugins the native fetchAPI for a native request', async () => {
+    let sawNativeStream = false;
+    const yoga = createYoga({
+      schema,
+      logging: false,
+      // Disabled so this plugin is the only one touching `request.body` - two plugins each
+      // calling `pipeThrough` on the same native stream would lock it out from under the other.
+      maxRequestBodySize: false,
+      plugins: [
+        {
+          // Mirrors how `useLimitRequestBodySize` composes the body stream: wrap the request
+          // parser with a transformed body instead of mutating the outer `request`.
+          onRequestParse({ request, requestParser, setRequestParser, fetchAPI }) {
+            if (requestParser == null || request.body == null) {
+              return;
+            }
+            sawNativeStream = request.body instanceof globalThis.ReadableStream;
+            // No realm workaround here on purpose - this must just work.
+            const transformedBody = request.body.pipeThrough(new fetchAPI.TransformStream());
+            const originalParser = requestParser;
+            setRequestParser(req =>
+              originalParser(
+                new fetchAPI.Request(req.url, {
+                  method: req.method,
+                  headers: req.headers,
+                  body: transformedBody,
+                  // @ts-expect-error Missing from `Request`'s types but required for streamed bodies.
+                  duplex: 'half',
+                }),
+              ),
+            );
+          },
+        },
+      ],
+    });
+    const encoder = new globalThis.TextEncoder();
+    const payload = JSON.stringify({ query: '{ hello }' });
+    const stream = new globalThis.ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(payload));
+        controller.close();
+      },
+    });
+    const request = new globalThis.Request('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: stream,
+      // @ts-expect-error Missing from `Request`'s types but required for streamed bodies.
+      duplex: 'half',
+    });
+    const response = await yoga.fetch(request);
+    expect(sawNativeStream).toBe(true);
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ data: { hello: 'world' } });
+  });
+
   it('rejects a streamed multipart POST body once it exceeds the limit with 413', async () => {
     const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
     const encoder = new TextEncoder();
