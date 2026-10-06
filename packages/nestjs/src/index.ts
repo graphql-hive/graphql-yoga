@@ -13,15 +13,9 @@ import {
   YogaServerInstance,
   YogaServerOptions,
 } from 'graphql-yoga';
-import type { ExecutionParams } from 'subscriptions-transport-ws';
 import { Logger as HiveLogger, type LogLevel } from '@graphql-hive/logger';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
-import {
-  AbstractGraphQLDriver,
-  GqlModuleOptions,
-  GqlSubscriptionService,
-  SubscriptionConfig,
-} from '@nestjs/graphql';
+import { AbstractGraphQLDriver, GqlModuleOptions, GqlSubscriptionService } from '@nestjs/graphql';
 
 /**
  * Creates a logger writing through Nest's own {@link NestLogger}, so that Yoga's logs are
@@ -89,7 +83,6 @@ export type YogaDriverConfig<Platform extends YogaDriverPlatform = 'express'> = 
         /**
          * Subscriptions configuration. Passing `true` will install only `graphql-ws`.
          */
-        subscriptions?: boolean | YogaDriverSubscriptionConfig;
         conditionalSchema?: never;
       }
     | {
@@ -102,14 +95,6 @@ export type YogaDriverConfig<Platform extends YogaDriverPlatform = 'express'> = 
           | undefined;
       }
   );
-
-export type YogaDriverSubscriptionConfig = {
-  'graphql-ws'?: Omit<SubscriptionConfig['graphql-ws'], 'onSubscribe'>;
-  'subscriptions-transport-ws'?: Omit<
-    SubscriptionConfig['subscriptions-transport-ws'],
-    'onOperation'
-  >;
-};
 
 export abstract class AbstractYogaDriver<
   Platform extends YogaDriverPlatform,

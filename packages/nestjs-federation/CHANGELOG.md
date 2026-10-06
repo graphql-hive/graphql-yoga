@@ -1,5 +1,44 @@
 # @graphql-yoga/nestjs-federation
 
+## 4.0.0
+
+### Major Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Remove the built-in `subscriptions` driver
+  option and its `graphql-ws` / `subscriptions-transport-ws` wiring (previously implemented via
+  `@nestjs/graphql`'s `GqlSubscriptionService`).
+
+  Fix open handle leak in multipart tests.
+
+  `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
+  `subscriptions-transport-ws`, and the driver-level `graphql-ws` integration held a socket open
+  after shutdown. Rather than keep a partial, driver-managed subscriptions setup, `YogaDriver` and
+  `YogaFederationDriver` no longer accept a `subscriptions` option. Wire up subscriptions yourself
+  using GraphQL Yoga's own subscription support (e.g. the `graphql-ws` package, or
+  `@graphql-yoga/plugin-graphql-sse`) the same way you would for a standalone `graphql-yoga` server.
+
+### Patch Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - dependencies updates:
+  - Updated dependency
+    [`@nestjs/common@^12.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/common/v/12.0.0) (from
+    `^11.0.0`, in `peerDependencies`)
+  - Updated dependency
+    [`@nestjs/core@^12.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/core/v/12.0.0) (from
+    `^11.0.0`, in `peerDependencies`)
+  - Updated dependency
+    [`@nestjs/graphql@^14.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/graphql/v/14.0.0) (from
+    `^13.0.0`, in `peerDependencies`)
+- Updated dependencies
+  [[`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a),
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)]:
+  - @graphql-yoga/nestjs@4.0.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.2
+
 ## 3.25.1
 
 ### Patch Changes
