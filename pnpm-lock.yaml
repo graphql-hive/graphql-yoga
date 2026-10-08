@@ -3507,8 +3507,8 @@ importers:
         specifier: ^12.2.1
         version: 12.2.1(graphql@17.0.2)
       '@graphql-tools/federation':
-        specifier: ^4.5.2
-        version: 4.5.2(@types/node@25.5.0)(graphql@17.0.2)
+        specifier: ^4.5.3
+        version: 4.5.3(@types/node@25.5.0)(graphql@17.0.2)
       '@whatwg-node/fetch':
         specifier: ^0.10.6
         version: 0.10.13
@@ -3526,8 +3526,8 @@ importers:
   packages/plugins/apollo-managed-federation:
     dependencies:
       '@graphql-tools/federation':
-        specifier: ^4.5.2
-        version: 4.5.2(@types/node@25.5.0)(graphql@17.0.2)
+        specifier: ^4.5.3
+        version: 4.5.3(@types/node@25.5.0)(graphql@17.0.2)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -6354,8 +6354,8 @@ packages:
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@graphql-tools/batch-delegate@10.1.0':
-    resolution: {integrity: sha512-ou6mvmAUlarkMOfxe74nPPDnCsirMUThb3FwUN1J9BHcrxPWbDjC3sHdViZVO+0mZvFjHlBg8+DD40EiFhWS1A==}
+  '@graphql-tools/batch-delegate@10.1.1':
+    resolution: {integrity: sha512-z1Mxw/RgEBBP5cUEemZ4igbsYMBMMIt5Foh7TShkUciF8BWkpQFr3i83yb11q/YHN7hwonl5ElCu5FaPOCGz7A==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
@@ -6475,8 +6475,8 @@ packages:
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@graphql-tools/federation@4.5.2':
-    resolution: {integrity: sha512-XP9wbda3D6oIjN8UnRfVRPPH+3M88KkhloCeYHSU9utOYwbiujz8mj/7amX8fxjSEH76cteiBsUKL6ItrxhoEQ==}
+  '@graphql-tools/federation@4.5.3':
+    resolution: {integrity: sha512-D1cHtfD15E8EYWkl5fJncO1Ymz0kJ9gHHu/YJZr4ymAnhc22hcST4IE8Kb1Jlf2LU1m644iLOVmULxXdYTHTDw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
@@ -6602,8 +6602,8 @@ packages:
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@graphql-tools/stitch@10.3.1':
-    resolution: {integrity: sha512-XADY/go6WY9K9xTG0swT1OUeNnqfifohW6Y/31wz2DIpU3Jbxtem5pxEWEtgDrtifWFeEM2wT5LoQSGqDy/GBA==}
+  '@graphql-tools/stitch@10.3.2':
+    resolution: {integrity: sha512-qCY6swQFRMOVlK2GpVOhgWdrkGj5c/g00LS934IAHz5OHACp33K+WdHkTgM8sCHd8pN2EmFcC88jHOr/nWTLEQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
@@ -6679,6 +6679,12 @@ packages:
 
   '@graphql-tools/wrap@11.2.0':
     resolution: {integrity: sha512-dDDBCsjdLCaXwTmlx0SWGI9e8l6B2LNcFnwZ0n+c8ilfc7fF5duYBgt9a3wwdfLyb2JQ4Ho0/DBztb6QYt5M6A==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
+  '@graphql-tools/wrap@11.2.1':
+    resolution: {integrity: sha512-N/3Z4SD9MKhfycX8RgkoBAx2uNBIOCfY2LlrVY5hNNqLEBndgYQ29Lluhye5PO+NeTR5lN5ScCDfGEfTVk58FA==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
@@ -22567,9 +22573,9 @@ snapshots:
       sync-fetch: 0.6.0
       tslib: 2.8.1
 
-  '@graphql-tools/batch-delegate@10.1.0(graphql@17.0.2)':
+  '@graphql-tools/batch-delegate@10.1.1(graphql@17.0.2)':
     dependencies:
-      '@graphql-tools/delegate': 12.2.0(graphql@17.0.2)
+      '@graphql-tools/delegate': 12.2.1(graphql@17.0.2)
       '@graphql-tools/utils': 12.0.3(graphql@17.0.2)
       '@whatwg-node/promise-helpers': 1.3.2
       dataloader: 2.2.3
@@ -22794,16 +22800,16 @@ snapshots:
       graphql: 17.0.2
       tslib: 2.8.1
 
-  '@graphql-tools/federation@4.5.2(@types/node@25.5.0)(graphql@17.0.2)':
+  '@graphql-tools/federation@4.5.3(@types/node@25.5.0)(graphql@17.0.2)':
     dependencies:
-      '@graphql-tools/delegate': 12.2.0(graphql@17.0.2)
+      '@graphql-tools/delegate': 12.2.1(graphql@17.0.2)
       '@graphql-tools/executor': 2.0.3(graphql@17.0.2)
       '@graphql-tools/executor-http': 3.4.1(@types/node@25.5.0)(graphql@17.0.2)
       '@graphql-tools/merge': 9.2.6(graphql@17.0.2)
       '@graphql-tools/schema': 10.1.3(graphql@17.0.2)
-      '@graphql-tools/stitch': 10.3.1(graphql@17.0.2)
+      '@graphql-tools/stitch': 10.3.2(graphql@17.0.2)
       '@graphql-tools/utils': 12.0.3(graphql@17.0.2)
-      '@graphql-tools/wrap': 11.2.0(graphql@17.0.2)
+      '@graphql-tools/wrap': 11.2.1(graphql@17.0.2)
       '@graphql-yoga/typed-event-target': 3.0.2
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/events': 0.1.2
@@ -23006,15 +23012,15 @@ snapshots:
       tslib: 2.8.1
       value-or-promise: 1.0.12
 
-  '@graphql-tools/stitch@10.3.1(graphql@17.0.2)':
+  '@graphql-tools/stitch@10.3.2(graphql@17.0.2)':
     dependencies:
-      '@graphql-tools/batch-delegate': 10.1.0(graphql@17.0.2)
-      '@graphql-tools/delegate': 12.2.0(graphql@17.0.2)
+      '@graphql-tools/batch-delegate': 10.1.1(graphql@17.0.2)
+      '@graphql-tools/delegate': 12.2.1(graphql@17.0.2)
       '@graphql-tools/executor': 2.0.3(graphql@17.0.2)
       '@graphql-tools/merge': 9.2.6(graphql@17.0.2)
       '@graphql-tools/schema': 10.1.3(graphql@17.0.2)
       '@graphql-tools/utils': 12.0.3(graphql@17.0.2)
-      '@graphql-tools/wrap': 11.2.0(graphql@17.0.2)
+      '@graphql-tools/wrap': 11.2.1(graphql@17.0.2)
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 17.0.2
       tslib: 2.8.1
@@ -23204,6 +23210,15 @@ snapshots:
   '@graphql-tools/wrap@11.2.0(graphql@17.0.2)':
     dependencies:
       '@graphql-tools/delegate': 12.2.0(graphql@17.0.2)
+      '@graphql-tools/schema': 10.1.3(graphql@17.0.2)
+      '@graphql-tools/utils': 12.0.3(graphql@17.0.2)
+      '@whatwg-node/promise-helpers': 1.3.2
+      graphql: 17.0.2
+      tslib: 2.8.1
+
+  '@graphql-tools/wrap@11.2.1(graphql@17.0.2)':
+    dependencies:
+      '@graphql-tools/delegate': 12.2.1(graphql@17.0.2)
       '@graphql-tools/schema': 10.1.3(graphql@17.0.2)
       '@graphql-tools/utils': 12.0.3(graphql@17.0.2)
       '@whatwg-node/promise-helpers': 1.3.2
@@ -31989,7 +32004,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.3
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   functional-red-black-tree@1.0.1: {}
