@@ -11,7 +11,6 @@ import type {
 import {
   getNamedType,
   getOperationAST,
-  version as graphqlVersion,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
@@ -31,13 +30,8 @@ import {
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { removeEmptyOrUnusedNodes } from './utils.js';
 
-// graphql-js 17 changed `getDirectiveValues`'s `variableValues` parameter from a plain
-// `{ [name]: value }` map to the `{ sources, coerced }` wrapper produced by its own
-// `getVariableValues`. `@graphql-tools/utils`'s `shouldIncludeNode` (which delegates to
-// `getDirectiveValues` for `@skip`/`@include`) still passes the plain map through unchanged,
-// so under graphql-js 17 it crashes on any `@skip`/`@include` that references a variable.
-// Wrap the plain map to match until `@graphql-tools/utils` is updated for the new contract.
-const isGraphQL17OrAbove = parseInt(graphqlVersion.split('.')[0]!, 10) >= 17;
+// graphql-js 17 uses a { sources, coerced } wrapper for directive variables.
+// graphql tools now produces and accepts this wrapper across graphql versions.
 
 export type ResolveUserFn<UserType, ContextType = DefaultContext> = (
   context: ContextType,
@@ -335,19 +329,11 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                let variableValues: typeof args.variableValues | undefined;
-                if (variableDefinitions?.length) {
-                  const valuesOrErrors = getVariableValues(
-                    schema,
-                    variableDefinitions,
-                    args.variableValues || {},
-                  );
-                  if (valuesOrErrors.variableValues) {
-                    variableValues = { ...valuesOrErrors.variableValues };
-                  }
-                } else {
-                  variableValues = args.variableValues;
-                }
+                const { variableValues } = getVariableValues(
+                  schema,
+                  variableDefinitions ?? [],
+                  args.variableValues || {},
+                );
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();
@@ -461,17 +447,8 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    const directiveVariableValues = isGraphQL17OrAbove
-                      ? { coerced: variableValues, sources: {} }
-                      : variableValues;
-                    if (
-                      variableValues &&
-                      !shouldIncludeNode(
-                        // @ts-expect-error I dont know what you want from me
-                        directiveVariableValues,
-                        node,
-                      )
-                    ) {
+                    // shouldIncludeNode takes the wrapper, not the raw variable map
+                    if (variableValues && !shouldIncludeNode(variableValues, node)) {
                       return;
                     }
 
