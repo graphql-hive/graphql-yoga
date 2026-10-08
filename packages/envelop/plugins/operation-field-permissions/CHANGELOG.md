@@ -1,5 +1,13 @@
 # @envelop/operation-field-permissions
 
+## 9.2.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)]:
+  - @envelop/extended-validation@7.2.2
+
 ## 9.2.1
 
 ### Patch Changes
