@@ -1,5 +1,16 @@
 # @envelop/response-cache
 
+## 9.3.2
+
+### Patch Changes
+
+- [#4604](https://github.com/graphql-hive/graphql-yoga/pull/4604)
+  [`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@^11.2.2` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/11.2.2)
+    (from `^11.2.0`, in `dependencies`)
+
 ## 9.3.1
 
 ### Patch Changes
