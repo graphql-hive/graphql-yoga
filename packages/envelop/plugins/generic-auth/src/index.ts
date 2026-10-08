@@ -337,12 +337,14 @@ export const useGenericAuth = <
                 const variableDefinitions = operationAST?.variableDefinitions;
                 let variableValues: typeof args.variableValues | undefined;
                 if (variableDefinitions?.length) {
-                  const { coerced } = getVariableValues(
+                  const valuesOrErrors = getVariableValues(
                     schema,
                     variableDefinitions,
                     args.variableValues || {},
                   );
-                  variableValues = coerced;
+                  if (valuesOrErrors.variableValues) {
+                    variableValues = { ...valuesOrErrors.variableValues };
+                  }
                 } else {
                   variableValues = args.variableValues;
                 }
@@ -462,7 +464,14 @@ export const useGenericAuth = <
                     const directiveVariableValues = isGraphQL17OrAbove
                       ? { coerced: variableValues, sources: {} }
                       : variableValues;
-                    if (variableValues && !shouldIncludeNode(directiveVariableValues, node)) {
+                    if (
+                      variableValues &&
+                      !shouldIncludeNode(
+                        // @ts-expect-error I dont know what you want from me
+                        directiveVariableValues,
+                        node,
+                      )
+                    ) {
                       return;
                     }
 
