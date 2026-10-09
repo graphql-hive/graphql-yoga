@@ -49,7 +49,6 @@
 '@graphql-yoga/nestjs-federation': major
 '@envelop/testing': major
 '@graphql-yoga/render-graphiql': major
-'@envelop-examples/pothos': major
 '@envelop/types': major
 '@envelop/core': major
 'graphql-yoga': major
@@ -57,7 +56,6 @@
 '@graphql-yoga/subscription': major
 '@graphql-yoga/plugin-apq': major
 '@graphql-yoga/plugin-jwt': major
-'@graphql-yoga/logger': major
 '@graphql-yoga/nestjs': major
 '@graphql-yoga/apollo-managed-federation': minor
 '@graphql-yoga/plugin-apollo-usage-report': minor

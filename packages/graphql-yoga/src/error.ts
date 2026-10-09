@@ -1,13 +1,19 @@
 import { GraphQLError } from 'graphql';
+import { Logger } from '@graphql-hive/logger';
 import { createGraphQLError } from '@graphql-tools/utils';
-import type { YogaLogger } from '@graphql-yoga/logger';
 import {
   HTTPError,
   InvalidContentLengthError,
   RequestBodyTooLargeError,
 } from '@whatwg-node/server';
+import { getRequestLog } from './logger.js';
 import type { ResultProcessorInput } from './plugins/types.js';
-import type { FetchAPI, GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
+import type {
+  FetchAPI,
+  GraphQLHTTPExtensions,
+  YogaInitialContext,
+  YogaMaskedErrorOpts,
+} from './types.js';
 
 declare module 'graphql' {
   interface GraphQLErrorExtensions {
@@ -64,7 +70,7 @@ function graphQLErrorFromBodyLimitError(
       extensions: {
         http: {
           status: 413,
-          ...(error.headers ? { headers: error.headers } : {}),
+          ...(Object.keys(error.headers).length > 0 ? { headers: error.headers } : {}),
         },
         code: 'REQUEST_ENTITY_TOO_LARGE',
       },
@@ -75,7 +81,7 @@ function graphQLErrorFromBodyLimitError(
     extensions: {
       http: {
         status: 400,
-        ...(error.headers ? { headers: error.headers } : {}),
+        ...(Object.keys(error.headers).length > 0 ? { headers: error.headers } : {}),
       },
       code: 'BAD_REQUEST',
     },
@@ -104,21 +110,25 @@ export function responseFromBodyLimitError(
   );
 }
 
+// Used only when a caller passes a context without a `.log`
+const fallbackLog = new Logger();
+
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
-  logger: YogaLogger,
+  context: Partial<YogaInitialContext>,
 ): GraphQLError[] {
+  const log = getRequestLog(context, fallbackLog);
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
     for (const singleError of error.errors) {
-      const handledErrors = handleError(singleError, maskedErrorsOpts, logger);
+      const handledErrors = handleError(singleError, maskedErrorsOpts, context);
       for (const handledError of handledErrors) {
         errors.add(handledError);
       }
     }
   } else if (isAbortError(error)) {
-    logger.debug('Request aborted');
+    log.debug('Request aborted');
   } else if (isRequestBodyLimitError(error)) {
     errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
@@ -126,11 +136,8 @@ export function handleError(
       error,
       maskedErrorsOpts.errorMessage,
       maskedErrorsOpts.isDev,
+      context,
     );
-
-    if (maskedError !== error) {
-      logger.error(error);
-    }
 
     errors.add(
       isGraphQLError(maskedError)
@@ -166,7 +173,7 @@ export function handleError(
       }),
     );
   } else {
-    logger.error(error);
+    log.error({ err: error });
     errors.add(
       createGraphQLError('Unexpected error.', {
         extensions: {
