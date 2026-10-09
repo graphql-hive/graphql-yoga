@@ -9,7 +9,11 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["example-*"],
+  "ignore": [
+    "example-*",
+    "@envelop-examples/*",
+    "@examples/*"
+  ],
   "snapshot": {
     "useCalculatedVersion": true,
     "prereleaseTemplate": "{tag}-{datetime}-{commit}"
