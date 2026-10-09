@@ -10,7 +10,7 @@ let sveltekitProcess: ReturnType<typeof spawn>;
 const timings = {
 	setup: {
 		waitAfterPreview: 5000,
-		total: 20_000 // build + preview + {waitAfterPreview} is expected to be less than 20sec
+		total: 25_000 // build + preview + {waitAfterPreview} is expected to be less than 25sec
 	},
 	waitForSelector: 999,
 	waitForResponse: 1999

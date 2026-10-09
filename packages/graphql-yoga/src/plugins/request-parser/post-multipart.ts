@@ -1,7 +1,7 @@
 import { createGraphQLError } from '@graphql-tools/utils';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
-import { isAbortError } from '../../error.js';
+import { isAbortError, isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
@@ -57,7 +57,7 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       return operations;
     },
     e => {
-      if (isAbortError(e)) {
+      if (isAbortError(e) || isRequestBodyLimitError(e)) {
         throw e;
       }
       if (e instanceof Error) {

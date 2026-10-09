@@ -155,9 +155,6 @@ importers:
       graphql:
         specifier: 17.0.2
         version: 17.0.2
-      graphql-15:
-        specifier: npm:graphql@15.10.2
-        version: graphql@15.10.2
       graphql-16:
         specifier: npm:graphql@16.14.2
         version: graphql@16.14.2
@@ -299,8 +296,8 @@ importers:
         specifier: 2.13.2
         version: 2.13.2(encoding@0.1.13)(graphql@17.0.2)
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
 
   examples/apollo-federation-compatibility:
     dependencies:
@@ -471,8 +468,8 @@ importers:
         specifier: ^3.5.10
         version: 3.5.10(@graphql-authz/core@1.3.2(graphql@17.0.2))(graphql@17.0.2)
       '@whatwg-node/server-plugin-cookies':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^2.0.1
+        version: 2.0.1(@whatwg-node/server@0.13.0)
       bun:
         specifier: ^1.2.7
         version: 1.3.14
@@ -524,8 +521,8 @@ importers:
         specifier: 4.20251111.0
         version: 4.20251111.0
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       typescript:
         specifier: 6.0.2
         version: 6.0.2
@@ -536,8 +533,8 @@ importers:
   examples/cookies:
     dependencies:
       '@whatwg-node/server-plugin-cookies':
-        specifier: ^1.0.3
-        version: 1.0.5
+        specifier: ^2.0.1
+        version: 2.0.1(@whatwg-node/server@0.13.0)
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -623,8 +620,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(graphql@17.0.2)
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -645,8 +642,8 @@ importers:
   examples/envelop/azure-functions:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -673,8 +670,8 @@ importers:
   examples/envelop/cloudflare-workers:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -707,8 +704,8 @@ importers:
   examples/envelop/express-graphql:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -738,8 +735,8 @@ importers:
   examples/envelop/google-cloud-functions:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -772,8 +769,8 @@ importers:
   examples/envelop/graphql-helix:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -800,11 +797,11 @@ importers:
   examples/envelop/graphql-helix-auth0:
     dependencies:
       '@envelop/auth0':
-        specifier: '*'
-        version: 9.1.1(@envelop/core@5.5.1)
+        specifier: workspace:*
+        version: link:../../../packages/envelop/plugins/auth0/dist
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -831,8 +828,8 @@ importers:
   examples/envelop/graphql-helix-defer-stream:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@16.1.0-experimental-stream-defer.6)
@@ -859,8 +856,8 @@ importers:
   examples/envelop/graphql-http:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -884,8 +881,8 @@ importers:
   examples/envelop/graphql-socket.io:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -927,8 +924,8 @@ importers:
   examples/envelop/graphql-sse:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -955,8 +952,8 @@ importers:
   examples/envelop/graphql-ws:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -986,8 +983,8 @@ importers:
   examples/envelop/lambda-aws:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -1017,8 +1014,8 @@ importers:
   examples/envelop/pothos:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.6.0
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@pothos/core':
         specifier: 4.13.1
         version: 4.13.1(graphql@17.0.2)
@@ -1051,8 +1048,8 @@ importers:
   examples/envelop/simple-http:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -1073,8 +1070,8 @@ importers:
   examples/envelop/typegraphql:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       class-validator:
         specifier: 0.14.3
         version: 0.14.3
@@ -1107,8 +1104,8 @@ importers:
   examples/envelop/with-esm:
     dependencies:
       '@envelop/core':
-        specifier: '*'
-        version: 5.5.1
+        specifier: workspace:*
+        version: link:../../../packages/envelop/core/dist
       '@graphql-tools/schema':
         specifier: 10.1.3
         version: 10.1.3(graphql@17.0.2)
@@ -1135,8 +1132,8 @@ importers:
   examples/error-handling:
     dependencies:
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -1194,9 +1191,12 @@ importers:
 
   examples/fastify:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       fastify:
         specifier: ^5.8.1
         version: 5.12.5
@@ -1258,8 +1258,8 @@ importers:
         version: 10.9.2(@swc/core@1.15.33(@swc/helpers@0.5.21))(@types/node@25.5.0)(typescript@6.0.2)
     devDependencies:
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
 
   examples/file-upload-nextjs-pothos:
     dependencies:
@@ -1286,8 +1286,8 @@ importers:
         specifier: ^19.2.4
         version: 19.2.15
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       eslint:
         specifier: 9.39.1
         version: 9.39.1(jiti@2.7.0)
@@ -1314,8 +1314,8 @@ importers:
         specifier: 24.10.1
         version: 24.10.1
       '@whatwg-node/fetch':
-        specifier: 0.10.13
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -1460,8 +1460,8 @@ importers:
         version: link:../../packages/graphql-yoga/dist
     devDependencies:
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@swc/core@1.15.33(@swc/helpers@0.5.21))(@types/node@25.5.0)(typescript@6.0.2)
@@ -1690,8 +1690,8 @@ importers:
         version: 6.0.2
     devDependencies:
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
 
   examples/nextjs-auth:
     dependencies:
@@ -1899,6 +1899,9 @@ importers:
 
   examples/request-cancelation:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -1910,8 +1913,8 @@ importers:
         specifier: 24.10.1
         version: 24.10.1
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -1941,8 +1944,8 @@ importers:
         specifier: 24.10.1
         version: 24.10.1
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -1969,8 +1972,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       typescript:
         specifier: 6.0.2
         version: 6.0.2
@@ -2058,8 +2061,8 @@ importers:
         specifier: 8.57.0
         version: 8.57.0(eslint@9.39.1(jiti@2.7.0))(typescript@6.0.2)
       '@whatwg-node/fetch':
-        specifier: 0.10.13
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       eslint:
         specifier: 9.39.1
         version: 9.39.1(jiti@2.7.0)
@@ -2125,8 +2128,8 @@ importers:
         specifier: 8.18.1
         version: 8.18.1
       '@whatwg-node/fetch':
-        specifier: ^0.10.1
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       ws:
         specifier: 8.20.1
         version: 8.20.1
@@ -2140,7 +2143,7 @@ importers:
         specifier: ^3.4.1
         version: 3.4.1(@types/node@26.6.4)(graphql@17.0.2)
       graphql:
-        specifier: ^15.2.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
       tslib:
         specifier: ^2.8.1
@@ -2163,7 +2166,7 @@ importers:
         specifier: ^1.0.38
         version: 1.0.38(@urql/core@6.0.1(graphql@17.0.2))(graphql@17.0.2)(wonka@6.3.5)
       graphql:
-        specifier: ^15.2.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
       tslib:
         specifier: ^2.8.1
@@ -2189,8 +2192,8 @@ importers:
         specifier: workspace:^
         version: link:../types/dist
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.4
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2218,8 +2221,8 @@ importers:
   packages/envelop/instrumentation:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.1
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2260,6 +2263,9 @@ importers:
       '@apollo/utils.keyvaluecache':
         specifier: ^3.1.0
         version: 3.1.0
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2344,9 +2350,12 @@ importers:
 
   packages/envelop/plugins/auth0:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.4
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       jsonwebtoken:
         specifier: ^9.0.0
         version: 9.0.3
@@ -2437,8 +2446,8 @@ importers:
   packages/envelop/plugins/execute-subscription-event:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.1
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2569,9 +2578,12 @@ importers:
 
   packages/envelop/plugins/graphql-jit:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.3
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       graphql-jit:
         specifier: 0.8.7
         version: 0.8.7(graphql@17.0.2)
@@ -2702,6 +2714,9 @@ importers:
       '@envelop/on-resolve':
         specifier: workspace:^
         version: link:../on-resolve/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2732,8 +2747,8 @@ importers:
   packages/envelop/plugins/on-resolve:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.0.0
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@envelop/core':
         specifier: workspace:^
@@ -2790,8 +2805,8 @@ importers:
         specifier: workspace:^
         version: link:../extended-validation/dist
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.4
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -2908,8 +2923,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.3
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.4
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       lodash.get:
         specifier: ^4.4.2
         version: 4.4.2
@@ -2954,6 +2969,9 @@ importers:
       '@envelop/extended-validation':
         specifier: workspace:^
         version: link:../extended-validation/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/utils':
         specifier: ^12.0.3
         version: 12.0.3(graphql@17.0.2)
@@ -2977,6 +2995,9 @@ importers:
 
   packages/envelop/plugins/response-cache:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/utils':
         specifier: ^12.0.3
         version: 12.0.3(graphql@17.0.2)
@@ -3024,8 +3045,11 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20231121.0
         version: 4.20260227.0
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       graphql:
-        specifier: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
       tslib:
         specifier: ^2.6.2
@@ -3051,8 +3075,8 @@ importers:
         specifier: workspace:^
         version: link:../response-cache/dist
       '@whatwg-node/promise-helpers':
-        specifier: ^1.2.4
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       ioredis:
         specifier: ^5.4.2
         version: 5.8.2
@@ -3105,6 +3129,9 @@ importers:
 
   packages/envelop/plugins/statsd:
     dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -3184,8 +3211,8 @@ importers:
   packages/envelop/types:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.0.0
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -3279,6 +3306,9 @@ importers:
       '@envelop/instrumentation':
         specifier: workspace:^
         version: link:../envelop/instrumentation/dist
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
       '@graphql-tools/executor':
         specifier: ^2.0.3
         version: 2.0.3(graphql@17.0.2)
@@ -3288,21 +3318,18 @@ importers:
       '@graphql-tools/utils':
         specifier: ^12.0.3
         version: 12.0.3(graphql@17.0.2)
-      '@graphql-yoga/logger':
-        specifier: workspace:^
-        version: link:../logger/dist
       '@graphql-yoga/subscription':
         specifier: workspace:^
         version: link:../subscription/dist
       '@whatwg-node/fetch':
-        specifier: ^0.10.6
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       '@whatwg-node/server':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.13.0
+        version: 0.13.0
       lru-cache:
         specifier: ^10.0.0
         version: 10.4.3
@@ -3366,14 +3393,11 @@ importers:
         version: 6.0.2
     publishDirectory: dist
 
-  packages/logger:
-    dependencies:
-      tslib:
-        specifier: ^2.8.1
-        version: 2.8.1
-    publishDirectory: dist
-
   packages/nestjs:
+    dependencies:
+      '@graphql-hive/logger':
+        specifier: ^1.1.1
+        version: 1.1.1(pino@10.3.1)
     devDependencies:
       '@nestjs/common':
         specifier: ^12.0.0
@@ -3403,8 +3427,8 @@ importers:
         specifier: ^8.5.4
         version: 8.18.1
       '@whatwg-node/fetch':
-        specifier: ^0.10.6
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       express:
         specifier: ^5.2.0
         version: 5.2.1
@@ -3533,11 +3557,11 @@ importers:
         version: 2.8.1
     devDependencies:
       '@whatwg-node/fetch':
-        specifier: ^0.10.6
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       '@whatwg-node/server':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.13.0
+        version: 0.13.0
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -3567,8 +3591,8 @@ importers:
         specifier: workspace:^
         version: link:../apollo-inline-trace/dist
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -3577,8 +3601,8 @@ importers:
         specifier: workspace:^
         version: link:../../envelop/plugins/on-resolve/dist
       '@whatwg-node/fetch':
-        specifier: ^0.10.6
-        version: 0.10.13
+        specifier: ^0.12.0
+        version: 0.12.0
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -3590,8 +3614,8 @@ importers:
   packages/plugins/apq:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@apollo/client':
         specifier: 4.0.9
@@ -3646,8 +3670,8 @@ importers:
   packages/plugins/disable-introspection:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       graphql:
         specifier: 17.0.2
@@ -3660,10 +3684,10 @@ importers:
   packages/plugins/graphql-sse:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       graphql:
-        specifier: ^15.2.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
       graphql-sse:
         specifier: ^2.0.0
@@ -3680,11 +3704,11 @@ importers:
   packages/plugins/jwt:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
       '@whatwg-node/server-plugin-cookies':
-        specifier: ^1.0.3
-        version: 1.0.5
+        specifier: ^2.0.1
+        version: 2.0.1(@whatwg-node/server@0.13.0)
       jsonwebtoken:
         specifier: ^9.0.0
         version: 9.0.3
@@ -3721,8 +3745,8 @@ importers:
   packages/plugins/persisted-operations:
     dependencies:
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       graphql:
         specifier: 17.0.2
@@ -3738,7 +3762,7 @@ importers:
         specifier: workspace:^
         version: link:../../envelop/plugins/prometheus/dist
       graphql:
-        specifier: ^15.2.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
     devDependencies:
       '@types/ws':
@@ -3767,8 +3791,8 @@ importers:
         specifier: workspace:^
         version: link:../../envelop/plugins/response-cache/dist
       '@whatwg-node/promise-helpers':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@envelop/response-cache-cloudflare-kv':
         specifier: workspace:^
@@ -3796,7 +3820,7 @@ importers:
         specifier: ^1.3.2
         version: 1.3.2
       graphql:
-        specifier: ^15.2.0 || ^16.0.0 || ^17.0.0
+        specifier: ^16.0.0 || ^17.0.0
         version: 17.0.2
       sofa-api:
         specifier: ^0.18.8
@@ -3850,8 +3874,8 @@ importers:
         specifier: 8.2.6
         version: 8.2.6(ioredis@5.8.2)
       '@whatwg-node/server':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.13.0
+        version: 0.13.0
       ioredis-mock:
         specifier: 8.13.1
         version: 8.13.1(@types/ioredis-mock@8.2.6(ioredis@5.8.2))(ioredis@5.8.2)
@@ -5641,34 +5665,12 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@envelop/auth0@9.1.1':
-    resolution: {integrity: sha512-hf7oVW5QPxG8Blnx4gQhiHQcfdk+5QS3Z0m2O+us8hYyxQ8wjqYjMqUCNrY9d3Na0RSfwY5Nk4ZkTjxwx3Oi4w==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@envelop/core': ^5.5.1
-
-  '@envelop/core@5.5.1':
-    resolution: {integrity: sha512-3DQg8sFskDo386TkL5j12jyRAdip/8yzK3x7YGbZBgobZ4aKXrvDU0GppU0SnmrpQnNaiTUsxBs9LKkwQ/eyvw==}
-    engines: {node: '>=18.0.0'}
-
-  '@envelop/core@5.6.0':
-    resolution: {integrity: sha512-cD7HNfAzJVw/0Pxneu51UAKzUGLvkctk9rr9DVJ9b7FDe4nSa9kAGMRxx145H6ooELIUMjTd2buk3PuvjJmp/A==}
-    engines: {node: '>=18.0.0'}
-
   '@envelop/core@5.6.1':
     resolution: {integrity: sha512-KEbJ7yrAA+W7IY9MZzpZJ77w/72ndaV/16+hhPapd+0Ohjqffl0mmF3QWy62/m3nRP4qidD+1eiEjJhS/O38Tg==}
     engines: {node: '>=18.0.0'}
 
-  '@envelop/instrumentation@1.0.0':
-    resolution: {integrity: sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw==}
-    engines: {node: '>=18.0.0'}
-
   '@envelop/instrumentation@1.0.1':
     resolution: {integrity: sha512-FuexE2qd3Yc1Kh1DjTliwGxb9kyyv4ySBNnfJOxnQasVmGdcqX6AkkO5sIMxLWFRftp8PErOcIn2dQW/1RwytQ==}
-    engines: {node: '>=18.0.0'}
-
-  '@envelop/types@5.2.1':
-    resolution: {integrity: sha512-CsFmA3u3c2QoLDTfEpGr4t25fjMU31nyvse7IzWTvb0ZycuPjMjb0fjlheh+PbhBYb9YLugnT2uY6Mwcg1o+Zg==}
     engines: {node: '>=18.0.0'}
 
   '@envelop/types@5.2.2':
@@ -6346,6 +6348,21 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
+  '@graphql-hive/logger@1.1.1':
+    resolution: {integrity: sha512-fVUlEQCpnJnR/KJeEDHZbEDwEq4fMNTjKvicauCFMfxPLlcpIWdrscXpI/azwQkpsARyWPV0RnwdgjZIrFBmwQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@logtape/logtape': ^1.2.0 || ^2.0.0
+      pino: ^9.13.0 || ^10.0.0
+      winston: '*'
+    peerDependenciesMeta:
+      '@logtape/logtape':
+        optional: true
+      pino:
+        optional: true
+      winston:
+        optional: true
 
   '@graphql-hive/signal@2.0.0':
     resolution: {integrity: sha512-Pz8wB3K0iU6ae9S1fWfsmJX24CcGeTo6hE7T44ucmV/ALKRj+bxClmqrYcDT7v3f0d12Rh4FAXBb6gon+WkDpQ==}
@@ -10601,6 +10618,10 @@ packages:
     resolution: {integrity: sha512-LPDv38Hv+RrVA8o7x4YOjQx4qhqOs3Lm8aPTsPrQCUF3MxXEUBEYcUqD5wRTaTxzQEd7ZXbDEnXBLDECFoOfjg==}
     engines: {node: '>=18.0.0'}
 
+  '@whatwg-node/cookie-store@0.3.0':
+    resolution: {integrity: sha512-qla3eWs7kABMinV2o6Z3KGPFzR/noo3jkhIRxkaoo9XwiDYXPF2OtBfLyf0Gqa318eUFtoC3nazzcKn4Y0hzQg==}
+    engines: {node: '>=22.15.0'}
+
   '@whatwg-node/disposablestack@0.0.6':
     resolution: {integrity: sha512-LOtTn+JgJvX8WfBVJtF08TGrdjuFzGJc4mkP8EdDI8ADbvO7kiexYep1o8dwnt0okb0jYclCDXF13xU7Ge4zSw==}
     engines: {node: '>=18.0.0'}
@@ -10617,6 +10638,10 @@ packages:
     resolution: {integrity: sha512-b4PhJ+zYj4357zwk4TTuF2nEe0vVtOrwdsrNo5hL+u1ojXNhh1FgJ6pg1jzDlwlT4oBdzfSwaBwMCtFCsIWg8Q==}
     engines: {node: '>=18.0.0'}
 
+  '@whatwg-node/fetch@0.12.0':
+    resolution: {integrity: sha512-O/Dj+Dvo1zCtV6ryeQr0e6g26MSPJ1dSydti1zkWGykxN7jD6nxj6AHpZ+LkQJ61F14Ti997bqYEP03ZW3haiQ==}
+    engines: {node: '>=22.15.0'}
+
   '@whatwg-node/fetch@0.12.1':
     resolution: {integrity: sha512-MjSXerFVxhWwPXZMNp4b4Q3WZMEIqzinHVWuH5tF2LNGy4hHypqPJCNpaR6bEZbaGdlH+r5dRAmQ8bxowcetjQ==}
     engines: {node: '>=22.15.0'}
@@ -10624,6 +10649,10 @@ packages:
   '@whatwg-node/node-fetch@0.8.5':
     resolution: {integrity: sha512-4xzCl/zphPqlp9tASLVeUhB5+WJHbuWGYpfoC2q1qh5dw0AqZBW7L27V5roxYWijPxj4sspRAAoOH3d2ztaHUQ==}
     engines: {node: '>=18.0.0'}
+
+  '@whatwg-node/node-fetch@0.9.0':
+    resolution: {integrity: sha512-vcqOxc8/tWZ+l8TxmJHKSws0SqYuJt1xMo50HdxD4g67TOKPOKdFFx0yth1WZJPltr2daftkVTazZMSvpvxfyw==}
+    engines: {node: '>=22.15.0'}
 
   '@whatwg-node/node-fetch@0.9.1':
     resolution: {integrity: sha512-LX/1X2QEHupCz6YXRjefZRoOsycCGOIJdXtQPVVxhzPQ/CpWpWFaXl53ShqLystvLZSvtUDKLhCA/yLveHA/LA==}
@@ -10637,9 +10666,11 @@ packages:
     resolution: {integrity: sha512-/i9CS0Z96o+cPwaYoAyVxAThDiUX1wV3tDmNWPJbn+vtdR+JftuCDg1NGCXBrzIYVDGkJ8uT6ctwmrBOUzOpKQ==}
     engines: {node: '>=22.15.0'}
 
-  '@whatwg-node/server-plugin-cookies@1.0.5':
-    resolution: {integrity: sha512-9WLknXeFzN5fNtpaY6fEAGs4IVYxZWKnSOSWtoTkZ3/CWZL+h34VL9QRzhV71YPc8MQ9Y1/5now1NbZVepKjWg==}
-    engines: {node: '>=18.0.0'}
+  '@whatwg-node/server-plugin-cookies@2.0.1':
+    resolution: {integrity: sha512-NF7PdBKmiWT/Frn2LMbiMm3UF80f0Btal2Z4OV/jIPNt9ASw3yG1+8844y/BF2S1Xx+52/ArJMFMlmOHpkZEfw==}
+    engines: {node: '>=22.15.0'}
+    peerDependencies:
+      '@whatwg-node/server': ^0.13.0
 
   '@whatwg-node/server@0.10.18':
     resolution: {integrity: sha512-kMwLlxUbduttIgaPdSkmEarFpP+mSY8FEm+QWMBRJwxOHWkri+cxd8KZHO9EMrB9vgUuz+5WEaCawaL5wGVoXg==}
@@ -10648,6 +10679,10 @@ packages:
   '@whatwg-node/server@0.11.0':
     resolution: {integrity: sha512-VSdkwnJRr8Yv9UgB2aXB3VUPWwd6Oqnn0hycFwhg9pZgWxJXb7JmhsiXe9tmpMwjHFxli12PGcz9aI63YYloGQ==}
     engines: {node: '>=18.0.0'}
+
+  '@whatwg-node/server@0.13.0':
+    resolution: {integrity: sha512-i01IO9Xib8VnVDqKgxNaNAuuY6P52V9j4QN9WOWL8CxSZfvkyfDT0kk16Dgfjdqw2KTVj6l5GStX/hGZuJC/Lg==}
+    engines: {node: '>=22.15.0'}
 
   '@wry/caches@1.0.1':
     resolution: {integrity: sha512-bXuaUNLVVkD20wcGBWRyo7j9N3TxePEWFZj2Y+r9OoUzfqmavM84+mFykRicNsBqatba5JLay1t48wxaXaWnlA==}
@@ -13978,10 +14013,6 @@ packages:
     resolution: {integrity: sha512-l0xWZpoPKpppFzMfvVyFmp9vLN7w/ZZJPefUicMCepfJeQ8sMcztloGYY9DfjVPo6tIUDzU5Hw3MUbIjj9AVVA==}
     engines: {node: '>= 6.x'}
     deprecated: 'No longer supported; please update to a newer version. Details: https://github.com/graphql/graphql-js#version-support'
-
-  graphql@15.10.2:
-    resolution: {integrity: sha512-1PRqdDPAmViWr4h1GVBT8RoPZfWSGZa7kDzleTilOfVIslsgf+cia3Nl95v1KDmR4iERPaT7WzQ+tN4MJmbg3w==}
-    engines: {node: '>= 10.x'}
 
   graphql@16.1.0-experimental-stream-defer.6:
     resolution: {integrity: sha512-qNedUtVDai94Ptxz7IXHoQR/GU27cuC/SfAU2CogIEfOflr7tW52GTnAF9SDa2i8gneowK0Ye5vyeQUJpGRvAQ==}
@@ -21778,30 +21809,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@envelop/auth0@9.1.1(@envelop/core@5.5.1)':
-    dependencies:
-      '@envelop/core': 5.5.1
-      '@whatwg-node/promise-helpers': 1.3.2
-      jsonwebtoken: 9.0.3
-      jwks-rsa: 3.2.2
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - supports-color
-
-  '@envelop/core@5.5.1':
-    dependencies:
-      '@envelop/instrumentation': 1.0.0
-      '@envelop/types': 5.2.1
-      '@whatwg-node/promise-helpers': 1.3.2
-      tslib: 2.8.1
-
-  '@envelop/core@5.6.0':
-    dependencies:
-      '@envelop/instrumentation': 1.0.0
-      '@envelop/types': 5.2.1
-      '@whatwg-node/promise-helpers': 1.3.2
-      tslib: 2.8.1
-
   '@envelop/core@5.6.1':
     dependencies:
       '@envelop/instrumentation': 1.0.1
@@ -21809,17 +21816,7 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
-  '@envelop/instrumentation@1.0.0':
-    dependencies:
-      '@whatwg-node/promise-helpers': 1.3.2
-      tslib: 2.8.1
-
   '@envelop/instrumentation@1.0.1':
-    dependencies:
-      '@whatwg-node/promise-helpers': 1.3.2
-      tslib: 2.8.1
-
-  '@envelop/types@5.2.1':
     dependencies:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
@@ -21991,41 +21988,41 @@ snapshots:
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
 
   '@escape.tech/graphql-armor-cost-limit@2.4.3':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-aliases@2.6.2':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-depth@2.4.2':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-directives@2.3.1':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-max-tokens@2.5.1':
     dependencies:
       graphql: 16.14.2
     optionalDependencies:
-      '@envelop/core': 5.6.0
+      '@envelop/core': 5.6.1
       '@escape.tech/graphql-armor-types': 0.7.0
 
   '@escape.tech/graphql-armor-types@0.7.0':
@@ -22595,6 +22592,10 @@ snapshots:
       graphql-tag: 2.12.6(graphql@17.0.2)
       parse-filepath: 1.0.2
       tslib: 2.8.1
+
+  '@graphql-hive/logger@1.1.1(pino@10.3.1)':
+    optionalDependencies:
+      pino: 10.3.1
 
   '@graphql-hive/signal@2.0.0': {}
 
@@ -28297,6 +28298,11 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
+  '@whatwg-node/cookie-store@0.3.0':
+    dependencies:
+      '@whatwg-node/promise-helpers': 2.0.0
+      tslib: 2.8.1
+
   '@whatwg-node/disposablestack@0.0.6':
     dependencies:
       '@whatwg-node/promise-helpers': 1.3.2
@@ -28316,6 +28322,11 @@ snapshots:
       '@whatwg-node/node-fetch': 0.8.5
       urlpattern-polyfill: 10.1.0
 
+  '@whatwg-node/fetch@0.12.0':
+    dependencies:
+      '@whatwg-node/node-fetch': 0.9.0
+      urlpattern-polyfill: 10.1.0
+
   '@whatwg-node/fetch@0.12.1':
     dependencies:
       '@whatwg-node/node-fetch': 0.9.1
@@ -28323,9 +28334,16 @@ snapshots:
 
   '@whatwg-node/node-fetch@0.8.5':
     dependencies:
-      '@fastify/busboy': 3.2.0
+      '@fastify/busboy': 3.2.2
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/promise-helpers': 1.3.2
+      tslib: 2.8.1
+
+  '@whatwg-node/node-fetch@0.9.0':
+    dependencies:
+      '@fastify/busboy': 3.2.0
+      '@whatwg-node/disposablestack': 0.1.0
+      '@whatwg-node/promise-helpers': 2.0.0
       tslib: 2.8.1
 
   '@whatwg-node/node-fetch@0.9.1':
@@ -28343,15 +28361,15 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@whatwg-node/server-plugin-cookies@1.0.5':
+  '@whatwg-node/server-plugin-cookies@2.0.1(@whatwg-node/server@0.13.0)':
     dependencies:
-      '@whatwg-node/cookie-store': 0.2.3
-      '@whatwg-node/server': 0.10.18
+      '@whatwg-node/cookie-store': 0.3.0
+      '@whatwg-node/server': 0.13.0
       tslib: 2.8.1
 
   '@whatwg-node/server@0.10.18':
     dependencies:
-      '@envelop/instrumentation': 1.0.0
+      '@envelop/instrumentation': 1.0.1
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/fetch': 0.10.13
       '@whatwg-node/promise-helpers': 1.3.2
@@ -28359,10 +28377,18 @@ snapshots:
 
   '@whatwg-node/server@0.11.0':
     dependencies:
-      '@envelop/instrumentation': 1.0.0
+      '@envelop/instrumentation': 1.0.1
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/fetch': 0.10.13
       '@whatwg-node/promise-helpers': 1.3.2
+      tslib: 2.8.1
+
+  '@whatwg-node/server@0.13.0':
+    dependencies:
+      '@envelop/instrumentation': 1.0.1
+      '@whatwg-node/disposablestack': 0.1.0
+      '@whatwg-node/fetch': 0.12.1
+      '@whatwg-node/promise-helpers': 2.0.0
       tslib: 2.8.1
 
   '@wry/caches@1.0.1':
@@ -32184,7 +32210,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.3
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   functional-red-black-tree@1.0.1: {}
@@ -32242,7 +32268,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.3
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-nonce@1.0.1: {}
@@ -32676,8 +32702,6 @@ snapshots:
   graphql@14.7.0:
     dependencies:
       iterall: 1.3.0
-
-  graphql@15.10.2: {}
 
   graphql@16.1.0-experimental-stream-defer.6: {}
 
@@ -33333,7 +33357,7 @@ snapshots:
       call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.3
+      hasown: 2.0.4
 
   is-relative@1.0.0:
     dependencies:

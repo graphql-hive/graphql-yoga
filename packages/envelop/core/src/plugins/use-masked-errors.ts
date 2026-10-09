@@ -1,9 +1,13 @@
-import type { ExecutionResult, Plugin } from '@envelop/types';
+import type { ExecutionResult, Plugin, TypedExecutionArgs } from '@envelop/types';
 import { handleStreamOrSingleExecutionResult } from '../utils.js';
 
 export const DEFAULT_ERROR_MESSAGE = 'Unexpected error.';
 
-export type MaskError = (error: unknown, message: string) => Error;
+export type MaskError<ContextType = any> = (
+  error: unknown,
+  message: string,
+  context?: ContextType,
+) => Error;
 
 export type SerializableGraphQLErrorLike = Error & {
   name: 'GraphQLError';
@@ -70,32 +74,34 @@ const isDev = globalThis.process?.env?.['NODE_ENV'] === 'development';
 
 export const defaultMaskError: MaskError = createDefaultMaskError(isDev);
 
-export type UseMaskedErrorsOpts = {
+export type UseMaskedErrorsOpts<ContextType = any> = {
   /** The function used for identify and mask errors. */
-  maskError?: MaskError;
+  maskError?: MaskError<ContextType>;
   /** The error message that shall be used for masked errors. */
   errorMessage?: string;
 };
 
 const makeHandleResult =
-  (maskError: MaskError, message: string) =>
+  <ContextType>(maskError: MaskError<ContextType>, message: string) =>
   ({
+    args,
     result,
     setResult,
   }: {
+    args: TypedExecutionArgs<ContextType>;
     result: ExecutionResult;
     setResult: (result: ExecutionResult) => void;
   }) => {
     if (result.errors != null) {
       setResult({
         ...result,
-        errors: result.errors.map(error => maskError(error, message)),
+        errors: result.errors.map(error => maskError(error, message, args.contextValue)),
       });
     }
   };
 
 export function useMaskedErrors<PluginContext extends Record<string, any> = {}>(
-  opts?: UseMaskedErrorsOpts,
+  opts?: UseMaskedErrorsOpts<PluginContext>,
 ): Plugin<PluginContext> {
   const maskError = opts?.maskError ?? defaultMaskError;
   const message = opts?.errorMessage || DEFAULT_ERROR_MESSAGE;
@@ -103,8 +109,8 @@ export function useMaskedErrors<PluginContext extends Record<string, any> = {}>(
 
   return {
     onPluginInit(context) {
-      context.registerContextErrorHandler(({ error, setError }) => {
-        setError(maskError(error, message));
+      context.registerContextErrorHandler(({ error, setError, context: ctx }) => {
+        setError(maskError(error, message, ctx as PluginContext));
       });
     },
     onExecute() {
@@ -119,8 +125,8 @@ export function useMaskedErrors<PluginContext extends Record<string, any> = {}>(
         onSubscribeResult(payload) {
           return handleStreamOrSingleExecutionResult(payload, handleResult);
         },
-        onSubscribeError({ error, setError }) {
-          setError(maskError(error, message));
+        onSubscribeError({ error, setError, context }) {
+          setError(maskError(error, message, context));
         },
       };
     },

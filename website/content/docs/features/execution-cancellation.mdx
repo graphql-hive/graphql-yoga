@@ -61,9 +61,10 @@ e.g. a slow read from a database.
 ```ts title="Full Yoga Example"
 import { createServer } from 'node:http'
 import { setTimeout as setTimeout$ } from 'node:timers/promises'
-import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga'
+import { createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga'
+import { Logger } from '@graphql-hive/logger'
 
-const logger = createLogger('debug')
+const logger = new Logger({ level: 'debug' })
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `
@@ -176,9 +177,10 @@ to avoid any further processing.
 
 ```ts title="Altered server example with timer cleanup" {22-28}
 import { createServer } from 'node:http'
-import { createLogger, createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga'
+import { createSchema, createYoga, useExecutionCancellation } from 'graphql-yoga'
+import { Logger } from '@graphql-hive/logger'
 
-const logger = createLogger('debug')
+const logger = new Logger({ level: 'debug' })
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `
