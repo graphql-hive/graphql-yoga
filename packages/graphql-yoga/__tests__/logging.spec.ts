@@ -296,6 +296,51 @@ describe('logging', () => {
       );
     });
 
+    it('records the operation type when an `onParams` plugin swaps the params object (e.g. APQ)', async () => {
+      const writer = new MemoryLogWriter();
+      const logger = new Logger({ level: 'info', writers: [writer] });
+      const yoga = createYoga({
+        logging: logger,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              greetings: String
+            }
+          `,
+        }),
+        plugins: [
+          {
+            // Mimics APQ/persisted operations: the client sends no `query`, and a plugin
+            // resolves it to a stored document via `setParams`, swapping the params object
+            // that `handleParams` (and so the operation type lookup) is keyed on.
+            onParams({ params, setParams }) {
+              setParams({ ...params, query: '{greetings}' });
+            },
+          },
+        ],
+      });
+
+      const response = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'application/graphql-response+json',
+        },
+        body: JSON.stringify({ extensions: { persistedQuery: { sha256Hash: 'abc' } } }),
+      });
+
+      expect(writer.logs).toContainEqual(
+        expect.objectContaining({
+          level: 'info',
+          msg: 'Request processed',
+          attrs: expect.objectContaining({
+            operationType: 'query',
+            status: response.status,
+          }),
+        }),
+      );
+    });
+
     it('does not log the summary when logging is disabled', async () => {
       const writer = new MemoryLogWriter();
       const logger = new Logger({ level: false, writers: [writer] });

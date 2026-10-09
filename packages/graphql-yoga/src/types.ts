@@ -80,13 +80,14 @@ export type MaskError = (
   message: string,
   isDev?: boolean,
   /**
-   * Request-scoped logger, so a logged error can be correlated with the request that caused
-   * it. Passed by whichever caller has the request's context: `handleError` (error.ts) for the
-   * HTTP path, or envelop's `useMaskedErrors` itself for subscription/streaming errors (it gets
-   * one from the context it's given at the point of the call). Falls back to the server's base
-   * logger when unset (e.g. an error before context could be built).
+   * The context of the request that caused the error, so a masked error (and any logging
+   * around it) can be correlated with - and informed by - the request, e.g. its `log`ger,
+   * headers or authenticated user. Passed by whichever caller has it: `handleError` (error.ts)
+   * for the HTTP path, or envelop's `useMaskedErrors` itself for subscription/streaming errors
+   * (it gets one from the context it's given at the point of the call). May be partial, or
+   * unset entirely, for an error before a full context could be built.
    */
-  log?: Logger,
+  context?: Partial<YogaInitialContext>,
 ) => Error;
 
 export type MaybeArray<T> = T | T[];

@@ -49,7 +49,6 @@
 '@graphql-yoga/nestjs-federation': major
 '@envelop/testing': major
 '@graphql-yoga/render-graphiql': major
-'@envelop-examples/pothos': major
 '@envelop/types': major
 '@envelop/core': major
 'graphql-yoga': major

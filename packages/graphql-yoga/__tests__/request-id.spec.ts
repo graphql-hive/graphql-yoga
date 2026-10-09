@@ -74,7 +74,7 @@ describe('request id', () => {
     );
   });
 
-  it('prefers the incoming header over a host-assigned id on the native request object', async () => {
+  it('prefers a host-assigned id on the native request object over the incoming header', async () => {
     const { yoga } = createTestYoga();
 
     const response = await yoga.fetch(
@@ -83,7 +83,30 @@ describe('request id', () => {
       { req: { id: 'host-assigned-id' } },
     );
 
-    expect(response.headers.get('x-request-id')).toBe('from-header');
+    // so that Yoga's own logs always agree with whatever id the host's framework already
+    // logged this request under (e.g. Fastify's `req.id`), rather than a client-supplied one
+    expect(response.headers.get('x-request-id')).toBe('host-assigned-id');
+  });
+
+  it('does not trust the incoming header when trustHeader is false', async () => {
+    const { yoga } = createTestYoga({ requestId: { trustHeader: false } });
+
+    const response = await query(yoga, { 'x-request-id': 'from-header' });
+
+    expect(response.headers.get('x-request-id')).not.toBe('from-header');
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String));
+  });
+
+  it('still prefers a host-assigned id when trustHeader is false', async () => {
+    const { yoga } = createTestYoga({ requestId: { trustHeader: false } });
+
+    const response = await yoga.fetch(
+      'http://yoga/graphql?query={hello}',
+      { headers: { accept: 'application/graphql-response+json' } },
+      { req: { id: 'host-assigned-id' } },
+    );
+
+    expect(response.headers.get('x-request-id')).toBe('host-assigned-id');
   });
 
   it('falls back to a generated id for an empty header', async () => {

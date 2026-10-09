@@ -34,8 +34,7 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 #### `debug`
 
 - All prior log levels
-- Processing of GraphQL parameters, including the request path, `operationName`, variable count and
-  the variables themselves
+- Processing of GraphQL parameters, including the request path, `operationName` and variable count
 - Parsing of GraphQL parameters, and the resolved operation type
 - The status code of the HTTP response that was sent
 - A successfully fetched signing key in [`@graphql-yoga/plugin-jwt`](/docs/features/jwt)
@@ -45,12 +44,24 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 ### Correlating logs for a request
 
 Every request is handled with its own child `Logger`, exposed as `context.log`, that carries a
-`requestId` attribute. The id is taken from the incoming `x-request-id` header if present;
-otherwise, if the host integration already assigned an id to the native request object (e.g.
-Fastify's `request.id`), that id is reused; otherwise, one is generated. The id is set on the
-outgoing response's `x-request-id` header. All log lines produced while handling a given request —
-across parsing, parameters processing, execution and response processing — carry this attribute, so
-they can be correlated together (e.g. when grepping structured/JSON logs).
+`requestId` attribute. If the host integration already assigned an id to the native request object
+(e.g. Fastify's `request.id`), that id is reused first, so Yoga's logs always agree with the host's
+own; otherwise, the incoming `x-request-id` header is used if present; otherwise, one is generated.
+The id is set on the outgoing response's `x-request-id` header. All log lines produced while
+handling a given request — across parsing, parameters processing, execution and response processing
+— carry this attribute, so they can be correlated together (e.g. when grepping structured/JSON
+logs).
+
+Trusting the incoming header is a tradeoff: it's what lets a client's own id flow through your logs,
+but it also lets any client pick its own id (and have it correlated as if trusted, including one
+already used for another request). Set `trustHeader: false` if the server is reachable directly by
+clients rather than only through a proxy or gateway that sets the header itself.
+
+Note that a host integration's own generated ids aren't necessarily unique across a server's
+lifetime or across replicas - e.g. Fastify's default `request.id` is a per-process counter (`req-1`,
+`req-2`, …), so it repeats across restarts and other instances. This is already the case today
+whenever no `x-request-id` header is sent; set the host's id generation to something like
+`crypto.randomUUID()` (e.g. Fastify's `genReqId` option) if you need ids unique across instances.
 
 ```ts
 const yoga = createYoga({

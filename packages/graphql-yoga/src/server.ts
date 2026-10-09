@@ -72,7 +72,7 @@ import { useHealthCheck } from './plugins/use-health-check.js';
 import type { ParserAndValidationCacheOptions } from './plugins/use-parser-and-validation-cache.js';
 import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
 import type { RequestIdOptions } from './plugins/use-request-id.js';
-import { useRequestId } from './plugins/use-request-id.js';
+import { getRequestIdHeaderName, useRequestId } from './plugins/use-request-id.js';
 import { useRequestParser } from './plugins/use-request-parser.js';
 import { useResultProcessors } from './plugins/use-result-processor.js';
 import type { YogaSchemaDefinition } from './plugins/use-schema.js';
@@ -109,11 +109,11 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
   /**
    * Enable, disable or configure the request id.
    *
-   * The request id is taken from the `x-request-id` header of the incoming request if present;
-   * otherwise, a request id the host integration already assigned to the native request object
-   * (e.g. Fastify's `request.id`) is reused if there is one; otherwise, one is generated. It is
-   * added to the `log`ger available in the context as the `requestId` attribute, and set on the
-   * outgoing response's headers.
+   * A request id the host integration already assigned to the native request object (e.g.
+   * Fastify's `request.id`) is reused first, if there is one; otherwise, the `x-request-id`
+   * header of the incoming request is used if present (see `trustHeader`); otherwise, one is
+   * generated. It is added to the `log`ger available in the context as the `requestId`
+   * attribute, and set on the outgoing response's headers.
    *
    * @default true
    */
@@ -294,8 +294,10 @@ export class YogaServer<
   private onResultProcessHooks: OnResultProcess<TServerContext>[];
   private maskedErrorsOpts: YogaMaskedErrorOpts | null;
   private id: string;
-  /** Operation type resolved for a given params object, read back for the per-request summary log. */
-  private operationTypeByParams = new WeakMap<GraphQLParams, string | undefined>();
+  /**
+   * Operation type resolved for a given request, read back for the per-request summary log.
+   */
+  private operationTypeByContext = new WeakMap<object, string | undefined>();
 
   // @ts-expect-error - This is set by `this.graphqlEndpoint` setter in the constructor, but TypeScript doesn't recognize it.
   private _graphqlEndpoint: string;
@@ -331,18 +333,19 @@ export class YogaServer<
         : {
             errorMessage: 'Unexpected error.',
             ...(typeof options?.maskedErrors === 'object' ? options.maskedErrors : {}),
-            // `log` is the request-scoped logger to correlate this error with the request
-            // that caused it. Passed explicitly by `handleError` (error.ts) for the HTTP
-            // path; for subscription/streaming errors, `useMaskedErrors` calls this via the
-            // adapter below, which pulls it off the GraphQL context it's given.
-            maskError: (error, message, _isDev, log) => {
+            // `context` is the request's context, to correlate this error with the request that
+            // caused it (and give the user's own `maskError`, if any, more to work with than
+            // just a logger). Passed explicitly by `handleError` (error.ts) for the HTTP path;
+            // for subscription/streaming errors, `useMaskedErrors` calls this via the adapter
+            // below, which gets it from the GraphQL context it's given.
+            maskError: (error, message, _isDev, context) => {
               if (maskedErrorSet.has(error as Error)) {
                 return error as Error;
               }
-              const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev);
+              const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev, context);
 
               if (newError !== error) {
-                (log ?? this.log).error({ err: error });
+                getRequestLog(context, this.log).error({ err: error });
               }
 
               maskedErrorSet.add(newError);
@@ -364,6 +367,10 @@ export class YogaServer<
 
     this.graphqlEndpoint = options?.graphqlEndpoint || '/graphql';
 
+    const requestIdEnabled = options?.requestId !== false;
+    const requestIdOpts = typeof options?.requestId === 'object' ? options.requestId : undefined;
+    const requestIdHeaderName = getRequestIdHeaderName(requestIdOpts);
+
     this.plugins = [
       useEngine({
         parse,
@@ -379,17 +386,10 @@ export class YogaServer<
       !!options?.schema && useSchema(options.schema),
       options?.allowedHeaders?.request != null &&
         useAllowedRequestHeaders(options.allowedHeaders.request),
-      // Filter response headers before anything sets its own (like the request id, right below)
-      // so those additions aren't stripped afterwards.
-      options?.allowedHeaders?.response != null &&
-        useAllowedResponseHeaders(options.allowedHeaders.response),
       // Scope the logger of each request to its request id. Registered after the request headers
       // have been filtered, so that a request id is only taken from an allowed header, but before
       // the plugins that log while short-circuiting a request (health checks, GraphiQL).
-      options?.requestId !== false &&
-        useRequestId<TServerContext>(
-          typeof options?.requestId === 'object' ? options.requestId : undefined,
-        ),
+      requestIdEnabled && useRequestId<TServerContext>(requestIdOpts),
       options?.context != null &&
         useExtendContext(initialContext => {
           if (options?.context) {
@@ -480,12 +480,19 @@ export class YogaServer<
       maskedErrors !== null &&
         useMaskedErrors({
           errorMessage: maskedErrors.errorMessage,
-          // `useMaskedErrors` only ever gives us the GraphQL context, not a logger directly,
-          // so pull the request-scoped logger off it and forward it to the real `maskError`
-          // (defined above) as an explicit argument, rather than a logger stashed elsewhere.
+          // `useMaskedErrors` gives us the GraphQL context here; forward it to the real
+          // `maskError` (defined above) as an explicit argument.
           maskError: (error, message, context?: YogaInitialContext) =>
-            maskedErrors!.maskError(error, message, undefined, context?.log),
+            maskedErrors!.maskError(error, message, undefined, context),
         }),
+      options?.allowedHeaders?.response != null &&
+        // Registered last (after CORS and user plugins) so it sees every header anything else
+        // added.
+        useAllowedResponseHeaders(
+          requestIdEnabled
+            ? [...options.allowedHeaders.response, requestIdHeaderName]
+            : options.allowedHeaders.response,
+        ),
       // We handle validation errors at the end
       useHTTPValidationError(),
     ];
@@ -567,13 +574,15 @@ export class YogaServer<
 
     const enveloped = this.getEnveloped(context);
     const log = getRequestLog(context, this.log);
+    // Set as an own property (rather than passed alongside `context` to `handleError` below) so
+    // that it's visible through `context` itself
+    context.log = log;
 
     log.debug(
       () => ({
         path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
         operationName: params.operationName,
         variablesCount: params.variables ? Object.keys(params.variables).length : 0,
-        variables: params.variables,
       }),
       'Processing GraphQL Parameters',
     );
@@ -586,14 +595,14 @@ export class YogaServer<
               enveloped,
               log,
               onOperationType: operationType =>
-                this.operationTypeByParams.set(params, operationType),
+                this.operationTypeByContext.set(context, operationType),
             }),
           result => {
             log.debug(`Processing GraphQL Parameters done.`);
             return result;
           },
           error => {
-            const errors = handleError(error, this.maskedErrorsOpts, log);
+            const errors = handleError(error, this.maskedErrorsOpts, context);
 
             return {
               errors,
@@ -611,7 +620,7 @@ export class YogaServer<
                 throw error;
               }
 
-              const errors = handleError(error, this.maskedErrorsOpts, log);
+              const errors = handleError(error, this.maskedErrorsOpts, context);
               return {
                 errors,
               };
@@ -825,27 +834,21 @@ export class YogaServer<
             () =>
               (Array.isArray(parserResult)
                 ? Promise.all(
-                    parserResult.map(params =>
-                      fakePromise()
-                        .then(() =>
-                          getResultForParams(
-                            {
-                              params,
-                              request,
-                            },
-                            Object.create(serverContext),
-                            fetchAPI,
-                          ),
-                        )
-                        // eslint-disable-next-line promise/no-nesting
-                        .catch(error => {
-                          const errors = handleError(error, this.maskedErrorsOpts, log);
+                    parserResult.map(params => {
+                      const context = Object.create(serverContext);
+                      return (
+                        fakePromise()
+                          .then(() => getResultForParams({ params, request }, context, fetchAPI))
+                          // eslint-disable-next-line promise/no-nesting
+                          .catch(error => {
+                            const errors = handleError(error, this.maskedErrorsOpts, context);
 
-                          return {
-                            errors,
-                          };
-                        }),
-                    ),
+                            return {
+                              errors,
+                            };
+                          })
+                      );
+                    }),
                   )
                 : getResultForParams(
                     {
@@ -876,7 +879,7 @@ export class YogaServer<
           );
         })
         .catch(error => {
-          const errors = handleError(error, this.maskedErrorsOpts, log);
+          const errors = handleError(error, this.maskedErrorsOpts, serverContext);
           errorCount = errors.length;
 
           const result = {
@@ -896,13 +899,13 @@ export class YogaServer<
           log.info(
             () => ({
               method: request.method,
-              path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
+              path: new fetchAPI.URL(request.url, 'http://localhost').pathname,
               operationName: Array.isArray(requestParserResult)
                 ? undefined
                 : requestParserResult?.operationName,
               operationType: Array.isArray(requestParserResult)
                 ? undefined
-                : requestParserResult && this.operationTypeByParams.get(requestParserResult),
+                : requestParserResult && this.operationTypeByContext.get(serverContext),
               batchedOperations: Array.isArray(requestParserResult)
                 ? requestParserResult.length
                 : undefined,

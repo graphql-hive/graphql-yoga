@@ -76,7 +76,7 @@ export const useGraphQlJit = (
         if (pluginOptions?.onError) {
           pluginOptions.onError(compilationResult);
         } else {
-          log.error({ err: compilationResult });
+          log.error({ errors: compilationResult.errors });
         }
         cacheEntry = {
           query: () => compilationResult,

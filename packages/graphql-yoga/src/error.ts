@@ -1,13 +1,19 @@
 import { GraphQLError } from 'graphql';
-import type { Logger } from '@graphql-hive/logger';
+import { Logger } from '@graphql-hive/logger';
 import { createGraphQLError } from '@graphql-tools/utils';
 import {
   HTTPError,
   InvalidContentLengthError,
   RequestBodyTooLargeError,
 } from '@whatwg-node/server';
+import { getRequestLog } from './logger.js';
 import type { ResultProcessorInput } from './plugins/types.js';
-import type { FetchAPI, GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
+import type {
+  FetchAPI,
+  GraphQLHTTPExtensions,
+  YogaInitialContext,
+  YogaMaskedErrorOpts,
+} from './types.js';
 
 declare module 'graphql' {
   interface GraphQLErrorExtensions {
@@ -104,15 +110,19 @@ export function responseFromBodyLimitError(
   );
 }
 
+// Used only when a caller passes a context without a `.log`
+const fallbackLog = new Logger();
+
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
-  log: Logger,
+  context: Partial<YogaInitialContext>,
 ): GraphQLError[] {
+  const log = getRequestLog(context, fallbackLog);
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
     for (const singleError of error.errors) {
-      const handledErrors = handleError(singleError, maskedErrorsOpts, log);
+      const handledErrors = handleError(singleError, maskedErrorsOpts, context);
       for (const handledError of handledErrors) {
         errors.add(handledError);
       }
@@ -126,7 +136,7 @@ export function handleError(
       error,
       maskedErrorsOpts.errorMessage,
       maskedErrorsOpts.isDev,
-      log,
+      context,
     );
 
     errors.add(

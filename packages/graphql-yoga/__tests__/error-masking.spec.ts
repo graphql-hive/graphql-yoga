@@ -475,6 +475,43 @@ describe('error masking', () => {
     });
   });
 
+  it('passes the request context (not just a logger) to the custom maskError function', async () => {
+    let receivedContext: unknown;
+    const yoga = createYoga({
+      logging: false,
+      maskedErrors: {
+        maskError: (_error, message, _isDev, context) => {
+          receivedContext = context;
+          return createGraphQLError(message);
+        },
+      },
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hi: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            hi() {
+              throw new Error('boom');
+            },
+          },
+        },
+      }),
+    });
+
+    await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ hi }' }),
+    });
+
+    const context = receivedContext as { log?: { error?: unknown }; request?: { url?: string } };
+    expect(typeof context.log?.error).toBe('function');
+    expect(context.request?.url).toBe('http://yoga/graphql');
+  });
+
   it('support errors with undefined extensions', async () => {
     const yoga = createYoga({
       logging: false,
