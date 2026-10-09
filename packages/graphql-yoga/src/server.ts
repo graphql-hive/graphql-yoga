@@ -181,9 +181,10 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    * Limit the size (in bytes) of the incoming HTTP request body that will be read by the
    * built-in request parsers (JSON, GraphQL string, url-encoded and multipart).
    *
-   * Requests whose `Content-Length` exceeds this value are rejected with an HTTP 413 response
-   * before the body is read. The limit is also enforced while streaming the body, so requests
-   * with a missing, incorrect, or chunked-transfer-encoded body are covered too.
+   * Requests whose `Content-Length` exceeds this value (or whose `Content-Length` is invalid)
+   * are rejected with an HTTP 413/400 response before the body is read. Bodies are also counted
+   * while streaming, so requests with a missing, wrong, or chunked-transfer-encoded body cannot
+   * bypass the limit.
    *
    * Set to `false` to disable the limit. This is not recommended unless an upstream reverse
    * proxy already enforces a body-size limit (e.g. nginx's `client_max_body_size`).
@@ -399,9 +400,8 @@ export class YogaServer<
 
       // Must run after the request parsers above (including any registered by user plugins)
       // so it wraps whichever parser ends up selected.
-      useLimitRequestBodySize(
-        options?.maxRequestBodySize === false ? false : (options?.maxRequestBodySize ?? 25_000_000),
-      ),
+      options?.maxRequestBodySize !== false &&
+        useLimitRequestBodySize(options?.maxRequestBodySize ?? 25_000_000),
 
       options?.parserAndValidationCache !== false &&
         useParserAndValidationCache(
@@ -563,6 +563,7 @@ export class YogaServer<
       request: Request;
     },
     context: TServerContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
@@ -583,7 +584,7 @@ export class YogaServer<
             setResult(newResult) {
               result = newResult;
             },
-            fetchAPI: this.fetchAPI,
+            fetchAPI,
             context,
           }),
         ),
@@ -618,6 +619,7 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -629,7 +631,7 @@ export class YogaServer<
   > => {
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
-        url = new this.fetchAPI.URL(request.url, 'http://localhost');
+        url = new fetchAPI.URL(request.url, 'http://localhost');
         return Reflect.get(url, prop, url);
       },
     }) as URL;
@@ -658,7 +660,7 @@ export class YogaServer<
                     response = res;
                     endEarly();
                   },
-                  fetchAPI: this.fetchAPI,
+                  fetchAPI,
                 }),
               requestParseHookResult => requestParseHookResult?.onRequestParseDone,
             ),
@@ -672,7 +674,7 @@ export class YogaServer<
 
         if (!requestParser) {
           return {
-            response: new this.fetchAPI.Response(null, {
+            response: new fetchAPI.Response(null, {
               status: 415,
               statusText: 'Unsupported Media Type',
             }),
@@ -711,6 +713,7 @@ export class YogaServer<
   handle: ServerAdapterRequestHandler<TServerContext> = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
+    fetchAPI: FetchAPI = this.fetchAPI,
   ) => {
     const instrumented = this.instrumentation && getInstrumented({ request });
 
@@ -720,19 +723,23 @@ export class YogaServer<
 
     return unfakePromise(
       fakePromise()
-        .then(() => parseRequest(request, serverContext))
+        .then(() => parseRequest(request, serverContext, fetchAPI))
         .then(({ response, requestParserResult }) => {
           if (response) {
             return response;
           }
           const getResultForParams = this.instrumentation?.operation
-            ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
+            ? (
+                payload: { request: Request; params: GraphQLParams },
+                context: any,
+                fetchAPI: FetchAPI,
+              ) => {
                 const instrumented = getInstrumented({ context, request: payload.request });
                 const tracedHandler = instrumented.asyncFn(
                   this.instrumentation?.operation,
                   this.getResultForParams,
                 );
-                return tracedHandler(payload, context);
+                return tracedHandler(payload, context, fetchAPI);
               }
             : this.getResultForParams;
           return handleMaybePromise(
@@ -748,6 +755,7 @@ export class YogaServer<
                               request,
                             },
                             Object.create(serverContext),
+                            fetchAPI,
                           ),
                         )
                         // eslint-disable-next-line promise/no-nesting
@@ -766,6 +774,7 @@ export class YogaServer<
                       request,
                     },
                     serverContext,
+                    fetchAPI,
                   )) as ResultProcessorInput,
             result => {
               const tracedProcessResult = this.instrumentation?.resultProcess
@@ -778,7 +787,7 @@ export class YogaServer<
               return tracedProcessResult({
                 request,
                 result,
-                fetchAPI: this.fetchAPI,
+                fetchAPI,
                 onResultProcessHooks: this.onResultProcessHooks,
                 serverContext,
               });
@@ -795,7 +804,7 @@ export class YogaServer<
           return processResult({
             request,
             result,
-            fetchAPI: this.fetchAPI,
+            fetchAPI,
             onResultProcessHooks: this.onResultProcessHooks,
             serverContext,
           });
