@@ -1,5 +1,12 @@
 # @examples/bun-pothos
 
+## 0.11.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.24.5
+
 ## 0.11.4
 
 ### Patch Changes

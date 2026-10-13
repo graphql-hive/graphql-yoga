@@ -1,5 +1,12 @@
 # @graphql-yoga/nestjs
 
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.24.5
+
 ## 4.0.2
 
 ### Patch Changes
