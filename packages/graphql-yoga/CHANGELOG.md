@@ -1,5 +1,7 @@
 # graphql-yoga
 
+## 5.24.5
+
 ## 5.24.4
 
 ### Patch Changes
