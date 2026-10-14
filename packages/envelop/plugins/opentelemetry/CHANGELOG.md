@@ -1,5 +1,14 @@
 # @envelop/opentelemetry
 
+## 9.2.2
+
+### Patch Changes
+
+- [#4584](https://github.com/graphql-hive/graphql-yoga/pull/4584)
+  [`6b8d0b6`](https://github.com/graphql-hive/graphql-yoga/commit/6b8d0b677b6c4135db60eb86223fc72ec1f12c22)
+  Thanks [@darkship](https://github.com/darkship)! - When a resolver finishes, the resolver span
+  must be ended even if there is an error. Leaving it open results in broken or missing trace data.
+
 ## 9.2.1
 
 ### Patch Changes

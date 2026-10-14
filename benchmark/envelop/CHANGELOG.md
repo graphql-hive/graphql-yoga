@@ -1,5 +1,13 @@
 # @envelop/benchmark
 
+## 3.5.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b2a35ee`](https://github.com/graphql-hive/graphql-yoga/commit/b2a35eed5432d277574cdc37efbfc4a6031f179b)]:
+  - @envelop/graphql-jit@11.2.2
+
 ## 3.5.1
 
 ### Patch Changes
