@@ -1,5 +1,16 @@
 # @envelop/graphql-jit
 
+## 11.2.2
+
+### Patch Changes
+
+- [#4611](https://github.com/graphql-hive/graphql-yoga/pull/4611)
+  [`b2a35ee`](https://github.com/graphql-hive/graphql-yoga/commit/b2a35eed5432d277574cdc37efbfc4a6031f179b)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies updates:
+  - Updated dependency
+    [`graphql-jit@^0.8.10` ↗︎](https://www.npmjs.com/package/graphql-jit/v/0.8.10) (from `0.8.7`,
+    in `dependencies`)
+
 ## 11.2.1
 
 ### Patch Changes
