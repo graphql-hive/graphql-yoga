@@ -868,7 +868,11 @@ export class YogaServer<
           );
         })
         .catch(error => {
-          const errors = handleError(error, this.maskedErrorsOpts, serverContext);
+          const errors = handleError(
+            error,
+            this.maskedErrorsOpts,
+            serverContext as TServerContext & YogaInitialContext,
+          );
           errorCount = errors.length;
 
           const result = {
