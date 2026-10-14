@@ -1,5 +1,12 @@
 # @graphql-yoga/plugin-disable-introspection
 
+## 2.25.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.24.5
+
 ## 2.25.4
 
 ### Patch Changes
