@@ -35,7 +35,10 @@ export interface YogaInitialContext extends ServerAdapterInitialContext, YogaCon
    */
   params: GraphQLParams;
   /**
-   * An object describing the HTTP request.
+   * The incoming Fetch `Request` for this operation.
+   *
+   * Provided by `@whatwg-node/server` on the server context (Yoga no longer
+   * assigns it in `handleParams`).
    */
   request: Request;
 }

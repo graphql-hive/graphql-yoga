@@ -559,18 +559,10 @@ export class YogaServer<
     return getRequestLog(serverContext, this.log);
   }
 
-  handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
-    const additionalContext =
-      context['request'] === request
-        ? {
-            params,
-          }
-        : {
-            request,
-            params,
-          };
-
-    Object.assign(context, additionalContext);
+  handleParams: ParamsHandler<TServerContext> = ({ context, params }) => {
+    // `request` (and `fetchAPI`) are already on the server context from
+    // `@whatwg-node/server`; only GraphQL params need to be attached here.
+    Object.assign(context, { params });
 
     const enveloped = this.getEnveloped(context);
     const log = getRequestLog(context, this.log);
@@ -580,7 +572,7 @@ export class YogaServer<
 
     log.debug(
       () => ({
-        path: new this.fetchAPI.URL(request.url, 'http://localhost').pathname,
+        path: new this.fetchAPI.URL(context.request.url, 'http://localhost').pathname,
         operationName: params.operationName,
         variablesCount: params.variables ? Object.keys(params.variables).length : 0,
       }),
@@ -640,11 +632,11 @@ export class YogaServer<
       params: GraphQLParams;
       request: Request;
     },
-    context: TServerContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
+    context: TServerContext & ServerAdapterInitialContext,
   ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
+    const fetchAPI = context.fetchAPI ?? this.fetchAPI;
 
     return handleMaybePromise(
       () =>
@@ -697,7 +689,6 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -707,6 +698,7 @@ export class YogaServer<
       }
     | { requestParserResult?: never; response: Response }
   > => {
+    const fetchAPI = serverContext.fetchAPI ?? this.fetchAPI;
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
         url = new fetchAPI.URL(request.url, 'http://localhost');
@@ -791,8 +783,10 @@ export class YogaServer<
   handle: ServerAdapterRequestHandler<TServerContext> = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
   ) => {
+    // Prefer the per-request Fetch API from `@whatwg-node/server` (native vs ponyfill
+    // chosen for this Request). Fall back to the Yoga instance default when absent.
+    const fetchAPI = serverContext.fetchAPI ?? this.fetchAPI;
     // `useConfigInServerContext` and `useRequestId` have put the request-scoped logger in the
     // server context by now, so everything logged for this request is correlated by its id
     const log = this.getLog(serverContext);
@@ -809,7 +803,7 @@ export class YogaServer<
 
     return unfakePromise(
       fakePromise()
-        .then(() => parseRequest(request, serverContext, fetchAPI))
+        .then(() => parseRequest(request, serverContext))
         .then(parseResult => {
           requestParserResult = parseResult.requestParserResult;
           const { response, requestParserResult: parserResult } = parseResult;
@@ -817,17 +811,13 @@ export class YogaServer<
             return response;
           }
           const getResultForParams = this.instrumentation?.operation
-            ? (
-                payload: { request: Request; params: GraphQLParams },
-                context: any,
-                fetchAPI: FetchAPI,
-              ) => {
+            ? (payload: { request: Request; params: GraphQLParams }, context: any) => {
                 const instrumented = getInstrumented({ context, request: payload.request });
                 const tracedHandler = instrumented.asyncFn(
                   this.instrumentation?.operation,
                   this.getResultForParams,
                 );
-                return tracedHandler(payload, context, fetchAPI);
+                return tracedHandler(payload, context);
               }
             : this.getResultForParams;
           return handleMaybePromise(
@@ -838,7 +828,7 @@ export class YogaServer<
                       const context = Object.create(serverContext);
                       return (
                         fakePromise()
-                          .then(() => getResultForParams({ params, request }, context, fetchAPI))
+                          .then(() => getResultForParams({ params, request }, context))
                           // eslint-disable-next-line promise/no-nesting
                           .catch(error => {
                             const errors = handleError(error, this.maskedErrorsOpts, context);
@@ -856,7 +846,6 @@ export class YogaServer<
                       request,
                     },
                     serverContext,
-                    fetchAPI,
                   )) as ResultProcessorInput,
             result => {
               errorCount = countErrors(result);

@@ -6,14 +6,15 @@
 
 ### Dependencies
 
-- Bump `@whatwg-node/server` to `^0.13.0`, `@whatwg-node/fetch` to `^0.12.0`, and `@whatwg-node/promise-helpers` to `^2.0.0`.
+- Bump `@whatwg-node/server` to `0.14.0` (alpha until stable publish), `@whatwg-node/fetch` to `^0.12.0`, and `@whatwg-node/promise-helpers` to `^2.0.0`.
 - Delegate to @whatwg-node/server's useLimitRequestBodySize instead of a
 hand-rolled byte counter, and swap in the native TransformStream when the
 incoming request already has a native ReadableStream body — piping it
 through the ponyfill TransformStream throws since they're different
-realms. Thread an optional `fetchAPI` param through handle/parseRequest/
-getResultForParams so callers can override which fetchAPI (native vs
-ponyfill) the rest of the pipeline uses.
+realms. Read the per-request `fetchAPI` from the server context (filled by
+`@whatwg-node/server`) in Yoga hooks instead of threading a third handler
+argument, and stop re-assigning `request` onto the context since the adapter
+already provides it.
 - Unread request bodies are discarded after the response is decided (keep-alive friendly).
 - Incoming global `Request` instances automatically use the native Fetch API (`pickRightFetchAPI`), so Next.js no longer needs `fetchAPI: { Response }`.
 
