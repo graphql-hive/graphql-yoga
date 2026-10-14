@@ -10,14 +10,8 @@ import {
   YogaServerInstance,
   YogaServerOptions,
 } from 'graphql-yoga';
-import type { ExecutionParams } from 'subscriptions-transport-ws';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  AbstractGraphQLDriver,
-  GqlModuleOptions,
-  GqlSubscriptionService,
-  SubscriptionConfig,
-} from '@nestjs/graphql';
+import { AbstractGraphQLDriver, GqlModuleOptions, GqlSubscriptionService } from '@nestjs/graphql';
 
 export type YogaDriverPlatform = 'express' | 'fastify';
 
@@ -51,7 +45,6 @@ export type YogaDriverConfig<Platform extends YogaDriverPlatform = 'express'> = 
         /**
          * Subscriptions configuration. Passing `true` will install only `graphql-ws`.
          */
-        subscriptions?: boolean | YogaDriverSubscriptionConfig;
         conditionalSchema?: never;
       }
     | {
@@ -64,14 +57,6 @@ export type YogaDriverConfig<Platform extends YogaDriverPlatform = 'express'> = 
           | undefined;
       }
   );
-
-export type YogaDriverSubscriptionConfig = {
-  'graphql-ws'?: Omit<SubscriptionConfig['graphql-ws'], 'onSubscribe'>;
-  'subscriptions-transport-ws'?: Omit<
-    SubscriptionConfig['subscriptions-transport-ws'],
-    'onOperation'
-  >;
-};
 
 export abstract class AbstractYogaDriver<
   Platform extends YogaDriverPlatform,
@@ -248,143 +233,6 @@ export class YogaDriver<
     }
 
     await super.start(options);
-
-    if (options.subscriptions) {
-      if (!options.schema) {
-        throw new Error('Schema is required when using subscriptions');
-      }
-
-      const config: SubscriptionConfig =
-        options.subscriptions === true
-          ? {
-              'graphql-ws': true,
-            }
-          : options.subscriptions;
-
-      if (config['graphql-ws']) {
-        config['graphql-ws'] = typeof config['graphql-ws'] === 'object' ? config['graphql-ws'] : {};
-
-        if (options.conditionalSchema) {
-          throw new Error(`
-            Conditional schema is not supported with graphql-ws.
-          `);
-        }
-
-        config['graphql-ws'].onSubscribe = async (ctx, _id, params) => {
-          const { schema, execute, subscribe, contextFactory, parse, validate } =
-            this.yoga.getEnveloped({
-              ...ctx,
-              // @ts-expect-error context extra is from graphql-ws/lib/use/ws
-              req: ctx.extra.request,
-              // @ts-expect-error context extra is from graphql-ws/lib/use/ws
-              socket: ctx.extra.socket,
-              params,
-            });
-
-          const args = {
-            schema,
-            operationName: params.operationName,
-            document: parse(params.query),
-            variableValues: params.variables,
-            contextValue: await contextFactory({ execute, subscribe }),
-          };
-
-          const errors = validate(args.schema, args.document);
-          if (errors.length) return errors;
-          return args;
-        };
-      }
-
-      if (config['subscriptions-transport-ws']) {
-        config['subscriptions-transport-ws'] =
-          typeof config['subscriptions-transport-ws'] === 'object'
-            ? config['subscriptions-transport-ws']
-            : {};
-
-        if (options.conditionalSchema) {
-          throw new Error(`
-            Conditional schema is not supported with subscriptions-transport-ws.
-          `);
-        }
-
-        config['subscriptions-transport-ws'].onOperation = async (
-          _msg: unknown,
-          params: ExecutionParams,
-          ws: WebSocket,
-        ) => {
-          const { schema, execute, subscribe, contextFactory, parse, validate } =
-            this.yoga.getEnveloped({
-              ...params.context,
-              req:
-                // @ts-expect-error upgradeReq does exist but is untyped
-                ws.upgradeReq,
-              socket: ws,
-              params,
-            });
-
-          const args = {
-            schema,
-            operationName: params.operationName,
-            document: typeof params.query === 'string' ? parse(params.query) : params.query,
-            variables: params.variables,
-            context: await contextFactory({ execute, subscribe }),
-          };
-
-          const errors = validate(args.schema, args.document);
-          if (errors.length) return errors;
-          return args;
-        };
-      }
-
-      this.subscriptionService = new GqlSubscriptionService(
-        {
-          schema: options.schema,
-          path: options.path,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-          // @ts-ignore
-          execute: (...args) => {
-            const contextValue =
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-              // @ts-ignore
-              args[0].contextValue ||
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-              // @ts-ignore
-              args[3];
-            if (!contextValue) {
-              throw new Error('Execution arguments are missing the context value');
-            }
-            return (
-              contextValue
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-                // @ts-ignore
-                .execute(...args)
-            );
-          },
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-          // @ts-ignore
-          subscribe: (...args) => {
-            const contextValue =
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-              // @ts-ignore
-              args[0].contextValue ||
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-              // @ts-ignore
-              args?.[3];
-            if (!contextValue) {
-              throw new Error('Subscribe arguments are missing the context value');
-            }
-            return (
-              contextValue
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- because we test both graphql v15 and v16
-                // @ts-ignore
-                .subscribe(...args)
-            );
-          },
-          ...config,
-        },
-        this.httpAdapterHost.httpAdapter.getHttpServer(),
-      );
-    }
   }
 
   public override async stop() {
