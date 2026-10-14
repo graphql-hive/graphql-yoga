@@ -85,7 +85,7 @@ export function getSSEProcessor(): ResultProcessor {
       },
       cancel(e) {
         clearInterval(pingInterval);
-        if (iterator && iterator.return) {
+        if (iterator?.return) {
           return handleMaybePromise(
             () => iterator.return?.(e),
             () => {},
