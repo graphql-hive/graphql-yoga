@@ -47,9 +47,8 @@ The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` 
 ### Breaking Changes
 
 - `useRequestId`'s request id resolution order changed: a host-assigned id (e.g. Fastify's `request.id`) now takes precedence over the incoming `x-request-id` header, rather than the other way around. A new `trustHeader` option (default `true`) can disable trusting the header altogether.
-- `graphql-yoga`'s own `MaskError` type (the signature of `options.maskedErrors.maskError`) changed its 4th argument from a `Logger` to the request's `context` (`Partial<YogaInitialContext>`, possibly `undefined`). If your `maskError` function uses that 4th argument, read the logger off it instead: `context?.log` in place of the old `log` parameter.
 - `allowedHeaders.response` is now applied after `cors` and after user-supplied plugins, instead of before. Headers added by the `cors` option or by a plugin's `onResponse` hook are now subject to the allow-list and will be stripped unless included in it. If you use `allowedHeaders.response` together with `cors` or a plugin that sets response headers, add those header names to the allow-list.
-- The logger in the contexts is now called `log` instead of `logger`, matching Hive Gateway: `context.logger` is now `context.log`, and the Yoga instance's `yoga.logger` is now `yoga.log`. 
+- The logging is now called using `log` instead of `logger`.
 - The `logger` option of the built-in plugin configs is now called `log` too (`GraphiQLPluginConfig`, `HealthCheckPluginOptions`), and likewise for the `logger` option of `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`, `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`.
 - The `logger` option of `@envelop/apollo-federation`'s `useApolloFederation` (kept under its existing name, unlike the plugins above) is now typed as `Logger` from `@graphql-hive/logger` instead of a loosely-typed `{ warn, debug, info, error }` interface, and it now defaults to `new Logger()` instead of the global `console`.
 - `@graphql-yoga/nestjs` now logs through Nest's own `Logger` by default (like `@graphql-hive/nestjs` does), instead of not logging at all. Pass `logging: false` to keep the previous behaviour. Passing `logging: true` now logs at the `info` level through Yoga's default (console) logger instead of the HTTP framework's logger - to keep logging through Fastify's Pino instance, pass it explicitly:
@@ -72,7 +71,7 @@ The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` 
 + const logging = new Logger({ level: 'debug' });
 
   createYoga({
-    logging: true, // still `info`, unchanged
+    logging: logging,
     // ...
   });
 ```

@@ -54,7 +54,7 @@ export function processResult<TServerContext>({
       // If no result processor found for this result, return an error
       if (!resultProcessor) {
         log.debug(
-          () => ({ accept: request.headers.get('accept'), acceptableMediaTypes }),
+          { accept: request.headers.get('accept'), acceptableMediaTypes },
           'No result processor matched, responding 406',
         );
         const response = new fetchAPI.Response(null, {
@@ -64,15 +64,15 @@ export function processResult<TServerContext>({
             accept: acceptableMediaTypes.join('; charset=utf-8, '),
           },
         });
-        log.debug(() => ({ status: response.status }), 'Sending response');
+        log.debug({ status: response.status }, 'Sending response');
         return response;
       }
 
-      log.debug(() => ({ acceptedMediaType }), 'Result processor selected');
+      log.debug({ acceptedMediaType }, 'Result processor selected');
       return handleMaybePromise(
         () => resultProcessor!(result, fetchAPI, acceptedMediaType),
         response => {
-          log.debug(() => ({ status: response.status }), 'Sending response');
+          log.debug({ status: response.status }, 'Sending response');
           return response;
         },
       );
@@ -97,20 +97,20 @@ export function processRequest({
   try {
     document = enveloped.parse(params.query!);
   } catch (err) {
-    log.debug(() => ({ err }), 'Parsing failed');
+    log.debug({ err }, 'Parsing failed');
     throw err;
   }
 
   // Get the actual operation
   const operation = getOperationAST(document, params.operationName);
   onOperationType?.(operation?.operation);
-  log.debug(() => ({ operationType: operation?.operation }), 'Parsed GraphQL document');
+  log.debug({ operationType: operation?.operation }, 'Parsed GraphQL document');
 
   // Validate parsed Document Node
   const errors = enveloped.validate(enveloped.schema, document);
 
   if (errors.length > 0) {
-    log.debug(() => ({ errors }), 'Validation failed');
+    log.debug({ errors }, 'Validation failed');
     return { errors };
   }
 
