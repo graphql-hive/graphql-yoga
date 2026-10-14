@@ -1,5 +1,15 @@
 # hello-world-benchmark
 
+## 3.26.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b2a35ee`](https://github.com/graphql-hive/graphql-yoga/commit/b2a35eed5432d277574cdc37efbfc4a6031f179b)]:
+  - @envelop/graphql-jit@11.2.2
+  - graphql-yoga@5.24.5
+  - @graphql-yoga/plugin-response-cache@3.26.5
+
 ## 3.26.4
 
 ### Patch Changes
