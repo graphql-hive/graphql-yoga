@@ -1,5 +1,54 @@
 # graphql-yoga
 
+## 5.24.5
+
+## 5.24.4
+
+### Patch Changes
+
+- [#4607](https://github.com/graphql-hive/graphql-yoga/pull/4607)
+  [`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@^12.0.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/12.0.3)
+    (from `^11.2.2`, in `dependencies`)
+
+## 5.24.3
+
+### Patch Changes
+
+- [#4604](https://github.com/graphql-hive/graphql-yoga/pull/4604)
+  [`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/executor@^2.0.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor/v/2.0.3)
+    (from `^2.0.0`, in `dependencies`)
+  - Updated dependency
+    [`@graphql-tools/schema@^10.1.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/schema/v/10.1.3)
+    (from `^10.0.11`, in `dependencies`)
+  - Updated dependency
+    [`@graphql-tools/utils@^11.2.2` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/11.2.2)
+    (from `^11.2.0`, in `dependencies`)
+
+## 5.24.2
+
+### Patch Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Remove the built-in `subscriptions` driver
+  option and its `graphql-ws` / `subscriptions-transport-ws` wiring (previously implemented via
+  `@nestjs/graphql`'s `GqlSubscriptionService`).
+
+  Fix open handle leak in multipart tests.
+
+  `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
+  `subscriptions-transport-ws`, and the driver-level `graphql-ws` integration held a socket open
+  after shutdown. Rather than keep a partial, driver-managed subscriptions setup, `YogaDriver` and
+  `YogaFederationDriver` no longer accept a `subscriptions` option. Wire up subscriptions yourself
+  using GraphQL Yoga's own subscription support (e.g. the `graphql-ws` package, or
+  `@graphql-yoga/plugin-graphql-sse`) the same way you would for a standalone `graphql-yoga` server.
+
 ## 5.24.1
 
 ### Patch Changes
