@@ -4404,3 +4404,45 @@ it('handles DateTime scalar', async () => {
   await checkResult();
   await checkResult();
 });
+
+it('walks each array in a result once when removing metadata fields', async () => {
+  // Every node of this 17-node chain is a Proxy counting `ownKeys` calls, which the plugin's
+  // `{ ...data }` copy makes exactly once per visit. Arrays used to be walked a second time as
+  // objects, doubling the work at every level, so the chain was copied 2^17 - 1 = 131071 times
+  let copies = 0;
+  const countedTree = (depth: number): unknown =>
+    new Proxy(depth === 0 ? { leaf: true } : { children: [countedTree(depth - 1)] }, {
+      ownKeys(target) {
+        copies++;
+        return Reflect.ownKeys(target);
+      },
+    });
+  const plainTree = (depth: number): unknown =>
+    depth === 0 ? { leaf: true } : { children: [plainTree(depth - 1)] };
+
+  const schema = makeExecutableSchema({
+    typeDefs: /* GraphQL */ `
+      scalar JSON
+
+      type Query {
+        tree: JSON
+      }
+    `,
+    resolvers: {
+      Query: {
+        tree: () => countedTree(16),
+      },
+      JSON: new GraphQLJS.GraphQLScalarType({ name: 'JSON', serialize: value => value }),
+    },
+  });
+  const testkit = createTestkit([useResponseCache({ session: () => null })], schema);
+
+  const result = await testkit.execute(/* GraphQL */ `
+    query {
+      tree
+    }
+  `);
+  assertSingleExecutionValue(result);
+  expect(copies).toBe(17);
+  expect(result).toEqual({ data: { tree: plainTree(16) } });
+});
