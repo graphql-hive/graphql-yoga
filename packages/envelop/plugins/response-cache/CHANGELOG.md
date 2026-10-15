@@ -1,5 +1,17 @@
 # @envelop/response-cache
 
+## 9.3.4
+
+### Patch Changes
+
+- [#4602](https://github.com/graphql-hive/graphql-yoga/pull/4602)
+  [`9fde867`](https://github.com/graphql-hive/graphql-yoga/commit/9fde867200666a7dbe62397ef42341088bbe3601)
+  Thanks [@peterklingelhofer](https://github.com/peterklingelhofer)! - Walk each array in a result
+  only once when removing the plugin's metadata fields. Arrays were also walked a second time as
+  objects, which doubled the work at every level of nesting, so deeply nested results (for example a
+  large JSON tree) took exponentially longer to process than needed. This ran on every response the
+  plugin handled, including ones with a TTL of 0 that are never stored.
+
 ## 9.3.3
 
 ### Patch Changes

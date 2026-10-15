@@ -1,5 +1,14 @@
 # graphql-yoga
 
+## 5.24.6
+
+### Patch Changes
+
+- [#4537](https://github.com/graphql-hive/graphql-yoga/pull/4537)
+  [`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)
+  Thanks [@santino](https://github.com/santino)! - Fix to guard result-processor cancel against
+  undefined iterator
+
 ## 5.24.5
 
 ## 5.24.4
