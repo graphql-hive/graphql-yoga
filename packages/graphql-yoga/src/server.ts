@@ -65,6 +65,7 @@ import type {
   RequestParser,
   ResultProcessorInput,
 } from './plugins/types.js';
+import { getFetchAPIByRequest, useFetchAPIByRequest } from './plugins/use-fetch-api-by-request.js';
 import type { GraphiQLOptions, GraphiQLOptionsOrFactory } from './plugins/use-graphiql.js';
 import { useGraphiQL } from './plugins/use-graphiql.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
@@ -439,6 +440,10 @@ export class YogaServer<
         useAllowedResponseHeaders(options.allowedHeaders.response),
       // We handle validation errors at the end
       useHTTPValidationError(),
+      // Last `onRequest` plugin: record the adapter-selected Fetch API for this
+      // request after any earlier `setRequest` calls, so parse/params/result
+      // hooks (and `getFetchAPIByRequest`) reuse the same instance as `onRequest`.
+      useFetchAPIByRequest(),
     ];
 
     this.getEnveloped = envelop({
@@ -554,6 +559,14 @@ export class YogaServer<
     );
   };
 
+  /**
+   * Fetch API for this request: the one remembered from `onRequest`, then any
+   * explicit override (adapter third arg), then the Yoga instance default.
+   */
+  private getFetchAPIForRequest(request: Request, fallback?: FetchAPI): FetchAPI {
+    return getFetchAPIByRequest(request) ?? fallback ?? this.fetchAPI;
+  }
+
   getResultForParams = (
     {
       params,
@@ -563,10 +576,11 @@ export class YogaServer<
       request: Request;
     },
     context: TServerContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
+    fetchAPIFallback?: FetchAPI,
   ): PromiseOrValue<ExecutionResult | AsyncIterable<ExecutionResult> | undefined> => {
     let result: ExecutionResult | AsyncIterable<ExecutionResult> | undefined;
     let paramsHandler = this.handleParams;
+    const fetchAPI = this.getFetchAPIForRequest(request, fetchAPIFallback);
 
     return handleMaybePromise(
       () =>
@@ -619,7 +633,7 @@ export class YogaServer<
   parseRequest = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
+    fetchAPIFallback?: FetchAPI,
   ): MaybePromise<
     | {
         requestParserResult:
@@ -629,6 +643,7 @@ export class YogaServer<
       }
     | { requestParserResult?: never; response: Response }
   > => {
+    const fetchAPI = this.getFetchAPIForRequest(request, fetchAPIFallback);
     let url = new Proxy({} as URL, {
       get: (_target, prop, _receiver) => {
         url = new fetchAPI.URL(request.url, 'http://localhost');
@@ -713,8 +728,11 @@ export class YogaServer<
   handle: ServerAdapterRequestHandler<TServerContext> = (
     request: Request,
     serverContext: TServerContext & ServerAdapterInitialContext,
-    fetchAPI: FetchAPI = this.fetchAPI,
+    fetchAPIFallback?: FetchAPI,
   ) => {
+    // Prefer the Fetch API recorded in `onRequest` for this Request; fall back
+    // to the adapter's third argument, then the Yoga instance default.
+    const fetchAPI = this.getFetchAPIForRequest(request, fetchAPIFallback);
     const instrumented = this.instrumentation && getInstrumented({ request });
 
     const parseRequest = this.instrumentation?.requestParse
@@ -732,14 +750,14 @@ export class YogaServer<
             ? (
                 payload: { request: Request; params: GraphQLParams },
                 context: any,
-                fetchAPI: FetchAPI,
+                fetchAPIForParams?: FetchAPI,
               ) => {
                 const instrumented = getInstrumented({ context, request: payload.request });
                 const tracedHandler = instrumented.asyncFn(
                   this.instrumentation?.operation,
                   this.getResultForParams,
                 );
-                return tracedHandler(payload, context, fetchAPI);
+                return tracedHandler(payload, context, fetchAPIForParams);
               }
             : this.getResultForParams;
           return handleMaybePromise(

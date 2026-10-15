@@ -52,6 +52,7 @@ export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
 export { useErrorCoordinate } from './plugins/use-error-coordinate.js';
+export { getFetchAPIByRequest } from './plugins/use-fetch-api-by-request.js';
 export {
   type LandingPageRenderer,
   type LandingPageRendererOpts,
