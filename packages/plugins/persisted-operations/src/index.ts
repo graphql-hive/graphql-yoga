@@ -1,23 +1,7 @@
-import type { ASTNode, DocumentNode, GraphQLErrorExtensions, Source } from 'graphql';
+import type { DocumentNode, GraphQLErrorOptions } from 'graphql';
 import { createGraphQLError } from 'graphql-yoga';
-import type {
-  GraphQLParams,
-  Maybe,
-  OnParamsEventPayload,
-  Plugin,
-  PromiseOrValue,
-} from 'graphql-yoga';
+import type { GraphQLParams, OnParamsEventPayload, Plugin, PromiseOrValue } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
-
-// GraphQLErrorOptions interface does not exist in graphql-js v15
-export interface GraphQLErrorOptions {
-  nodes?: ReadonlyArray<ASTNode> | ASTNode | null | undefined;
-  source?: Maybe<Source>;
-  positions?: Maybe<ReadonlyArray<number>>;
-  path?: Maybe<ReadonlyArray<string | number>>;
-  originalError?: Maybe<Error & { readonly extensions?: unknown }>;
-  extensions?: Maybe<GraphQLErrorExtensions>;
-}
 
 export type ExtractPersistedOperationId<TPluginContext = Record<string, unknown>> = (
   params: GraphQLParams,

@@ -11,7 +11,7 @@ import type {
   PromiseOrValue,
   SubscribeFunction,
 } from '@envelop/types';
-import { fakePromise } from '@whatwg-node/promise-helpers';
+import { fakePromise, isPromise } from '@whatwg-node/promise-helpers';
 
 export const envelopIsIntrospectionSymbol = Symbol('ENVELOP_IS_INTROSPECTION');
 
@@ -197,4 +197,4 @@ export function errorAsyncIterator<TInput>(
   } as AsyncGenerator<TInput>;
 }
 
-export { mapMaybePromise, isPromise } from '@whatwg-node/promise-helpers';
+export { isPromise };

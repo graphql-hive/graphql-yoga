@@ -347,12 +347,11 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
 export async function hashSHA256(
   text: string,
   api: {
-    crypto: Crypto;
     TextEncoder: (typeof globalThis)['TextEncoder'];
   } = globalThis,
 ) {
   const inputUint8Array = new api.TextEncoder().encode(text);
-  const arrayBuf = await api.crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array);
+  const arrayBuf = await crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array);
   const outputUint8Array = new Uint8Array(arrayBuf);
 
   let hash = '';

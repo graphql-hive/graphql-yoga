@@ -1,4 +1,3 @@
-import { crypto, TextEncoder } from '@whatwg-node/fetch';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
