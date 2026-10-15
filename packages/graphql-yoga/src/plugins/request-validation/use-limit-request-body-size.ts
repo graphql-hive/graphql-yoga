@@ -1,5 +1,4 @@
 import { useLimitRequestBodySize as useWhatwgLimitRequestBodySize } from '@whatwg-node/server';
-import type { OnRequestEventPayload } from '@whatwg-node/server';
 import { responseFromBodyLimitError } from '../../error.js';
 import type { Plugin } from '../types.js';
 
