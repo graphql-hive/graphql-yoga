@@ -61,7 +61,10 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
         fetchAPI: limiterFetchAPI,
         serverContext,
         url,
-      } as unknown as OnRequestEventPayload<typeof serverContext>);
+        // unused by the limiter but required to satisfy the payload type
+        setRequestHandler: () => {},
+        requestHandler: () => new limiterFetchAPI.Response(),
+      });
 
       const originalParser = requestParser;
       setRequestParser(req => originalParser(req === request ? wrappedRequest : req));
