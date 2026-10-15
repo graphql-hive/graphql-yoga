@@ -1,5 +1,15 @@
 # @graphql-yoga/plugin-response-cache
 
+## 3.26.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9fde867`](https://github.com/graphql-hive/graphql-yoga/commit/9fde867200666a7dbe62397ef42341088bbe3601),
+  [`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)]:
+  - @envelop/response-cache@9.3.4
+  - graphql-yoga@5.24.6
+
 ## 3.26.5
 
 ### Patch Changes
