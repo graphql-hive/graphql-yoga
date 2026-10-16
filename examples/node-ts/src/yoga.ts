@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga, Plugin } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
+import { createSchema, createYoga, Plugin } from 'graphql-yoga';
 
 // available when handling requests, needs to be provided by the implementor
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -51,7 +52,7 @@ function useDisableSubscription(): Plugin<
     onSubscribe({ args }) {
       // @ts-expect-error - we know the context value has this shape
       if (args.contextValue.disableSubscription) {
-        throw createGraphQLError('Subscriptions have been disabled', {
+        throw new GraphQLError('Subscriptions have been disabled', {
           extensions: {
             http: {
               status: 400, // report error with a 400
