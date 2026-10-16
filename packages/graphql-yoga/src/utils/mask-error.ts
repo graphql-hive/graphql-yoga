@@ -1,5 +1,5 @@
-import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
-import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
+import { getSchemaCoordinate } from '@graphql-tools/utils';
+import { createGraphQLError, isGraphQLError, isOriginalGraphQLError } from '../error.js';
 import type { MaskError } from '../types.js';
 
 function serializeError(error: unknown) {

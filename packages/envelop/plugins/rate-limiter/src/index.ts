@@ -1,13 +1,14 @@
 import { isPromise } from 'node:util/types';
 import type {
-  GraphQLError,
   GraphQLField,
   GraphQLNamedOutputType,
   GraphQLOutputType,
   GraphQLSchema,
 } from 'graphql';
 import {
+  getArgumentValues,
   getNamedType,
+  GraphQLError,
   isAbstractType,
   isListType,
   isObjectType,
@@ -19,8 +20,6 @@ import get from 'lodash.get';
 import picomatch from 'picomatch';
 import type { Plugin } from '@envelop/core';
 import {
-  createGraphQLError,
-  getArgumentValues,
   getDefinedRootType,
   getDirectiveExtensions,
   getOperationASTFromDocument,
@@ -335,7 +334,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
                     }
                   }
 
-                  const errorOptions: Parameters<typeof createGraphQLError>[1] = {
+                  const errorOptions: ConstructorParameters<typeof GraphQLError>[1] = {
                     extensions: { http: { statusCode: 429 } },
                     path: resolvePath,
                     nodes: [node],
@@ -347,7 +346,7 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
                     };
                   }
 
-                  errors.push(createGraphQLError(rateLimitError, errorOptions));
+                  errors.push(new GraphQLError(rateLimitError, errorOptions));
 
                   return false;
                 },

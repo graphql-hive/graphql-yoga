@@ -1,5 +1,6 @@
 import type { GraphQLError } from 'graphql';
-import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
+import { getSchemaCoordinate } from '@graphql-tools/utils';
+import { createGraphQLError } from '../../error.js';
 import { isGraphQLError } from '../../error.js';
 import type { MaybeArray } from '../../types.js';
 import type { ExecutionResultWithSerializer } from '../types.js';

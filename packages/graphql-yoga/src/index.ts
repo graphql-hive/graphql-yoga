@@ -47,7 +47,14 @@ export {
   chain,
   composeInstrumentation,
 } from '@envelop/instrumentation';
-export { createGraphQLError, isPromise, mapMaybePromise } from '@graphql-tools/utils';
+export { createGraphQLError } from './error.js';
+export {
+  createDeferredPromise,
+  fakePromise,
+  handleMaybePromise,
+  isPromise,
+  mapAsyncIterator,
+} from '@whatwg-node/promise-helpers';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';

@@ -1,6 +1,6 @@
 import type { GraphQLErrorExtensions } from 'graphql';
 import { GraphQLError } from 'graphql';
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError } from '../../error.js';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { isRequestBodyLimitError } from '../../error.js';

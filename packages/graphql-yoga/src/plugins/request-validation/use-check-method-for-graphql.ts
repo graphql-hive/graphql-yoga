@@ -1,4 +1,4 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError } from '../../error.js';
 import type { Plugin } from '../types.js';
 
 export function isValidMethodForGraphQL(method: string): method is 'GET' | 'POST' {
