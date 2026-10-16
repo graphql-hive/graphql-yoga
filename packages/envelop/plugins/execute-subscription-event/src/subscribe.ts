@@ -1,7 +1,8 @@
 import type { ExecutionArgs, ExecutionResult, GraphQLError, GraphQLFieldResolver } from 'graphql';
 import { createSourceEventStream } from 'graphql';
 import type { ExecuteFunction, SubscribeFunction } from '@envelop/core';
-import { isAsyncIterable, makeSubscribe, mapAsyncIterator } from '@envelop/core';
+import { isAsyncIterable, makeSubscribe } from '@envelop/core';
+import { mapAsyncIterator } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 // GraphQL backporting support

@@ -33,7 +33,6 @@ export {
   isIntrospectionOperationString,
   makeExecute,
   makeSubscribe,
-  mapAsyncIterator,
   // Default plugins
   useEnvelop,
   useErrorHandler,
@@ -49,12 +48,6 @@ export {
 } from '@envelop/instrumentation';
 export { withSchemaCoordinate } from './error.js';
 export { getSchemaCoordinate } from '@graphql-tools/utils';
-export {
-  fakePromise,
-  handleMaybePromise,
-  isPromise,
-  type MaybePromise,
-} from '@whatwg-node/promise-helpers';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
