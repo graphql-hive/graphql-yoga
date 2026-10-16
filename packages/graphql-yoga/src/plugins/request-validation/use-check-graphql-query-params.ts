@@ -1,4 +1,4 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import type { Plugin } from '../types.js';
 

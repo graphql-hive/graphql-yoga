@@ -1,5 +1,5 @@
 import type { AfterValidateHook } from '@envelop/core';
-import { createGraphQLError } from '@graphql-tools/utils';
+import { createGraphQLError } from '../error.js';
 import { createSchema } from '../schema.js';
 import { createYoga } from '../server.js';
 import type { Plugin } from './types.js';

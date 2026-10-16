@@ -1,5 +1,4 @@
-import { GraphQLError } from 'graphql';
-import { createGraphQLError } from '@graphql-tools/utils';
+import { GraphQLError, type GraphQLErrorOptions } from 'graphql';
 import type { YogaLogger } from '@graphql-yoga/logger';
 import {
   HTTPError,
@@ -10,10 +9,38 @@ import type { ResultProcessorInput } from './plugins/types.js';
 import type { FetchAPI, GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
 
 declare module 'graphql' {
+  interface GraphQLError {
+    /**
+     * Optional schema coordinate (e.g. "MyType.myField") associated with this error.
+     * Experimental; populated when useErrorCoordinate / schemaCoordinateInErrors is enabled.
+     */
+    readonly coordinate?: string;
+  }
   interface GraphQLErrorExtensions {
     http?: GraphQLHTTPExtensions;
     unexpected?: boolean;
   }
+}
+
+export type CreateGraphQLErrorOptions = GraphQLErrorOptions & {
+  coordinate?: string;
+};
+
+/**
+ * Create a GraphQLError, optionally attaching experimental `coordinate`.
+ * graphql-js GraphQLErrorOptions does not know about coordinate yet.
+ */
+export function createGraphQLError(
+  message: string,
+  options?: CreateGraphQLErrorOptions,
+): GraphQLError {
+  const error = new GraphQLError(message, options);
+  if (options?.coordinate != null && error.coordinate == null) {
+    Object.defineProperties(error, {
+      coordinate: { value: options.coordinate, enumerable: true, configurable: true },
+    });
+  }
+  return error;
 }
 
 function isAggregateError(obj: unknown): obj is AggregateError {

@@ -6,12 +6,19 @@ import type {
   GraphQLInputType,
   GraphQLType,
 } from 'graphql';
-import { GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLObjectType, isScalarType } from 'graphql';
+import {
+  getArgumentValues,
+  GraphQLError,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  isScalarType,
+} from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
 
 const getWrappedType = (
   graphqlType: GraphQLType,
@@ -120,7 +127,7 @@ export const ResourceLimitationValidationRule =
                   (argumentValues['first'] === null && argumentValues['last'] === null)
                 ) {
                   context.reportError(
-                    createGraphQLError(
+                    new GraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
@@ -135,7 +142,7 @@ export const ResourceLimitationValidationRule =
                     argumentValues['first'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      createGraphQLError(
+                      new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
@@ -154,7 +161,7 @@ export const ResourceLimitationValidationRule =
                     argumentValues['last'] > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      createGraphQLError(
+                      new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
@@ -169,7 +176,7 @@ export const ResourceLimitationValidationRule =
                   }
                 } else {
                   context.reportError(
-                    createGraphQLError(
+                    new GraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
@@ -199,7 +206,7 @@ export const ResourceLimitationValidationRule =
           }
           if (totalNodeCost > params.nodeCostLimit) {
             context.reportError(
-              createGraphQLError(
+              new GraphQLError(
                 `Cannot request more than ${params.nodeCostLimit} nodes in a single document. Please split your operation into multiple sub operations or reduce the amount of requested nodes.`,
                 { nodes: documentNode },
               ),

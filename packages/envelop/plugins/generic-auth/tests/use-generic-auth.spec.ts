@@ -1,7 +1,6 @@
-import { getIntrospectionQuery, print } from 'graphql';
+import { GraphQLError,  getIntrospectionQuery, print } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { createGraphQLError } from '@graphql-tools/utils';
 import type { ResolveUserFn, ValidateUserFn } from '../src/index.js';
 import { DIRECTIVE_SDL, SKIP_AUTH_DIRECTIVE_SDL, useGenericAuth } from '../src/index.js';
 
@@ -564,13 +563,13 @@ describe('useGenericAuth', () => {
       const validateUserFn: ValidateUserFn<UserTypeWithRole> = params => {
         const schemaCoordinate = `${params.parentType.name}.${params.fieldNode.name.value}`;
         if (!params.user) {
-          return createGraphQLError(`Accessing '${schemaCoordinate}' requires authentication.`, {
+          return new GraphQLError(`Accessing '${schemaCoordinate}' requires authentication.`, {
             nodes: [params.fieldNode],
           });
         }
 
         if (params.fieldAuthArgs && params.fieldAuthArgs['role'] !== params.user.role) {
-          return createGraphQLError(
+          return new GraphQLError(
             `Missing permissions for accessing field '${schemaCoordinate}'. Requires role '${params.fieldAuthArgs['role']}'. Request is authenticated with role '${params.user.role}'.`,
             { nodes: [params.fieldNode] },
           );

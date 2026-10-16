@@ -1,8 +1,9 @@
 import type { GraphQLError, ResponsePath } from 'graphql';
 import type { FetchAPI, Plugin, YogaInitialContext, YogaLogger } from 'graphql-yoga';
-import { createGraphQLError, isAsyncIterable, mapMaybePromise } from 'graphql-yoga';
+import { createGraphQLError, isAsyncIterable } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface ApolloInlineRequestTraceContext {
   startHrTime: [number, number];
@@ -167,11 +168,14 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
     },
     onRequest({ request }): void | Promise<void> {
       if (options.ignoreRequest) {
-        return mapMaybePromise(options.ignoreRequest(request), shouldIgnore => {
-          if (!shouldIgnore) {
-            setNewContext(request);
-          }
-        });
+        return handleMaybePromise(
+          () => options.ignoreRequest(request),
+          shouldIgnore => {
+            if (!shouldIgnore) {
+              setNewContext(request);
+            }
+          },
+        );
       }
       setNewContext(request);
     },
