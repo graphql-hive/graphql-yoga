@@ -1,5 +1,15 @@
 # nextjs-app
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - graphql-yoga@6.0.0
+
 ## 2.24.6
 
 ### Patch Changes
