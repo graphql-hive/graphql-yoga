@@ -35,9 +35,13 @@ import type {
   TypedSubscriptionArgs,
   ValidateFunction,
 } from '@envelop/types';
-import { handleMaybePromise, iterateAsync, iterateAsyncVoid } from '@whatwg-node/promise-helpers';
+import {
+  handleMaybePromise,
+  iterateAsync,
+  iterateAsyncVoid,
+  mapAsyncIterator,
+} from '@whatwg-node/promise-helpers';
 import { documentStringMap } from './document-string-map.js';
-import { mapAsyncIterator } from '@whatwg-node/promise-helpers';
 import {
   errorAsyncIterator,
   finalAsyncIterator,
