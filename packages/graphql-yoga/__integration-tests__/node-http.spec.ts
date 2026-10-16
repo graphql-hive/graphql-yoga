@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import type { ServerResponse } from 'node:http';
 import { createServer, IncomingMessage, STATUS_CODES } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -7,7 +8,6 @@ import { fetch } from '@whatwg-node/fetch';
 import { createDeferredPromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
 import {
-  createGraphQLError,
   createSchema,
   createYoga,
   useExecutionCancellation,
@@ -61,7 +61,7 @@ describe('node-http', () => {
         resolvers: {
           Query: {
             throw(_, { status }) {
-              throw createGraphQLError('Test', {
+              throw new GraphQLError('Test', {
                 extensions: {
                   http: {
                     status,

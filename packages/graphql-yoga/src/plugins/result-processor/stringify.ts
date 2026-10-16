@@ -1,7 +1,6 @@
-import type { GraphQLError } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { getSchemaCoordinate } from '@graphql-tools/utils';
-import { createGraphQLError } from '../../error.js';
-import { isGraphQLError } from '../../error.js';
+import { isGraphQLError, withSchemaCoordinate } from '../../error.js';
 import type { MaybeArray } from '../../types.js';
 import type { ExecutionResultWithSerializer } from '../types.js';
 
@@ -44,15 +43,17 @@ function omitInternalsFromError<E extends GraphQLError | Error | undefined>(err:
       'toJSON' in err && typeof err.toJSON === 'function' ? err.toJSON() : Object(err);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TS should check for unused vars instead
     const { http, unexpected, ...extensions } = serializedError.extensions || {};
-    return createGraphQLError(err.message, {
-      nodes: err.nodes,
-      source: err.source,
-      positions: err.positions,
-      path: err.path,
-      originalError: omitInternalsFromError(err.originalError || undefined),
-      extensions: Object.keys(extensions).length ? extensions : undefined,
-      coordinate: getSchemaCoordinate(err),
-    }) as E;
+    return withSchemaCoordinate(
+      new GraphQLError(err.message, {
+        nodes: err.nodes,
+        source: err.source,
+        positions: err.positions,
+        path: err.path,
+        originalError: omitInternalsFromError(err.originalError || undefined),
+        extensions: Object.keys(extensions).length ? extensions : undefined,
+      }),
+      getSchemaCoordinate(err),
+    ) as E;
   }
   return err;
 }

@@ -1,6 +1,7 @@
-import type { ExecutionResult, GraphQLError } from 'graphql';
+import { GraphQLError } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import { inspect } from '@graphql-tools/utils';
-import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import { createLogger, createSchema, createYoga } from '../src/index.js';
 import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
@@ -17,7 +18,7 @@ describe('error masking', () => {
       resolvers: {
         Query: {
           hello: () => {
-            throw createGraphQLError('This error never gets masked.');
+            throw new GraphQLError('This error never gets masked.');
           },
           hi: () => {
             throw new Error('This error will get mask if you enable maskedError.');
@@ -223,7 +224,7 @@ describe('error masking', () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        throw createGraphQLError('I like turtles');
+        throw new GraphQLError('I like turtles');
       },
       schema: createTestSchema(),
     });
@@ -247,7 +248,7 @@ describe('error masking', () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        throw createGraphQLError('I like turtles', {
+        throw new GraphQLError('I like turtles', {
           extensions: {
             foo: 1,
           },
@@ -433,7 +434,7 @@ describe('error masking', () => {
       maskedErrors: {
         errorMessage: 'My message',
         maskError: (error, message, isDev) => {
-          return createGraphQLError(
+          return new GraphQLError(
             inspect({
               errorStr: String(error),
               message,
@@ -472,7 +473,7 @@ describe('error masking', () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        const error = createGraphQLError('I like turtles');
+        const error = new GraphQLError('I like turtles');
         Object.defineProperty(error, 'extensions', {
           get() {
             return undefined;
@@ -765,10 +766,10 @@ describe('error masking', () => {
   // Execution engine wraps errors recursively so the only way to make sure it is an unexpected error is to check originalError recursively
   it('respects wrapped original errors', async () => {
     const error = new Error('I like turtles');
-    const wrappedError = createGraphQLError('I like tortoises', {
+    const wrappedError = new GraphQLError('I like tortoises', {
       originalError: error,
     });
-    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+    const wrappedOverWrappedError = new GraphQLError('I like animals', {
       originalError: wrappedError,
     });
 
@@ -807,7 +808,7 @@ describe('error masking', () => {
 
   // extensions may contain internal data and we dont want to leak it
   it('should not inherit the extensions of a graphql error with original error', async () => {
-    const wrappedError = createGraphQLError('I like tortoises', {
+    const wrappedError = new GraphQLError('I like tortoises', {
       extensions: {
         code: 'SOME_ERROR', // should not overwrite the INTERNAL_SERVER_ERROR code
         'x-hi': 'there',
@@ -884,7 +885,7 @@ describe('error masking', () => {
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('Test Error');
+              throw new GraphQLError('Test Error');
             },
             b: () => {
               throw new Error('Test Error');

@@ -1,4 +1,4 @@
-import { GraphQLError, type GraphQLErrorOptions } from 'graphql';
+import { GraphQLError } from 'graphql';
 import type { YogaLogger } from '@graphql-yoga/logger';
 import {
   HTTPError,
@@ -22,22 +22,20 @@ declare module 'graphql' {
   }
 }
 
-export type CreateGraphQLErrorOptions = GraphQLErrorOptions & {
-  coordinate?: string;
-};
-
 /**
- * Create a GraphQLError, optionally attaching experimental `coordinate`.
- * graphql-js GraphQLErrorOptions does not know about coordinate yet.
+ * Attach experimental schema `coordinate` to a GraphQLError.
+ * graphql-js GraphQLErrorOptions does not know about coordinate yet, so this
+ * uses defineProperty (same approach as `@graphql-tools/utils` locatedError).
+ *
+ * Prefer reading with `getSchemaCoordinate` from `@graphql-tools/utils`.
  */
-export function createGraphQLError(
-  message: string,
-  options?: CreateGraphQLErrorOptions,
+export function withSchemaCoordinate(
+  error: GraphQLError,
+  coordinate: string | undefined,
 ): GraphQLError {
-  const error = new GraphQLError(message, options);
-  if (options?.coordinate != null && error.coordinate == null) {
+  if (coordinate != null && error.coordinate == null) {
     Object.defineProperties(error, {
-      coordinate: { value: options.coordinate, enumerable: true, configurable: true },
+      coordinate: { value: coordinate, enumerable: true, configurable: true },
     });
   }
   return error;
@@ -86,7 +84,7 @@ function graphQLErrorFromBodyLimitError(
   error: RequestBodyTooLargeError | InvalidContentLengthError,
 ): GraphQLError {
   if (error instanceof RequestBodyTooLargeError) {
-    return createGraphQLError(error.message, {
+    return new GraphQLError(error.message, {
       originalError: error,
       extensions: {
         http: {
@@ -97,7 +95,7 @@ function graphQLErrorFromBodyLimitError(
       },
     });
   }
-  return createGraphQLError(error.message, {
+  return new GraphQLError(error.message, {
     originalError: error,
     extensions: {
       http: {
@@ -162,7 +160,7 @@ export function handleError(
     errors.add(
       isGraphQLError(maskedError)
         ? maskedError
-        : createGraphQLError(maskedError.message, {
+        : new GraphQLError(maskedError.message, {
             originalError: maskedError,
           }),
     );
@@ -170,13 +168,13 @@ export function handleError(
     errors.add(error);
   } else if (error instanceof Error) {
     errors.add(
-      createGraphQLError(error.message, {
+      new GraphQLError(error.message, {
         originalError: error,
       }),
     );
   } else if (typeof error === 'string') {
     errors.add(
-      createGraphQLError(error, {
+      new GraphQLError(error, {
         extensions: {
           code: 'INTERNAL_SERVER_ERROR',
           unexpected: true,
@@ -185,7 +183,7 @@ export function handleError(
     );
   } else if (hasToString(error)) {
     errors.add(
-      createGraphQLError(error.toString(), {
+      new GraphQLError(error.toString(), {
         extensions: {
           code: 'INTERNAL_SERVER_ERROR',
           unexpected: true,
@@ -195,7 +193,7 @@ export function handleError(
   } else {
     logger.error(error);
     errors.add(
-      createGraphQLError('Unexpected error.', {
+      new GraphQLError('Unexpected error.', {
         extensions: {
           unexpected: true,
         },

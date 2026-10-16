@@ -12,8 +12,7 @@ import type {
   ValidationContext,
   ValueNode,
 } from 'graphql';
-import {
-  getNamedType,
+import { GraphQLError, getNamedType,
   isInterfaceType,
   isLeafType,
   isListType,
@@ -21,9 +20,8 @@ import {
   isObjectType,
   Kind,
   print,
-  typeFromAST,
-} from 'graphql';
-import { createGraphQLError } from 'graphql-yoga';
+  typeFromAST, } from 'graphql';
+
 import type { Maybe } from '@graphql-tools/utils';
 import { inspect } from '@graphql-tools/utils';
 
@@ -162,7 +160,7 @@ export function OverlappingFieldsCanBeMergedRule(context: ValidationContext): AS
       for (const [[responseName, reason], fields1, fields2] of conflicts) {
         const reasonMsg = reasonMessage(reason);
         context.reportError(
-          createGraphQLError(
+          new GraphQLError(
             `Fields "${responseName}" conflict because ${reasonMsg}. Use different aliases on the fields to fetch both if this was intentional.`,
             { nodes: fields1.concat(fields2) },
           ),

@@ -1,7 +1,8 @@
+import { GraphQLError } from 'graphql';
 import type { OnExecuteHook } from '@envelop/core';
 import { Request } from '@whatwg-node/fetch';
 import type { YogaInitialContext } from '../src';
-import { createGraphQLError, createSchema, createYoga } from '../src';
+import { createSchema, createYoga } from '../src';
 
 describe('requests', () => {
   const schema = createSchema({
@@ -607,7 +608,7 @@ describe('requests', () => {
                     query: '{ ping }',
                   };
                 }
-                throw createGraphQLError('Invalid request body', {
+                throw new GraphQLError('Invalid request body', {
                   extensions: {
                     code: 'BAD_REQUEST',
                   },

@@ -47,13 +47,13 @@ export {
   chain,
   composeInstrumentation,
 } from '@envelop/instrumentation';
-export { createGraphQLError } from './error.js';
+export { withSchemaCoordinate } from './error.js';
+export { getSchemaCoordinate } from '@graphql-tools/utils';
 export {
-  createDeferredPromise,
   fakePromise,
   handleMaybePromise,
   isPromise,
-  mapAsyncIterator,
+  type MaybePromise,
 } from '@whatwg-node/promise-helpers';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
