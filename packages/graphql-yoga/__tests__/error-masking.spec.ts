@@ -463,7 +463,7 @@ describe('error masking', () => {
     expect(await response.json()).toMatchObject({
       errors: [
         {
-          message: '{ errorStr: "Error: I like turtles", message: "My message", isDev: true }',
+          message: "{ errorStr: 'Error: I like turtles', message: 'My message', isDev: true }",
         },
       ],
     });
