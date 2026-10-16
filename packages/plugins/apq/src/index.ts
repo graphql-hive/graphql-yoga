@@ -1,5 +1,6 @@
+import { GraphQLError } from 'graphql';
 import type { Plugin, PromiseOrValue } from 'graphql-yoga';
-import { createGraphQLError, createLRUCache } from 'graphql-yoga';
+import { createLRUCache } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export function hashSHA256(
@@ -96,7 +97,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
           () => store.get(persistedQueryData.sha256Hash),
           persistedQuery => {
             if (persistedQuery == null) {
-              throw createGraphQLError('PersistedQueryNotFound', {
+              throw new GraphQLError('PersistedQueryNotFound', {
                 extensions: {
                   http: {
                     status: responseConfig.forceStatusCodeOk ? 200 : 404,
@@ -116,7 +117,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
         () => hash(params.query!, fetchAPI),
         expectedHash => {
           if (persistedQueryData.sha256Hash !== expectedHash) {
-            throw createGraphQLError('PersistedQueryMismatch', {
+            throw new GraphQLError('PersistedQueryMismatch', {
               extensions: {
                 http: {
                   status: responseConfig.forceStatusCodeOk ? 200 : 400,
