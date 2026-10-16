@@ -6,6 +6,7 @@ import {
   GraphQLInputObjectType,
   GraphQLNonNull,
   isListType,
+  versionInfo,
 } from 'graphql';
 import type { ExtendedValidationRule } from '../common.js';
 import { getDirectiveFromAstNode } from '../common.js';
@@ -22,6 +23,22 @@ type VariableValue =
   | VariableValue[]
   | { [key: string]: VariableValue };
 
+/** GraphQL 17 getArgumentValues expects VariableValues `{ coerced, sources }`. */
+function asGetArgumentValuesVariables(
+  variableValues: Record<string, unknown> | null | undefined,
+): Parameters<typeof getArgumentValues>[2] {
+  if (variableValues == null) {
+    return undefined;
+  }
+  if (versionInfo.major >= 17 && !('coerced' in variableValues)) {
+    return {
+      coerced: variableValues,
+      sources: Object.create(null),
+    } as Parameters<typeof getArgumentValues>[2];
+  }
+  return variableValues as Parameters<typeof getArgumentValues>[2];
+}
+
 export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext, executionArgs) => {
   return {
     Field: node => {
@@ -35,7 +52,7 @@ export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext,
         const values = getArgumentValues(
           fieldType,
           node,
-          executionArgs.variableValues || undefined,
+          asGetArgumentValuesVariables(executionArgs.variableValues),
         );
 
         const isOneOfFieldType =

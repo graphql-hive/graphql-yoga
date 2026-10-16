@@ -13,6 +13,7 @@ import {
   isListType,
   isObjectType,
   TypeInfo,
+  versionInfo,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
@@ -252,7 +253,17 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               let args: Record<string, any> | null = null;
               function getArgValues(): Record<string, any> {
                 if (!args && field) {
-                  args = getArgumentValues(field, node, variableValues);
+                  // GraphQL 17 expects VariableValues `{ coerced, sources }`.
+                  const vars =
+                    versionInfo.major >= 17 &&
+                    variableValues != null &&
+                    !('coerced' in variableValues)
+                      ? {
+                          coerced: variableValues,
+                          sources: Object.create(null),
+                        }
+                      : variableValues;
+                  args = getArgumentValues(field, node, vars as typeof variableValues);
                 }
                 return args ?? {};
               }
