@@ -1,6 +1,13 @@
-import type { ExecutionResult, GraphQLError } from 'graphql';
+import type { ExecutionResult } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { inspect } from '@graphql-tools/utils';
-import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import {
+  createGraphQLError,
+  createSchema,
+  createYoga,
+  Logger,
+  MemoryLogWriter,
+} from '../src/index.js';
 import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
@@ -468,6 +475,43 @@ describe('error masking', () => {
     });
   });
 
+  it('passes the request context (not just a logger) to the custom maskError function', async () => {
+    let receivedContext: unknown;
+    const yoga = createYoga({
+      logging: false,
+      maskedErrors: {
+        maskError: (_error, message, _isDev, context) => {
+          receivedContext = context;
+          return createGraphQLError(message);
+        },
+      },
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hi: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            hi() {
+              throw new Error('boom');
+            },
+          },
+        },
+      }),
+    });
+
+    await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ hi }' }),
+    });
+
+    const context = receivedContext as { log?: { error?: unknown }; request?: { url?: string } };
+    expect(typeof context.log?.error).toBe('function');
+    expect(context.request?.url).toBe('http://yoga/graphql');
+  });
+
   it('support errors with undefined extensions', async () => {
     const yoga = createYoga({
       logging: false,
@@ -719,11 +763,8 @@ describe('error masking', () => {
       },
     });
 
-    const logger = createLogger('silent');
-    const error = jest.fn();
-    const debug = jest.fn();
-    logger.debug = debug;
-    logger.error = error;
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yoga = createYoga({ schema, logging: logger });
 
     const result = await yoga.fetch('http://yoga/graphql', {
@@ -753,12 +794,29 @@ describe('error masking', () => {
         },
       ],
     });
-    // in the future this might change as we decide to within our graphql-tools/executor error handler treat DOMException similar to a normal Error
-    expect(error.mock.calls).toMatchObject([[{ message: 'This operation was aborted' }]]);
-    expect(debug.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Processing GraphQL Parameters done.'],
+    const errorLogs = writer.logs.filter(log => log.level === 'error');
+    expect(errorLogs).toEqual([
+      {
+        level: 'error',
+        attrs: {
+          err: {
+            message: 'This operation was aborted',
+            locations: [{ column: 3, line: 1 }],
+            path: ['root'],
+          },
+          requestId: expect.any(String),
+        },
+      },
+    ]);
+    const debugMessages = writer.logs.filter(log => log.level === 'debug').map(log => log.msg);
+    expect(debugMessages).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Processing GraphQL Parameters done.',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
     ]);
   });
 

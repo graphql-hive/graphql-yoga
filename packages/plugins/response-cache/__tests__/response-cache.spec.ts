@@ -1,5 +1,5 @@
 import type { YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
-import { createSchema, createYoga } from 'graphql-yoga';
+import { createSchema, createYoga, Logger } from 'graphql-yoga';
 import type { ShouldCacheResultFunction } from '@envelop/response-cache';
 import { cacheControlDirective, defaultBuildResponseCacheKey } from '@envelop/response-cache';
 import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
@@ -904,12 +904,8 @@ describe('shouldCacheResult', () => {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   let yoga: YogaServerInstance<{}, {}>;
   let shouldCacheResultFn: ShouldCacheResultFunction | undefined;
-  const logging = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  };
+  let logging: Logger;
+  let debug: jest.SpiedFunction<typeof logging.debug>;
 
   function fetch(query: string) {
     return yoga.fetch('http://localhost:3000/graphql', {
@@ -980,6 +976,8 @@ describe('shouldCacheResult', () => {
   };
 
   beforeEach(() => {
+    logging = new Logger({ level: 'debug' });
+    debug = jest.spyOn(logging, 'debug');
     jest.clearAllMocks();
   });
 
@@ -1010,7 +1008,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).toHaveBeenCalledWith(
+        expect(debug).toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1038,7 +1036,7 @@ describe('shouldCacheResult', () => {
           // NOTE: This actually returns the unmasked error DUMMY instead of the original "Unexpected error."
           errors: expect.arrayContaining([expect.objectContaining({ message: 'DUMMY' })]),
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1064,7 +1062,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1097,7 +1095,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheHit,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1123,7 +1121,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheHit,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1149,7 +1147,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
