@@ -14,6 +14,7 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   isScalarType,
+  versionInfo,
 } from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
@@ -104,10 +105,21 @@ export const ResourceLimitationValidationRule =
 
           // if it is not found the query is invalid and graphql validation will complain
           if (fieldDef != null) {
+            // GraphQL 17 expects VariableValues `{ coerced, sources }`.
+            const rawVariableValues = executionArgs.variableValues || undefined;
+            const variableValuesForArgs =
+              versionInfo.major >= 17 &&
+              rawVariableValues != null &&
+              !('coerced' in rawVariableValues)
+                ? {
+                    coerced: rawVariableValues,
+                    sources: Object.create(null),
+                  }
+                : rawVariableValues;
             const argumentValues = getArgumentValues(
               fieldDef,
               fieldNode,
-              executionArgs.variableValues || undefined,
+              variableValuesForArgs as typeof rawVariableValues,
             );
             const type = getWrappedType(fieldDef.type);
             if (type instanceof GraphQLObjectType && type.name.endsWith('Connection')) {
