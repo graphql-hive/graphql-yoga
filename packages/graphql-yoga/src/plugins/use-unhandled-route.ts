@@ -1,5 +1,5 @@
 import type { PromiseOrValue } from '@envelop/core';
-import { isPromise } from '@graphql-tools/utils';
+import { isPromise } from '@whatwg-node/promise-helpers';
 import landingPageBody from '../landing-page-html.js';
 import type { FetchAPI } from '../types.js';
 import type { Plugin } from './types.js';

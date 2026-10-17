@@ -33,7 +33,6 @@ export {
   isIntrospectionOperationString,
   makeExecute,
   makeSubscribe,
-  mapAsyncIterator,
   // Default plugins
   useEnvelop,
   useErrorHandler,
@@ -47,7 +46,8 @@ export {
   chain,
   composeInstrumentation,
 } from '@envelop/instrumentation';
-export { createGraphQLError, isPromise, mapMaybePromise } from '@graphql-tools/utils';
+export { withSchemaCoordinate } from './error.js';
+export { getSchemaCoordinate } from '@graphql-tools/utils';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';

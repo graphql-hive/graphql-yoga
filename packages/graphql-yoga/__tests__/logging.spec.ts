@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { GraphQLError } from 'graphql';
 import { jest } from '@jest/globals';
-import { createGraphQLError, createLogger, createSchema, createYoga } from '../src';
+import { createLogger, createSchema, createYoga } from '../src';
 
 describe('logging', () => {
   it('custom logger', async () => {
@@ -125,7 +125,7 @@ describe('logging', () => {
       expect(logger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('does not log unexpeted GraphQL Errors (createGraphQLError)', async () => {
+    it('does not log unexpeted GraphQL Errors (GraphQLError)', async () => {
       const logger = createLogger('error');
       const yoga = createYoga({
         logging: logger,
@@ -138,7 +138,7 @@ describe('logging', () => {
           resolvers: {
             Query: {
               hi() {
-                throw createGraphQLError('No hi for you ok.');
+                throw new GraphQLError('No hi for you ok.');
               },
             },
           },

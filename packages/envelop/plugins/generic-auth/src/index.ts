@@ -2,7 +2,6 @@ import type {
   ASTNode,
   ExecutionArgs,
   FieldNode,
-  GraphQLError,
   GraphQLField,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -11,6 +10,7 @@ import type {
 import {
   getNamedType,
   getOperationAST,
+  GraphQLError,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
@@ -22,7 +22,6 @@ import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/cor
 import { useExtendedValidation } from '@envelop/extended-validation';
 import { getVariableValues } from '@graphql-tools/executor';
 import {
-  createGraphQLError,
   getDefinedRootType,
   getDirectiveExtensions,
   shouldIncludeNode,
@@ -189,7 +188,7 @@ export function createUnauthenticatedError(params?: {
   message?: string;
   statusCode?: number;
 }) {
-  return createGraphQLError(params?.message ?? 'Unauthorized field or type', {
+  return new GraphQLError(params?.message ?? 'Unauthorized field or type', {
     nodes: params?.fieldNode ? [params.fieldNode] : undefined,
     path: params?.path,
     extensions: {
