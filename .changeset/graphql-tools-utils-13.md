@@ -18,6 +18,7 @@
 '@graphql-yoga/apollo-link': major
 '@graphql-yoga/urql-exchange': major
 '@graphql-yoga/graphiql': major
+'@graphql-yoga/nestjs': major
 ---
 
 ### Dependencies
@@ -26,16 +27,23 @@
 
 ### Breaking Changes
 
-- `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` (read with `getSchemaCoordinate` from `@graphql-tools/utils`, re-exported by Yoga).
-- Yoga no longer re-exports `mapAsyncIterator`, `isPromise`, `fakePromise`, `handleMaybePromise`, or `MaybePromise`. Import them from `@whatwg-node/promise-helpers`.
+- `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` and read with `getSchemaCoordinate` from `@graphql-tools/utils`.
+- Yoga no longer re-exports helpers that already live upstream:
+  - `getSchemaCoordinate` → `@graphql-tools/utils`
+  - `mergeSchemas` → `@graphql-tools/schema`
+  - `DisposableSymbols` → `@whatwg-node/server`
+  - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` → `@whatwg-node/promise-helpers`
 - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from `@whatwg-node/promise-helpers`.
 
 ### Migration
 
 ```ts
 import { GraphQLError } from 'graphql';
+import { getSchemaCoordinate } from '@graphql-tools/utils';
+import { mergeSchemas } from '@graphql-tools/schema';
+import { DisposableSymbols } from '@whatwg-node/server';
 import { handleMaybePromise, isPromise, type MaybePromise } from '@whatwg-node/promise-helpers';
-import { withSchemaCoordinate, getSchemaCoordinate } from 'graphql-yoga';
+import { withSchemaCoordinate } from 'graphql-yoga';
 
 throw withSchemaCoordinate(new GraphQLError('not found'), 'Query.user');
 ```

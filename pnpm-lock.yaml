@@ -3407,6 +3407,10 @@ importers:
     publishDirectory: dist
 
   packages/nestjs:
+    dependencies:
+      '@graphql-tools/schema':
+        specifier: 11.0.0
+        version: 11.0.0(graphql@17.0.2)
     devDependencies:
       '@nestjs/common':
         specifier: ^12.0.0
@@ -3615,6 +3619,9 @@ importers:
       '@whatwg-node/fetch':
         specifier: ^0.12.0
         version: 0.12.0
+      '@whatwg-node/server':
+        specifier: ^0.13.0
+        version: 0.13.0
       graphql:
         specifier: 17.0.2
         version: 17.0.2
@@ -27953,7 +27960,7 @@ snapshots:
     dependencies:
       '@envelop/instrumentation': 1.0.1
       '@whatwg-node/disposablestack': 0.1.0
-      '@whatwg-node/fetch': 0.12.0
+      '@whatwg-node/fetch': 0.12.1
       '@whatwg-node/promise-helpers': 2.0.0
       tslib: 2.8.1
 
