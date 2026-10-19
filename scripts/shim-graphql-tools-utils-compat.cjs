@@ -1,6 +1,9 @@
 /**
- * TEMP compat for graphql-tools utils@13 while gateway packages (delegate,
- * executor-http, federation) still import removed utils names.
+ * TEMP: mutates installed `@graphql-tools/utils@13*` under `.pnpm` so unpublished
+ * gateway packages (delegate / wrap / executor-http / federation) keep resolving
+ * removed export names. This is NOT Yoga public API and must be dropped once those
+ * packages publish matching majors. Environments that skip `postinstall` will not
+ * get these shims - do not treat local `node_modules` utils as the published API.
  *
  * Follows the #8515 replacement table:
  * - createGraphQLError -> GraphQLError (+ optional coordinate)

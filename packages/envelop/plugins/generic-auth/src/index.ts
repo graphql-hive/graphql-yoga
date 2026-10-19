@@ -20,7 +20,7 @@ import {
   isUnionType,
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
-import { useExtendedValidation } from '@envelop/extended-validation';
+import { coerceGetVariableValuesResult, useExtendedValidation } from '@envelop/extended-validation';
 import {
   getDefinedRootType,
   getDirectiveExtensions,
@@ -28,9 +28,6 @@ import {
 } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { removeEmptyOrUnusedNodes } from './utils.js';
-
-// graphql-js 17 uses a { sources, coerced } wrapper for directive variables.
-// graphql tools now produces and accepts this wrapper across graphql versions.
 
 export type ResolveUserFn<UserType, ContextType = DefaultContext> = (
   context: ContextType,
@@ -328,23 +325,18 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                const variableValuesResult = getVariableValues(
-                  schema,
-                  variableDefinitions ?? [],
-                  args.variableValues || {},
+                const coercedVariables = coerceGetVariableValuesResult(
+                  getVariableValues(schema, variableDefinitions ?? [], args.variableValues || {}),
                 );
-                // GraphQL 17: `{ variableValues: { coerced, sources } }`
-                // GraphQL 16: `{ coerced }`
-                // utils `shouldIncludeNode` expects the `{ coerced, sources }` shape.
-                const variableValues =
-                  'variableValues' in variableValuesResult && variableValuesResult.variableValues
-                    ? variableValuesResult.variableValues
-                    : 'coerced' in variableValuesResult && variableValuesResult.coerced
-                      ? {
-                          coerced: variableValuesResult.coerced,
-                          sources: Object.create(null),
-                        }
-                      : undefined;
+                // Fail closed: invalid variables must not skip @include/@skip and auth-check
+                // fields that would never execute.
+                if ('errors' in coercedVariables) {
+                  for (const error of coercedVariables.errors) {
+                    context.reportError(error);
+                  }
+                  return {};
+                }
+                const { variableValues } = coercedVariables;
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();
@@ -464,8 +456,7 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    // shouldIncludeNode takes the wrapper, not the raw variable map
-                    if (variableValues && !shouldIncludeNode(variableValues, node)) {
+                    if (!shouldIncludeNode(variableValues, node)) {
                       return;
                     }
 

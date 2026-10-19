@@ -13,13 +13,13 @@ import {
   isListType,
   isObjectType,
   TypeInfo,
-  versionInfo,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
 import get from 'lodash.get';
 import picomatch from 'picomatch';
 import type { Plugin } from '@envelop/core';
+import { asGetArgumentValuesVariables } from '@envelop/extended-validation';
 import {
   getDefinedRootType,
   getDirectiveExtensions,
@@ -253,17 +253,11 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
               let args: Record<string, any> | null = null;
               function getArgValues(): Record<string, any> {
                 if (!args && field) {
-                  // GraphQL 17 expects VariableValues `{ coerced, sources }`.
-                  const vars =
-                    versionInfo.major >= 17 &&
-                    variableValues != null &&
-                    !('coerced' in variableValues)
-                      ? {
-                          coerced: variableValues,
-                          sources: Object.create(null),
-                        }
-                      : variableValues;
-                  args = getArgumentValues(field, node, vars as typeof variableValues);
+                  args = getArgumentValues(
+                    field,
+                    node,
+                    asGetArgumentValuesVariables(variableValues),
+                  );
                 }
                 return args ?? {};
               }

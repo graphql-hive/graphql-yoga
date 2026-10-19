@@ -744,5 +744,33 @@ describe('useGenericAuth', () => {
         public: 'public',
       });
     });
+
+    it('should fail closed when variable coercion fails instead of auth-checking skipped fields', async () => {
+      const testInstance = createTestkit(
+        [
+          useGenericAuth({
+            mode: 'protect-granular',
+            resolveUserFn: invalidresolveUserFn,
+          }),
+        ],
+        schemaWithDirective,
+      );
+
+      const result = await testInstance.execute(
+        /* GraphQL */ `
+          query ($skip: Boolean!) {
+            public
+            protected @skip(if: $skip)
+          }
+        `,
+        // wrong type -> getVariableValues errors; must not emit UNAUTHORIZED for `protected`
+        { skip: 'nope' },
+      );
+      assertSingleExecutionValue(result);
+      expect(result.errors?.length).toBeGreaterThan(0);
+      expect(
+        result.errors?.some(error => error.extensions?.['code'] === 'UNAUTHORIZED_FIELD_OR_TYPE'),
+      ).toBe(false);
+    });
   });
 });

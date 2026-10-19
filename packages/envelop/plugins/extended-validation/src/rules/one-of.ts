@@ -6,10 +6,10 @@ import {
   GraphQLInputObjectType,
   GraphQLNonNull,
   isListType,
-  versionInfo,
 } from 'graphql';
 import type { ExtendedValidationRule } from '../common.js';
 import { getDirectiveFromAstNode } from '../common.js';
+import { asGetArgumentValuesVariables } from '../variable-values.js';
 
 export const ONE_OF_DIRECTIVE_SDL = /* GraphQL */ `
   directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION
@@ -22,22 +22,6 @@ type VariableValue =
   | number
   | VariableValue[]
   | { [key: string]: VariableValue };
-
-/** GraphQL 17 getArgumentValues expects VariableValues `{ coerced, sources }`. */
-function asGetArgumentValuesVariables(
-  variableValues: Record<string, unknown> | null | undefined,
-): Parameters<typeof getArgumentValues>[2] {
-  if (variableValues == null) {
-    return undefined;
-  }
-  if (versionInfo.major >= 17 && !('coerced' in variableValues)) {
-    return {
-      coerced: variableValues,
-      sources: Object.create(null),
-    } as unknown as Parameters<typeof getArgumentValues>[2];
-  }
-  return variableValues as unknown as Parameters<typeof getArgumentValues>[2];
-}
 
 export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext, executionArgs) => {
   return {

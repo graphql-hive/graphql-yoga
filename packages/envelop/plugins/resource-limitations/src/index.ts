@@ -14,12 +14,11 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   isScalarType,
-  versionInfo,
 } from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
-import { useExtendedValidation } from '@envelop/extended-validation';
+import { asGetArgumentValuesVariables, useExtendedValidation } from '@envelop/extended-validation';
 
 const getWrappedType = (
   graphqlType: GraphQLType,
@@ -105,21 +104,10 @@ export const ResourceLimitationValidationRule =
 
           // if it is not found the query is invalid and graphql validation will complain
           if (fieldDef != null) {
-            // GraphQL 17 expects VariableValues `{ coerced, sources }`.
-            const rawVariableValues = executionArgs.variableValues || undefined;
-            const variableValuesForArgs =
-              versionInfo.major >= 17 &&
-              rawVariableValues != null &&
-              !('coerced' in rawVariableValues)
-                ? {
-                    coerced: rawVariableValues,
-                    sources: Object.create(null),
-                  }
-                : rawVariableValues;
             const argumentValues = getArgumentValues(
               fieldDef,
               fieldNode,
-              variableValuesForArgs as unknown as Parameters<typeof getArgumentValues>[2],
+              asGetArgumentValuesVariables(executionArgs.variableValues),
             );
             const type = getWrappedType(fieldDef.type);
             if (type instanceof GraphQLObjectType && type.name.endsWith('Connection')) {
@@ -150,7 +138,11 @@ export const ResourceLimitationValidationRule =
                   );
                 } else if ('first' in argumentValues && !argumentValues['last']) {
                   const first = Number(argumentValues['first']);
-                  if (first < paginationArgumentMinimum || first > paginationArgumentMaximum) {
+                  if (
+                    !Number.isFinite(first) ||
+                    first < paginationArgumentMinimum ||
+                    first > paginationArgumentMaximum
+                  ) {
                     context.reportError(
                       new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
@@ -167,7 +159,11 @@ export const ResourceLimitationValidationRule =
                   }
                 } else if (!argumentValues['first'] && 'last' in argumentValues) {
                   const last = Number(argumentValues['last']);
-                  if (last < paginationArgumentMinimum || last > paginationArgumentMaximum) {
+                  if (
+                    !Number.isFinite(last) ||
+                    last < paginationArgumentMinimum ||
+                    last > paginationArgumentMaximum
+                  ) {
                     context.reportError(
                       new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({

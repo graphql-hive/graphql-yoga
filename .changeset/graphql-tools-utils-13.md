@@ -23,7 +23,7 @@
 
 ### Dependencies
 
-- Bump `@graphql-tools/utils` to `^13.0.0` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515)).
+- Bump `@graphql-tools/utils` to `^13.0.1` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540)).
 - Bump `@graphql-tools/executor` to `^4.0.0` ([graphql-tools#8536](https://github.com/ardatan/graphql-tools/pull/8536)): use `getVariableValues` from `graphql` (no longer re-exported from executor).
 - Bump `@graphql-tools/graphql-tag-pluck` to `9.0.1` ([graphql-tools#8537](https://github.com/ardatan/graphql-tools/pull/8537)).
 
