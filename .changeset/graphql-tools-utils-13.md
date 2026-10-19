@@ -31,10 +31,10 @@
 
 - `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` and read with `getSchemaCoordinate` from `@graphql-tools/utils`.
 - Yoga no longer re-exports helpers that already live upstream:
-  - `getSchemaCoordinate` → `@graphql-tools/utils`
-  - `mergeSchemas` → `@graphql-tools/schema`
-  - `DisposableSymbols` → `@whatwg-node/server`
-  - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` → `@whatwg-node/promise-helpers`
+  - `getSchemaCoordinate` -> `@graphql-tools/utils`
+  - `mergeSchemas` -> `@graphql-tools/schema`
+  - `DisposableSymbols` -> `@whatwg-node/server`
+  - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` -> `@whatwg-node/promise-helpers`
 - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from `@whatwg-node/promise-helpers`.
 
 ### Migration
