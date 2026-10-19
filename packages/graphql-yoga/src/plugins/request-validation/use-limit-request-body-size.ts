@@ -37,32 +37,23 @@ export function useLimitRequestBodySize(limit: number | false): Plugin {
 
       let wrappedRequest = request;
 
-      // A native `Request`'s body is a native `ReadableStream`, which native `pipeThrough`
-      // only accepts a native `TransformStream` for - the ponyfill one (`fetchAPI.TransformStream`)
-      // is a different realm/implementation and gets rejected. `useLimitRequestBodySize` pipes
-      // the body through `fetchAPI.TransformStream` unconditionally, so swap in the native ctor
-      // whenever the incoming body is already native. See
-      // https://github.com/graphql-hive/graphql-yoga/issues/4583
-      const limiterFetchAPI =
-        request.body instanceof ReadableStream
-          ? { ...fetchAPI, TransformStream: globalThis.TransformStream }
-          : fetchAPI;
-
       // `useLimitRequestBodySize`'s `onRequest` only reads `request`/`setRequest`/`fetchAPI`/
       // `endResponse`; `requestHandler`/`setRequestHandler` are omitted and the payload is cast
       // since we're calling this hook directly instead of registering it as a plugin.
+      // `fetchAPI` is the per-request instance from Yoga (native for a native Request), so
+      // piping through `fetchAPI.TransformStream` does not cross realms.
       limiter.onRequest?.({
         request,
         setRequest(newRequest: Request) {
           wrappedRequest = newRequest;
         },
         endResponse,
-        fetchAPI: limiterFetchAPI,
+        fetchAPI,
         serverContext,
         url,
         // unused by the limiter but required to satisfy the payload type
         setRequestHandler: () => {},
-        requestHandler: () => new limiterFetchAPI.Response(),
+        requestHandler: () => new fetchAPI.Response(),
       });
 
       const originalParser = requestParser;
