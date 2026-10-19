@@ -372,6 +372,38 @@ describe('useGenericAuth', () => {
       assertSingleExecutionValue(result);
       expect(result.errors?.length).toBe(1);
       expect(result.errors?.[0]?.message).toBe(`Unauthorized field or type`);
+      // rejecting the whole operation should still signal an http failure
+      expect(result.errors?.[0]?.extensions['http']).toEqual({ status: 401 });
+    });
+
+    it('preserves custom validator HTTP statuses when rejection is disabled', async () => {
+      const testInstance = createTestkit(
+        [
+          useGenericAuth({
+            mode: 'protect-granular',
+            resolveUserFn: validresolveUserFn,
+            rejectUnauthenticated: false,
+            validateUser(params) {
+              if (params.fieldAuthArgs) {
+                // explicit custom statuses should survive the default
+                // partial-response behavior
+                return createGraphQLError('Forbidden', {
+                  path: params.path,
+                  extensions: { http: { status: 403 } },
+                });
+              }
+              return void 0;
+            },
+          }),
+        ],
+        schemaWithDirective,
+      );
+
+      const result = await testInstance.execute(`query { public protected }`);
+      assertSingleExecutionValue(result);
+      expect(result.data).toEqual({ public: 'public', protected: null });
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors?.[0]?.extensions['http']).toEqual({ status: 403 });
     });
 
     it('Should prevent field execution when user is not authenticated correctly but continue execution for public fields', async () => {
