@@ -46,7 +46,7 @@ describe('Auth Directives', () => {
     },
   ];
   describe('@requiresScopes', () => {
-    it('works', async () => {
+    it('returns partial data without an HTTP status override when a field scope is missing', async () => {
       const schema = makeExecutableSchema({
         typeDefs: /* GraphQL */ `
           ${authDirectives}
@@ -112,6 +112,7 @@ describe('Auth Directives', () => {
           auth: { sub: '123', scope: 'read:others' },
         },
       );
+      // partial field denials shouldn't force the http server to reject the response.
       expect(JSON.parse(JSON.stringify(response))).toEqual({
         data: {
           user: {
@@ -125,9 +126,6 @@ describe('Auth Directives', () => {
             message: 'Unauthorized field or type',
             extensions: {
               code: 'UNAUTHORIZED_FIELD_OR_TYPE',
-              http: {
-                status: 401,
-              },
             },
             locations: [
               {
