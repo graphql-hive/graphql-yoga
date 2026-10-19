@@ -7,7 +7,7 @@ import {
   GraphQLNonNull,
   isListType,
 } from 'graphql';
-import { asGetArgumentValuesVariables } from '@envelop/core';
+import { asGetArgumentValuesVariables } from '@graphql-tools/utils';
 import type { ExtendedValidationRule } from '../common.js';
 import { getDirectiveFromAstNode } from '../common.js';
 

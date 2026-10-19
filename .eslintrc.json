@@ -132,10 +132,10 @@
         "import/no-extraneous-dependencies": "off"
       }
     },
-    // Disallow `graphql-js` / graphql-tools in packages that should stay agnostic.
-    // `@envelop/core` is excluded: it shares VariableValues helpers that need `graphql`.
+    // Disallow `graphql-js` specific things to get re-introduced in agnostic packages.
     {
       "files": [
+        "packages/envelop/core/**",
         "packages/envelop/types/**",
         "packages/envelop/plugins/apollo-datasources/**",
         "packages/envelop/plugins/auth0/**",

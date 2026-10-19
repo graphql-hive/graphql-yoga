@@ -23,7 +23,7 @@
 
 ### Dependencies
 
-- Bump `@graphql-tools/utils` to `^13.0.1` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540)).
+- Bump `@graphql-tools/utils` to `^13.0.2` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540), [graphql-tools#8546](https://github.com/ardatan/graphql-tools/pull/8546)).
 - Bump `@graphql-tools/executor` to `^4.0.0` ([graphql-tools#8536](https://github.com/ardatan/graphql-tools/pull/8536)): use `getVariableValues` from `graphql` (no longer re-exported from executor).
 - Bump `@graphql-tools/graphql-tag-pluck` to `9.0.1` ([graphql-tools#8537](https://github.com/ardatan/graphql-tools/pull/8537)).
 
@@ -36,7 +36,7 @@
   - `DisposableSymbols` -> `@whatwg-node/server`
   - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` -> `@whatwg-node/promise-helpers`
 - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from `@whatwg-node/promise-helpers`.
-- `@envelop/core` now depends on `graphql` as a peer and exports `asGetArgumentValuesVariables` / `coerceGetVariableValuesResult` for GraphQL 16/17 `VariableValues` compatibility.
+- Use `asGetArgumentValuesVariables` / `coerceGetVariableValuesResult` from `@graphql-tools/utils` for GraphQL 16/17 `VariableValues` compatibility.
 
 ### Migration
 

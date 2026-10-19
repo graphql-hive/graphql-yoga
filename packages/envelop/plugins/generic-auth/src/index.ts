@@ -20,10 +20,10 @@ import {
   isUnionType,
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
-import { coerceGetVariableValuesResult } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
 import type { VariableValues } from '@graphql-tools/utils';
 import {
+  coerceGetVariableValuesResult,
   getDefinedRootType,
   getDirectiveExtensions,
   shouldIncludeNode,

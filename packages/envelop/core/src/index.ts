@@ -2,7 +2,6 @@ export * from '@envelop/types';
 export * from '@envelop/instrumentation';
 export * from './create.js';
 export * from './utils.js';
-export * from './variable-values.js';
 export * from './plugins/use-envelop.js';
 export * from './plugins/use-logger.js';
 export * from './plugins/use-schema.js';
