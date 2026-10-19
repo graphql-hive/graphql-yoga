@@ -224,9 +224,6 @@ describe('Auth Directives', () => {
             ],
             extensions: {
               code: 'UNAUTHORIZED_FIELD_OR_TYPE',
-              http: {
-                status: 401,
-              },
             },
           },
           {
@@ -240,9 +237,6 @@ describe('Auth Directives', () => {
             ],
             extensions: {
               code: 'UNAUTHORIZED_FIELD_OR_TYPE',
-              http: {
-                status: 401,
-              },
             },
           },
         ],
@@ -348,9 +342,6 @@ describe('Auth Directives', () => {
             message: 'Unauthorized field or type',
             extensions: {
               code: 'UNAUTHORIZED_FIELD_OR_TYPE',
-              http: {
-                status: 401,
-              },
             },
             locations: [
               {
@@ -441,9 +432,6 @@ describe('Auth Directives', () => {
             message: 'Unauthorized field or type',
             extensions: {
               code: 'UNAUTHORIZED_FIELD_OR_TYPE',
-              http: {
-                status: 401,
-              },
             },
             path: ['me', 'credit_card'],
             locations: [
