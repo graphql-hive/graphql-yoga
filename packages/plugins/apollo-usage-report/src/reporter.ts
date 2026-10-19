@@ -122,12 +122,14 @@ export class Reporter {
             'x-api-key': apiKey!,
             accept: 'application/json',
           },
-          body: new ReadableStream({
-            start(controller) {
-              controller.enqueue(encodedReport);
-              controller.close();
-            },
-          }).pipeThrough(new CompressionStream('gzip')),
+          body: (
+            ReadableStream as unknown as {
+              from(iterable: Iterable<Uint8Array>): ReadableStream;
+            }
+          )
+            .from([encodedReport])
+            .pipeThrough(new CompressionStream('gzip')),
+
           signal: AbortSignal.timeout(this.options.exportTimeout),
         });
 

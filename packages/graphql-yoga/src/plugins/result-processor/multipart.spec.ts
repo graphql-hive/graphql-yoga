@@ -1,31 +1,61 @@
+import type { ExecutionResult } from 'graphql';
 import type { FetchAPI } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
 import { processMultipartResult } from './multipart.js';
 
 describe('processMultipartResult', () => {
-  it('does not throw when cancel is invoked before the iterator has been assigned', () => {
-    let capturedCancel: ((reason?: unknown) => unknown) | undefined;
+  it('builds the response body via ReadableStream.from', () => {
+    let fromArg: unknown;
 
     class FakeReadableStream {
-      constructor(source: UnderlyingSource) {
-        capturedCancel = source.cancel?.bind(source);
-        // Deliberately never call `start`, simulating the stream being torn
-        // down (e.g. the underlying connection destroyed) before it had a
-        // chance to initialize, so `iterator` is still unassigned.
+      static from(iterable: unknown) {
+        fromArg = iterable;
+        return 'STREAM';
+      }
+    }
+
+    class FakeResponse {
+      body: unknown;
+      constructor(body: unknown) {
+        this.body = body;
       }
     }
 
     const fetchAPI = {
       TextEncoder: globalThis.TextEncoder,
-      Response: globalThis.Response,
+      Response: FakeResponse,
       ReadableStream: FakeReadableStream,
     } as unknown as FetchAPI;
 
     const result: ResultProcessorInput = { data: { foo: 'bar' } };
+    const response = processMultipartResult(result, fetchAPI);
 
-    processMultipartResult(result, fetchAPI);
+    expect(typeof (fromArg as AsyncIterable<unknown>)[Symbol.asyncIterator]).toBe('function');
+    expect(response.body).toBe('STREAM');
+  });
 
-    expect(capturedCancel).toBeDefined();
-    expect(() => capturedCancel!(new Error('aborted'))).not.toThrow();
+  it('calls iterator.return when the stream is cancelled after reading', async () => {
+    let returned = false;
+    const result = {
+      [Symbol.asyncIterator](): AsyncIterator<ExecutionResult> {
+        return {
+          next: async () => ({
+            done: false,
+            value: { data: { foo: 'bar' } },
+          }),
+          return: async () => {
+            returned = true;
+            return { done: true, value: undefined };
+          },
+        };
+      },
+    } as unknown as ResultProcessorInput;
+
+    const response = processMultipartResult(result, globalThis as unknown as FetchAPI);
+    const reader = response.body!.getReader();
+    await reader.read();
+    await reader.cancel(new Error('aborted'));
+
+    expect(returned).toBe(true);
   });
 });
