@@ -1,13 +1,18 @@
 import type { GraphQLError } from 'graphql';
 import { getArgumentValues, versionInfo } from 'graphql';
-import type { VariableValues } from '@graphql-tools/utils';
 
 type FlatVariableMap = {
   readonly [variable: string]: unknown;
 };
 
-function emptySources(): VariableValues['sources'] {
-  return Object.create(null) as VariableValues['sources'];
+/** Shape expected by `@graphql-tools/utils` helpers such as `shouldIncludeNode`. */
+export type CoercedVariableValues = {
+  readonly coerced: FlatVariableMap;
+  readonly sources: Record<string, unknown>;
+};
+
+function emptySources(): CoercedVariableValues['sources'] {
+  return Object.create(null) as CoercedVariableValues['sources'];
 }
 
 /** GraphQL 17 `getArgumentValues` expects `{ coerced, sources }`; GraphQL 16 accepts a flat map. */
@@ -32,9 +37,11 @@ export function asGetArgumentValuesVariables(
  */
 export function coerceGetVariableValuesResult(result: {
   errors?: ReadonlyArray<GraphQLError>;
-  variableValues?: VariableValues;
+  variableValues?: CoercedVariableValues;
   coerced?: FlatVariableMap;
-}): { readonly errors: ReadonlyArray<GraphQLError> } | { readonly variableValues: VariableValues } {
+}):
+  | { readonly errors: ReadonlyArray<GraphQLError> }
+  | { readonly variableValues: CoercedVariableValues } {
   if (result.errors != null && result.errors.length > 0) {
     return { errors: result.errors };
   }

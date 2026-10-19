@@ -20,7 +20,9 @@ import {
   isUnionType,
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
-import { coerceGetVariableValuesResult, useExtendedValidation } from '@envelop/extended-validation';
+import { coerceGetVariableValuesResult } from '@envelop/core';
+import { useExtendedValidation } from '@envelop/extended-validation';
+import type { VariableValues } from '@graphql-tools/utils';
 import {
   getDefinedRootType,
   getDirectiveExtensions,
@@ -456,7 +458,7 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    if (!shouldIncludeNode(variableValues, node)) {
+                    if (!shouldIncludeNode(variableValues as VariableValues, node)) {
                       return;
                     }
 

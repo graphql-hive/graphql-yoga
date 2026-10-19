@@ -36,6 +36,7 @@
   - `DisposableSymbols` -> `@whatwg-node/server`
   - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` -> `@whatwg-node/promise-helpers`
 - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from `@whatwg-node/promise-helpers`.
+- `@envelop/core` now depends on `graphql` as a peer and exports `asGetArgumentValuesVariables` / `coerceGetVariableValuesResult` for GraphQL 16/17 `VariableValues` compatibility.
 
 ### Migration
 

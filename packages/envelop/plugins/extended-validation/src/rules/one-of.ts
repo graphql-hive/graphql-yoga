@@ -7,9 +7,9 @@ import {
   GraphQLNonNull,
   isListType,
 } from 'graphql';
+import { asGetArgumentValuesVariables } from '@envelop/core';
 import type { ExtendedValidationRule } from '../common.js';
 import { getDirectiveFromAstNode } from '../common.js';
-import { asGetArgumentValuesVariables } from '../variable-values.js';
 
 export const ONE_OF_DIRECTIVE_SDL = /* GraphQL */ `
   directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION

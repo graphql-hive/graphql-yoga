@@ -16,9 +16,9 @@ import {
   isScalarType,
 } from 'graphql';
 import type { Plugin } from '@envelop/core';
-import { handleStreamOrSingleExecutionResult } from '@envelop/core';
+import { asGetArgumentValuesVariables, handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
-import { asGetArgumentValuesVariables, useExtendedValidation } from '@envelop/extended-validation';
+import { useExtendedValidation } from '@envelop/extended-validation';
 
 const getWrappedType = (
   graphqlType: GraphQLType,

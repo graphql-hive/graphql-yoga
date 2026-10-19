@@ -19,7 +19,7 @@ import {
 import get from 'lodash.get';
 import picomatch from 'picomatch';
 import type { Plugin } from '@envelop/core';
-import { asGetArgumentValuesVariables } from '@envelop/extended-validation';
+import { asGetArgumentValuesVariables } from '@envelop/core';
 import {
   getDefinedRootType,
   getDirectiveExtensions,
