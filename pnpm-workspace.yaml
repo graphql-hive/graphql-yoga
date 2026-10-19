@@ -63,40 +63,40 @@ patchedDependencies:
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
 overrides:
-  # TEMP: pin graphql-tools alphas from ardatan/graphql-tools#8515 for CI compatibility check
-  '@graphql-tools/utils': 13.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor': 3.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/schema': 11.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/merge': 10.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/load': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/load-files': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/url-loader': 10.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/graphql-tag-pluck': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/documents': 2.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/mock': 10.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/optimize': 3.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/jest-transform': 3.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/webpack-loader': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/webpack-loader-runtime': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor-apollo-link': 3.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor-envelop': 5.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor-legacy-ws': 2.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor-urql-exchange': 2.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/executor-yoga': 4.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/links': 11.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/node-require': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/resolvers-composition': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/relay-operation-optimizer': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/import': 8.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/apollo-engine-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/code-file-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/external-fragment-loader': 1.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/git-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/github-loader': 10.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/graphql-file-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/json-file-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  '@graphql-tools/module-loader': 9.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
-  graphql-tools: 10.0.0-alpha-20261017153408-5c280da98a0fd8acd4c58da44213fdb0fbc3d7d6
+  # TEMP: force graphql-tools majors until gateway packages (delegate/wrap/federation/executor-http) publish matching majors
+  '@graphql-tools/utils': 13.0.0
+  '@graphql-tools/executor': 3.0.0
+  '@graphql-tools/schema': 11.0.0
+  '@graphql-tools/merge': 10.0.0
+  '@graphql-tools/load': 9.0.0
+  '@graphql-tools/load-files': 8.0.0
+  '@graphql-tools/url-loader': 10.0.0
+  '@graphql-tools/graphql-tag-pluck': 9.0.0
+  '@graphql-tools/documents': 2.0.0
+  '@graphql-tools/mock': 10.0.0
+  '@graphql-tools/optimize': 3.0.0
+  '@graphql-tools/jest-transform': 3.0.0
+  '@graphql-tools/webpack-loader': 8.0.0
+  '@graphql-tools/webpack-loader-runtime': 8.0.0
+  '@graphql-tools/executor-apollo-link': 3.0.0
+  '@graphql-tools/executor-envelop': 5.0.0
+  '@graphql-tools/executor-legacy-ws': 2.0.0
+  '@graphql-tools/executor-urql-exchange': 2.0.0
+  '@graphql-tools/executor-yoga': 4.0.0
+  '@graphql-tools/links': 11.0.0
+  '@graphql-tools/node-require': 8.0.0
+  '@graphql-tools/resolvers-composition': 8.0.0
+  '@graphql-tools/relay-operation-optimizer': 8.0.0
+  '@graphql-tools/import': 8.0.0
+  '@graphql-tools/apollo-engine-loader': 9.0.0
+  '@graphql-tools/code-file-loader': 9.0.0
+  '@graphql-tools/external-fragment-loader': 1.0.0
+  '@graphql-tools/git-loader': 9.0.0
+  '@graphql-tools/github-loader': 10.0.0
+  '@graphql-tools/graphql-file-loader': 9.0.0
+  '@graphql-tools/json-file-loader': 9.0.0
+  '@graphql-tools/module-loader': 9.0.0
+  graphql-tools: 10.0.0
   # @graphql-codegen/cli's listr2@10 and @inquirer/prompts@8 dependencies import
   # `styleText` from `node:util`, which isn't available until Node 20.12 (and
   # @inquirer/prompts@8's own engines field requires Node >=20.17), and its

@@ -37,7 +37,7 @@
     "check:types": "tsgo --pretty --noEmit",
     "lint": "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --ext ts,js,tsx,jsx .",
     "postchangeset": "pnpm install --no-frozen-lockfile",
-    "postinstall": "husky && node scripts/shim-graphql-tools-utils-alpha.cjs",
+    "postinstall": "husky && node scripts/shim-graphql-tools-utils-compat.cjs",
     "prebuild": "rimraf packages/*/dist",
     "prettier": "prettier --ignore-path .prettierignore --write --list-different .",
     "prettier:check": "prettier --ignore-path .prettierignore --check .",

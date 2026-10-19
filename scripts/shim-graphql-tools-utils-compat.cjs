@@ -1,5 +1,5 @@
 /**
- * TEMP compat for graphql-tools#8515 alphas while gateway packages (delegate,
+ * TEMP compat for graphql-tools utils@13 while gateway packages (delegate,
  * executor-http, federation) still import removed utils names.
  *
  * Follows the #8515 replacement table:
@@ -15,7 +15,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..', 'node_modules', '.pnpm');
 if (!fs.existsSync(root)) process.exit(0);
 
-const marker = '/* graphql-tools-alpha-compat-shim */';
+const marker = '/* graphql-tools-utils-compat-shim */';
 
 const createEsm = `import { GraphQLError } from 'graphql';
 
@@ -71,17 +71,23 @@ export declare function createDeferredPromise<T = void>(): PromiseWithResolvers<
 function stripEsmLike(content) {
   const idx = content.indexOf(marker);
   if (idx !== -1) return content.slice(0, idx).replace(/\s+$/, '') + '\n';
-  return content
-    .split('\n')
-    .filter(line => {
-      if (line.includes("from './createGraphQLError.")) return false;
-      if (line.includes("from './createDeferred.")) return false;
-      if (line.includes("from './mapMaybePromise.")) return false;
-      if (line.includes("from '@whatwg-node/promise-helpers'") && line.trim().startsWith('export')) return false;
-      return true;
-    })
-    .join('\n')
-    .replace(/\s+$/, '') + '\n';
+  return (
+    content
+      .split('\n')
+      .filter(line => {
+        if (line.includes("from './createGraphQLError.")) return false;
+        if (line.includes("from './createDeferred.")) return false;
+        if (line.includes("from './mapMaybePromise.")) return false;
+        if (
+          line.includes("from '@whatwg-node/promise-helpers'") &&
+          line.trim().startsWith('export')
+        )
+          return false;
+        return true;
+      })
+      .join('\n')
+      .replace(/\s+$/, '') + '\n'
+  );
 }
 
 function stripCjs(content) {
@@ -101,17 +107,28 @@ function shimPackage(pkgDir) {
   fs.writeFileSync(path.join(pkgDir, 'cjs', 'createGraphQLError.js'), createCjs);
   fs.writeFileSync(path.join(pkgDir, 'esm', 'createDeferred.js'), deferredEsm);
   fs.writeFileSync(path.join(pkgDir, 'cjs', 'createDeferred.js'), deferredCjs);
-  fs.writeFileSync(path.join(pkgDir, 'typings', 'createGraphQLError.d.ts'), `import { GraphQLError, type GraphQLErrorOptions } from 'graphql';
+  fs.writeFileSync(
+    path.join(pkgDir, 'typings', 'createGraphQLError.d.ts'),
+    `import { GraphQLError, type GraphQLErrorOptions } from 'graphql';
 export type CreateGraphQLErrorOptions = GraphQLErrorOptions & { coordinate?: string };
 /** @deprecated Prefer \`new GraphQLError(message, options)\`. */
 export declare function createGraphQLError(message: string, options?: CreateGraphQLErrorOptions): GraphQLError;
-`);
-  fs.writeFileSync(path.join(pkgDir, 'typings', 'createGraphQLError.d.cts'), fs.readFileSync(path.join(pkgDir, 'typings', 'createGraphQLError.d.ts')));
+`,
+  );
+  fs.writeFileSync(
+    path.join(pkgDir, 'typings', 'createGraphQLError.d.cts'),
+    fs.readFileSync(path.join(pkgDir, 'typings', 'createGraphQLError.d.ts')),
+  );
   fs.writeFileSync(path.join(pkgDir, 'typings', 'createDeferred.d.ts'), deferredDts);
   fs.writeFileSync(path.join(pkgDir, 'typings', 'createDeferred.d.cts'), deferredDts);
 
   // drop leftover mapMaybePromise files if present
-  for (const f of ['esm/mapMaybePromise.js', 'cjs/mapMaybePromise.js', 'typings/mapMaybePromise.d.ts', 'typings/mapMaybePromise.d.cts']) {
+  for (const f of [
+    'esm/mapMaybePromise.js',
+    'cjs/mapMaybePromise.js',
+    'typings/mapMaybePromise.d.ts',
+    'typings/mapMaybePromise.d.cts',
+  ]) {
     const fp = path.join(pkgDir, f);
     if (fs.existsSync(fp)) fs.unlinkSync(fp);
   }
@@ -171,8 +188,8 @@ Object.defineProperty(exports, "getArgumentValues", { enumerable: true, get: fun
 
 let count = 0;
 for (const entry of fs.readdirSync(root)) {
-  if (!entry.startsWith('@graphql-tools+utils@13.0.0-alpha-')) continue;
+  if (!entry.startsWith('@graphql-tools+utils@13.')) continue;
   const pkgDir = path.join(root, entry, 'node_modules', '@graphql-tools', 'utils');
   if (shimPackage(pkgDir)) count += 1;
 }
-console.log(`[shim-graphql-tools-utils-alpha] patched ${count} utils install(s)`);
+console.log(`[shim-graphql-tools-utils-compat] patched ${count} utils install(s)`);
