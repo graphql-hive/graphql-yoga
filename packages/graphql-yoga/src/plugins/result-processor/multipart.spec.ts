@@ -53,6 +53,9 @@ describe('processMultipartResult', () => {
 
     const response = processMultipartResult(result, globalThis as unknown as FetchAPI);
     const reader = response.body!.getReader();
+    // Preamble is two chunks; third pull enters mapAsyncIterator → source.
+    await reader.read();
+    await reader.read();
     await reader.read();
     await reader.cancel(new Error('aborted'));
 

@@ -1,5 +1,6 @@
 import type { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
+import { mapAsyncIterator } from '@whatwg-node/promise-helpers';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import type { FetchAPI, MaybeArray } from '../../types.js';
 import { readableStreamFrom } from '../../utils/readable-stream-from.js';
@@ -16,49 +17,27 @@ export function processMultipartResult(result: ResultProcessorInput, fetchAPI: F
   const responseInit = getResponseInitByRespectingErrors(result, headersInit);
   const textEncoder = new fetchAPI.TextEncoder();
 
-  async function* encodeMultipart(): AsyncGenerator<Uint8Array, void, undefined> {
-    const iterator: AsyncIterator<MaybeArray<ExecutionResult>> = isAsyncIterable(result)
-      ? result[Symbol.asyncIterator]()
-      : (async function* () {
+  const results: AsyncIterable<MaybeArray<ExecutionResult>> = isAsyncIterable(result)
+    ? result
+    : {
+        async *[Symbol.asyncIterator]() {
           yield result;
-        })();
+        },
+      };
 
-    let completed = false;
-    try {
-      yield textEncoder.encode('\r\n');
-      yield textEncoder.encode(`---`);
+  function encodePart(value: MaybeArray<ExecutionResult>): Uint8Array {
+    const chunk = jsonStringifyResultWithoutInternals(value);
+    const encodedChunk = textEncoder.encode(chunk);
+    return textEncoder.encode(
+      `\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: ${encodedChunk.byteLength}\r\n\r\n${chunk}\r\n---`,
+    );
+  }
 
-      while (true) {
-        const { done, value } = await iterator.next();
-
-        if (value != null) {
-          yield textEncoder.encode('\r\n');
-          yield textEncoder.encode('Content-Type: application/json; charset=utf-8');
-          yield textEncoder.encode('\r\n');
-
-          const chunk = jsonStringifyResultWithoutInternals(value);
-          const encodedChunk = textEncoder.encode(chunk);
-
-          yield textEncoder.encode('Content-Length: ' + encodedChunk.byteLength);
-          yield textEncoder.encode('\r\n');
-          yield textEncoder.encode('\r\n');
-          yield encodedChunk;
-          yield textEncoder.encode('\r\n');
-          yield textEncoder.encode('---');
-        }
-
-        if (done) {
-          completed = true;
-          yield textEncoder.encode('--\r\n');
-          break;
-        }
-      }
-    } finally {
-      // Only tear down the source on cancel/error; natural completion already got done:true.
-      if (!completed) {
-        await iterator.return?.();
-      }
-    }
+  async function* encodeMultipart(): AsyncGenerator<Uint8Array, void, undefined> {
+    yield textEncoder.encode('\r\n');
+    yield textEncoder.encode('---');
+    yield* mapAsyncIterator(results, encodePart);
+    yield textEncoder.encode('--\r\n');
   }
 
   const readableStream = readableStreamFrom(fetchAPI.ReadableStream, encodeMultipart());
