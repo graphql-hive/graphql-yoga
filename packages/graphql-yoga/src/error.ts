@@ -80,6 +80,10 @@ export function isRequestBodyLimitError(
   return error instanceof RequestBodyTooLargeError || error instanceof InvalidContentLengthError;
 }
 
+function headersInitToRecord(headers: HeadersInit): Record<string, string> {
+  return Object.fromEntries(new Headers(headers).entries());
+}
+
 function graphQLErrorFromBodyLimitError(
   error: RequestBodyTooLargeError | InvalidContentLengthError,
 ): GraphQLError {
@@ -89,7 +93,7 @@ function graphQLErrorFromBodyLimitError(
       extensions: {
         http: {
           status: 413,
-          ...(error.headers ? { headers: error.headers } : {}),
+          ...(error.headers ? { headers: headersInitToRecord(error.headers) } : {}),
         },
         code: 'REQUEST_ENTITY_TOO_LARGE',
       },
@@ -100,7 +104,7 @@ function graphQLErrorFromBodyLimitError(
     extensions: {
       http: {
         status: 400,
-        ...(error.headers ? { headers: error.headers } : {}),
+        ...(error.headers ? { headers: headersInitToRecord(error.headers) } : {}),
       },
       code: 'BAD_REQUEST',
     },

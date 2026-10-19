@@ -1,4 +1,4 @@
-import { GraphQLError,  getIntrospectionQuery, print } from 'graphql';
+import { getIntrospectionQuery, GraphQLError, print } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { ResolveUserFn, ValidateUserFn } from '../src/index.js';
@@ -386,7 +386,7 @@ describe('useGenericAuth', () => {
               if (params.fieldAuthArgs) {
                 // explicit custom statuses should survive the default
                 // partial-response behavior
-                return createGraphQLError('Forbidden', {
+                return new GraphQLError('Forbidden', {
                   path: params.path,
                   extensions: { http: { status: 403 } },
                 });

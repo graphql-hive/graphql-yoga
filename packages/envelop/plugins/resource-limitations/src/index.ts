@@ -119,7 +119,7 @@ export const ResourceLimitationValidationRule =
             const argumentValues = getArgumentValues(
               fieldDef,
               fieldNode,
-              variableValuesForArgs as typeof rawVariableValues,
+              variableValuesForArgs as unknown as Parameters<typeof getArgumentValues>[2],
             );
             const type = getWrappedType(fieldDef.type);
             if (type instanceof GraphQLObjectType && type.name.endsWith('Connection')) {
@@ -149,10 +149,8 @@ export const ResourceLimitationValidationRule =
                     ),
                   );
                 } else if ('first' in argumentValues && !argumentValues['last']) {
-                  if (
-                    argumentValues['first'] < paginationArgumentMinimum ||
-                    argumentValues['first'] > paginationArgumentMaximum
-                  ) {
+                  const first = Number(argumentValues['first']);
+                  if (first < paginationArgumentMinimum || first > paginationArgumentMaximum) {
                     context.reportError(
                       new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
@@ -165,13 +163,11 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    nodeCost = argumentValues['first'] as number;
+                    nodeCost = first;
                   }
                 } else if (!argumentValues['first'] && 'last' in argumentValues) {
-                  if (
-                    argumentValues['last'] < paginationArgumentMinimum ||
-                    argumentValues['last'] > paginationArgumentMaximum
-                  ) {
+                  const last = Number(argumentValues['last']);
+                  if (last < paginationArgumentMinimum || last > paginationArgumentMaximum) {
                     context.reportError(
                       new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
@@ -184,7 +180,7 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    nodeCost = argumentValues['last'] as number;
+                    nodeCost = last;
                   }
                 } else {
                   context.reportError(

@@ -345,19 +345,22 @@ export const useRateLimiter = (options: RateLimiterPluginOptions): Plugin<RateLi
                     }
                   }
 
-                  const errorOptions: ConstructorParameters<typeof GraphQLError>[1] = {
-                    extensions: { http: { statusCode: 429 } },
-                    path: resolvePath,
-                    nodes: [node],
+                  const http: { status: number; headers?: Record<string, string> } = {
+                    status: 429,
                   };
-
                   if (resolverRateLimitConfig.window) {
-                    errorOptions.extensions.http.headers = {
+                    http.headers = {
                       'Retry-After': resolverRateLimitConfig.window,
                     };
                   }
 
-                  errors.push(new GraphQLError(rateLimitError, errorOptions));
+                  errors.push(
+                    new GraphQLError(rateLimitError, {
+                      extensions: { http },
+                      path: resolvePath,
+                      nodes: [node],
+                    }),
+                  );
 
                   return false;
                 },

@@ -34,9 +34,9 @@ function asGetArgumentValuesVariables(
     return {
       coerced: variableValues,
       sources: Object.create(null),
-    } as Parameters<typeof getArgumentValues>[2];
+    } as unknown as Parameters<typeof getArgumentValues>[2];
   }
-  return variableValues as Parameters<typeof getArgumentValues>[2];
+  return variableValues as unknown as Parameters<typeof getArgumentValues>[2];
 }
 
 export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext, executionArgs) => {

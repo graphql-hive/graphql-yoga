@@ -10,6 +10,7 @@ import type {
 import {
   getNamedType,
   getOperationAST,
+  getVariableValues,
   GraphQLError,
   isAbstractType,
   isInterfaceType,
@@ -20,7 +21,6 @@ import {
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { getVariableValues } from '@graphql-tools/executor';
 import {
   getDefinedRootType,
   getDirectiveExtensions,
@@ -328,11 +328,23 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                const { variableValues } = getVariableValues(
+                const variableValuesResult = getVariableValues(
                   schema,
                   variableDefinitions ?? [],
                   args.variableValues || {},
                 );
+                // GraphQL 17: `{ variableValues: { coerced, sources } }`
+                // GraphQL 16: `{ coerced }`
+                // utils `shouldIncludeNode` expects the `{ coerced, sources }` shape.
+                const variableValues =
+                  'variableValues' in variableValuesResult && variableValuesResult.variableValues
+                    ? variableValuesResult.variableValues
+                    : 'coerced' in variableValuesResult && variableValuesResult.coerced
+                      ? {
+                          coerced: variableValuesResult.coerced,
+                          sources: Object.create(null),
+                        }
+                      : undefined;
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();

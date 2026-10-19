@@ -168,9 +168,10 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
       );
     },
     onRequest({ request }): void | Promise<void> {
-      if (options.ignoreRequest) {
+      const ignoreRequest = options.ignoreRequest;
+      if (ignoreRequest) {
         return handleMaybePromise(
-          () => options.ignoreRequest(request),
+          () => ignoreRequest(request),
           shouldIgnore => {
             if (!shouldIgnore) {
               setNewContext(request);
