@@ -23,7 +23,7 @@
 
 ### Dependencies
 
-- Bump `@graphql-tools/utils` to `^13.1.1`, `@graphql-tools/schema` to `^11.0.0`, and `@graphql-tools/executor` to `^4.1.1`.
+- Bump `@graphql-tools/utils` to `^13.1.1`, `@graphql-tools/schema` to `^11.0.0`, and `@graphql-tools/executor` to `^4.1.2`.
 
 ### Incremental delivery
 
