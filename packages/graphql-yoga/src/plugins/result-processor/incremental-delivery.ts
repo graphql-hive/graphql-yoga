@@ -11,8 +11,9 @@ export const DEFAULT_MULTIPART_BOUNDARY = '-';
  * Temporary copy of `INCREMENTAL_DELIVERY_SPECS` from `@graphql-tools/utils`
  * until graphql-tools#8552 is published. Yoga only maps Accept / Content-Type
  * to `id`. Payload shape stays in `@graphql-tools/executor`. A later spec is a
- * new utils table row plus an executor publisher; unknown values for a
- * registered parameter name become 406.
+ * graphql-tools table row plus an executor publisher; Yoga / Hive Gateway /
+ * HTTP executors bump utils instead of rewriting Accept handling. Unknown
+ * values for a registered parameter name become 406.
  */
 export interface IncrementalDeliverySpec {
   id: IncrementalSpec;
