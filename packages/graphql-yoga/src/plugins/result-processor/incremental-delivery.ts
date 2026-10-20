@@ -1,6 +1,4 @@
-import type { IncrementalSpec } from '@graphql-tools/executor';
-
-export type { IncrementalSpec };
+export type IncrementalSpec = 'v0.1' | 'v0.2';
 
 export const MULTIPART_MIXED = 'multipart/mixed';
 export const DEFAULT_MULTIPART_BOUNDARY = '-';
