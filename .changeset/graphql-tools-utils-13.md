@@ -23,9 +23,13 @@
 
 ### Dependencies
 
-- Bump `@graphql-tools/utils` to `^13.1.1` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540), [graphql-tools#8546](https://github.com/ardatan/graphql-tools/pull/8546), [graphql-tools#8550](https://github.com/ardatan/graphql-tools/pull/8550), [graphql-tools#8552](https://github.com/ardatan/graphql-tools/pull/8552)).
-- Bump `@graphql-tools/executor` to `^4.1.1` ([graphql-tools#8536](https://github.com/ardatan/graphql-tools/pull/8536), [graphql-tools#8550](https://github.com/ardatan/graphql-tools/pull/8550), [graphql-tools#8553](https://github.com/ardatan/graphql-tools/pull/8553)): use `getVariableValues` from `graphql` (no longer re-exported from executor); pass `incrementalSpec: 'v0.1' | 'v0.2'` for incremental delivery payload format.
-- Bump `@graphql-tools/graphql-tag-pluck` to `9.0.1` ([graphql-tools#8537](https://github.com/ardatan/graphql-tools/pull/8537)).
+- Bump `@graphql-tools/utils` to `^13.1.1`, `@graphql-tools/schema` to `^11.0.0`, and `@graphql-tools/executor` to `^4.1.1`.
+
+### Incremental delivery
+
+Yoga maps the GraphQL HTTP `Accept` header through `INCREMENTAL_DELIVERY_SPECS` from `@graphql-tools/utils` onto executor `incrementalSpec`. `multipart/mixed;incrementalSpec=v0.2` runs the v0.2 payload format and echoes that spec on `Content-Type`. `multipart/mixed;deferSpec=20220824` or bare `multipart/mixed` stays on v0.1. An unsupported incremental spec yields 406.
+
+A later incremental spec is a graphql-tools table row plus an executor publisher. Yoga, Hive Gateway, and HTTP executors pick it up by bumping `@graphql-tools/utils` / `@graphql-tools/executor`.
 
 ### Breaking Changes
 
