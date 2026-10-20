@@ -6,14 +6,14 @@ import {
   lookupIncrementalDeliverySpec,
   type IncrementalDeliverySpec,
   type IncrementalSpec,
-} from './incremental-delivery.js';
+} from '@graphql-tools/utils';
 
-export type { IncrementalDeliverySpec, IncrementalSpec } from './incremental-delivery.js';
+export type { IncrementalDeliverySpec, IncrementalSpec } from '@graphql-tools/utils';
 export {
   DEFAULT_MULTIPART_CONTENT_TYPE,
   getMultipartContentType,
   INCREMENTAL_DELIVERY_SPECS,
-} from './incremental-delivery.js';
+} from '@graphql-tools/utils';
 
 export type IncrementalSpecNegotiation =
   | { spec: IncrementalSpec; contentType: string }

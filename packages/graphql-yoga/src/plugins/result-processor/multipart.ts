@@ -1,11 +1,11 @@
 import type { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
+import { DEFAULT_MULTIPART_CONTENT_TYPE } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import type { FetchAPI, MaybeArray } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
-import { DEFAULT_MULTIPART_CONTENT_TYPE } from './incremental-delivery.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function processMultipartResult(
