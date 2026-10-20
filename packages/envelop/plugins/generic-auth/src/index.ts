@@ -414,7 +414,7 @@ export const useGenericAuth = <
                     getDefinedRootType(schema, operationType),
                   );
 
-                  return validateUser({
+                  const error = validateUser({
                     user,
                     fieldNode,
                     parentType,
@@ -432,6 +432,12 @@ export const useGenericAuth = <
                     path: resolvePath,
                     userPolicies,
                   });
+                  // partial denials should leave http status selection to
+                  // the server, unless customized
+                  if (error && !rejectUnauthenticated && !options.validateUser) {
+                    delete error.extensions['http'];
+                  }
+                  return error;
                 };
 
                 return {
