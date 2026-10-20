@@ -1,9 +1,19 @@
-export type IncrementalSpec = 'v0.1' | 'v0.2';
+import {
+  getDefaultIncrementalDeliverySpec,
+  getIncrementalSpecParameterNames,
+  getMultipartContentType,
+  INCREMENTAL_DELIVERY_SPECS,
+  lookupIncrementalDeliverySpec,
+  type IncrementalDeliverySpec,
+  type IncrementalSpec,
+} from './incremental-delivery.js';
 
-export const DEFAULT_MULTIPART_CONTENT_TYPE = 'multipart/mixed; boundary="-"';
-export const DEFER_SPEC_V0_1_CONTENT_TYPE = 'multipart/mixed; boundary="-"; deferSpec=20220824';
-export const INCREMENTAL_SPEC_V0_2_CONTENT_TYPE =
-  'multipart/mixed; boundary="-"; incrementalSpec=v0.2';
+export type { IncrementalDeliverySpec, IncrementalSpec } from './incremental-delivery.js';
+export {
+  DEFAULT_MULTIPART_CONTENT_TYPE,
+  getMultipartContentType,
+  INCREMENTAL_DELIVERY_SPECS,
+} from './incremental-delivery.js';
 
 export type IncrementalSpecNegotiation =
   | { spec: IncrementalSpec; contentType: string }
@@ -32,7 +42,11 @@ function parseMediaTypeParams(mediaType: string): Record<string, string> {
   return params;
 }
 
-export function getMediaTypesForRequestInOrder(request: Request): string[] {
+export function getMediaTypesForRequestInOrder(
+  request: Request,
+  specs: readonly IncrementalDeliverySpec[] = INCREMENTAL_DELIVERY_SPECS,
+): string[] {
+  const specParamNames = getIncrementalSpecParameterNames(specs);
   const accepts = (request.headers.get('accept') || '*/*')
     .replace(/\s/g, '')
     .toLowerCase()
@@ -48,9 +62,10 @@ export function getMediaTypesForRequestInOrder(request: Request): string[] {
       // only utf-8 is supported
       continue;
     }
-    const specParams = params.filter(
-      param => param.startsWith('incrementalspec=') || param.startsWith('deferspec='),
-    );
+    const specParams = params.filter(param => {
+      const name = param.split('=')[0];
+      return name != null && specParamNames.has(name);
+    });
     mediaTypes.push(specParams.length ? `${mediaType};${specParams.join(';')}` : mediaType);
   }
   return mediaTypes.reverse();
@@ -66,52 +81,47 @@ export function isMatchingMediaType(askedMediaType: string, processorMediaType: 
 }
 
 /**
- * Map a single Accept media type (with optional `deferSpec` / `incrementalSpec`
- * parameters) to the executor incremental payload format.
- *
- * `multipart/mixed;incrementalSpec=v0.2` -> v0.2.
- * `multipart/mixed;deferSpec=20220824` or bare `multipart/mixed` -> v0.1.
- * Unknown spec parameter values are `'unsupported'` (HTTP 406).
- * Non-multipart types return `undefined`.
+ * Map a single Accept media type to an executor `incrementalSpec` using the
+ * registered HTTP parameter table. Non-multipart types return `undefined`.
  */
 export function negotiateIncrementalSpecFromMediaType(
   mediaType: string,
+  specs: readonly IncrementalDeliverySpec[] = INCREMENTAL_DELIVERY_SPECS,
 ): IncrementalSpecNegotiation | undefined {
   const [type, subtype] = typeAndSubtype(mediaType);
   if (type !== 'multipart' || subtype !== 'mixed') {
     return undefined;
   }
 
-  const params = parseMediaTypeParams(mediaType);
-  const incrementalSpec = params['incrementalspec'];
-  const deferSpec = params['deferspec'];
-
-  if (incrementalSpec != null) {
-    if (incrementalSpec === 'v0.2') {
-      return { spec: 'v0.2', contentType: INCREMENTAL_SPEC_V0_2_CONTENT_TYPE };
-    }
+  const lookedUp = lookupIncrementalDeliverySpec(parseMediaTypeParams(mediaType), specs);
+  if (lookedUp === 'unsupported') {
     return 'unsupported';
   }
-
-  if (deferSpec != null) {
-    if (deferSpec === '20220824') {
-      return { spec: 'v0.1', contentType: DEFER_SPEC_V0_1_CONTENT_TYPE };
-    }
-    return 'unsupported';
+  if (lookedUp) {
+    return {
+      spec: lookedUp.id,
+      contentType: getMultipartContentType(lookedUp, { echoSpec: true }),
+    };
   }
 
-  return { spec: 'v0.1', contentType: DEFAULT_MULTIPART_CONTENT_TYPE };
+  const fallback = getDefaultIncrementalDeliverySpec(specs);
+  return {
+    spec: fallback.id,
+    contentType: getMultipartContentType(fallback, { echoSpec: false }),
+  };
 }
 
 /**
  * Last matching `multipart/mixed` in the request Accept list (same last-match
- * rule as result-processor selection). `undefined` leaves the executor default
- * (`v0.1`).
+ * rule as result-processor selection). `undefined` leaves the executor default.
  */
-export function getIncrementalSpecForRequest(request: Request): IncrementalSpec | undefined {
+export function getIncrementalSpecForRequest(
+  request: Request,
+  specs: readonly IncrementalDeliverySpec[] = INCREMENTAL_DELIVERY_SPECS,
+): IncrementalSpec | undefined {
   let spec: IncrementalSpec | undefined;
-  for (const mediaType of getMediaTypesForRequestInOrder(request)) {
-    const negotiated = negotiateIncrementalSpecFromMediaType(mediaType);
+  for (const mediaType of getMediaTypesForRequestInOrder(request, specs)) {
+    const negotiated = negotiateIncrementalSpecFromMediaType(mediaType, specs);
     if (negotiated && negotiated !== 'unsupported') {
       spec = negotiated.spec;
     }

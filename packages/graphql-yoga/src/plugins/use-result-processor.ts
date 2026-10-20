@@ -14,12 +14,20 @@ interface ResultProcessorConfig {
   processResult: ResultProcessor;
   asyncIterables: boolean;
   mediaTypes: string[];
+  resolveAcceptedMediaType?: (requestMediaType: string) => string | 'unsupported';
 }
 
 const multipart: ResultProcessorConfig = {
   mediaTypes: ['multipart/mixed'],
   asyncIterables: true,
   processResult: processMultipartResult,
+  resolveAcceptedMediaType(requestMediaType) {
+    const negotiated = negotiateIncrementalSpecFromMediaType(requestMediaType);
+    if (negotiated === 'unsupported') {
+      return 'unsupported';
+    }
+    return negotiated?.contentType ?? DEFAULT_MULTIPART_CONTENT_TYPE;
+  },
 };
 
 function getSSEProcessorConfig(): ResultProcessorConfig {
@@ -65,18 +73,13 @@ export function useResultProcessors(): Plugin {
             if (!isMatchingMediaType(processorMediaType, requestMediaType)) {
               continue;
             }
-            if (processorMediaType === 'multipart/mixed') {
-              const negotiated = negotiateIncrementalSpecFromMediaType(requestMediaType);
-              if (negotiated === 'unsupported') {
-                continue;
-              }
-              setResultProcessor(
-                resultProcessorConfig.processResult,
-                negotiated?.contentType ?? DEFAULT_MULTIPART_CONTENT_TYPE,
-              );
+            const acceptedMediaType =
+              resultProcessorConfig.resolveAcceptedMediaType?.(requestMediaType) ??
+              processorMediaType;
+            if (acceptedMediaType === 'unsupported') {
               continue;
             }
-            setResultProcessor(resultProcessorConfig.processResult, processorMediaType);
+            setResultProcessor(resultProcessorConfig.processResult, acceptedMediaType);
           }
         }
       }

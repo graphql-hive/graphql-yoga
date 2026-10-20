@@ -5,12 +5,13 @@ import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import type { FetchAPI, MaybeArray } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
+import { DEFAULT_MULTIPART_CONTENT_TYPE } from './incremental-delivery.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function processMultipartResult(
   result: ResultProcessorInput,
   fetchAPI: FetchAPI,
-  acceptedMediaType = 'multipart/mixed; boundary="-"',
+  acceptedMediaType = DEFAULT_MULTIPART_CONTENT_TYPE,
 ): Response {
   const headersInit = {
     Connection: 'keep-alive',
