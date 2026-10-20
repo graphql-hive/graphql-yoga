@@ -4,6 +4,13 @@ import { buildHTTPExecutor } from '@graphql-tools/executor-http';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createPushPullAsyncIterable } from './push-pull-async-iterable.js';
 
+function collectMultipartJson(text: string): Array<Record<string, unknown>> {
+  return text
+    .split(/\r?\n/)
+    .filter(line => line.startsWith('{'))
+    .map(line => JSON.parse(line) as Record<string, unknown>);
+}
+
 function multipartStream<TType = unknown>(source: ReadableStream<Uint8Array>) {
   return new Repeater<TType>(async (push, end) => {
     const cancel: Promise<{ done: true }> = end.then(() => ({ done: true }));
@@ -463,6 +470,91 @@ Content-Length: 17
       });
       expect(response.status).toEqual(200);
       expect(response.headers.get('content-type')).toEqual('multipart/mixed; boundary="-"');
+    });
+
+    it('accept: multipart/mixed;deferSpec=20220824 uses v0.1 payloads', async () => {
+      const yoga = createYoga({
+        schema,
+        plugins: [useDeferStream()],
+      });
+
+      const response = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'multipart/mixed;deferSpec=20220824',
+        },
+        body: JSON.stringify({ query: '{ stream @stream(initialCount: 2) }' }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toBe(
+        'multipart/mixed; boundary="-"; deferSpec=20220824',
+      );
+      const payloads = collectMultipartJson(await response.text());
+      expect(payloads[0]).toEqual({
+        data: { stream: ['A', 'B'] },
+        hasNext: true,
+      });
+      expect(payloads.some(payload => Array.isArray(payload.incremental))).toBe(true);
+      expect(payloads.some(payload => payload.pending != null)).toBe(false);
+    });
+
+    it('accept: multipart/mixed;incrementalSpec=v0.2 uses v0.2 payloads', async () => {
+      const yoga = createYoga({
+        schema,
+        plugins: [useDeferStream()],
+      });
+
+      const response = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'multipart/mixed;incrementalSpec=v0.2',
+        },
+        body: JSON.stringify({ query: '{ stream @stream(initialCount: 2) }' }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toBe(
+        'multipart/mixed; boundary="-"; incrementalSpec=v0.2',
+      );
+      const payloads = collectMultipartJson(await response.text());
+      expect(payloads[0]).toMatchObject({
+        data: { stream: ['A', 'B'] },
+        pending: [{ id: '0', path: ['stream'] }],
+        hasNext: true,
+      });
+      expect(payloads.some(payload => payload.completed != null)).toBe(true);
+      expect(
+        payloads.some(
+          payload =>
+            Array.isArray(payload.incremental) &&
+            payload.incremental.some(
+              patch =>
+                typeof patch === 'object' && patch != null && 'path' in patch && patch.path != null,
+            ),
+        ),
+      ).toBe(false);
+    });
+
+    it('accept: multipart/mixed;incrementalSpec=v0.3 is 406', async () => {
+      const yoga = createYoga({
+        schema,
+        plugins: [useDeferStream()],
+      });
+
+      const response = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'multipart/mixed;incrementalSpec=v0.3',
+        },
+        body: JSON.stringify({ query: '{ stream @stream }' }),
+      });
+
+      expect(response.status).toEqual(406);
+      expect(await response.text()).toEqual('');
     });
   });
 

@@ -518,7 +518,7 @@ export class YogaServer<
     return handleMaybePromise(
       () =>
         handleMaybePromise(
-          () => processGraphQLParams({ params, enveloped }),
+          () => processGraphQLParams({ params, enveloped, request }),
           result => {
             this.logger.debug(`Processing GraphQL Parameters done.`);
             return result;

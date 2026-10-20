@@ -1,5 +1,10 @@
 import { isAsyncIterable } from '@envelop/core';
-import { getMediaTypesForRequestInOrder, isMatchingMediaType } from './result-processor/accept.js';
+import {
+  DEFAULT_MULTIPART_CONTENT_TYPE,
+  getMediaTypesForRequestInOrder,
+  isMatchingMediaType,
+  negotiateIncrementalSpecFromMediaType,
+} from './result-processor/accept.js';
 import { processMultipartResult } from './result-processor/multipart.js';
 import { processRegularResult } from './result-processor/regular.js';
 import { getSSEProcessor } from './result-processor/sse.js';
@@ -57,9 +62,21 @@ export function useResultProcessors(): Plugin {
           }
           for (const processorMediaType of resultProcessorConfig.mediaTypes) {
             acceptableMediaTypes.push(processorMediaType);
-            if (isMatchingMediaType(processorMediaType, requestMediaType)) {
-              setResultProcessor(resultProcessorConfig.processResult, processorMediaType);
+            if (!isMatchingMediaType(processorMediaType, requestMediaType)) {
+              continue;
             }
+            if (processorMediaType === 'multipart/mixed') {
+              const negotiated = negotiateIncrementalSpecFromMediaType(requestMediaType);
+              if (negotiated === 'unsupported') {
+                continue;
+              }
+              setResultProcessor(
+                resultProcessorConfig.processResult,
+                negotiated?.contentType ?? DEFAULT_MULTIPART_CONTENT_TYPE,
+              );
+              continue;
+            }
+            setResultProcessor(resultProcessorConfig.processResult, processorMediaType);
           }
         }
       }

@@ -7,10 +7,14 @@ import type { FetchAPI, MaybeArray } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
-export function processMultipartResult(result: ResultProcessorInput, fetchAPI: FetchAPI): Response {
+export function processMultipartResult(
+  result: ResultProcessorInput,
+  fetchAPI: FetchAPI,
+  acceptedMediaType = 'multipart/mixed; boundary="-"',
+): Response {
   const headersInit = {
     Connection: 'keep-alive',
-    'Content-Type': 'multipart/mixed; boundary="-"',
+    'Content-Type': acceptedMediaType,
     'Transfer-Encoding': 'chunked',
   };
 

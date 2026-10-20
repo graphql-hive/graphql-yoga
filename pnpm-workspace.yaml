@@ -63,9 +63,10 @@ patchedDependencies:
   minimatch: patches/minimatch.patch
   bob-the-bundler: patches/bob-the-bundler.patch
 overrides:
-  # TEMP: force graphql-tools majors until gateway packages (delegate/wrap/federation/executor-http) publish matching majors
-  '@graphql-tools/utils': 13.0.2
-  '@graphql-tools/executor': 4.0.0
+  # TEMP: force graphql-tools majors until gateway packages (delegate/wrap/federation/executor-http) publish matching majors.
+  # executor 4.1.0 is still staged on npm after graphql-tools#8551; use the #8550 snapshot until the stable publish lands.
+  '@graphql-tools/utils': 13.1.0
+  '@graphql-tools/executor': 4.1.0-alpha-20261020141638-679c53effb1d84578dfdb8cd2fbcd0c4c93d970e
   '@graphql-tools/schema': 11.0.0
   '@graphql-tools/merge': 10.0.0
   '@graphql-tools/load': 9.0.0

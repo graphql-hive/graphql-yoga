@@ -23,8 +23,8 @@
 
 ### Dependencies
 
-- Bump `@graphql-tools/utils` to `^13.0.2` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540), [graphql-tools#8546](https://github.com/ardatan/graphql-tools/pull/8546)).
-- Bump `@graphql-tools/executor` to `^4.0.0` ([graphql-tools#8536](https://github.com/ardatan/graphql-tools/pull/8536)): use `getVariableValues` from `graphql` (no longer re-exported from executor).
+- Bump `@graphql-tools/utils` to `^13.1.0` and `@graphql-tools/schema` to `^11.0.0` ([graphql-tools#8515](https://github.com/ardatan/graphql-tools/pull/8515), [graphql-tools#8540](https://github.com/ardatan/graphql-tools/pull/8540), [graphql-tools#8546](https://github.com/ardatan/graphql-tools/pull/8546), [graphql-tools#8550](https://github.com/ardatan/graphql-tools/pull/8550)).
+- Bump `@graphql-tools/executor` to `^4.1.0` ([graphql-tools#8536](https://github.com/ardatan/graphql-tools/pull/8536), [graphql-tools#8550](https://github.com/ardatan/graphql-tools/pull/8550)): use `getVariableValues` from `graphql` (no longer re-exported from executor); pass `incrementalSpec: 'v0.1' | 'v0.2'` for incremental delivery payload format.
 - Bump `@graphql-tools/graphql-tag-pluck` to `9.0.1` ([graphql-tools#8537](https://github.com/ardatan/graphql-tools/pull/8537)).
 
 ### Breaking Changes
