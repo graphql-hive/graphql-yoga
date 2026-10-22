@@ -4,12 +4,13 @@ import { GraphQLSchema, printSchema } from 'graphql';
 import {
   createYoga,
   filter,
+  Logger as HiveLogger,
   pipe,
+  type LogLevel,
   YogaSchemaDefinition,
   YogaServerInstance,
   YogaServerOptions,
 } from 'graphql-yoga';
-import { Logger as HiveLogger, type LogLevel } from '@graphql-hive/logger';
 import { mergeSchemas } from '@graphql-tools/schema';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { AbstractGraphQLDriver, GqlModuleOptions, GqlSubscriptionService } from '@nestjs/graphql';
