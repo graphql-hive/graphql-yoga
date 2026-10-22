@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
 import * as GraphQLJS from 'graphql';
-import { GraphQLError } from 'graphql';
 import { useEngine, useExtendContext } from '@envelop/core';
 import {
   assertStreamExecutionValue,
@@ -58,7 +57,7 @@ describe('useErrorHandler', () => {
     const useMyFailingValidator: Plugin = {
       onValidate(payload) {
         payload.setValidationFn(() => {
-          return [new GraphQLError('Failure!')];
+          return [new GraphQLJS.GraphQLError('Failure!')];
         });
       },
     };
