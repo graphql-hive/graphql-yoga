@@ -969,8 +969,13 @@ describe('shouldCacheResult', () => {
 
   beforeEach(() => {
     logging = new Logger({ level: 'debug' });
-    debug = jest.spyOn(logging, 'debug');
+    // request-scoped child loggers are separate instances, so spy on the prototype
+    debug = jest.spyOn(Logger.prototype, 'debug');
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    debug.mockRestore();
   });
 
   describe('when server returns errors', () => {

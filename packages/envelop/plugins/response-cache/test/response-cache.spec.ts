@@ -3203,6 +3203,7 @@ describe('useResponseCache', () => {
       {
         cacheKey,
         result,
+        context: expect.any(Object),
       },
       expect.any(Logger),
     );
