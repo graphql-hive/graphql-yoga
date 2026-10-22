@@ -496,8 +496,8 @@ Content-Length: 17
         data: { stream: ['A', 'B'] },
         hasNext: true,
       });
-      expect(payloads.some(payload => Array.isArray(payload.incremental))).toBe(true);
-      expect(payloads.some(payload => payload.pending != null)).toBe(false);
+      expect(payloads.some(payload => Array.isArray(payload['incremental']))).toBe(true);
+      expect(payloads.some(payload => payload['pending'] != null)).toBe(false);
     });
 
     it('accept: multipart/mixed;incrementalSpec=v0.2 uses v0.2 payloads', async () => {
@@ -525,12 +525,12 @@ Content-Length: 17
         pending: [{ id: '0', path: ['stream'] }],
         hasNext: true,
       });
-      expect(payloads.some(payload => payload.completed != null)).toBe(true);
+      expect(payloads.some(payload => payload['completed'] != null)).toBe(true);
       expect(
         payloads.some(
           payload =>
-            Array.isArray(payload.incremental) &&
-            payload.incremental.some(
+            Array.isArray(payload['incremental']) &&
+            payload['incremental'].some(
               patch =>
                 typeof patch === 'object' && patch != null && 'path' in patch && patch.path != null,
             ),
