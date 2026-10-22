@@ -1,4 +1,4 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { GraphQLError } from 'graphql';
 import type { Plugin } from '../types.js';
 
 export function useLimitBatching(limit?: number): Plugin {
@@ -8,7 +8,7 @@ export function useLimitBatching(limit?: number): Plugin {
         onRequestParseDone({ requestParserResult }) {
           if (Array.isArray(requestParserResult)) {
             if (!limit) {
-              throw createGraphQLError(`Batching is not supported.`, {
+              throw new GraphQLError(`Batching is not supported.`, {
                 extensions: {
                   http: {
                     status: 400,
@@ -18,7 +18,7 @@ export function useLimitBatching(limit?: number): Plugin {
               });
             }
             if (requestParserResult.length > limit) {
-              throw createGraphQLError(`Batching is limited to ${limit} operations per request.`, {
+              throw new GraphQLError(`Batching is limited to ${limit} operations per request.`, {
                 extensions: {
                   http: {
                     status: 413,

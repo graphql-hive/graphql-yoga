@@ -4,12 +4,12 @@ import { GraphQLSchema, printSchema } from 'graphql';
 import {
   createYoga,
   filter,
-  mergeSchemas,
   pipe,
   YogaSchemaDefinition,
   YogaServerInstance,
   YogaServerOptions,
 } from 'graphql-yoga';
+import { mergeSchemas } from '@graphql-tools/schema';
 import { Injectable, Logger } from '@nestjs/common';
 import { AbstractGraphQLDriver, GqlModuleOptions, GqlSubscriptionService } from '@nestjs/graphql';
 

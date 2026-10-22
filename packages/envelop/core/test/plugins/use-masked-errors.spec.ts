@@ -8,7 +8,6 @@ import {
   createTestkit,
 } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { createGraphQLError } from '@graphql-tools/utils';
 import { useAuth0 } from '../../../plugins/auth0/src/index.js';
 import type { MaskError } from '../../src/plugins/use-masked-errors.js';
 import {
@@ -40,12 +39,12 @@ describe('useMaskedErrors', () => {
           throw new Error('Secret sauce that should not leak.');
         },
         secretEnvelop: () => {
-          throw createGraphQLError('This message goes to all the clients out there!', {
+          throw new GraphQLError('This message goes to all the clients out there!', {
             extensions: { foo: 1 },
           });
         },
         secretWithExtensions: () => {
-          throw createGraphQLError('This message goes to all the clients out there!', {
+          throw new GraphQLError('This message goes to all the clients out there!', {
             extensions: {
               code: 'Foo',
               message: 'Bar',
@@ -77,14 +76,14 @@ describe('useMaskedErrors', () => {
         },
         instantGraphQLError: {
           async subscribe() {
-            throw createGraphQLError('Noop');
+            throw new GraphQLError('Noop');
           },
           resolve: _ => _,
         },
         streamGraphQLError: {
           // eslint-disable-next-line require-yield
           async *subscribe() {
-            throw createGraphQLError('Noop');
+            throw new GraphQLError('Noop');
           },
           resolve: _ => _,
         },
@@ -93,7 +92,7 @@ describe('useMaskedErrors', () => {
             yield '1';
           },
           resolve: _ => {
-            throw createGraphQLError('Noop');
+            throw new GraphQLError('Noop');
           },
         },
       },
@@ -187,7 +186,7 @@ describe('useMaskedErrors', () => {
     const testInstance = createTestkit(
       [
         useExtendContext((): {} => {
-          throw createGraphQLError('No context for you!', { extensions: { foo: 1 } });
+          throw new GraphQLError('No context for you!', { extensions: { foo: 1 } });
         }),
         useMaskedErrors(),
       ],
@@ -383,7 +382,7 @@ describe('useMaskedErrors', () => {
 
   it('should use custom error mask function for execution errors', async () => {
     const customErrorMaskFn: MaskError = e =>
-      createGraphQLError('Custom error message for ' + e, {
+      new GraphQLError('Custom error message for ' + e, {
         extensions: { custom: true },
       });
     const testInstance = createTestkit([useMaskedErrors({ maskError: customErrorMaskFn })], schema);
@@ -408,7 +407,7 @@ describe('useMaskedErrors', () => {
 
   it('should use custom error mask function for subscribe (AsyncIterable) subscription errors', async () => {
     const customErrorMaskFn: MaskError = e =>
-      createGraphQLError('Custom error message for ' + e, {
+      new GraphQLError('Custom error message for ' + e, {
         extensions: { custom: true },
       });
     expect.assertions(2);
@@ -425,7 +424,7 @@ describe('useMaskedErrors', () => {
 
   it('should use custom error mask function for errors while building the context', async () => {
     const customErrorMaskFn: MaskError = e =>
-      createGraphQLError('Custom error message for ' + e, {
+      new GraphQLError('Custom error message for ' + e, {
         extensions: { custom: true },
       });
     const testInstance = createTestkit(
@@ -433,7 +432,7 @@ describe('useMaskedErrors', () => {
         useMaskedErrors({ maskError: customErrorMaskFn }),
         // @ts-expect-error - we want to test that even if the context creation throws, the error is masked properly.
         useExtendContext(() => {
-          throw createGraphQLError('Custom error');
+          throw new GraphQLError('Custom error');
         }),
       ],
       schema,
