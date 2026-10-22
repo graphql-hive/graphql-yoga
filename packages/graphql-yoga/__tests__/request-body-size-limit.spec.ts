@@ -125,6 +125,61 @@ describe('Request body size limit', () => {
     expect(response.status).toBe(200);
   });
 
+  // Regression for https://github.com/graphql-hive/graphql-yoga/issues/4633
+  // Next.js App Router hands route handlers a `NextRequest` (native Request subclass,
+  // often behind a Proxy). `@whatwg-node/server@0.13.0` picked the ponyfill Fetch API
+  // for those by constructor identity, so the body-size limiter pipeThrough threw a
+  // cross-realm TypeError (500). Fixed in `@whatwg-node/server@0.13.1` via instanceof.
+  describe('Native Request subclass (Next.js NextRequest)', () => {
+    class MyRequest extends globalThis.Request {}
+
+    it('answers a small POST with 200 instead of a cross-realm 500', async () => {
+      const yoga = createYoga({ schema, logging: false });
+      const request = new MyRequest('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: '{ hello }' }),
+      });
+      const response = await yoga.fetch(request);
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({ data: { hello: 'world' } });
+    });
+
+    it('still enforces maxRequestBodySize with 413 on an oversized body', async () => {
+      const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
+      const request = new MyRequest('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: '{ hello }' }),
+      });
+      const response = await yoga.fetch(request);
+      expect(response.status).toBe(413);
+      const body = await response.json();
+      expect(body.errors[0].message).toMatch(/Request body too large/);
+    });
+
+    it('accepts a Proxy around a Request subclass (Next.js proxyNextRequest)', async () => {
+      const yoga = createYoga({ schema, logging: false });
+      const underlying = new MyRequest('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: '{ hello }' }),
+      });
+      const proxied = new Proxy(underlying, {
+        get(target, prop, receiver) {
+          const value = Reflect.get(target, prop, receiver);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+        getPrototypeOf(target) {
+          return Reflect.getPrototypeOf(target);
+        },
+      });
+      const response = await yoga.fetch(proxied);
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({ data: { hello: 'world' } });
+    });
+  });
+
   // Regression test for https://github.com/graphql-hive/graphql-yoga/issues/4583 at the
   // `YogaServer.handle` level: a plugin that composes streams with `fetchAPI.TransformStream`
   // (the pattern `@whatwg-node/server`'s own `useContentEncoding` plugin uses) must be handed
