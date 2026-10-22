@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { ResponsePath } from 'graphql';
-import type { FetchAPI, Plugin, YogaInitialContext, YogaLogger } from 'graphql-yoga';
+import type { FetchAPI, Logger, Plugin, YogaInitialContext } from 'graphql-yoga';
 import { isAsyncIterable } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
@@ -114,7 +114,6 @@ export function useApolloInlineTrace(
  */
 export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions) {
   const ctxForReq = new WeakMap<Request, ApolloInlineRequestTraceContext>();
-  let logger: YogaLogger;
 
   function createContext() {
     return {
@@ -125,18 +124,15 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
     };
   }
 
-  function setNewContext(request: Request) {
+  function setNewContext(request: Request, log: Logger) {
     try {
       ctxForReq.set(request, createContext());
     } catch (err) {
-      logger.error('Apollo inline error:', err);
+      log.error({ err }, 'Apollo inline error:');
     }
   }
 
   const plugin: Plugin = {
-    onYogaInit({ yoga }) {
-      logger = yoga.logger;
-    },
     onPluginInit: ({ addPlugin }) => {
       addPlugin(
         useOnResolve(({ context, info }) => {
@@ -167,19 +163,20 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
         }),
       );
     },
-    onRequest({ request }): void | Promise<void> {
+    onRequest({ request, serverContext }): void | Promise<void> {
+      const log = serverContext.log;
       const ignoreRequest = options.ignoreRequest;
       if (ignoreRequest) {
         return handleMaybePromise(
           () => ignoreRequest(request),
           shouldIgnore => {
             if (!shouldIgnore) {
-              setNewContext(request);
+              setNewContext(request, log);
             }
           },
         );
       }
-      setNewContext(request);
+      setNewContext(request, log);
     },
     onEnveloped({ context }) {
       if (!context) {
@@ -218,7 +215,7 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
       ctx.trace.durationNs = hrTimeToDurationInNanos(process.hrtime(reqCtx.startHrTime));
       ctx.trace.endTime = nowTimestamp();
     },
-    onResultProcess({ request, result }) {
+    onResultProcess({ request, result, serverContext }) {
       // TODO: should handle streaming results? how?
       if (isAsyncIterable(result)) return;
 
@@ -226,7 +223,7 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
       if (!reqCtx) return;
       // onResultProcess will be called only once since we disallow async iterables
       if (reqCtx.stopped) {
-        logger.debug('Trace stopped multiple times');
+        serverContext.log.debug('Trace stopped multiple times');
       }
 
       reqCtx.stopped = true;

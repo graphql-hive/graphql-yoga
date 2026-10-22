@@ -14,6 +14,7 @@ import {
   createTestkit,
 } from '@envelop/testing';
 import { useValidationCache } from '@envelop/validation-cache';
+import { Logger } from '@graphql-hive/logger';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mapSchema as cloneSchema } from '@graphql-tools/utils';
@@ -3198,10 +3199,14 @@ describe('useResponseCache', () => {
       variableValues: {},
       sessionId: null,
     });
-    expect(shouldCacheResult).toHaveBeenCalledWith({
-      cacheKey,
-      result,
-    });
+    expect(shouldCacheResult).toHaveBeenCalledWith(
+      {
+        cacheKey,
+        result,
+        context: expect.any(Object),
+      },
+      expect.any(Logger),
+    );
   });
 
   describe('supports scope', () => {

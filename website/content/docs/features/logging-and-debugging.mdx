@@ -1,7 +1,7 @@
 ---
 description:
-  Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga will only log `info`,
-  `warn` and `error` messages.
+  Yoga uses @graphql-hive/logger for logging. See https://the-guild.dev/graphql/hive/docs/logger for
+  usage. This outlines how Yoga automatically logs.
 title: Logging and Debugging
 ---
 
@@ -19,126 +19,84 @@ Yoga uses 4 log levels `debug`, `info`, `warn` and `error`. By default, Yoga wil
 #### `warn`
 
 - All prior log levels
-- deprecation notices
+- Yoga does not currently emit any automatic `warn`-level logs
 
 #### `info`
 
 - All prior log levels
-- Information about the current state of the system
+- A one-line "Request processed" summary, logged once per HTTP request, carrying the method, path,
+  `operationName` and `operationType` (or `batchedOperations` count for a batched request), the
+  response status code, the GraphQL error count and the request's duration in milliseconds
+- Background task events, for plugins that run one (e.g.
+  [`useManagedFederation`](/docs/features/apollo-federation#using-apollo-managed-federation) logs
+  when a new supergraph schema is loaded, or when it's retrying after a failed load)
 
 #### `debug`
 
 - All prior log levels
-- Processing of GraphQL parameters
-- Parsing of GraphQL parameters
-- Execution or subscription start
-- Received GraphQL operation variables
-- Execution or subscription end
+- Processing of GraphQL parameters, including the request path, `operationName` and variable count
+- Parsing of GraphQL parameters, and the resolved operation type
+- The status code of the HTTP response that was sent
+- A successfully fetched signing key in [`@graphql-yoga/plugin-jwt`](/docs/features/jwt)
 - [GraphiQL](https://github.com/graphql/graphiql) rendering
 - Health checks
 
-### Enabling Debug Logging
+### Correlating logs for a request
 
-<Callout>
-  Instead, on JavaScript environments that support environment variables via `process.env` (e.g.
-  Node.js), you can also conditionally enable `debug` logging by setting the `DEBUG` environment
-  variable to `1`.
-</Callout>
+Every request is handled with its own child `Logger`, exposed as `context.log`, that carries a
+`requestId` attribute. If the host integration already assigned an id to the native request object
+(e.g. Fastify's `request.id`), that id is reused first, so Yoga's logs always agree with the host's
+own; otherwise, the incoming `x-request-id` header is used if present; otherwise, one is generated.
+The id is set on the outgoing response's `x-request-id` header. All log lines produced while
+handling a given request — across parsing, parameters processing, execution and response processing
+— carry this attribute, so they can be correlated together (e.g. when grepping structured/JSON
+logs).
 
-```ts title="Custom log level" {7}
-import { createServer } from 'node:http'
-import { createYoga } from 'graphql-yoga'
-import { schema } from './my-schema.js'
+Trusting the incoming header is a tradeoff: it's what lets a client's own id flow through your logs,
+but it also lets any client pick its own id (and have it correlated as if trusted, including one
+already used for another request). Set `trustHeader: false` if the server is reachable directly by
+clients rather than only through a proxy or gateway that sets the header itself.
 
-const yoga = createYoga({
-  schema,
-  logging: 'debug'
-})
-```
-
-### Change log level
-
-You can customize the log lovel by passing on of the 4 levels to the `logging` option:
-
-<Callout>
-  We recommend not changing the default log level and only recommend changing it if you know what
-  you are doing.
-</Callout>
-
-```ts title="Custom log level" {7}
-import { createServer } from 'node:http'
-import { createYoga } from 'graphql-yoga'
-import { schema } from './my-schema.js'
-
-const yoga = createYoga({
-  schema,
-  logging: 'warn'
-})
-```
-
-Specifying the log level of `warn` will only log `warn` and `error` messages being logged.
-
-### Custom logger
-
-You can of course provide your own logger for piping to your favorite logging service/utility:
+Note that a host integration's own generated ids aren't necessarily unique across a server's
+lifetime or across replicas - e.g. Fastify's default `request.id` is a per-process counter (`req-1`,
+`req-2`, …), so it repeats across restarts and other instances. This is already the case today
+whenever no `x-request-id` header is sent; set the host's id generation to something like
+`crypto.randomUUID()` (e.g. Fastify's `genReqId` option) if you need ids unique across instances.
 
 ```ts
-import { createServer } from 'node:http'
-import { createYoga } from 'graphql-yoga'
-import { logger } from './my-logger.js'
-import { schema } from './my-schema.js'
-
 const yoga = createYoga({
-  schema,
-  logging: {
-    debug(...args) {
-      logger.debug(...args)
-    },
-    info(...args) {
-      logger.info(...args)
-    },
-    warn(...args) {
-      logger.warn(...args)
-    },
-    error(...args) {
-      logger.error(...args)
-    }
-  }
-})
-
-const server = createServer(yoga)
-
-server.listen(4000, () => {
-  console.info('Server is running on http://localhost:4000/graphql')
-})
-```
-
-Further hook into the logging system by leveraging
-[envelop](https://www.envelop.dev/plugins/use-logger)'s
-[`useLogger`](https://www.envelop.dev/plugins/use-logger) plugin:
-
-```ts
-import { createServer } from 'node:http'
-import { createYoga, useLogger } from 'graphql-yoga'
-import { logger } from './my-logger'
-import { schema } from './my-schema'
-
-const yoga = createYoga({
-  schema,
-  plugins: [
-    useLogger({
-      logFn: (eventName, args) => {
-        // Event could be execute-start / execute-end / subscribe-start / subscribe-end / etc.
-        // args will include the arguments passed to execute/subscribe (in case of "start" event) and additional result in case of "end" event.
-        logger.debug(eventName, ...args)
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String
       }
-    })
-  ]
+    `,
+    resolvers: {
+      Query: {
+        hello: (_, __, context) => {
+          context.log.debug('resolving hello')
+          return 'world'
+        }
+      }
+    }
+  })
 })
+```
 
-const server = createServer(yoga)
+Configure (or disable) the request id with the `requestId` option:
 
-server.listen(4000, () => {
-  console.info('Server is running on http://localhost:4000/graphql')
+```ts
+import { createYoga } from 'graphql-yoga'
+import { schema } from './my-schema.js'
+
+const yoga = createYoga({
+  schema,
+  requestId: {
+    // header to read the request id from, and to set on the response
+    headerName: 'x-correlation-id',
+    // used when the header is absent from the incoming request
+    generateRequestId: ({ request, fetchAPI, context }) => crypto.randomUUID()
+  }
+  // or `requestId: false` to not correlate requests at all
 })
 ```

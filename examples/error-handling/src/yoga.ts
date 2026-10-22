@@ -58,6 +58,6 @@ export const yoga = createYoga({
       },
     },
   }),
-  logging: true,
+  logging: 'debug',
   maskedErrors: true,
 });

@@ -1,12 +1,17 @@
 import { GraphQLError } from 'graphql';
-import type { YogaLogger } from '@graphql-yoga/logger';
 import {
   HTTPError,
   InvalidContentLengthError,
   RequestBodyTooLargeError,
 } from '@whatwg-node/server';
 import type { ResultProcessorInput } from './plugins/types.js';
-import type { FetchAPI, GraphQLHTTPExtensions, YogaMaskedErrorOpts } from './types.js';
+import type {
+  FetchAPI,
+  GraphQLHTTPExtensions,
+  YogaConfigContext,
+  YogaInitialContext,
+  YogaMaskedErrorOpts,
+} from './types.js';
 
 declare module 'graphql' {
   interface GraphQLError {
@@ -87,13 +92,14 @@ function headersInitToRecord(headers: HeadersInit): Record<string, string> {
 function graphQLErrorFromBodyLimitError(
   error: RequestBodyTooLargeError | InvalidContentLengthError,
 ): GraphQLError {
+  const headers = headersInitToRecord(error.headers);
   if (error instanceof RequestBodyTooLargeError) {
     return new GraphQLError(error.message, {
       originalError: error,
       extensions: {
         http: {
           status: 413,
-          ...(error.headers ? { headers: headersInitToRecord(error.headers) } : {}),
+          ...(Object.keys(headers).length > 0 ? { headers } : {}),
         },
         code: 'REQUEST_ENTITY_TOO_LARGE',
       },
@@ -104,7 +110,7 @@ function graphQLErrorFromBodyLimitError(
     extensions: {
       http: {
         status: 400,
-        ...(error.headers ? { headers: headersInitToRecord(error.headers) } : {}),
+        ...(Object.keys(headers).length > 0 ? { headers } : {}),
       },
       code: 'BAD_REQUEST',
     },
@@ -136,18 +142,19 @@ export function responseFromBodyLimitError(
 export function handleError(
   error: unknown,
   maskedErrorsOpts: YogaMaskedErrorOpts | null,
-  logger: YogaLogger,
+  context: Partial<YogaInitialContext> & YogaConfigContext,
 ): GraphQLError[] {
+  const log = context.log;
   const errors = new Set<GraphQLError>();
   if (isAggregateError(error)) {
     for (const singleError of error.errors) {
-      const handledErrors = handleError(singleError, maskedErrorsOpts, logger);
+      const handledErrors = handleError(singleError, maskedErrorsOpts, context);
       for (const handledError of handledErrors) {
         errors.add(handledError);
       }
     }
   } else if (isAbortError(error)) {
-    logger.debug('Request aborted');
+    log.debug('Request aborted');
   } else if (isRequestBodyLimitError(error)) {
     errors.add(graphQLErrorFromBodyLimitError(error));
   } else if (maskedErrorsOpts) {
@@ -155,11 +162,8 @@ export function handleError(
       error,
       maskedErrorsOpts.errorMessage,
       maskedErrorsOpts.isDev,
+      context,
     );
-
-    if (maskedError !== error) {
-      logger.error(error);
-    }
 
     errors.add(
       isGraphQLError(maskedError)
@@ -195,7 +199,7 @@ export function handleError(
       }),
     );
   } else {
-    logger.error(error);
+    log.error({ err: error });
     errors.add(
       new GraphQLError('Unexpected error.', {
         extensions: {

@@ -1,6 +1,6 @@
 import type { ExecutionResult } from 'graphql';
 import { print } from 'graphql';
-import type { Maybe, Plugin, PromiseOrValue, YogaInitialContext, YogaLogger } from 'graphql-yoga';
+import type { Maybe, Plugin, PromiseOrValue, YogaInitialContext } from 'graphql-yoga';
 import { getDocumentString } from '@envelop/core';
 import type {
   BuildResponseCacheKeyFunction as EnvelopBuildResponseCacheKeyFunction,
@@ -80,28 +80,25 @@ export function useResponseCache<TContext = YogaInitialContext>(
     options?.buildResponseCacheKey || defaultBuildResponseCacheKey;
   const cache = options.cache ?? createInMemoryCache();
   const enabled = options.enabled ?? (() => true);
-  let logger: YogaLogger;
   return {
-    onYogaInit({ yoga }) {
-      logger = yoga.logger;
-    },
     onPluginInit({ addPlugin }) {
       addPlugin(
-        useEnvelopResponseCache({
+        useEnvelopResponseCache<YogaInitialContext>({
           ...options,
-          enabled: (context: YogaInitialContext) => enabled(context.request, context as TContext),
+          enabled: context => enabled(context.request, context as TContext),
           cache,
           getDocumentString: getDocumentStringForEnvelop,
           session: sessionFactoryForEnvelop,
           buildResponseCacheKey: cacheKeyFactoryForEnvelop,
-          shouldCacheResult({ cacheKey, result }) {
+          shouldCacheResult(params) {
+            const { cacheKey, result } = params;
             let shouldCache: boolean;
             if (options.shouldCacheResult) {
-              shouldCache = options.shouldCacheResult({ cacheKey, result });
+              shouldCache = options.shouldCacheResult(params);
             } else {
               shouldCache = !result.errors?.length;
               if (!shouldCache) {
-                logger.debug(
+                (params.context as YogaInitialContext).log.debug(
                   '[useResponseCache] Decided not to cache the response because it contains errors',
                 );
               }

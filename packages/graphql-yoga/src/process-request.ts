@@ -1,12 +1,13 @@
 import { getOperationAST } from 'graphql';
 import type { GetEnvelopedFn } from '@envelop/core';
+import type { Logger } from '@graphql-hive/logger';
 import type { ExecutionArgs } from '@graphql-tools/executor';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
 import { getIncrementalSpecForRequest } from './plugins/result-processor/accept.js';
 import type { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
-import type { FetchAPI, GraphQLParams } from './types.js';
+import type { FetchAPI, GraphQLParams, YogaConfigContext } from './types.js';
 
 export function processResult<TServerContext>({
   request,
@@ -22,8 +23,9 @@ export function processResult<TServerContext>({
    * Response Hooks
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
-  serverContext: TServerContext & ServerAdapterInitialContext;
+  serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext;
 }): MaybePromise<Response> {
+  const log = serverContext.log;
   let resultProcessor: ResultProcessor | undefined;
 
   const acceptableMediaTypes: string[] = [];
@@ -31,8 +33,9 @@ export function processResult<TServerContext>({
 
   return handleMaybePromise(
     () =>
-      iterateAsync(onResultProcessHooks, onResultProcessHook =>
-        onResultProcessHook({
+      iterateAsync(onResultProcessHooks, onResultProcessHook => {
+        log.debug('Running onResultProcess hook');
+        return onResultProcessHook({
           request,
           acceptableMediaTypes,
           result,
@@ -45,21 +48,34 @@ export function processResult<TServerContext>({
             acceptedMediaType = newAcceptedMimeType;
           },
           serverContext,
-        }),
-      ),
+        });
+      }),
     () => {
       // If no result processor found for this result, return an error
       if (!resultProcessor) {
-        return new fetchAPI.Response(null, {
+        log.debug(
+          { accept: request.headers.get('accept'), acceptableMediaTypes },
+          'No result processor matched, responding 406',
+        );
+        const response = new fetchAPI.Response(null, {
           status: 406,
           statusText: 'Not Acceptable',
           headers: {
             accept: acceptableMediaTypes.join('; charset=utf-8, '),
           },
         });
+        log.debug({ status: response.status }, 'Sending response');
+        return response;
       }
 
-      return resultProcessor(result, fetchAPI, acceptedMediaType);
+      log.debug({ acceptedMediaType }, 'Result processor selected');
+      return handleMaybePromise(
+        () => resultProcessor!(result, fetchAPI, acceptedMediaType),
+        response => {
+          log.debug({ status: response.status }, 'Sending response');
+          return response;
+        },
+      );
     },
   );
 }
@@ -68,19 +84,35 @@ export function processRequest({
   params,
   enveloped,
   request,
+  log,
+  onOperationType,
 }: {
   params: GraphQLParams;
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
   request?: Request;
+  log: Logger;
+  /** Reports the resolved operation type once known, for the per-request summary log. */
+  onOperationType?: (operationType: string | undefined) => void;
 }) {
   // Parse GraphQLParams
+  let document;
+  try {
+    document = enveloped.parse(params.query!);
+  } catch (err) {
+    log.debug({ err }, 'Parsing failed');
+    throw err;
+  }
 
-  const document = enveloped.parse(params.query!);
+  // Get the actual operation
+  const operation = getOperationAST(document, params.operationName);
+  onOperationType?.(operation?.operation);
+  log.debug({ operationType: operation?.operation }, 'Parsed GraphQL document');
 
   // Validate parsed Document Node
   const errors = enveloped.validate(enveloped.schema, document);
 
   if (errors.length > 0) {
+    log.debug({ errors }, 'Validation failed');
     return { errors };
   }
 
@@ -102,9 +134,6 @@ export function processRequest({
           executionArgs.incrementalSpec = incrementalSpec;
         }
       }
-
-      // Get the actual operation
-      const operation = getOperationAST(document, params.operationName);
 
       // Choose the right executor
       const executeFn =
