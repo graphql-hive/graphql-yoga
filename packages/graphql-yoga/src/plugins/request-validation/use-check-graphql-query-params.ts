@@ -1,5 +1,4 @@
 import { GraphQLError } from 'graphql';
-
 import type { GraphQLParams } from '../../types.js';
 import type { Plugin } from '../types.js';
 
@@ -45,20 +44,17 @@ export function checkGraphQLQueryParams(
   extraParamNames?: string[],
 ): GraphQLParams {
   if (!isObject(params)) {
-    throw new GraphQLError(
-      `Expected params to be an object but given ${extendedTypeof(params)}.`,
-      {
-        extensions: {
-          http: {
-            status: 400,
-            headers: {
-              Allow: 'GET, POST',
-            },
+    throw new GraphQLError(`Expected params to be an object but given ${extendedTypeof(params)}.`, {
+      extensions: {
+        http: {
+          status: 400,
+          headers: {
+            Allow: 'GET, POST',
           },
-          code: 'BAD_REQUEST',
         },
+        code: 'BAD_REQUEST',
       },
-    );
+    });
   }
 
   assertInvalidParams(params, extraParamNames);

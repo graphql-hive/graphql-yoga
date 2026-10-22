@@ -1,6 +1,7 @@
 import {
   buildSchema,
   GraphQLBoolean,
+  GraphQLError,
   GraphQLID,
   GraphQLInputObjectType,
   GraphQLInt,
@@ -10,7 +11,6 @@ import {
   GraphQLSchema,
   GraphQLString,
   versionInfo,
-  GraphQLError,
 } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import {

@@ -12,7 +12,9 @@ import type {
   ValidationContext,
   ValueNode,
 } from 'graphql';
-import { GraphQLError, getNamedType,
+import {
+  getNamedType,
+  GraphQLError,
   isInterfaceType,
   isLeafType,
   isListType,
@@ -20,8 +22,8 @@ import { GraphQLError, getNamedType,
   isObjectType,
   Kind,
   print,
-  typeFromAST, } from 'graphql';
-
+  typeFromAST,
+} from 'graphql';
 import type { Maybe } from '@graphql-tools/utils';
 import { inspect } from '@graphql-tools/utils';
 

@@ -1,6 +1,5 @@
 import { GraphQLError } from 'graphql';
 import type { ASTVisitor, ValidationContext } from 'graphql';
-
 import { GraphQLDeferDirective, GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**

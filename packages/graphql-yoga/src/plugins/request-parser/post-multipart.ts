@@ -1,5 +1,4 @@
 import { GraphQLError } from 'graphql';
-
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { isAbortError, isRequestBodyLimitError } from '../../error.js';

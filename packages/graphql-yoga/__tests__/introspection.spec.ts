@@ -1,4 +1,4 @@
-import { GraphQLError, getIntrospectionQuery } from 'graphql';
+import { getIntrospectionQuery, GraphQLError } from 'graphql';
 import { useDisableIntrospection } from '@envelop/disable-introspection';
 import { createSchema, createYoga } from '../src/index.js';
 

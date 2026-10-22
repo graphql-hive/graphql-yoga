@@ -1,6 +1,5 @@
 import type { ASTVisitor, DirectiveNode, ValidationContext } from 'graphql';
 import { GraphQLError, isListType, isWrappingType } from 'graphql';
-
 import { GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**

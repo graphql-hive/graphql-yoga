@@ -358,18 +358,19 @@ describe('GraphQLError.extensions.http', () => {
         {
           onResultProcess({ result }) {
             result = result as ExecutionResult;
-            result.errors = result.errors?.map(err =>
-              new GraphQLError(err.message, {
-                nodes: err.nodes,
-                source: err.source,
-                positions: err.positions,
-                path: err.path,
-                originalError: err.originalError,
-                extensions: {
-                  ...err.extensions,
-                  ...extensions,
-                },
-              }),
+            result.errors = result.errors?.map(
+              err =>
+                new GraphQLError(err.message, {
+                  nodes: err.nodes,
+                  source: err.source,
+                  positions: err.positions,
+                  path: err.path,
+                  originalError: err.originalError,
+                  extensions: {
+                    ...err.extensions,
+                    ...extensions,
+                  },
+                }),
             );
             result.extensions = {
               ...result.extensions,

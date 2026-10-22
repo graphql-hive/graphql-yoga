@@ -1,6 +1,5 @@
 import { GraphQLError } from 'graphql';
 import type { DocumentNode, GraphQLErrorOptions } from 'graphql';
-
 import type { GraphQLParams, OnParamsEventPayload, Plugin, PromiseOrValue } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 

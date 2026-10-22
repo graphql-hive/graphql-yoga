@@ -34,6 +34,7 @@ A later incremental spec is a graphql-tools table row plus an executor publisher
 ### Breaking Changes
 
 - `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` and read with `getSchemaCoordinate` from `@graphql-tools/utils`.
+- `mapMaybePromise` is removed (was exported from Yoga / `@envelop/core`). Use `handleMaybePromise` from `@whatwg-node/promise-helpers`.
 - Yoga no longer re-exports helpers that already live upstream:
   - `getSchemaCoordinate` -> `@graphql-tools/utils`
   - `mergeSchemas` -> `@graphql-tools/schema`
