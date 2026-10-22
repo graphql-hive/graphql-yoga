@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import { jest } from '@jest/globals';
-import { createGraphQLError, createSchema, createYoga, Logger, MemoryLogWriter } from '../src';
+import { createSchema, createYoga, Logger, MemoryLogWriter } from '../src';
 
 describe('logging', () => {
   describe('option', () => {
@@ -146,7 +146,7 @@ describe('logging', () => {
       expect(logger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('does not log unexpeted GraphQL Errors (createGraphQLError)', async () => {
+    it('does not log unexpeted GraphQL Errors (GraphQLError)', async () => {
       const logger = new Logger({ level: 'error' });
       const yoga = createYoga({
         logging: logger,
@@ -159,7 +159,7 @@ describe('logging', () => {
           resolvers: {
             Query: {
               hi() {
-                throw createGraphQLError('No hi for you ok.');
+                throw new GraphQLError('No hi for you ok.');
               },
             },
           },

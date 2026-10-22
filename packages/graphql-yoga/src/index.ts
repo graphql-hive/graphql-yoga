@@ -30,7 +30,6 @@ export { maskError } from './utils/mask-error.js';
 export { type OnParamsEventPayload, type Plugin, type Instrumentation } from './plugins/types.js';
 export { _createLRUCache, createLRUCache } from './utils/create-lru-cache.js';
 export { getRequestId } from './utils/request-id.js';
-export { mergeSchemas } from '@graphql-tools/schema';
 export {
   // Handy type utils
   type Maybe,
@@ -48,7 +47,6 @@ export {
   isIntrospectionOperationString,
   makeExecute,
   makeSubscribe,
-  mapAsyncIterator,
   // Default plugins
   useEnvelop,
   useErrorHandler,
@@ -62,7 +60,7 @@ export {
   chain,
   composeInstrumentation,
 } from '@envelop/instrumentation';
-export { createGraphQLError, isPromise, mapMaybePromise } from '@graphql-tools/utils';
+export { withSchemaCoordinate } from './error.js';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
@@ -71,5 +69,4 @@ export {
   type LandingPageRenderer,
   type LandingPageRendererOpts,
 } from './plugins/use-unhandled-route.js';
-export { DisposableSymbols } from '@whatwg-node/server';
 export * from '@envelop/instrumentation';

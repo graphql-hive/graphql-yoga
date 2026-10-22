@@ -1,8 +1,10 @@
-import type { GraphQLError, ResponsePath } from 'graphql';
+import { GraphQLError } from 'graphql';
+import type { ResponsePath } from 'graphql';
 import type { FetchAPI, Logger, Plugin, YogaConfigContext, YogaInitialContext } from 'graphql-yoga';
-import { createGraphQLError, getRequestLog, isAsyncIterable, mapMaybePromise } from 'graphql-yoga';
+import { getRequestLog, isAsyncIterable } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface ApolloInlineRequestTraceContext {
   startHrTime: [number, number];
@@ -167,12 +169,16 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
     },
     onRequest({ request, serverContext }): void | Promise<void> {
       const log = getRequestLog(serverContext as Partial<YogaConfigContext>, defaultLog);
-      if (options.ignoreRequest) {
-        return mapMaybePromise(options.ignoreRequest(request), shouldIgnore => {
-          if (!shouldIgnore) {
-            setNewContext(request, log);
-          }
-        });
+      const ignoreRequest = options.ignoreRequest;
+      if (ignoreRequest) {
+        return handleMaybePromise(
+          () => ignoreRequest(request),
+          shouldIgnore => {
+            if (!shouldIgnore) {
+              setNewContext(request, log);
+            }
+          },
+        );
       }
       setNewContext(request, log);
     },
@@ -341,7 +347,7 @@ function handleErrors(
     }
 
     // only message and extensions can be rewritten
-    errToReport = createGraphQLError(errToReport.message, {
+    errToReport = new GraphQLError(errToReport.message, {
       extensions: errToReport.extensions || err.extensions,
       nodes: err.nodes,
       source: err.source,

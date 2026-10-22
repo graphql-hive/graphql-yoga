@@ -1,7 +1,6 @@
-import { getIntrospectionQuery, print } from 'graphql';
+import { getIntrospectionQuery, GraphQLError, print } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { createGraphQLError } from '@graphql-tools/utils';
 import type { ResolveUserFn, ValidateUserFn } from '../src/index.js';
 import { DIRECTIVE_SDL, SKIP_AUTH_DIRECTIVE_SDL, useGenericAuth } from '../src/index.js';
 
@@ -387,7 +386,7 @@ describe('useGenericAuth', () => {
               if (params.fieldAuthArgs) {
                 // explicit custom statuses should survive the default
                 // partial-response behavior
-                return createGraphQLError('Forbidden', {
+                return new GraphQLError('Forbidden', {
                   path: params.path,
                   extensions: { http: { status: 403 } },
                 });
@@ -596,13 +595,13 @@ describe('useGenericAuth', () => {
       const validateUserFn: ValidateUserFn<UserTypeWithRole> = params => {
         const schemaCoordinate = `${params.parentType.name}.${params.fieldNode.name.value}`;
         if (!params.user) {
-          return createGraphQLError(`Accessing '${schemaCoordinate}' requires authentication.`, {
+          return new GraphQLError(`Accessing '${schemaCoordinate}' requires authentication.`, {
             nodes: [params.fieldNode],
           });
         }
 
         if (params.fieldAuthArgs && params.fieldAuthArgs['role'] !== params.user.role) {
-          return createGraphQLError(
+          return new GraphQLError(
             `Missing permissions for accessing field '${schemaCoordinate}'. Requires role '${params.fieldAuthArgs['role']}'. Request is authenticated with role '${params.user.role}'.`,
             { nodes: [params.fieldNode] },
           );
@@ -744,6 +743,34 @@ describe('useGenericAuth', () => {
       expect(result.data).toEqual({
         public: 'public',
       });
+    });
+
+    it('should fail closed when variable coercion fails instead of auth-checking skipped fields', async () => {
+      const testInstance = createTestkit(
+        [
+          useGenericAuth({
+            mode: 'protect-granular',
+            resolveUserFn: invalidresolveUserFn,
+          }),
+        ],
+        schemaWithDirective,
+      );
+
+      const result = await testInstance.execute(
+        /* GraphQL */ `
+          query ($skip: Boolean!) {
+            public
+            protected @skip(if: $skip)
+          }
+        `,
+        // wrong type -> getVariableValues errors; must not emit UNAUTHORIZED for `protected`
+        { skip: 'nope' },
+      );
+      assertSingleExecutionValue(result);
+      expect(result.errors?.length).toBeGreaterThan(0);
+      expect(
+        result.errors?.some(error => error.extensions?.['code'] === 'UNAUTHORIZED_FIELD_OR_TYPE'),
+      ).toBe(false);
     });
   });
 });

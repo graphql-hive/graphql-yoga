@@ -1,3 +1,4 @@
+import { versionInfo } from 'graphql';
 import type { YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
 import { createSchema, createYoga, Logger } from 'graphql-yoga';
 import type { ShouldCacheResultFunction } from '@envelop/response-cache';
@@ -6,6 +7,11 @@ import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
 import { createRedisCache } from '@envelop/response-cache-redis';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createInMemoryCache, useResponseCache } from '@graphql-yoga/plugin-response-cache';
+
+const nullVariableMessage =
+  versionInfo.major >= 17
+    ? 'Variable "$person" has invalid value: Expected value of non-null type "String!" not to be null.'
+    : 'Variable "$person" of non-null type "String!" must not be null.';
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `
@@ -236,39 +242,25 @@ it('should miss cache if query variables change', async () => {
 
   // first invalid request, will be cached
   let res = await query(null);
-  await expect(res.json()).resolves.toMatchInlineSnapshot(`
-    {
-      "errors": [
-        {
-          "locations": [
-            {
-              "column": 16,
-              "line": 1,
-            },
-          ],
-          "message": "Variable "$person" of non-null type "String!" must not be null.",
-        },
-      ],
-    }
-  `);
+  await expect(res.json()).resolves.toEqual({
+    errors: [
+      {
+        locations: [{ column: 16, line: 1 }],
+        message: nullVariableMessage,
+      },
+    ],
+  });
 
   // second invalid request, cache hit
   res = await query(null);
-  await expect(res.json()).resolves.toMatchInlineSnapshot(`
-    {
-      "errors": [
-        {
-          "locations": [
-            {
-              "column": 16,
-              "line": 1,
-            },
-          ],
-          "message": "Variable "$person" of non-null type "String!" must not be null.",
-        },
-      ],
-    }
-  `);
+  await expect(res.json()).resolves.toEqual({
+    errors: [
+      {
+        locations: [{ column: 16, line: 1 }],
+        message: nullVariableMessage,
+      },
+    ],
+  });
 
   // third request, valid, cache miss
   res = await query('John');

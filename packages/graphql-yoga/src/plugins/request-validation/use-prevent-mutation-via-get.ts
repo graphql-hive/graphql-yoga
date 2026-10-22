@@ -1,7 +1,6 @@
 import type { DocumentNode, GraphQLHTTPErrorExtensions, OperationDefinitionNode } from 'graphql';
 import { getOperationAST, GraphQLError } from 'graphql';
 import type { Maybe } from '@envelop/core';
-import { createGraphQLError } from '@graphql-tools/utils';
 import type { YogaInitialContext } from '../../types.js';
 import type { Plugin } from '../types.js';
 
@@ -15,7 +14,7 @@ export function assertMutationViaGet(
     : undefined;
 
   if (!operation) {
-    throw createGraphQLError('Could not determine what operation to execute.', {
+    throw new GraphQLError('Could not determine what operation to execute.', {
       extensions: {
         code: 'OPERATION_RESOLUTION_FAILURE',
         http: {
@@ -26,7 +25,7 @@ export function assertMutationViaGet(
   }
 
   if (operation.operation === 'mutation' && method === 'GET') {
-    throw createGraphQLError('Can only perform a mutation operation from a POST request.', {
+    throw new GraphQLError('Can only perform a mutation operation from a POST request.', {
       extensions: {
         http: {
           status: 405,

@@ -593,6 +593,7 @@ export class YogaServer<
             processGraphQLParams({
               params,
               enveloped,
+              request,
               log,
               onOperationType: operationType =>
                 this.operationTypeByContext.set(context, operationType),

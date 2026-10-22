@@ -5,6 +5,7 @@ import type { ExecutionArgs } from '@graphql-tools/executor';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
+import { getIncrementalSpecForRequest } from './plugins/result-processor/accept.js';
 import type { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import type { FetchAPI, GraphQLParams } from './types.js';
 
@@ -83,11 +84,13 @@ export function processResult<TServerContext>({
 export function processRequest({
   params,
   enveloped,
+  request,
   log,
   onOperationType,
 }: {
   params: GraphQLParams;
   enveloped: ReturnType<GetEnvelopedFn<unknown>>;
+  request?: Request;
   log: Logger;
   /** Reports the resolved operation type once known, for the per-request summary log. */
   onOperationType?: (operationType: string | undefined) => void;
@@ -125,6 +128,13 @@ export function processRequest({
         variableValues: params.variables,
         operationName: params.operationName,
       };
+
+      if (request) {
+        const incrementalSpec = getIncrementalSpecForRequest(request);
+        if (incrementalSpec) {
+          executionArgs.incrementalSpec = incrementalSpec;
+        }
+      }
 
       // Choose the right executor
       const executeFn =
