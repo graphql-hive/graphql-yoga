@@ -27,11 +27,12 @@ import type {
   ServerAdapterBaseObject,
   ServerAdapterInitialContext,
   ServerAdapterOptions,
+  ServerAdapterPlugin,
   ServerAdapterRequestHandler,
 } from '@whatwg-node/server';
 import { createServerAdapter, useCORS } from '@whatwg-node/server';
 import { handleError, isAbortError } from './error.js';
-import { createLoggerFromLogging, getRequestLog } from './logger.js';
+import { createLoggerFromLogging } from './logger.js';
 import { useAllowedRequestHeaders, useAllowedResponseHeaders } from './plugins/allowed-headers.js';
 import { isGETRequest, parseGETRequest } from './plugins/request-parser/get.js';
 import {
@@ -345,7 +346,7 @@ export class YogaServer<
               const newError = maskErrorFn(error, message, this.maskedErrorsOpts?.isDev, context);
 
               if (newError !== error) {
-                getRequestLog(context, this.log).error({ err: error });
+                (context?.log ?? this.log).error({ err: error });
               }
 
               maskedErrorSet.add(newError);
@@ -403,7 +404,6 @@ export class YogaServer<
       // Middlewares before processing the incoming HTTP request
       useHealthCheck({
         id: this.id,
-        log: this.log,
         endpoint: options?.healthCheckEndpoint,
       }),
       options?.cors !== false && useCORS(options?.cors),
@@ -413,7 +413,6 @@ export class YogaServer<
           getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),
           options: options?.graphiql,
           render: options?.renderGraphiQL,
-          log: this.log,
         }),
       // Middlewares before the GraphQL execution
       useRequestParser({
@@ -555,10 +554,6 @@ export class YogaServer<
     return this._graphqlEndpointURLPattern;
   }
 
-  private getLog(serverContext: Partial<YogaConfigContext> | undefined): Logger {
-    return getRequestLog(serverContext, this.log);
-  }
-
   handleParams: ParamsHandler<TServerContext> = ({ request, context, params }) => {
     const additionalContext =
       context['request'] === request
@@ -573,10 +568,7 @@ export class YogaServer<
     Object.assign(context, additionalContext);
 
     const enveloped = this.getEnveloped(context);
-    const log = getRequestLog(context, this.log);
-    // Set as an own property (rather than passed alongside `context` to `handleError` below) so
-    // that it's visible through `context` itself
-    context.log = log;
+    const log = context.log;
 
     log.debug(
       () => ({
@@ -697,7 +689,7 @@ export class YogaServer<
 
   parseRequest = (
     request: Request,
-    serverContext: TServerContext & ServerAdapterInitialContext,
+    serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext,
     fetchAPI: FetchAPI = this.fetchAPI,
   ): MaybePromise<
     | {
@@ -749,7 +741,7 @@ export class YogaServer<
         if (response) {
           return { response };
         }
-        this.getLog(serverContext).debug(`Parsing request to extract GraphQL parameters`);
+        serverContext.log.debug(`Parsing request to extract GraphQL parameters`);
 
         if (!requestParser) {
           return {
@@ -791,12 +783,13 @@ export class YogaServer<
 
   handle: ServerAdapterRequestHandler<TServerContext> = (
     request: Request,
-    serverContext: TServerContext & ServerAdapterInitialContext,
+    adapterServerContext: TServerContext & ServerAdapterInitialContext,
     fetchAPI: FetchAPI = this.fetchAPI,
   ) => {
     // `useConfigInServerContext` and `useRequestId` have put the request-scoped logger in the
     // server context by now, so everything logged for this request is correlated by its id
-    const log = this.getLog(serverContext);
+    const serverContext = adapterServerContext as typeof adapterServerContext & YogaConfigContext;
+    const log = serverContext.log;
     const start = performance.now();
 
     const instrumented = this.instrumentation && getInstrumented({ request });
@@ -937,7 +930,8 @@ export function createYoga<
   const server = new YogaServer<TServerContext, TUserContext>(options);
   return createServerAdapter<TServerContext, YogaServer<TServerContext, TUserContext>>(server, {
     fetchAPI: server.fetchAPI,
-    plugins: server['plugins'],
+    // the plugins expect `log` in the server context, which `useConfigInServerContext` puts there first
+    plugins: server['plugins'] as ServerAdapterPlugin<TServerContext>[],
     disposeOnProcessTerminate: options.disposeOnProcessTerminate,
   });
 }

@@ -19,7 +19,7 @@ export interface GraphQLParams<
   extensions?: TExtensions;
 }
 
-export interface YogaConfigContext {
+export type YogaConfigContext = {
   /**
    * The logger to use throughout Yoga and its plugins.
    *
@@ -27,7 +27,7 @@ export interface YogaConfigContext {
    * so every log line produced while handling that request can be correlated together.
    */
   log: Logger;
-}
+};
 
 export interface YogaInitialContext extends ServerAdapterInitialContext, YogaConfigContext {
   /**

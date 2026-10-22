@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import type { ResponsePath } from 'graphql';
-import type { FetchAPI, Logger, Plugin, YogaConfigContext, YogaInitialContext } from 'graphql-yoga';
-import { getRequestLog, isAsyncIterable } from 'graphql-yoga';
+import type { FetchAPI, Logger, Plugin, YogaInitialContext } from 'graphql-yoga';
+import { isAsyncIterable } from 'graphql-yoga';
 import { google, Trace } from '@apollo/usage-reporting-protobuf';
 import { useOnResolve } from '@envelop/on-resolve';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
@@ -114,7 +114,6 @@ export function useApolloInlineTrace(
  */
 export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions) {
   const ctxForReq = new WeakMap<Request, ApolloInlineRequestTraceContext>();
-  let defaultLog: Logger;
 
   function createContext() {
     return {
@@ -134,9 +133,6 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
   }
 
   const plugin: Plugin = {
-    onYogaInit({ yoga }) {
-      defaultLog = yoga.log;
-    },
     onPluginInit: ({ addPlugin }) => {
       addPlugin(
         useOnResolve(({ context, info }) => {
@@ -168,7 +164,7 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
       );
     },
     onRequest({ request, serverContext }): void | Promise<void> {
-      const log = getRequestLog(serverContext as Partial<YogaConfigContext>, defaultLog);
+      const log = serverContext.log;
       const ignoreRequest = options.ignoreRequest;
       if (ignoreRequest) {
         return handleMaybePromise(
@@ -227,9 +223,7 @@ export function useApolloInstrumentation(options: ApolloInlineTracePluginOptions
       if (!reqCtx) return;
       // onResultProcess will be called only once since we disallow async iterables
       if (reqCtx.stopped) {
-        getRequestLog(serverContext as Partial<YogaConfigContext>, defaultLog).debug(
-          'Trace stopped multiple times',
-        );
+        serverContext.log.debug('Trace stopped multiple times');
       }
 
       reqCtx.stopped = true;

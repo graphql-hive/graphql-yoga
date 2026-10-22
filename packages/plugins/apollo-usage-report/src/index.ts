@@ -1,7 +1,6 @@
 import type { DocumentNode, GraphQLSchema } from 'graphql';
 import { getOperationAST, Kind } from 'graphql';
 import {
-  getRequestLog,
   isAsyncIterable,
   Logger,
   YogaServer,
@@ -159,10 +158,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
   let reporter: Reporter;
   let defaultLog: Logger;
 
-  const getLog = (context: Partial<YogaConfigContext> | undefined) => {
-    const log = getRequestLog(context, defaultLog);
-    return log === defaultLog ? log : log.child('ApolloUsageReport');
-  };
+  const getLog = (context: YogaConfigContext) => context.log.child('ApolloUsageReport');
 
   const setCurrentSchema = async (schema: GraphQLSchema) => {
     try {
@@ -298,7 +294,7 @@ export function useApolloUsageReport(options: ApolloUsageReportOptions = {}): Pl
         },
 
         onResultProcess({ request, result, serverContext }) {
-          const log = getLog(serverContext as Partial<YogaConfigContext>);
+          const log = getLog(serverContext);
           // TODO: Handle async iterables ?
           if (isAsyncIterable(result)) {
             log.debug('async iterable results not implemented for now');

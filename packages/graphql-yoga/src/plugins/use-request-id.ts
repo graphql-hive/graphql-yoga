@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { FetchAPI, YogaConfigContext } from '../types.js';
+import type { FetchAPI } from '../types.js';
 import { getRequestId } from '../utils/request-id.js';
 import type { Plugin } from './types.js';
 
@@ -100,8 +100,7 @@ export function useRequestId<TServerContext extends Record<string, any>>(
       // `useConfigInServerContext` runs before this plugin and puts the logger in the server
       // context. It can still be missing when this plugin is used on its own, in which case the
       // request id is only propagated through the headers.
-      const configContext = serverContext as Partial<YogaConfigContext>;
-      configContext.log &&= configContext.log.child({ requestId });
+      serverContext.log &&= serverContext.log.child({ requestId });
     },
     onResponse({ request, response }) {
       const requestId = requestIdByRequest.get(request);

@@ -7,7 +7,7 @@ import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
 import { getIncrementalSpecForRequest } from './plugins/result-processor/accept.js';
 import type { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
-import type { FetchAPI, GraphQLParams } from './types.js';
+import type { FetchAPI, GraphQLParams, YogaConfigContext } from './types.js';
 
 export function processResult<TServerContext>({
   request,
@@ -25,7 +25,7 @@ export function processResult<TServerContext>({
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
   log: Logger;
-  serverContext: TServerContext & ServerAdapterInitialContext;
+  serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext;
 }): MaybePromise<Response> {
   let resultProcessor: ResultProcessor | undefined;
 

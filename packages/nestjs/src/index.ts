@@ -6,10 +6,10 @@ import {
   filter,
   Logger as HiveLogger,
   pipe,
-  type LogLevel,
   YogaSchemaDefinition,
   YogaServerInstance,
   YogaServerOptions,
+  type LogLevel,
 } from 'graphql-yoga';
 import { mergeSchemas } from '@graphql-tools/schema';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';

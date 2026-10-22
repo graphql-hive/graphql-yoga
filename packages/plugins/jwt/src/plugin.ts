@@ -1,6 +1,5 @@
 import { GraphQLError } from 'graphql';
-import type { FetchAPI, Logger, Plugin, YogaConfigContext } from 'graphql-yoga';
-import { getRequestLog } from 'graphql-yoga';
+import type { FetchAPI, Logger, Plugin } from 'graphql-yoga';
 import jsonwebtoken, { type Jwt, type JwtPayload, type VerifyOptions } from 'jsonwebtoken';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
@@ -121,7 +120,7 @@ export function useJWT(options: JwtPluginOptions): Plugin<{
       validatedRequestAndContextSet.add(payload.request);
     }
 
-    const requestLog = getRequestLog(payload.serverContext as Partial<YogaConfigContext>, log);
+    const requestLog = payload.serverContext.log;
 
     // Try to find token in request, and reject the request if needed.
     return handleMaybePromise(
@@ -220,7 +219,7 @@ export function useJWT(options: JwtPluginOptions): Plugin<{
   }: {
     request: Request;
     url: URL;
-    serverContext: Record<string, unknown>;
+    serverContext: ExtractTokenFunctionParams['serverContext'];
     extendContext: (newContext: Record<string, unknown>) => void;
   }) {
     if (normalizedOptions.extendContextFieldName === null) {

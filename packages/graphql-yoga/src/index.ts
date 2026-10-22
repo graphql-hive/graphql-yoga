@@ -1,6 +1,6 @@
 export { LegacyLogger, Logger, MemoryLogWriter } from '@graphql-hive/logger';
 export type { LogLevel } from '@graphql-hive/logger';
-export { createLoggerFromLogging, getRequestLog } from './logger.js';
+export { createLoggerFromLogging } from './logger.js';
 export type {
   GraphiQLOptions,
   GraphiQLPluginConfig,

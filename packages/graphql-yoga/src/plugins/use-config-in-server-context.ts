@@ -1,4 +1,3 @@
-import type { ServerAdapterPlugin } from '@whatwg-node/server';
 import type { YogaConfigContext } from '../types.js';
 import type { Plugin } from './types.js';
 
@@ -12,7 +11,7 @@ export interface ConfigInServerContextOptions {
  */
 export function useConfigInServerContext({ configContext }: ConfigInServerContextOptions): Plugin {
   const keys = Object.keys(configContext) as (keyof YogaConfigContext)[];
-  const configInServerContextPlugin: ServerAdapterPlugin = {
+  const configInServerContextPlugin: Plugin = {
     onRequest({ serverContext }) {
       // we want to inject the YogaConfigContext to the server context to
       // have it available always through the plugin system
@@ -30,6 +29,12 @@ export function useConfigInServerContext({ configContext }: ConfigInServerContex
     },
   };
   return {
+    onEnveloped({ context, extendContext }) {
+      // contexts built by hand (e.g. for graphql-ws) never went through `onRequest`
+      if (context && !context.log) {
+        extendContext(configContext);
+      }
+    },
     onPluginInit({ plugins }) {
       if (!plugins.includes(configInServerContextPlugin)) {
         // we unshift because we want this plugin to run first before all other
