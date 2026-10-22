@@ -7,6 +7,12 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as Sentry from '@sentry/node';
 
 describe('sentry', () => {
+  // Each test initializes its own client, and since v11 Sentry warns when `init` is called while
+  // another client is still active. Close the previous one between tests.
+  afterEach(async () => {
+    await Sentry.close();
+  });
+
   test('report unexpected error', async () => {
     const { testkit: sentryTestkit, sentryTransport } = createSentryTestkit();
     Sentry.init({
