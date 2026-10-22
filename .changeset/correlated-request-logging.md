@@ -53,6 +53,7 @@ The `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@en
 - `yoga.logger` has been renamed to `yoga.log`.
 - The `logger` option of `useGraphiQL` and `useHealthCheck` has been removed. They now log through the request's logger.
 - `@graphql-yoga/nestjs` now logs through Nest's `Logger` by default instead of not logging at all. Pass `logging: false` to keep the previous behaviour. `logging: true` on Fastify no longer logs through Fastify's logger, pass it explicitly instead (see below).
+- `@envelop/apollo-federation`, `@envelop/auth0`, `@envelop/graphql-jit`, `@envelop/newrelic`, `@envelop/resource-limitations`, `@envelop/response-cache`, `@envelop/response-cache-cloudflare-kv` and `@envelop/statsd` now have a peer dependency on `@graphql-hive/logger` that you must install.
 - `@envelop/apollo-federation`'s `logger` option now expects a `Logger` from `@graphql-hive/logger` and defaults to `new Logger()` instead of `console`.
 
 ### Migration
@@ -91,6 +92,12 @@ const resolvers = {
     }
   }
 }
+```
+
+If you use any of the `@envelop/*` plugins listed above, install the logger:
+
+```sh
+npm i @graphql-hive/logger
 ```
 
 If you depended on `@graphql-yoga/logger` directly, switch to `@graphql-hive/logger`:
