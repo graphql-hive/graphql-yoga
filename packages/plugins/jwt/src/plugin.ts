@@ -29,7 +29,6 @@ type PluginPayload = {
 export function useJWT(options: JwtPluginOptions): Plugin<{
   jwt?: JWTExtendContextFields;
 }> {
-  let log: Logger;
   const normalizedOptions = normalizeConfig(options);
   const payloadByContext = new WeakMap<object, PluginPayload>();
   const payloadByRequest = new WeakMap<Request, PluginPayload>();
@@ -259,7 +258,6 @@ export function useJWT(options: JwtPluginOptions): Plugin<{
   let fetchAPI: FetchAPI;
   return {
     onYogaInit({ yoga }) {
-      log = yoga.log;
       fetchAPI = yoga.fetchAPI;
     },
     onRequestParse({ request, url, serverContext }) {

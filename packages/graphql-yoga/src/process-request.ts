@@ -14,7 +14,6 @@ export function processResult<TServerContext>({
   result,
   fetchAPI,
   onResultProcessHooks,
-  log,
   serverContext,
 }: {
   request: Request;
@@ -24,9 +23,9 @@ export function processResult<TServerContext>({
    * Response Hooks
    */
   onResultProcessHooks: OnResultProcess<TServerContext>[];
-  log: Logger;
   serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext;
 }): MaybePromise<Response> {
+  const log = serverContext.log;
   let resultProcessor: ResultProcessor | undefined;
 
   const acceptableMediaTypes: string[] = [];

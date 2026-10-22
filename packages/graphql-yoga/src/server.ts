@@ -866,7 +866,6 @@ export class YogaServer<
                 result,
                 fetchAPI,
                 onResultProcessHooks: this.onResultProcessHooks,
-                log,
                 serverContext,
               });
             },
@@ -885,7 +884,6 @@ export class YogaServer<
             result,
             fetchAPI,
             onResultProcessHooks: this.onResultProcessHooks,
-            log,
             serverContext,
           });
         })

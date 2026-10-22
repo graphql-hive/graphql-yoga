@@ -63,6 +63,8 @@ export type ShouldCacheResultFunction = (
   params: {
     cacheKey: string;
     result: ExecutionResult;
+    /** GraphQL Context */
+    context: ExecutionArgs['contextValue'];
   },
   log?: Logger,
 ) => boolean;
@@ -608,7 +610,14 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
                   });
                 }
 
-                if (skip || !shouldCacheResult({ cacheKey, result }, log) || finalTtl === 0) {
+                if (
+                  skip ||
+                  !shouldCacheResult(
+                    { cacheKey, result, context: onExecuteParams.args.contextValue },
+                    log,
+                  ) ||
+                  finalTtl === 0
+                ) {
                   if (includeExtensionMetadata) {
                     setResult(resultWithMetadata(result, { hit: false, didCache: false }));
                   }

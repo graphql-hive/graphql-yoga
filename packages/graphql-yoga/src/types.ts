@@ -87,7 +87,7 @@ export type MaskError = (
    * (it gets one from the context it's given at the point of the call). May be partial, or
    * unset entirely, for an error before a full context could be built.
    */
-  context?: Partial<YogaInitialContext>,
+  context?: Partial<YogaInitialContext> & YogaConfigContext,
 ) => Error;
 
 export type MaybeArray<T> = T | T[];
