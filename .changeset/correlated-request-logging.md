@@ -18,102 +18,94 @@
 '@envelop/types': minor
 ---
 
-Update to use the hive logger. (closes #4048)
+Use [`@graphql-hive/logger`](https://github.com/graphql-hive/logger) and add correlated, per-request logging (closes #4048)
 
-Add correlated, per-request debug logging across the HTTP and GraphQL execution lifecycle.
+Every request now gets its own logger, available as `context.log` (and `serverContext.log` in plugin hooks), tagged with a `requestId`. Everything logged while handling a request can be correlated by that id.
 
-Every incoming request now gets its own child `Logger` (available as `context.log`), tagged with a `requestId` attribute reused from a request id the host integration already assigned to the native request object (e.g. Fastify's `request.id`), or otherwise taken from the incoming `x-request-id` header if present (see the new `trustHeader` option), or generated otherwise, so all `debug`/`info`/`error` log lines produced while handling that request can be correlated together. The id is also set on the outgoing response's `x-request-id` header. This means `useRequestId` can be left enabled alongside a host's own request-id/correlation setup without the two minting conflicting ids - the host no longer has to pass `requestId: false` just to avoid that.
+The request id is taken from the host integration if it already assigned one (e.g. Fastify's `request.id`), otherwise from the incoming `x-request-id` header, otherwise generated. It is also sent back in the `x-request-id` response header. Configure it with the new `requestId` option:
 
-A host-assigned id always takes precedence now (previously, the `x-request-id` header did), so Yoga's logs agree with the host's own correlation id whenever one is set. Set `requestId: { trustHeader: false }` to stop trusting the `x-request-id` header altogether - e.g. when the server is directly reachable by clients, rather than only through a proxy or gateway that sets the header itself, since otherwise any client could pick its own request id and have it correlated across your logs as if it were trusted.
+```ts
+createYoga({
+  requestId: {
+    // don't trust the incoming header, recommended when clients can reach the server directly
+    trustHeader: false,
+    headerName: 'x-correlation-id',
+    generateRequestId: () => myId()
+  }
+})
+```
 
-The logger is put in the server context by the new `useConfigInServerContext` plugin (also ported from Hive Gateway), which makes the server's config context - `{ log }` - available to every plugin hook, including the ones short-circuiting a request (GraphiQL, health and readiness checks).
+Pass `requestId: false` to disable it.
 
-A one-line `info`-level "Request processed" summary is now logged once per HTTP request, carrying the `method`, `path`, `operationName` and `operationType` (or `batchedOperations` count for a batched request), the response `status`, the GraphQL `errorCount`, and the request's `durationMs`.
+At the `info` level, a single "Request processed" line is logged per request with the method, path, operation name and type, response status, error count and duration. At the `debug` level, more details about request processing are logged.
 
-New `debug`-level log lines were added for:
+Masked errors are now logged with the request's logger, so they can be traced back to the request that caused them. Custom `maskError` functions receive the request's context as an optional fourth argument.
 
-- the request path, `operationName` and variables count when processing GraphQL parameters
-- the resolved GraphQL operation type after parsing, and parser errors (previously indistinguishable from other unexpected errors)
-- the response status code once a result has been processed into an HTTP `Response`
-- a successfully fetched signing key in `@graphql-yoga/plugin-jwt`
-- a successfully loaded supergraph schema in `@graphql-yoga/apollo-managed-federation` (`info` level, mirroring the existing failure log)
+The `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`, `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv` plugins accept a new `log` option for their own messages, instead of always writing to the console.
 
-Errors masked by `useMaskedErrors` are now logged through the request's correlated logger too, so a masked error can be traced back to the request that produced it. To make this possible without shared mutable state, `@envelop/core`'s `MaskError` type (and `UseMaskedErrorsOpts`) gained an optional third `context` argument, populated from whichever GraphQL context is available at the point of the call; `@envelop/types`' `SubscribeErrorHookPayload` (and `SubscribeErrorHook`) gained a `context` field to support this for subscriptions that error before ever yielding a result.
-
-`MemoryLogWriter` is now re-exported from `graphql-yoga` for tests that need to observe logs written by these per-request child loggers (spying on logger instance methods directly does not work for child loggers, since `Logger.child()` returns an independent instance that only shares writers/level with its parent).
-
-The generic `@envelop/*` plugins that logged via `console.warn`/`console.error` internally (`newrelic`, `auth0`, `resource-limitations`, `statsd`, `graphql-jit`, `response-cache`, `response-cache-cloudflare-kv`) now accept an optional `log` option (backed by `@graphql-hive/logger`) for their own diagnostic messages, defaulting to `new Logger()` so console-based output is unchanged if you don't provide one.
+`@envelop/response-cache`'s `shouldCacheResult` now also receives the GraphQL `context`.
 
 ### Breaking Changes
 
-- `useRequestId`'s request id resolution order changed: a host-assigned id (e.g. Fastify's `request.id`) now takes precedence over the incoming `x-request-id` header, rather than the other way around. A new `trustHeader` option (default `true`) can disable trusting the header altogether.
-- `allowedHeaders.response` is now applied after `cors` and after user-supplied plugins, instead of before. Headers added by the `cors` option or by a plugin's `onResponse` hook are now subject to the allow-list and will be stripped unless included in it. If you use `allowedHeaders.response` together with `cors` or a plugin that sets response headers, add those header names to the allow-list.
-- The logging is now called using `log` instead of `logger`.
-- The `logger` option of the built-in plugin configs is now called `log` too (`GraphiQLPluginConfig`, `HealthCheckPluginOptions`), and likewise for the `logger` option of `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`, `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`.
-- The `logger` option of `@envelop/apollo-federation`'s `useApolloFederation` (kept under its existing name, unlike the plugins above) is now typed as `Logger` from `@graphql-hive/logger` instead of a loosely-typed `{ warn, debug, info, error }` interface, and it now defaults to `new Logger()` instead of the global `console`.
-- `@graphql-yoga/nestjs` now logs through Nest's own `Logger` by default (like `@graphql-hive/nestjs` does), instead of not logging at all. Pass `logging: false` to keep the previous behaviour. Passing `logging: true` now logs at the `info` level through Yoga's default (console) logger instead of the HTTP framework's logger - to keep logging through Fastify's Pino instance, pass it explicitly:
-
-  ```ts
-  logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
-  ```
-
-- The `@graphql-yoga/logger` package has been removed. `graphql-yoga` now depends on [`@graphql-hive/logger`](https://github.com/graphql-hive/logger) directly and re-exports its `Logger`, `MemoryLogWriter`, and `LogLevel` from the main entrypoint.
-- The `createLogger` helper and the `YogaLogger` type alias are no longer exported. Construct a logger with `new Logger(options)` instead (also re-exported from `graphql-yoga`).
-- The `logging` option now takes `boolean | Logger | LogLevel`, exactly like Hive Gateway's, and is interpreted by the newly exported `createLoggerFromLogging` helper: `true` (the default) logs at the `info` level, `false` disables logging, a `LogLevel` string (e.g. `'debug'`) logs at that level, and a `Logger` instance gives full control.
+- The `@graphql-yoga/logger` package has been removed. `graphql-yoga` re-exports `Logger`, `MemoryLogWriter` and `LogLevel` from `@graphql-hive/logger` instead.
+- `createLogger` and the `YogaLogger` type are no longer exported. Use `new Logger(options)` instead.
+- The `logging` option now takes `boolean | Logger | LogLevel`, where `Logger` is the one from `@graphql-hive/logger`.
+- `yoga.logger` has been renamed to `yoga.log`.
+- The `logger` option of `useGraphiQL` and `useHealthCheck` has been removed. They now log through the request's logger.
+- `@graphql-yoga/nestjs` now logs through Nest's `Logger` by default instead of not logging at all. Pass `logging: false` to keep the previous behaviour. `logging: true` on Fastify no longer logs through Fastify's logger, pass it explicitly instead (see below).
+- `@envelop/apollo-federation`'s `logger` option now expects a `Logger` from `@graphql-hive/logger` and defaults to `new Logger()` instead of `console`.
 
 ### Migration
+
+Create loggers with `Logger`:
 
 ```diff
 - import { createLogger } from 'graphql-yoga';
 + import { Logger } from 'graphql-yoga';
 
-- const logging = createLogger('debug');
-+ const logging = new Logger({ level: 'debug' });
-
   createYoga({
-    logging: logging,
-    // ...
+-   logging: createLogger('debug'),
++   logging: new Logger({ level: 'debug' }),
   });
 ```
 
-The per-request logger has been renamed in the contexts:
-
-```diff
-  const yoga = createYoga({
-    schema: createSchema({
-      typeDefs,
-      resolvers: {
-        Query: {
-          hello: (_, __, context) => {
--           context.logger.debug('resolving hello');
-+           context.log.debug('resolving hello');
-            return 'world';
-          },
-        },
-      },
-    }),
-  });
-```
+Use `log` instead of `logger` on the Yoga instance:
 
 ```diff
   const plugin = {
     onYogaInit({ yoga }) {
--     logger = yoga.logger;
-+     log = yoga.log;
+-     yoga.logger.info('ready');
++     yoga.log.info('ready');
     },
   };
 ```
 
-If you were depending on the standalone `@graphql-yoga/logger` package directly (e.g. in a plugin that doesn't otherwise depend on `graphql-yoga`), install `@graphql-hive/logger` instead and update your imports:
+Prefer the request-scoped logger inside resolvers and plugin hooks so the logs carry the request id:
 
-```diff
-- pnpm add @graphql-yoga/logger
-+ pnpm add @graphql-hive/logger
+```ts
+const resolvers = {
+  Query: {
+    hello: (_, __, context) => {
+      context.log.debug('resolving hello')
+      return 'world'
+    }
+  }
+}
 ```
 
+If you depended on `@graphql-yoga/logger` directly, switch to `@graphql-hive/logger`:
+
 ```diff
-- import { Logger, MemoryLogWriter } from '@graphql-yoga/logger';
-+ import { Logger, MemoryLogWriter } from '@graphql-hive/logger';
+- import { Logger } from '@graphql-yoga/logger';
++ import { Logger } from '@graphql-hive/logger';
 ```
 
-(If you already depend on `graphql-yoga` itself, you can keep importing `Logger`/`MemoryLogWriter` from there instead, since it re-exports both.)
+To keep logging through Fastify's logger in `@graphql-yoga/nestjs`:
+
+```ts
+import { Logger } from 'graphql-yoga'
+import { PinoLogWriter } from '@graphql-hive/logger/writers/pino'
+
+// in your yoga driver options
+logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
+```
