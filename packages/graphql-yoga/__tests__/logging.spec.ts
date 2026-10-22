@@ -185,6 +185,164 @@ describe('logging', () => {
     });
   });
 
+  describe('request id correlation', () => {
+    function createTestYoga() {
+      const writer = new MemoryLogWriter();
+      const yoga = createYoga({
+        logging: new Logger({ level: 'trace', writers: [writer] }),
+        batching: true,
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              hello: String
+              fail: String
+              failUnexpectedly: String
+            }
+            type Mutation {
+              bye: String
+            }
+            type Subscription {
+              counter: Int
+            }
+          `,
+          resolvers: {
+            Query: {
+              hello: () => 'world',
+              fail() {
+                throw new Error('The database connection failed.');
+              },
+              failUnexpectedly() {
+                // not an error and without a `toString`, so yoga logs it as unexpected
+                throw Object.create(null);
+              },
+            },
+            Mutation: {
+              bye: () => 'bye',
+            },
+            Subscription: {
+              counter: {
+                async *subscribe() {
+                  yield { counter: 1 };
+                  yield { counter: 2 };
+                },
+              },
+            },
+          },
+        }),
+      });
+      return { yoga, writer };
+    }
+
+    const json = { 'content-type': 'application/json' };
+
+    it.each<{ name: string; path: string; init?: RequestInit }>([
+      { name: 'GET query', path: '/graphql?query={hello}' },
+      {
+        name: 'POST query',
+        path: '/graphql',
+        init: { method: 'POST', headers: json, body: JSON.stringify({ query: '{hello}' }) },
+      },
+      {
+        name: 'POST mutation',
+        path: '/graphql',
+        init: { method: 'POST', headers: json, body: JSON.stringify({ query: 'mutation{bye}' }) },
+      },
+      {
+        name: 'batched request',
+        path: '/graphql',
+        init: {
+          method: 'POST',
+          headers: json,
+          body: JSON.stringify([{ query: '{hello}' }, { query: '{fail}' }]),
+        },
+      },
+      { name: 'parse error', path: '/graphql?query={' },
+      { name: 'validation error', path: '/graphql?query={nope}' },
+      { name: 'resolver error', path: '/graphql?query={fail}' },
+      { name: 'unexpected resolver error', path: '/graphql?query={failUnexpectedly}' },
+      {
+        name: 'missing query',
+        path: '/graphql',
+        init: { method: 'POST', headers: json, body: JSON.stringify({}) },
+      },
+      {
+        name: 'unsupported media type',
+        path: '/graphql',
+        init: { method: 'POST', headers: { 'content-type': 'text/plain' }, body: '{hello}' },
+      },
+      {
+        name: 'subscription over SSE',
+        path: '/graphql?query=subscription{counter}',
+        init: { headers: { accept: 'text/event-stream' } },
+      },
+      { name: 'health check', path: '/health' },
+      { name: 'GraphiQL', path: '/graphql', init: { headers: { accept: 'text/html' } } },
+    ])('attaches the request id to every log of a $name', async ({ path, init }) => {
+      const { yoga, writer } = createTestYoga();
+
+      const response = await yoga.fetch(`http://yoga${path}`, {
+        ...init,
+        headers: { ...init?.headers, 'x-request-id': 'my-request-id' },
+      });
+      // consume the body so that streamed results are fully processed
+      await response.text();
+
+      expect(writer.logs.length).toBeGreaterThan(0);
+      for (const log of writer.logs) {
+        expect(log).toEqual(
+          expect.objectContaining({
+            attrs: expect.objectContaining({ requestId: 'my-request-id' }),
+          }),
+        );
+      }
+    });
+
+    it('attaches the generated request id to every log', async () => {
+      const { yoga, writer } = createTestYoga();
+
+      const response = await yoga.fetch('http://yoga/graphql?query={hello}');
+      await response.text();
+
+      const requestId = response.headers.get('x-request-id');
+      expect(requestId).toEqual(expect.any(String));
+      expect(writer.logs.length).toBeGreaterThan(0);
+      for (const log of writer.logs) {
+        expect(log).toEqual(
+          expect.objectContaining({ attrs: expect.objectContaining({ requestId }) }),
+        );
+      }
+    });
+
+    it('does not mix up request ids of concurrent requests', async () => {
+      const { yoga, writer } = createTestYoga();
+
+      const ids = Array.from({ length: 10 }, (_, i) => `request${i}`);
+      await Promise.all(
+        ids.map(async id => {
+          const response = await yoga.fetch(
+            `http://yoga/graphql?query=query+${id}{hello}&operationName=${id}`,
+            { headers: { 'x-request-id': id } },
+          );
+          await response.text();
+        }),
+      );
+
+      for (const id of ids) {
+        const summaries = writer.logs.filter(
+          log =>
+            log.msg === 'Request processed' &&
+            (log.attrs as { requestId?: string }).requestId === id,
+        );
+        expect(summaries).toHaveLength(1);
+        // the summary carries the operation name of the same request, so ids did not leak
+        expect(summaries[0]?.attrs).toEqual(expect.objectContaining({ operationName: id }));
+      }
+      for (const log of writer.logs) {
+        expect(ids).toContain((log.attrs as { requestId?: string }).requestId);
+      }
+    });
+  });
+
   describe('request summary', () => {
     it('logs a `Request processed` summary at the `info` level', async () => {
       const writer = new MemoryLogWriter();
