@@ -2612,8 +2612,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       graphql-jit:
-        specifier: 0.8.7
-        version: 0.8.7(graphql@17.0.2)
+        specifier: ^0.9.3
+        version: 0.9.3(graphql@17.0.2)
       tslib:
         specifier: ^2.5.0
         version: 2.8.1
@@ -6226,9 +6226,6 @@ packages:
 
   '@fastify/forwarded@3.0.2':
     resolution: {integrity: sha512-NE8HgKLgYejV9lDpqkEFaDKMLYelJBVfHekhB0UKvX0ghagXRJqg68feg8er1NPXxG4N9i6vPxzt8E+3wHfcmA==}
-
-  '@fastify/merge-json-schemas@0.1.1':
-    resolution: {integrity: sha512-fERDVz7topgNjtXsJTTW1JKLy0rhuLRcquYqNR9rF7OcVpCa2OVW49ZPDIhaRRCaUuvVxI+N416xUoF76HNSXA==}
 
   '@fastify/merge-json-schemas@0.2.1':
     resolution: {integrity: sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A==}
@@ -13231,9 +13228,6 @@ packages:
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
 
-  fast-json-stringify@5.16.1:
-    resolution: {integrity: sha512-KAdnLvy1yu/XrRtP+LJnxbBGrhN+xXu+gt3EUvZhYGKCr3lFHq/7UFJHHFgmJKoqlh6B40bZLEv7w46B0mqn1g==}
-
   fast-json-stringify@7.0.1:
     resolution: {integrity: sha512-eRSayARSbbwlBjpP4vnTTIRD5QPcIrmihPxDeN1DtKnHPg66UuJLx+8hlK1kaFdjvzyQ/dzALoi4vwAQ+T+iZA==}
 
@@ -13252,9 +13246,6 @@ packages:
   fast-unique-numbers@9.0.27:
     resolution: {integrity: sha512-nDA9ADeINN8SA2u2wCtU+siWFTTDqQR37XvgPIDDmboWQeExz7X0mImxuaN+kJddliIqy2FpVRmnvRZ+j8i1/A==}
     engines: {node: '>=18.2.0'}
-
-  fast-uri@2.4.7:
-    resolution: {integrity: sha512-b8mggfg2R+m2OAb3Z+2HcJxUgU+2cY1JQondBDyXLdrEKNPxd96MvnB5yWKZdupsuX6GdBaAZHZo9msHX/Bb7A==}
 
   fast-uri@3.1.8:
     resolution: {integrity: sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==}
@@ -13869,8 +13860,8 @@ packages:
     peerDependencies:
       graphql: '>=0.11 <=16'
 
-  graphql-jit@0.8.7:
-    resolution: {integrity: sha512-KGzCrsxQPfEiXOUIJCexWKiWF6ycjO89kAO6SdO8OWRGwYXbG0hsLuTnbFfMq0gj7d7/ib/Gh7jtst7FHZEEjw==}
+  graphql-jit@0.9.3:
+    resolution: {integrity: sha512-XkNF0CbkkHE1BWcoRySR5tArDD1igD+0Ri7otHajVccQ8Ddm30csk5ZxYce7SFq3DlDSigtuYJLaxjTXoOAx5g==}
     peerDependencies:
       graphql: '>=15'
 
@@ -14994,9 +14985,6 @@ packages:
   json-parse-even-better-errors@3.0.2:
     resolution: {integrity: sha512-fi0NG4bPjCHunUJffmLd0gxssIgkNmArMvis4iNah6Owg1MCJjWhEcDLmsK6iGkJq3tHwbDkTlce70/tmXN4cQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-
-  json-schema-ref-resolver@1.0.1:
-    resolution: {integrity: sha512-EJAj1pgHc1hxF6vo2Z3s69fMjO1INq6eGHXZ8Z6wCQeldCuwxGK9Sxf4/cScGn3FZubCVUehfWtcDM/PLteCQw==}
 
   json-schema-ref-resolver@3.0.0:
     resolution: {integrity: sha512-hOrZIVL5jyYFjzk7+y7n5JDzGlU8rfWDuYyHwGa2WA8/pcmMHezp2xsVwxrebD/Q9t8Nc5DboieySDpCp4WG4A==}
@@ -22039,10 +22027,6 @@ snapshots:
       fastify-plugin: 6.0.0
 
   '@fastify/forwarded@3.0.2': {}
-
-  '@fastify/merge-json-schemas@0.1.1':
-    dependencies:
-      fast-deep-equal: 3.1.3
 
   '@fastify/merge-json-schemas@0.2.1':
     dependencies:
@@ -31072,16 +31056,6 @@ snapshots:
 
   fast-json-stable-stringify@2.1.0: {}
 
-  fast-json-stringify@5.16.1:
-    dependencies:
-      '@fastify/merge-json-schemas': 0.1.1
-      ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
-      fast-deep-equal: 3.1.3
-      fast-uri: 2.4.7
-      json-schema-ref-resolver: 1.0.1
-      rfdc: 1.4.1
-
   fast-json-stringify@7.0.1:
     dependencies:
       '@fastify/merge-json-schemas': 0.2.1
@@ -31105,8 +31079,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       tslib: 2.8.1
-
-  fast-uri@2.4.7: {}
 
   fast-uri@3.1.8: {}
 
@@ -31901,10 +31873,10 @@ snapshots:
     dependencies:
       graphql: 17.0.2
 
-  graphql-jit@0.8.7(graphql@17.0.2):
+  graphql-jit@0.9.3(graphql@17.0.2):
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.2)
-      fast-json-stringify: 5.16.1
+      fast-json-stringify: 7.0.1
       generate-function: 2.3.1
       graphql: 17.0.2
       lodash.memoize: 4.1.2
@@ -33535,10 +33507,6 @@ snapshots:
   json-parse-even-better-errors@2.3.1: {}
 
   json-parse-even-better-errors@3.0.2: {}
-
-  json-schema-ref-resolver@1.0.1:
-    dependencies:
-      fast-deep-equal: 3.1.3
 
   json-schema-ref-resolver@3.0.0:
     dependencies:
