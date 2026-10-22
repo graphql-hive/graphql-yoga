@@ -11,7 +11,7 @@ import type {
   PromiseOrValue,
   SubscribeFunction,
 } from '@envelop/types';
-import { fakePromise, isPromise } from '@whatwg-node/promise-helpers';
+import { fakePromise } from '@whatwg-node/promise-helpers';
 
 export const envelopIsIntrospectionSymbol = Symbol('ENVELOP_IS_INTROSPECTION');
 
@@ -39,8 +39,6 @@ function getSubscribeArgs(args: PolymorphicSubscribeArguments): ExecutionArgs {
 export const makeSubscribe = (subscribeFn: (args: ExecutionArgs) => any): SubscribeFunction =>
   ((...polyArgs: PolymorphicSubscribeArguments): PromiseOrValue<AsyncIterableIterator<any>> =>
     subscribeFn(getSubscribeArgs(polyArgs))) as SubscribeFunction;
-
-export { mapAsyncIterator } from '@whatwg-node/promise-helpers';
 
 function getExecuteArgs(args: PolymorphicExecuteArguments): ExecutionArgs {
   return args.length === 1
@@ -196,5 +194,3 @@ export function errorAsyncIterator<TInput>(
     },
   } as AsyncGenerator<TInput>;
 }
-
-export { isPromise };
