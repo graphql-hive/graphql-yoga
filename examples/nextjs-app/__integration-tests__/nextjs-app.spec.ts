@@ -21,7 +21,11 @@ describe('nextjs 13 App Router', () => {
     port = await getAvailablePort();
     serverProcess = await spawn('pnpm', ['dev'], {
       signal,
-      env: { PORT: String(port) },
+      env: {
+        PORT: String(port),
+        // Tight limit so the oversized-body case below exercises NextRequest + Proxy.
+        YOGA_MAX_REQUEST_BODY_SIZE: '500',
+      },
       cwd: path.join(__dirname, '..'),
     });
     await waitForAvailable(port, { signal });
@@ -79,5 +83,27 @@ describe('nextjs 13 App Router', () => {
 
     expect(json.errors).toBeFalsy();
     expect(json.data?.greetings).toBe('This is the `greetings` field of the root `Query` type');
+  });
+
+  // Regression for https://github.com/graphql-hive/graphql-yoga/issues/4633:
+  // App Router hands handlers a proxied `NextRequest`. Body-size limiting must
+  // answer 413 (not a cross-realm 500) on that path.
+  it('should reject an oversized POST body with 413 through NextRequest', async () => {
+    const response = await fetch(`http://127.0.0.1:${port}/api/graphql`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        connection: 'close',
+      },
+      body: JSON.stringify({
+        query: 'query { greetings }',
+        variables: { padding: 'x'.repeat(1000) },
+      }),
+    });
+
+    expect(response.status).toBe(413);
+    const json = await response.json();
+    expect(json.errors?.[0]?.message).toMatch(/Request body too large/);
   });
 });
