@@ -1,7 +1,7 @@
 ---
 description:
   Yoga uses @graphql-hive/logger for logging. See https://the-guild.dev/graphql/hive/docs/logger for
-  usage. This outlines how Yoga automatically logs.
+  usage. Learn how to use the request-scoped context logger and what Yoga logs automatically.
 title: Logging and Debugging
 ---
 
@@ -63,8 +63,24 @@ lifetime or across replicas - e.g. Fastify's default `request.id` is a per-proce
 whenever no `x-request-id` header is sent; set the host's id generation to something like
 `crypto.randomUUID()` (e.g. Fastify's `genReqId` option) if you need ids unique across instances.
 
+### Using the context logger
+
+**Use the logger from the context whenever you are handling a request.** `context.log` already
+carries the request's `requestId`, so your messages can be correlated with Yoga's lifecycle logs and
+masked errors. Using `console`, a separate `new Logger()` or the server-wide `yoga.log` instead does
+not automatically associate your messages with that request.
+
+The logger is available both in the `context` factory and in resolvers. Returning your own fields
+from the factory extends Yoga's context; you do not need to return `log` again:
+
 ```ts
+import { createSchema, createYoga } from 'graphql-yoga'
+
 const yoga = createYoga({
+  context: ({ log }) => {
+    log.debug('building application context')
+    return { greeting: 'world' }
+  },
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
@@ -75,13 +91,67 @@ const yoga = createYoga({
       Query: {
         hello: (_, __, context) => {
           context.log.debug('resolving hello')
-          return 'world'
+          return context.greeting
         }
       }
     }
   })
 })
 ```
+
+If a service or helper called by a resolver needs to log, pass `context.log` to it instead of having
+it use a global logger. That keeps its messages tied to the request too.
+
+### Logging from plugin hooks
+
+Read the request logger from each hook's payload:
+
+- HTTP hooks such as `onRequestParse` and `onResponse` expose `serverContext.log`.
+- GraphQL execution hooks such as `onExecute` and `onSubscribe` expose `args.contextValue.log`.
+
+```ts
+import { createYoga } from 'graphql-yoga'
+import { schema } from './my-schema.js'
+
+const yoga = createYoga({
+  schema,
+  plugins: [
+    {
+      onYogaInit({ yoga }) {
+        yoga.log.info('logging plugin initialized')
+      },
+      onRequestParse({ serverContext }) {
+        serverContext.log.debug('preparing to parse the request')
+      },
+      onExecute({ args }) {
+        const { log } = args.contextValue
+        log.debug('executing the operation')
+
+        return {
+          onExecuteDone() {
+            log.debug('operation execution finished')
+          }
+        }
+      },
+      onResponse({ serverContext, response }) {
+        serverContext.log.debug(`sending HTTP response with status ${response.status}`)
+      }
+    }
+  ]
+})
+```
+
+`onYogaInit` runs at server initialization, outside any request, so `yoga.log` is appropriate there.
+Do not capture that server-wide logger for use in request hooks; use the context logger instead.
+
+Keeping a request logger in a local variable for a completion callback, as in `onExecuteDone` above,
+preserves its correlation. Do not store it in a plugin-wide variable: concurrent requests would
+overwrite each other's logger.
+
+The examples use `debug`, which is hidden at the default log level. Set `logging: 'debug'` in
+`createYoga` to see these messages.
+
+### Configuring the request id
 
 Configure (or disable) the request id with the `requestId` option:
 
