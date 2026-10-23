@@ -165,9 +165,13 @@ describe('Request body size limit', () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ query: '{ hello }' }),
       });
+      // Mirrors Next.js `proxyNextRequest`: Reflect.get must use the Request as
+      // receiver. Passing the Proxy itself throws TypeError: Illegal invocation on
+      // Node 26+ (brand-checked getters for url/headers/body/…).
+      // https://github.com/vercel/next.js/blob/canary/packages/next/src/server/route-modules/app-route/module.ts
       const proxied = new Proxy(underlying, {
-        get(target, prop, receiver) {
-          const value = Reflect.get(target, prop, receiver);
+        get(target, prop) {
+          const value = Reflect.get(target, prop, target);
           return typeof value === 'function' ? value.bind(target) : value;
         },
         getPrototypeOf(target) {
@@ -177,6 +181,28 @@ describe('Request body size limit', () => {
       const response = await yoga.fetch(proxied);
       expect(response.status).toBe(200);
       await expect(response.json()).resolves.toMatchObject({ data: { hello: 'world' } });
+    });
+
+    it('still enforces maxRequestBodySize with 413 through a Proxy around a Request subclass', async () => {
+      const yoga = createYoga({ schema, maxRequestBodySize: 10, logging: false });
+      const underlying = new MyRequest('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: '{ hello }' }),
+      });
+      const proxied = new Proxy(underlying, {
+        get(target, prop) {
+          const value = Reflect.get(target, prop, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+        getPrototypeOf(target) {
+          return Reflect.getPrototypeOf(target);
+        },
+      });
+      const response = await yoga.fetch(proxied);
+      expect(response.status).toBe(413);
+      const body = await response.json();
+      expect(body.errors[0].message).toMatch(/Request body too large/);
     });
   });
 
