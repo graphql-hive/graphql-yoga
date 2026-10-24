@@ -1,0 +1,60 @@
+---
+title: Cookies
+---
+
+An HTTP cookie is a small piece of data that holds an information to let the server recognize the
+client. You can learn more about the cookies
+[here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies).
+
+There is a `whatwg-node` plugin to handle cookies using the web standard
+[CookieStore](https://developer.mozilla.org/en-US/docs/Web/API/CookieStore). So it allows you to get
+cookies from the client's request and set cookies back to the client in the response
+
+You can learn more about the
+[CookieStore API here in the MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/CookieStore#examples).
+
+## Installation
+
+```sh npm2yarn
+npm i @whatwg-node/server-plugin-cookies
+```
+
+## Usage
+
+```ts title="cookies.ts"
+import { createSchema, createYoga } from 'graphql-yoga'
+import { useCookies } from '@whatwg-node/server-plugin-cookies'
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        cookie(name: String): String
+      }
+      type Mutation {
+        setCookie(name: String, value: String): String
+      }
+    `,
+    resolvers: {
+      Query: {
+        async cookie(root, args, ctx: YogaInitialContext) {
+          const cookie = await ctx.request.cookieStore?.get(args.name)
+          return cookie?.value
+        }
+      },
+      Mutation: {
+        async setCookie(root, args, ctx: YogaInitialContext) {
+          await ctx.request.cookieStore?.set(args.name, args.value)
+          return args.value
+        }
+      }
+    }
+  }),
+  plugins: [useCookies()]
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.log('Server is running on http://localhost:4000')
+})
+```

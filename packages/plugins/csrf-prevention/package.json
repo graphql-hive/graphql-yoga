@@ -1,6 +1,6 @@
 {
   "name": "@graphql-yoga/plugin-csrf-prevention",
-  "version": "3.24.5",
+  "version": "4.0.1",
   "type": "module",
   "description": "CSRF prevention plugin for GraphQL Yoga that requires the clients to have a specific header set.",
   "repository": {
@@ -15,7 +15,7 @@
   "author": "Denis Badurina <badurinadenis@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -41,9 +41,11 @@
     "check": "tsgo --pretty --noEmit"
   },
   "peerDependencies": {
+    "graphql": "^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "devDependencies": {
+    "graphql": "17.0.2",
     "graphql-yoga": "workspace:*",
     "tslib": "^2.8.1"
   },

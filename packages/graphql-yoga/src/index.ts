@@ -1,4 +1,6 @@
-export * from '@graphql-yoga/logger';
+export { LegacyLogger, Logger, MemoryLogWriter } from '@graphql-hive/logger';
+export type { LogLevel } from '@graphql-hive/logger';
+export { createLoggerFromLogging } from './logger.js';
 export type {
   GraphiQLOptions,
   GraphiQLPluginConfig,
@@ -7,6 +9,18 @@ export type {
 } from './plugins/use-graphiql.js';
 export { renderGraphiQL, shouldRenderGraphiQL } from './plugins/use-graphiql.js';
 export { useReadinessCheck } from './plugins/use-readiness-check.js';
+export {
+  type ConfigInServerContextOptions,
+  useConfigInServerContext,
+} from './plugins/use-config-in-server-context.js';
+export {
+  defaultGenerateRequestId,
+  defaultRequestIdHeader,
+  useRequestId,
+  type GenerateRequestIdFn,
+  type GenerateRequestIdPayload,
+  type RequestIdOptions,
+} from './plugins/use-request-id.js';
 export { type YogaSchemaDefinition, useSchema } from './plugins/use-schema.js';
 export * from './schema.js';
 export * from './server.js';
@@ -15,7 +29,7 @@ export * from './types.js';
 export { maskError } from './utils/mask-error.js';
 export { type OnParamsEventPayload, type Plugin, type Instrumentation } from './plugins/types.js';
 export { _createLRUCache, createLRUCache } from './utils/create-lru-cache.js';
-export { mergeSchemas } from '@graphql-tools/schema';
+export { getRequestId } from './utils/request-id.js';
 export {
   // Handy type utils
   type Maybe,
@@ -33,7 +47,6 @@ export {
   isIntrospectionOperationString,
   makeExecute,
   makeSubscribe,
-  mapAsyncIterator,
   // Default plugins
   useEnvelop,
   useErrorHandler,
@@ -47,7 +60,7 @@ export {
   chain,
   composeInstrumentation,
 } from '@envelop/instrumentation';
-export { createGraphQLError, isPromise, mapMaybePromise } from '@graphql-tools/utils';
+export { withSchemaCoordinate } from './error.js';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';
@@ -56,5 +69,4 @@ export {
   type LandingPageRenderer,
   type LandingPageRendererOpts,
 } from './plugins/use-unhandled-route.js';
-export { DisposableSymbols } from '@whatwg-node/server';
 export * from '@envelop/instrumentation';

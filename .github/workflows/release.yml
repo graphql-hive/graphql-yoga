@@ -1,56 +1,94 @@
-name: release
+name: Release
+
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
-permissions:
-  id-token: write
-  pull-requests: write
-  actions: write
-  contents: write
 
 jobs:
+  snapshot-npm-tag:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Choose snapshot NPM tag
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-snapshot-npm-tag
+      cancel-in-progress: true
+    outputs:
+      value: ${{ steps.choose-tag.outputs.result }}
+    steps:
+      - name: Choose NPM Tag
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v7
+        id: choose-tag
+        with:
+          result-encoding: string
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            // having #snapshot-npm-tag "next" in the PR body will set the npm tag to "next"
+            const npmTagFromPrBody = prBody.match(/#snapshot-npm-tag\s+"([^"]+)"/)?.[1];
+            if (npmTagFromPrBody) {
+              console.log(`Detected npm tag from PR body "${npmTagFromPrBody}"`);
+              return npmTagFromPrBody;
+            }
+            const prTitle = context.payload.pull_request.title;
+            const prAuthor = context.payload.pull_request.user.login;
+            if (prAuthor === 'theguild-bot' && prTitle === 'Upcoming Release Changes') {
+              console.log('Using "rc" tag for upcoming release');
+              return 'rc';
+            }
+            console.log('Using "alpha" tag for snapshot release');
+            return 'alpha';
+
+  snapshot:
+    runs-on: ubuntu-latest
+    needs: [snapshot-npm-tag]
+    name: Snapshot
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-release-snapshot
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    outputs:
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: the-guild-org/shared-config/setup@v1
+        id: env
+        name: setup env
+        with:
+          node-version-file: .node-version
+      - if: ${{ github.event.pull_request.title == 'Upcoming Release Changes' && true || false }}
+        name: restore deleted changesets
+        run: git checkout HEAD~1 -- .
+      - name: ${{ needs.snapshot-npm-tag.outputs.value }} release
+        id: changesets
+        uses: the-guild-org/changesets-snapshot-action@232ff9af22cfd043528fe2e4c403afd090ba3ed3 # v0.0.4
+        with:
+          tag: ${{ needs.snapshot-npm-tag.outputs.value }}
+          prepareScript: pnpm build
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+
   stable:
-    if: github.event_name == 'push'
-    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@main
+    if: github.ref == 'refs/heads/main'
+    concurrency: ${{ github.workflow }}-${{ github.ref }}-release-stable
+    name: Stable
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
     with:
+      node-version-file: .node-version
       releaseScript: release
-      nodeVersion: 26
-      packageManager: pnpm
+      versionScript: changeset version
+      # each package its own release. cleaner and prevents issues like overlapping release notes
+      createGithubReleases: true
     secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
-
-  alpha:
-    if:
-      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-      github.repository && github.event.pull_request.title != 'Upcoming Release Changes'
-    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
-    with:
-      npmTag: alpha
-      buildScript: build
-      nodeVersion: 26
-      packageManager: pnpm
-    secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
-
-  rc:
-    uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
-    if:
-      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name ==
-      github.repository && github.event.pull_request.title == 'Upcoming Release Changes'
-    with:
-      npmTag: rc
-      restoreDeletedChangesets: false
-      buildScript: build
-      nodeVersion: 26
-      packageManager: pnpm
-    secrets:
-      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}

@@ -1,5 +1,6 @@
 import type { ExecutionResult } from 'graphql';
 import { isAsyncIterable } from '@envelop/core';
+import { DEFAULT_MULTIPART_CONTENT_TYPE } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
@@ -7,10 +8,14 @@ import type { FetchAPI, MaybeArray } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
-export function processMultipartResult(result: ResultProcessorInput, fetchAPI: FetchAPI): Response {
+export function processMultipartResult(
+  result: ResultProcessorInput,
+  fetchAPI: FetchAPI,
+  acceptedMediaType = DEFAULT_MULTIPART_CONTENT_TYPE,
+): Response {
   const headersInit = {
     Connection: 'keep-alive',
-    'Content-Type': 'multipart/mixed; boundary="-"',
+    'Content-Type': acceptedMediaType,
     'Transfer-Encoding': 'chunked',
   };
 
@@ -73,7 +78,7 @@ export function processMultipartResult(result: ResultProcessorInput, fetchAPI: F
       );
     },
     cancel(e) {
-      if (iterator.return) {
+      if (iterator?.return) {
         return handleMaybePromise(
           () => iterator.return?.(e),
           () => {},

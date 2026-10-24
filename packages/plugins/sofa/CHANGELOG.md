@@ -1,5 +1,104 @@
 # @graphql-yoga/plugin-sofa
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d73f61c`](https://github.com/graphql-hive/graphql-yoga/commit/d73f61cef09d7770282a2b777aa3771db7612f67)]:
+  - graphql-yoga@6.0.1
+
+## 4.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+- [#4623](https://github.com/graphql-hive/graphql-yoga/pull/4623)
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f)
+  Thanks [@ardatan](https://github.com/ardatan)! - ### Dependencies
+  - Bump `@graphql-tools/utils` to `^13.1.1`, `@graphql-tools/schema` to `^11.0.0`, and
+    `@graphql-tools/executor` to `^4.1.2`.
+
+  ### Incremental delivery
+
+  Yoga maps the GraphQL HTTP `Accept` header through `INCREMENTAL_DELIVERY_SPECS` from
+  `@graphql-tools/utils` onto executor `incrementalSpec`. `multipart/mixed;incrementalSpec=v0.2`
+  runs the v0.2 payload format and echoes that spec on `Content-Type`.
+  `multipart/mixed;deferSpec=20220824` or bare `multipart/mixed` stays on v0.1. An unsupported
+  incremental spec yields 406.
+
+  A later incremental spec is a graphql-tools table row plus an executor publisher. Yoga, Hive
+  Gateway, and HTTP executors pick it up by bumping `@graphql-tools/utils` /
+  `@graphql-tools/executor`.
+
+  ### Breaking Changes
+  - `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To
+    attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` and
+    read with `getSchemaCoordinate` from `@graphql-tools/utils`.
+  - `mapMaybePromise` is removed (was exported from Yoga / `@envelop/core`). Use
+    `handleMaybePromise` from `@whatwg-node/promise-helpers`.
+  - Yoga no longer re-exports helpers that already live upstream:
+    - `getSchemaCoordinate` -> `@graphql-tools/utils`
+    - `mergeSchemas` -> `@graphql-tools/schema`
+    - `DisposableSymbols` -> `@whatwg-node/server`
+    - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` ->
+      `@whatwg-node/promise-helpers`
+  - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from
+    `@whatwg-node/promise-helpers`.
+  - Use `asGetArgumentValuesVariables` / `coerceGetVariableValuesResult` from `@graphql-tools/utils`
+    for GraphQL 16/17 `VariableValues` compatibility.
+
+  ### Migration
+
+  ```ts
+  import { GraphQLError } from 'graphql'
+  import { withSchemaCoordinate } from 'graphql-yoga'
+  import { mergeSchemas } from '@graphql-tools/schema'
+  import { getSchemaCoordinate } from '@graphql-tools/utils'
+  import { handleMaybePromise, isPromise, type MaybePromise } from '@whatwg-node/promise-helpers'
+  import { DisposableSymbols } from '@whatwg-node/server'
+
+  throw withSchemaCoordinate(new GraphQLError('not found'), 'Query.user')
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - graphql-yoga@6.0.0
+
+## 3.24.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)]:
+  - graphql-yoga@5.24.6
+
 ## 3.24.5
 
 ### Patch Changes

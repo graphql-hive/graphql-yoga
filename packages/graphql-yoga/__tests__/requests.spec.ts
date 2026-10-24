@@ -1,7 +1,8 @@
+import { GraphQLError } from 'graphql';
 import type { OnExecuteHook } from '@envelop/core';
 import { Request } from '@whatwg-node/fetch';
 import type { YogaInitialContext } from '../src';
-import { createGraphQLError, createSchema, createYoga } from '../src';
+import { createSchema, createYoga } from '../src';
 
 describe('requests', () => {
   const schema = createSchema({
@@ -535,7 +536,9 @@ describe('requests', () => {
     const firstResBody = await firstRes.json();
     expect(firstResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(1);
-    expect(onExecuteFn.mock.calls[0]?.[0].args.contextValue.request).toBe(firstReq);
+    // Compared as a boolean (not `.toBe(firstReq)` directly) so a failure never triggers
+    // pretty-format on the stream-backed Request object, which can crash on some Node versions.
+    expect(onExecuteFn.mock.calls[0]?.[0].args.contextValue.request === firstReq).toBe(true);
     const secondReq = new Request('http://yoga/graphql', {
       method: 'POST',
       headers: {
@@ -548,10 +551,11 @@ describe('requests', () => {
     const secondResBody = await secondRes.json();
     expect(secondResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(2);
-    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue.request).toBe(secondReq);
-    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue).not.toBe(
-      onExecuteFn.mock.calls[0]![0].args.contextValue,
-    );
+    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue.request === secondReq).toBe(true);
+    expect(
+      onExecuteFn.mock.calls[1]?.[0].args.contextValue ===
+        onExecuteFn.mock.calls[0]![0].args.contextValue,
+    ).toBe(false);
   });
   it('allows you to change the graphql endpoint after the initialization', async () => {
     const yoga = createYoga({
@@ -604,7 +608,7 @@ describe('requests', () => {
                     query: '{ ping }',
                   };
                 }
-                throw createGraphQLError('Invalid request body', {
+                throw new GraphQLError('Invalid request body', {
                   extensions: {
                     code: 'BAD_REQUEST',
                   },
