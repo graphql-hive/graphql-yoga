@@ -71,6 +71,7 @@ jobs:
         uses: the-guild-org/changesets-snapshot-action@232ff9af22cfd043528fe2e4c403afd090ba3ed3 # v0.0.4
         with:
           tag: ${{ needs.snapshot-npm-tag.outputs.value }}
+          prepareScript: pnpm build
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
 
@@ -85,7 +86,9 @@ jobs:
     uses: the-guild-org/shared-config/.github/workflows/release-stable.yml@v1
     with:
       node-version-file: .node-version
-      releaseScript: changeset publish
+      releaseScript: release
       versionScript: changeset version
+      # each package its own release. cleaner and prevents issues like overlapping release notes
+      createGithubReleases: true
     secrets:
       githubToken: ${{ secrets.BOT_GITHUB_TOKEN }}
