@@ -43,6 +43,38 @@ import { GraphQLModule } from '@nestjs/graphql'
 export class AppModule {}
 ```
 
+### HTTP Adapters
+
+The driver supports the Express (default), Fastify and Node.js (`@nestjs/platform-node`) HTTP
+adapters. Pass the adapter's platform name to the driver config to type the server context
+accordingly:
+
+```typescript
+import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs'
+import { Module } from '@nestjs/common'
+import { GraphQLModule } from '@nestjs/graphql'
+
+@Module({
+  imports: [
+    GraphQLModule.forRoot<YogaDriverConfig<'node'>>({
+      driver: YogaDriver
+    })
+  ]
+})
+export class AppModule {}
+```
+
+```typescript
+import { NestFactory } from '@nestjs/core'
+import { NodeAdapter } from '@nestjs/platform-node'
+import { AppModule } from './app.module'
+
+const app = await NestFactory.create(AppModule, new NodeAdapter())
+await app.listen(4000)
+```
+
+The same applies to `YogaFederationDriver` from `@graphql-yoga/nestjs-federation`.
+
 ### Develop GraphQL
 
 This is just a HTTP transport driver; meaning, everything else should work as
