@@ -57,7 +57,20 @@ it('should return an inline trace when the gateway requests one', async () => {
     },
     body: JSON.stringify({ query: '{ hello }' }),
   });
+  expect(res.status).toBe(200);
   const result = await res.json();
   expect(result.data.hello).toBe('world');
   expect(typeof result.extensions?.ftv1).toBe('string');
+});
+
+it('should not return an inline trace when the gateway does not request one', async () => {
+  const res = await fetch(getUrl(), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ query: '{ hello }' }),
+  });
+  expect(res.status).toBe(200);
+  const result = await res.json();
+  expect(result.data.hello).toBe('world');
+  expect(result.extensions?.ftv1).toBeUndefined();
 });

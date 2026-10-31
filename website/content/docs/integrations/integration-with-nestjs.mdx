@@ -45,9 +45,9 @@ export class AppModule {}
 
 ### HTTP Adapters
 
-The driver supports the Express (default), Fastify and Node.js (`@nestjs/platform-node`) HTTP
-adapters. Pass the adapter's platform name to the driver config to type the server context
-accordingly:
+The driver supports the Express (default), Fastify and Node.js (`@nestjs/platform-node`, Nest 12.3
+and later) HTTP adapters. Pass the adapter's platform name to the driver config to type the server
+context accordingly:
 
 ```typescript
 import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs'

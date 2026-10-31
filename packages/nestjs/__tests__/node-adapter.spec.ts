@@ -1,5 +1,5 @@
 import { GraphQLBoolean, GraphQLNonNull, GraphQLObjectType, GraphQLSchema } from 'graphql';
-import { NodeAdapter, NodeRequest } from '@nestjs/platform-node';
+import { NodeAdapter, NodeRequest, NodeResponse } from '@nestjs/platform-node';
 import { Test } from '@nestjs/testing';
 import { fetch } from '@whatwg-node/fetch';
 import { AppModule } from './fixtures/graphql/app.module';
@@ -17,7 +17,7 @@ const { getUrl } = useTestApp(
                 hasNodeRequest: {
                   type: new GraphQLNonNull(GraphQLBoolean),
                   resolve: (_root, _args, { req, res }) =>
-                    req instanceof NodeRequest && typeof res.status === 'function',
+                    req instanceof NodeRequest && res instanceof NodeResponse,
                 },
               },
             }),

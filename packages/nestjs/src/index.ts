@@ -188,7 +188,7 @@ export abstract class AbstractYogaDriver<
   /**
    * Creates the Yoga server shared by every platform and stores it on the driver.
    */
-  private createYogaServer<Platform extends YogaDriverPlatform>(
+  protected createYogaServer<Platform extends YogaDriverPlatform>(
     conditionalSchema: YogaSchemaDefinition<YogaDriverServerContext<Platform>, never> | undefined,
     options: Omit<YogaDriverConfig<Platform>, 'conditionalSchema'>,
   ) {
