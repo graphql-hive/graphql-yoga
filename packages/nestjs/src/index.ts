@@ -14,6 +14,7 @@ import {
 import { mergeSchemas } from '@graphql-tools/schema';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { AbstractGraphQLDriver, GqlModuleOptions, GqlSubscriptionService } from '@nestjs/graphql';
+import type { NodeRequest, NodeResponse, NodeRouter } from '@nestjs/platform-node';
 
 /**
  * Creates a logger writing through Nest's own {@link NestLogger}, so that Yoga's logs are
@@ -41,7 +42,7 @@ function createNestHiveLogger(context = 'YogaDriver'): HiveLogger {
   });
 }
 
-export type YogaDriverPlatform = 'express' | 'fastify';
+export type YogaDriverPlatform = 'express' | 'fastify' | 'node';
 
 export type YogaDriverServerContext<Platform extends YogaDriverPlatform> =
   Platform extends 'fastify'
@@ -49,10 +50,15 @@ export type YogaDriverServerContext<Platform extends YogaDriverPlatform> =
         req: FastifyRequest;
         reply: FastifyReply;
       }
-    : {
-        req: ExpressRequest;
-        res: ExpressResponse;
-      };
+    : Platform extends 'node'
+      ? {
+          req: NodeRequest;
+          res: NodeResponse;
+        }
+      : {
+          req: ExpressRequest;
+          res: ExpressResponse;
+        };
 
 export type YogaDriverServerOptions<Platform extends YogaDriverPlatform> = Omit<
   YogaServerOptions<YogaDriverServerContext<Platform>, never>,
@@ -115,6 +121,9 @@ export abstract class AbstractYogaDriver<
     if (platformName === 'fastify') {
       return this.registerFastify(options as YogaDriverConfig<'fastify'>);
     }
+    if (platformName === 'node') {
+      return this.registerNode(options as YogaDriverConfig<'node'>);
+    }
     throw new Error(`Provided HttpAdapter "${platformName}" not supported`);
   }
 
@@ -130,19 +139,7 @@ export abstract class AbstractYogaDriver<
 
     preStartHook?.(app);
 
-    const schema = this.mergeConditionalSchema<'express'>(conditionalSchema, options.schema);
-
-    const yoga = createYoga<YogaDriverServerContext<'express'>>({
-      ...options,
-      schema,
-      graphqlEndpoint: options.path,
-      // log through nest by default
-      logging: options.logging ?? createNestHiveLogger(),
-    });
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - TODO: fix types
-    this.yoga = yoga;
+    const yoga = this.createYogaServer<'express'>(conditionalSchema, options);
 
     app.use(yoga.graphqlEndpoint, (req, res) => yoga(req, res, { req, res }));
   }
@@ -155,19 +152,7 @@ export abstract class AbstractYogaDriver<
 
     preStartHook?.(app);
 
-    const schema = this.mergeConditionalSchema<'fastify'>(conditionalSchema, options.schema);
-
-    const yoga = createYoga<YogaDriverServerContext<'fastify'>>({
-      ...options,
-      schema,
-      graphqlEndpoint: options.path,
-      // log through nest by default
-      logging: options.logging ?? createNestHiveLogger(),
-    });
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - TODO: fix types
-    this.yoga = yoga;
+    const yoga = this.createYogaServer<'fastify'>(conditionalSchema, options);
 
     app.all(yoga.graphqlEndpoint, async (req, reply) => {
       const response = await yoga.handleNodeRequestAndResponse(req, reply, {
@@ -179,6 +164,49 @@ export abstract class AbstractYogaDriver<
       reply.send(response.body);
       return reply;
     });
+  }
+
+  /**
+   * Registers Yoga on `@nestjs/platform-node`, whose requests and responses are
+   * `IncomingMessage`/`ServerResponse` subclasses that Yoga can handle directly.
+   */
+  protected registerNode(
+    { conditionalSchema, ...options }: YogaDriverConfig<'node'>,
+    { preStartHook }: { preStartHook?: (app: NodeRouter) => void } = {},
+  ) {
+    const app: NodeRouter = this.httpAdapterHost.httpAdapter.getInstance();
+
+    preStartHook?.(app);
+
+    const yoga = this.createYogaServer<'node'>(conditionalSchema, options);
+
+    app.use(yoga.graphqlEndpoint, (req: NodeRequest, res: NodeResponse) =>
+      yoga(req, res, { req, res }),
+    );
+  }
+
+  /**
+   * Creates the Yoga server shared by every platform and stores it on the driver.
+   */
+  protected createYogaServer<Platform extends YogaDriverPlatform>(
+    conditionalSchema: YogaSchemaDefinition<YogaDriverServerContext<Platform>, never> | undefined,
+    options: Omit<YogaDriverConfig<Platform>, 'conditionalSchema'>,
+  ) {
+    const schema = this.mergeConditionalSchema<Platform>(conditionalSchema, options.schema);
+
+    const yoga = createYoga<YogaDriverServerContext<Platform>>({
+      ...options,
+      schema,
+      graphqlEndpoint: options.path,
+      // log through nest by default
+      logging: options.logging ?? createNestHiveLogger(),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - TODO: fix types
+    this.yoga = yoga;
+
+    return yoga;
   }
 
   private mergeConditionalSchema<T extends YogaDriverPlatform>(

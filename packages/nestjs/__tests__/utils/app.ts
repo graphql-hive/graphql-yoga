@@ -1,7 +1,11 @@
 import type { INestApplication } from '@nestjs/common';
+import type { AbstractHttpAdapter } from '@nestjs/core';
 import type { TestingModule } from '@nestjs/testing';
 
-export function useTestApp(createModule: () => Promise<TestingModule>) {
+export function useTestApp(
+  createModule: () => Promise<TestingModule>,
+  createHttpAdapter?: () => AbstractHttpAdapter,
+) {
   let app: INestApplication;
   let url: string;
   // Tracked separately from jest's `beforeAll` so `afterAll` can always wait for setup to settle
@@ -13,7 +17,9 @@ export function useTestApp(createModule: () => Promise<TestingModule>) {
   beforeAll(() => {
     ready = (async () => {
       const module = await createModule();
-      app = module.createNestApplication();
+      app = createHttpAdapter
+        ? module.createNestApplication(createHttpAdapter())
+        : module.createNestApplication();
       await app.listen(0);
       url = (await app.getUrl()) + '/graphql';
     })();
