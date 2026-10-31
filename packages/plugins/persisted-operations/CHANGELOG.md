@@ -1,5 +1,134 @@
 # @graphql-yoga/plugin-persisted-operations
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d73f61c`](https://github.com/graphql-hive/graphql-yoga/commit/d73f61cef09d7770282a2b777aa3771db7612f67)]:
+  - graphql-yoga@6.0.1
+
+## 4.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - graphql-yoga@6.0.0
+
+## 3.24.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)]:
+  - graphql-yoga@5.24.6
+
+## 3.24.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.24.5
+
+## 3.24.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)]:
+  - graphql-yoga@5.24.4
+
+## 3.24.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)]:
+  - graphql-yoga@5.24.3
+
+## 3.24.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)]:
+  - graphql-yoga@5.24.2
+
+## 3.24.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)]:
+  - graphql-yoga@5.24.1
+
+## 3.24.0
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871),
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)]:
+  - graphql-yoga@5.24.0
+
+## 3.23.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d),
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)]:
+  - graphql-yoga@5.23.0
+
+## 3.22.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - graphql-yoga@5.22.0
+
 ## 3.21.3
 
 ### Patch Changes

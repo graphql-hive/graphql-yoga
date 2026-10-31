@@ -1,5 +1,99 @@
 # @envelop/response-cache-redis
 
+## 5.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f)]:
+  - @envelop/response-cache@10.0.0
+
+## 4.5.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9fde867`](https://github.com/graphql-hive/graphql-yoga/commit/9fde867200666a7dbe62397ef42341088bbe3601)]:
+  - @envelop/response-cache@9.3.4
+
+## 4.5.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)]:
+  - @envelop/response-cache@9.3.3
+
+## 4.5.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)]:
+  - @envelop/response-cache@9.3.2
+
+## 4.5.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/response-cache@9.3.1
+
+## 4.5.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ab4aeaa`](https://github.com/graphql-hive/graphql-yoga/commit/ab4aeaa85768f548328e8537dabdee25b88cf03c)]:
+  - @envelop/response-cache@9.3.0
+
+## 4.4.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/response-cache@9.2.0
+
 ## 4.3.1
 
 ### Patch Changes

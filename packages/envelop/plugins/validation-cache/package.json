@@ -1,16 +1,20 @@
 {
   "name": "@envelop/validation-cache",
-  "version": "10.1.1",
+  "version": "11.0.0",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/envelop/plugins/validation-cache"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/validation-cache#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Dotan Simha <dotansimha@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -48,7 +52,7 @@
   },
   "peerDependencies": {
     "@envelop/core": "workspace:^",
-    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0"
+    "graphql": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
     "lru-cache": "^11.0.0",

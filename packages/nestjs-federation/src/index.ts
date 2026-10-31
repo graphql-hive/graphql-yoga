@@ -10,11 +10,7 @@ import {
 } from '@graphql-yoga/nestjs';
 import { useApolloInlineTrace } from '@graphql-yoga/plugin-apollo-inline-trace';
 import { Injectable, Type } from '@nestjs/common';
-import {
-  GqlSubscriptionService,
-  GraphQLFederationFactory,
-  SubscriptionConfig,
-} from '@nestjs/graphql';
+import { GqlSubscriptionService, GraphQLFederationFactory } from '@nestjs/graphql';
 
 export type YogaFederationDriverConfig<Platform extends YogaDriverPlatform = 'express'> =
   YogaDriverConfig<Platform>;
@@ -47,25 +43,6 @@ export class YogaFederationDriver<
       ...options,
       plugins: [...(options?.plugins || []), useApolloInlineTrace()],
     });
-
-    if (options.subscriptions && options.schema) {
-      const config: SubscriptionConfig =
-        options.subscriptions === true
-          ? {
-              'graphql-ws': true,
-            }
-          : options.subscriptions;
-
-      this.subscriptionService = new GqlSubscriptionService(
-        {
-          schema: options.schema,
-          path: options.path,
-          context: options.context,
-          ...config,
-        },
-        this.httpAdapterHost.httpAdapter?.getHttpServer(),
-      );
-    }
   }
 
   public override async stop(): Promise<void> {

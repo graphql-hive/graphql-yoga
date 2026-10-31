@@ -40,8 +40,6 @@ export const makeSubscribe = (subscribeFn: (args: ExecutionArgs) => any): Subscr
   ((...polyArgs: PolymorphicSubscribeArguments): PromiseOrValue<AsyncIterableIterator<any>> =>
     subscribeFn(getSubscribeArgs(polyArgs))) as SubscribeFunction;
 
-export { mapAsyncIterator } from '@whatwg-node/promise-helpers';
-
 function getExecuteArgs(args: PolymorphicExecuteArguments): ExecutionArgs {
   return args.length === 1
     ? args[0]
@@ -196,5 +194,3 @@ export function errorAsyncIterator<TInput>(
     },
   } as AsyncGenerator<TInput>;
 }
-
-export { mapMaybePromise, isPromise } from '@whatwg-node/promise-helpers';

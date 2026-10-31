@@ -100,7 +100,6 @@ const yoga = createYoga<Context>({
     resolvers,
     typeDefs,
   }),
-  logging: true,
   context: { pubSub },
 });
 

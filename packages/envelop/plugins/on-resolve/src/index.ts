@@ -2,7 +2,7 @@ import type { GraphQLResolveInfo, GraphQLSchema } from 'graphql';
 import { defaultFieldResolver, isIntrospectionType, isObjectType } from 'graphql';
 import type { Plugin } from '@envelop/core';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
-import { handleMaybePromise, mapMaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export type Resolver<Context = unknown> = (
   root: unknown,
@@ -93,13 +93,14 @@ export function useOnResolve<PluginContext extends Record<string, any> = {}>(
                     return handleMaybePromise(
                       () => resolver(root, args, context, info),
                       result =>
-                        mapMaybePromise(
-                          afterResolve({
-                            result,
-                            setResult: newResult => {
-                              result = newResult;
-                            },
-                          }),
+                        handleMaybePromise(
+                          () =>
+                            afterResolve({
+                              result,
+                              setResult: newResult => {
+                                result = newResult;
+                              },
+                            }),
                           () => result,
                         ),
                       errorResult =>

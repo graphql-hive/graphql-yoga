@@ -1,0 +1,85 @@
+---
+description:
+  Next.js) is a web framework that allows you to build websites very quickly and GraphQL Yoga can be
+  integrated with Next.js easily as an API Route.
+title: Integration with Next.js
+sidebarTitle: Next.js
+---
+
+[Next.js](https://nextjs.org) is a web framework that allows you to build websites very quickly and
+GraphQL Yoga can be integrated with Next.js easily as
+[an API Route](https://nextjs.org/docs/api-routes/api-middlewares).
+
+## Installation
+
+```sh npm2yarn
+npm i @graphql-yoga/node graphql
+```
+
+## Example
+
+```ts title="pages/aрi/graphql.ts"
+// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createServer } from '@graphql-yoga/node'
+
+export const config = {
+  api: {
+    // Disable body parsing (required for file uploads)
+    bodyParser: false
+  }
+}
+
+export default createServer<{
+  req: NextApiRequest
+  res: NextApiResponse
+}>()
+```
+
+<Callout>
+  You can also check a full example on our GitHub repository
+  [here](https://github.com/dotansimha/graphql-yoga/tree/v2/examples/nextjs).
+</Callout>
+
+## NextAuth.js
+
+[NextAuth.js](https://next-auth.js.org/) is a popular solution for doing authentication within a
+Next.js application.
+
+You can easily type and add the session to the GraphQL context by adjusting your GraphQL router
+handler to the following.
+
+```ts title="pages/aрi/graphql.ts"
+import type { NextApiRequest, NextApiResponse } from 'next'
+import type { Session } from 'next-auth'
+import { getSession } from 'next-auth/react'
+import { createServer } from '@graphql-yoga/node'
+
+export const config = {
+  api: {
+    // Disable body parsing (required for file uploads)
+    bodyParser: false
+  }
+}
+
+export default createServer<
+  {
+    req: NextApiRequest
+    res: NextApiResponse
+  },
+  {
+    session: Session
+  }
+>({
+  context: async ({ req }) => {
+    return {
+      session: await getSession({ req })
+    }
+  }
+})
+```
+
+<Callout>
+  You can also check a full example on our GitHub repository
+  [here](https://github.com/dotansimha/graphql-yoga/tree/v2/examples/nextjs-auth).
+</Callout>

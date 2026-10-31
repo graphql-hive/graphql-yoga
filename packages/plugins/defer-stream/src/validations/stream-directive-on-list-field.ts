@@ -1,6 +1,5 @@
 import type { ASTVisitor, DirectiveNode, ValidationContext } from 'graphql';
-import { isListType, isWrappingType } from 'graphql';
-import { createGraphQLError } from 'graphql-yoga';
+import { GraphQLError, isListType, isWrappingType } from 'graphql';
 import { GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**
@@ -23,7 +22,7 @@ export function StreamDirectiveOnListFieldRule(context: ValidationContext): ASTV
         )
       ) {
         context.reportError(
-          createGraphQLError(
+          new GraphQLError(
             `Stream directive cannot be used on non-list field "${fieldDef.name}" on type "${parentType.name}".`,
             { nodes: node },
           ),

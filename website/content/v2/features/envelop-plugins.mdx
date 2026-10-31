@@ -1,0 +1,43 @@
+---
+description:
+  Envelop is a lightweight JavaScript (TypeScript) library for customizing the GraphQL execution
+  layer, allowing developers to build, share and compose plugins that enhance the capabilities of
+  your GraphQL server.
+title: Envelop Plugins
+---
+
+[Envelop](https://envelop.dev) is a lightweight JavaScript (TypeScript) library for customizing the
+GraphQL execution layer, allowing developers to build, share and compose plugins that enhance the
+capabilities of your GraphQL server. GraphQL Yoga uses Envelop under the hood, so you can easily
+extend your server's capabilities with
+[the plugins from Envelop Ecosystem](https://envelop.dev/plugins)
+
+## Example
+
+The following example adds [GraphQL JIT](https://github.com/zalando-incubator/graphql-jit) to our
+GraphQL Server using [Envelop GraphQL JIT Plugin](https://envelop.dev/plugins/use-graphql-jit):
+
+```ts
+import { useGraphQlJit } from '@envelop/graphql-jit'
+import { createServer } from '@graphql-yoga/node'
+
+// Provide your schema
+const server = createServer({
+  schema: {
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'Hello World!'
+      }
+    }
+  },
+  plugins: [useGraphQlJit()]
+})
+
+// Start the server and explore http://localhost:4000/graphql
+server.start()
+```

@@ -2,7 +2,6 @@ import type {
   ASTNode,
   ExecutionArgs,
   FieldNode,
-  GraphQLError,
   GraphQLField,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -11,7 +10,8 @@ import type {
 import {
   getNamedType,
   getOperationAST,
-  version as graphqlVersion,
+  getVariableValues,
+  GraphQLError,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
@@ -21,23 +21,15 @@ import {
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { getVariableValues } from '@graphql-tools/executor';
+import type { VariableValues } from '@graphql-tools/utils';
 import {
-  createGraphQLError,
+  coerceGetVariableValuesResult,
   getDefinedRootType,
   getDirectiveExtensions,
   shouldIncludeNode,
 } from '@graphql-tools/utils';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { removeEmptyOrUnusedNodes } from './utils.js';
-
-// graphql-js 17 changed `getDirectiveValues`'s `variableValues` parameter from a plain
-// `{ [name]: value }` map to the `{ sources, coerced }` wrapper produced by its own
-// `getVariableValues`. `@graphql-tools/utils`'s `shouldIncludeNode` (which delegates to
-// `getDirectiveValues` for `@skip`/`@include`) still passes the plain map through unchanged,
-// so under graphql-js 17 it crashes on any `@skip`/`@include` that references a variable.
-// Wrap the plain map to match until `@graphql-tools/utils` is updated for the new contract.
-const isGraphQL17OrAbove = parseInt(graphqlVersion.split('.')[0]!, 10) >= 17;
 
 export type ResolveUserFn<UserType, ContextType = DefaultContext> = (
   context: ContextType,
@@ -195,7 +187,7 @@ export function createUnauthenticatedError(params?: {
   message?: string;
   statusCode?: number;
 }) {
-  return createGraphQLError(params?.message ?? 'Unauthorized field or type', {
+  return new GraphQLError(params?.message ?? 'Unauthorized field or type', {
     nodes: params?.fieldNode ? [params.fieldNode] : undefined,
     path: params?.path,
     extensions: {
@@ -335,17 +327,18 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                let variableValues: typeof args.variableValues | undefined;
-                if (variableDefinitions?.length) {
-                  const { coerced } = getVariableValues(
-                    schema,
-                    variableDefinitions,
-                    args.variableValues || {},
-                  );
-                  variableValues = coerced;
-                } else {
-                  variableValues = args.variableValues;
+                const coercedVariables = coerceGetVariableValuesResult(
+                  getVariableValues(schema, variableDefinitions ?? [], args.variableValues || {}),
+                );
+                // Fail closed: invalid variables must not skip @include/@skip and auth-check
+                // fields that would never execute.
+                if ('errors' in coercedVariables) {
+                  for (const error of coercedVariables.errors) {
+                    context.reportError(error);
+                  }
+                  return {};
                 }
+                const { variableValues } = coercedVariables;
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();
@@ -426,7 +419,7 @@ export const useGenericAuth = <
                     getDefinedRootType(schema, operationType),
                   );
 
-                  return validateUser({
+                  const error = validateUser({
                     user,
                     fieldNode,
                     parentType,
@@ -444,6 +437,12 @@ export const useGenericAuth = <
                     path: resolvePath,
                     userPolicies,
                   });
+                  // partial denials should leave http status selection to
+                  // the server, unless customized
+                  if (error && !rejectUnauthenticated && !options.validateUser) {
+                    delete error.extensions['http'];
+                  }
+                  return error;
                 };
 
                 return {
@@ -459,10 +458,7 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    const directiveVariableValues = isGraphQL17OrAbove
-                      ? { coerced: variableValues, sources: {} }
-                      : variableValues;
-                    if (variableValues && !shouldIncludeNode(directiveVariableValues, node)) {
+                    if (!shouldIncludeNode(variableValues as VariableValues, node)) {
                       return;
                     }
 

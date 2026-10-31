@@ -1,6 +1,6 @@
 {
   "name": "@graphql-yoga/apollo-link",
-  "version": "5.6.3",
+  "version": "6.0.1",
   "type": "module",
   "description": "",
   "repository": {
@@ -8,10 +8,14 @@
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/apollo-link"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/client/apollo-link#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -44,11 +48,11 @@
   },
   "peerDependencies": {
     "@apollo/client": "^4.0.4",
-    "graphql": "^15.2.0 || ^16.0.0 || ^17.0.0"
+    "graphql": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
-    "@graphql-tools/executor-apollo-link": "^2.0.0",
-    "@graphql-tools/executor-http": "^3.0.0",
+    "@graphql-tools/executor-apollo-link": "^3.0.0",
+    "@graphql-tools/executor-http": "^3.4.1",
     "tslib": "^2.8.1"
   },
   "devDependencies": {

@@ -133,6 +133,26 @@ describe('useGraphQlJit', () => {
     expect(result.data?.test).toBe('boop');
   });
 
+  it('Should apply SDL default values for omitted arguments', async () => {
+    const schemaWithDefaults = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          page(page: Int! = 0, size: Int! = 50): String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          page: (_: unknown, args: { page: number; size: number }) => `${args.page}/${args.size}`,
+        },
+      },
+    });
+    const testInstance = createTestkit([useGraphQlJit()], schemaWithDefaults);
+    const result = await testInstance.execute(`query { page }`);
+    assertSingleExecutionValue(result);
+    expect(result.errors).toBeUndefined();
+    expect(result.data?.page).toBe('0/50');
+  });
+
   it('Should subscribe correctly', async () => {
     const testInstance = createTestkit([useGraphQlJit()], schema);
     const result = await testInstance.execute(`subscription { count }`);

@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
+import { createSchema, createYoga } from 'graphql-yoga';
 import { fetch } from '@whatwg-node/fetch';
 
 const users = [
@@ -42,7 +43,7 @@ export const yoga = createYoga({
         user: async (_, args) => {
           const user = users.find(user => user.id === args.byId);
           if (!user) {
-            throw createGraphQLError(`User with id '${args.byId}' not found.`, {
+            throw new GraphQLError(`User with id '${args.byId}' not found.`, {
               extensions: {
                 code: 'USER_NOT_FOUND',
                 someRandomExtensions: {
@@ -57,6 +58,6 @@ export const yoga = createYoga({
       },
     },
   }),
-  logging: true,
+  logging: 'debug',
   maskedErrors: true,
 });

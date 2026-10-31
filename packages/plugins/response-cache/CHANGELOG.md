@@ -1,5 +1,272 @@
 # @graphql-yoga/plugin-response-cache
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d73f61c`](https://github.com/graphql-hive/graphql-yoga/commit/d73f61cef09d7770282a2b777aa3771db7612f67)]:
+  - graphql-yoga@6.0.1
+
+## 4.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+### Patch Changes
+
+- [#4575](https://github.com/graphql-hive/graphql-yoga/pull/4575)
+  [`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Use
+  [`@graphql-hive/logger`](https://github.com/graphql-hive/logger) and add correlated, per-request
+  logging (closes #4048)
+
+  Every request now gets its own logger, available as `context.log` (and `serverContext.log` in
+  plugin hooks), tagged with a `requestId`. Everything logged while handling a request can be
+  correlated by that id.
+
+  The request id is taken from the host integration if it already assigned one (e.g. Fastify's
+  `request.id`), otherwise from the incoming `x-request-id` header, otherwise generated. It is also
+  sent back in the `x-request-id` response header. Configure it with the new `requestId` option:
+
+  ```ts
+  createYoga({
+    requestId: {
+      // don't trust the incoming header, recommended when clients can reach the server directly
+      trustHeader: false,
+      headerName: 'x-correlation-id',
+      generateRequestId: () => myId()
+    }
+  })
+  ```
+
+  Pass `requestId: false` to disable it.
+
+  At the `info` level, a single "Request processed" line is logged per request with the method,
+  path, operation name and type, response status, error count and duration. At the `debug` level,
+  more details about request processing are logged.
+
+  Masked errors are now logged with the request's logger, so they can be traced back to the request
+  that caused them. Custom `maskError` functions receive the request's context as an optional fourth
+  argument.
+
+  The `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`,
+  `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`
+  plugins accept a new `log` option for their own messages, instead of always writing to the
+  console.
+
+  `@envelop/response-cache`'s `shouldCacheResult` now also receives the GraphQL `context`.
+
+  ### Breaking Changes
+  - The `@graphql-yoga/logger` package has been removed. `graphql-yoga` re-exports `Logger`,
+    `MemoryLogWriter` and `LogLevel` from `@graphql-hive/logger` instead.
+  - `createLogger` and the `YogaLogger` type are no longer exported. Use `new Logger(options)`
+    instead.
+  - The `logging` option now takes `boolean | Logger | LogLevel`, where `Logger` is the one from
+    `@graphql-hive/logger`.
+  - `yoga.logger` has been renamed to `yoga.log`.
+  - The `logger` option of `useGraphiQL` and `useHealthCheck` has been removed. They now log through
+    the request's logger.
+  - `@graphql-yoga/nestjs` now logs through Nest's `Logger` by default instead of not logging at
+    all. Pass `logging: false` to keep the previous behaviour. `logging: true` on Fastify no longer
+    logs through Fastify's logger, pass it explicitly instead (see below).
+  - `@envelop/apollo-federation`, `@envelop/auth0`, `@envelop/graphql-jit`, `@envelop/newrelic`,
+    `@envelop/resource-limitations`, `@envelop/response-cache`,
+    `@envelop/response-cache-cloudflare-kv` and `@envelop/statsd` now have a peer dependency on
+    `@graphql-hive/logger` that you must install.
+  - `@envelop/apollo-federation`'s `logger` option now expects a `Logger` from
+    `@graphql-hive/logger` and defaults to `new Logger()` instead of `console`.
+
+  ### Migration
+
+  Create loggers with `Logger`:
+
+  ```diff
+  - import { createLogger } from 'graphql-yoga';
+  + import { Logger } from 'graphql-yoga';
+
+    createYoga({
+  -   logging: createLogger('debug'),
+  +   logging: new Logger({ level: 'debug' }),
+    });
+  ```
+
+  Use `log` instead of `logger` on the Yoga instance:
+
+  ```diff
+    const plugin = {
+      onYogaInit({ yoga }) {
+  -     yoga.logger.info('ready');
+  +     yoga.log.info('ready');
+      },
+    };
+  ```
+
+  Prefer the request-scoped logger inside resolvers and plugin hooks so the logs carry the request
+  id:
+
+  ```ts
+  const resolvers = {
+    Query: {
+      hello: (_, __, context) => {
+        context.log.debug('resolving hello')
+        return 'world'
+      }
+    }
+  }
+  ```
+
+  If you use any of the `@envelop/*` plugins listed above, install the logger:
+
+  ```sh
+  npm i @graphql-hive/logger
+  ```
+
+  If you depended on `@graphql-yoga/logger` directly, switch to `@graphql-hive/logger`:
+
+  ```diff
+  - import { Logger } from '@graphql-yoga/logger';
+  + import { Logger } from '@graphql-hive/logger';
+  ```
+
+  To keep logging through Fastify's logger in `@graphql-yoga/nestjs`:
+
+  ```ts
+  import { Logger } from 'graphql-yoga'
+  import { PinoLogWriter } from '@graphql-hive/logger/writers/pino'
+
+  // in your yoga driver options
+  logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
+  ```
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - graphql-yoga@6.0.0
+  - @envelop/response-cache@10.0.0
+  - @envelop/core@6.0.0
+
+## 3.26.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9fde867`](https://github.com/graphql-hive/graphql-yoga/commit/9fde867200666a7dbe62397ef42341088bbe3601),
+  [`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)]:
+  - @envelop/response-cache@9.3.4
+  - graphql-yoga@5.24.6
+
+## 3.26.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@5.24.5
+
+## 3.26.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a),
+  [`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)]:
+  - @envelop/response-cache@9.3.3
+  - graphql-yoga@5.24.4
+
+## 3.26.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c),
+  [`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)]:
+  - @envelop/response-cache@9.3.2
+  - graphql-yoga@5.24.3
+
+## 3.26.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)]:
+  - graphql-yoga@5.24.2
+
+## 3.26.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)]:
+  - graphql-yoga@5.24.1
+
+## 3.26.0
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871),
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)]:
+  - @envelop/response-cache@9.3.1
+  - @envelop/core@5.6.1
+  - graphql-yoga@5.24.0
+
+## 3.25.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d),
+  [`ab4aeaa`](https://github.com/graphql-hive/graphql-yoga/commit/ab4aeaa85768f548328e8537dabdee25b88cf03c),
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)]:
+  - graphql-yoga@5.23.0
+  - @envelop/response-cache@9.3.0
+
+## 3.24.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/response-cache@9.2.0
+  - @envelop/core@5.6.0
+  - graphql-yoga@5.22.0
+
 ## 3.23.3
 
 ### Patch Changes

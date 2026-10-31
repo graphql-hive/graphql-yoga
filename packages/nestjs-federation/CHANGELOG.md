@@ -1,5 +1,172 @@
 # @graphql-yoga/nestjs-federation
 
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@5.0.1
+  - @graphql-yoga/plugin-apollo-inline-trace@4.0.1
+
+## 5.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - @graphql-yoga/nestjs@5.0.0
+  - @graphql-yoga/plugin-apollo-inline-trace@4.0.0
+  - @envelop/apollo-federation@9.0.0
+  - @envelop/core@6.0.0
+
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@4.0.4
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.6
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@4.0.3
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.5
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@4.0.2
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.4
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@4.0.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.3
+
+## 4.0.0
+
+### Major Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Remove the built-in `subscriptions` driver
+  option and its `graphql-ws` / `subscriptions-transport-ws` wiring (previously implemented via
+  `@nestjs/graphql`'s `GqlSubscriptionService`).
+
+  Fix open handle leak in multipart tests.
+
+  `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
+  `subscriptions-transport-ws`, and the driver-level `graphql-ws` integration held a socket open
+  after shutdown. Rather than keep a partial, driver-managed subscriptions setup, `YogaDriver` and
+  `YogaFederationDriver` no longer accept a `subscriptions` option. Wire up subscriptions yourself
+  using GraphQL Yoga's own subscription support (e.g. the `graphql-ws` package, or
+  `@graphql-yoga/plugin-graphql-sse`) the same way you would for a standalone `graphql-yoga` server.
+
+### Patch Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - dependencies updates:
+  - Updated dependency
+    [`@nestjs/common@^12.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/common/v/12.0.0) (from
+    `^11.0.0`, in `peerDependencies`)
+  - Updated dependency
+    [`@nestjs/core@^12.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/core/v/12.0.0) (from
+    `^11.0.0`, in `peerDependencies`)
+  - Updated dependency
+    [`@nestjs/graphql@^14.0.0` ↗︎](https://www.npmjs.com/package/@nestjs/graphql/v/14.0.0) (from
+    `^13.0.0`, in `peerDependencies`)
+- Updated dependencies
+  [[`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a),
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)]:
+  - @graphql-yoga/nestjs@4.0.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.2
+
+## 3.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.25.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.1
+
+## 3.25.0
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/apollo-federation@8.2.1
+  - @graphql-yoga/plugin-apollo-inline-trace@3.24.0
+  - @envelop/core@5.6.1
+  - @graphql-yoga/nestjs@3.25.0
+
+## 3.24.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @graphql-yoga/nestjs@3.24.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.23.0
+
+## 3.23.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/apollo-federation@8.2.0
+  - @graphql-yoga/plugin-apollo-inline-trace@3.22.0
+  - @envelop/core@5.6.0
+  - @graphql-yoga/nestjs@3.23.0
+
 ## 3.22.3
 
 ### Patch Changes

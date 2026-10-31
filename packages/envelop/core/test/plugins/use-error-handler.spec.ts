@@ -9,7 +9,6 @@ import {
 import type { Plugin } from '@envelop/types';
 import { normalizedExecutor } from '@graphql-tools/executor';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { createGraphQLError } from '@graphql-tools/utils';
 import { Repeater } from '@repeaterjs/repeater';
 import { useErrorHandler } from '../../src/plugins/use-error-handler.js';
 import { schema } from '../common.js';
@@ -58,7 +57,7 @@ describe('useErrorHandler', () => {
     const useMyFailingValidator: Plugin = {
       onValidate(payload) {
         payload.setValidationFn(() => {
-          return [createGraphQLError('Failure!')];
+          return [new GraphQLJS.GraphQLError('Failure!')];
         });
       },
     };
