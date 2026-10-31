@@ -1,5 +1,143 @@
 # hello-world-benchmark
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d73f61c`](https://github.com/graphql-hive/graphql-yoga/commit/d73f61cef09d7770282a2b777aa3771db7612f67)]:
+  - graphql-yoga@6.0.1
+  - @graphql-yoga/plugin-response-cache@4.0.1
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`85dd786`](https://github.com/graphql-hive/graphql-yoga/commit/85dd786b911acb6a56016cb29780fe24ea967b39),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - graphql-yoga@6.0.0
+  - @graphql-yoga/plugin-response-cache@4.0.0
+  - @envelop/graphql-jit@12.0.0
+
+## 3.26.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)]:
+  - graphql-yoga@5.24.6
+  - @graphql-yoga/plugin-response-cache@3.26.6
+
+## 3.26.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b2a35ee`](https://github.com/graphql-hive/graphql-yoga/commit/b2a35eed5432d277574cdc37efbfc4a6031f179b)]:
+  - @envelop/graphql-jit@11.2.2
+  - graphql-yoga@5.24.5
+  - @graphql-yoga/plugin-response-cache@3.26.5
+
+## 3.26.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)]:
+  - graphql-yoga@5.24.4
+  - @graphql-yoga/plugin-response-cache@3.26.4
+
+## 3.26.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)]:
+  - graphql-yoga@5.24.3
+  - @graphql-yoga/plugin-response-cache@3.26.3
+
+## 3.26.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)]:
+  - graphql-yoga@5.24.2
+  - @graphql-yoga/plugin-response-cache@3.26.2
+
+## 3.26.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)]:
+  - graphql-yoga@5.24.1
+  - @graphql-yoga/plugin-response-cache@3.26.1
+
+## 3.26.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871),
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)]:
+  - @envelop/graphql-jit@11.2.1
+  - @graphql-yoga/plugin-response-cache@3.26.0
+  - graphql-yoga@5.24.0
+
+## 3.25.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d),
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)]:
+  - graphql-yoga@5.23.0
+  - @graphql-yoga/plugin-response-cache@3.25.0
+
+## 3.24.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/graphql-jit@11.2.0
+  - @graphql-yoga/plugin-response-cache@3.24.0
+  - graphql-yoga@5.22.0
+
+## 3.23.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`04014d2`](https://github.com/graphql-hive/graphql-yoga/commit/04014d248ed9300835b1550a0d53ff61d83023b5)]:
+  - graphql-yoga@5.21.3
+  - @graphql-yoga/plugin-response-cache@3.23.3
+
+## 3.23.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`39b55ba`](https://github.com/graphql-hive/graphql-yoga/commit/39b55bada507c8796e84bdbac1dccc81bce8cff0)]:
+  - graphql-yoga@5.21.2
+  - @graphql-yoga/plugin-response-cache@3.23.2
+
+## 3.23.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`fbd8436`](https://github.com/graphql-hive/graphql-yoga/commit/fbd84362d9fc9a404a232f5aaae90eb773163203),
+  [`4b43efd`](https://github.com/graphql-hive/graphql-yoga/commit/4b43efd8f39a7200c4401a5efbd4dbff772b3355)]:
+  - @graphql-yoga/plugin-response-cache@3.23.1
+  - graphql-yoga@5.21.1
+
 ## 3.23.0
 
 ### Patch Changes

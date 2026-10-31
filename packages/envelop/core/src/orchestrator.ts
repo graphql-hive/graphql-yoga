@@ -35,7 +35,12 @@ import type {
   TypedSubscriptionArgs,
   ValidateFunction,
 } from '@envelop/types';
-import { handleMaybePromise, iterateAsync, iterateAsyncVoid } from '@whatwg-node/promise-helpers';
+import {
+  handleMaybePromise,
+  iterateAsync,
+  iterateAsyncVoid,
+  mapAsyncIterator,
+} from '@whatwg-node/promise-helpers';
 import { documentStringMap } from './document-string-map.js';
 import {
   errorAsyncIterator,
@@ -43,7 +48,6 @@ import {
   isAsyncIterable,
   makeExecute,
   makeSubscribe,
-  mapAsyncIterator,
 } from './utils.js';
 
 export type EnvelopOrchestrator<
@@ -410,7 +414,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
             ),
           () => {
             const afterCalls: SubscribeResultHook<PluginsContext>[] = [];
-            const subscribeErrorHandlers: SubscribeErrorHook[] = [];
+            const subscribeErrorHandlers: SubscribeErrorHook<PluginsContext>[] = [];
 
             for (const { onSubscribeResult, onSubscribeError } of afterCallbacks) {
               if (onSubscribeResult) {
@@ -477,6 +481,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
                         setError: err => {
                           error = err;
                         },
+                        context: context as PluginsContext,
                       });
                     }
                     throw error;

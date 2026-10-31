@@ -113,9 +113,9 @@ export const useOpenTelemetry = (
                       name: AttributeName.RESOLVER_EXCEPTION,
                       message: JSON.stringify(result),
                     });
-                  } else {
-                    resolverSpan.end();
                   }
+
+                  resolverSpan.end();
                 };
               }
 

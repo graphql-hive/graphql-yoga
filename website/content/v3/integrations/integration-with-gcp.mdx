@@ -1,0 +1,49 @@
+---
+description:
+  Google Cloud Platform (GCP) is a suite of cloud computing services powered by Google. It is easy
+  to use GraphQL Yoga with GCP.
+title: Integration with Google Cloud Platform
+sidebarTitle: Google Cloud Platform
+---
+
+Google Cloud Platform (GCP) is a suite of cloud computing services powered by Google. It is easy to
+use GraphQL Yoga with GCP.
+
+## Installation
+
+```sh npm2yarn
+npm i graphql
+```
+
+```sh npm2yarn
+npm i graphql-yoga
+```
+
+## Usage
+
+```js
+import { createSchema, createYoga } from 'graphql-yoga'
+
+export const graphql = createYoga({
+  schema: createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        greetings: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        greetings: () => 'This is the `greetings` field of the root `Query` type'
+      }
+    }
+  }),
+  graphqlEndpoint: '*'
+})
+```
+
+<Callout>
+  This example uses ESM syntax, so you set `"type": "module"` in your `package.json`.
+</Callout>
+
+> You can also check a full example on our GitHub repository
+> [here](https://github.com/dotansimha/graphql-yoga/tree/v3/examples/gcp)

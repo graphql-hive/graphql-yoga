@@ -1,6 +1,7 @@
-import { createGraphQLError } from '@graphql-tools/utils';
+import { GraphQLError } from 'graphql';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { isAbortError, isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
@@ -15,11 +16,11 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       const operationsStr = requestBody.get('operations');
 
       if (!operationsStr) {
-        throw createGraphQLError('Missing multipart form field "operations"');
+        throw new GraphQLError('Missing multipart form field "operations"');
       }
 
       if (typeof operationsStr !== 'string') {
-        throw createGraphQLError('Multipart form field "operations" must be a string');
+        throw new GraphQLError('Multipart form field "operations" must be a string');
       }
 
       let operations: GraphQLParams;
@@ -27,14 +28,14 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       try {
         operations = JSON.parse(operationsStr);
       } catch {
-        throw createGraphQLError('Multipart form field "operations" must be a valid JSON string');
+        throw new GraphQLError('Multipart form field "operations" must be a valid JSON string');
       }
 
       const mapStr = requestBody.get('map');
 
       if (mapStr != null) {
         if (typeof mapStr !== 'string') {
-          throw createGraphQLError('Multipart form field "map" must be a string');
+          throw new GraphQLError('Multipart form field "map" must be a string');
         }
 
         let map: Record<string, string[]>;
@@ -42,7 +43,7 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
         try {
           map = JSON.parse(mapStr);
         } catch {
-          throw createGraphQLError('Multipart form field "map" must be a valid JSON string');
+          throw new GraphQLError('Multipart form field "map" must be a valid JSON string');
         }
         for (const fileIndex in map) {
           const file = requestBody.get(fileIndex);
@@ -56,12 +57,26 @@ export function parsePOSTMultipartRequest(request: Request): MaybePromise<GraphQ
       return operations;
     },
     e => {
-      if (e instanceof Error && e.message.startsWith('File size limit exceeded: ')) {
-        throw createGraphQLError(e.message, {
+      if (isAbortError(e) || isRequestBodyLimitError(e)) {
+        throw e;
+      }
+      if (e instanceof Error) {
+        if (e.message.startsWith('File size limit exceeded: ')) {
+          throw new GraphQLError(e.message, {
+            extensions: {
+              http: {
+                status: 413,
+              },
+              code: 'REQUEST_ENTITY_TOO_LARGE',
+            },
+          });
+        }
+        throw new GraphQLError(`POST body sent invalid multipart data: ${e.message}`, {
           extensions: {
             http: {
-              status: 413,
+              status: 400,
             },
+            code: 'BAD_REQUEST',
           },
         });
       }
@@ -83,7 +98,8 @@ function setObjectKeyPath(object: any, keyPath: string, value: any): void {
     if (isLastKey) {
       current[key] = value;
     } else {
-      if (!(key in current)) {
+      const isObject = typeof current[key] === 'object' && current[key] !== null;
+      if (!Object.hasOwn(current, key) || !isObject) {
         current[key] = {};
       }
       current = current[key];

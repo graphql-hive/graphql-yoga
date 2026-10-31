@@ -1,0 +1,56 @@
+---
+description:
+  GraphQL Yoga is a fully-featured GraphQL Server with focus on easy setup, performance & great
+  developer experience.
+title: Migration from Express GraphQL
+sidebarTitle: Express GraphQL
+---
+
+## Installation
+
+You can start by installing `graphql-yoga` package.
+
+```sh npm2yarn
+npm i @graphql-yoga/node
+```
+
+## Replace Express GraphQL's Middleware
+
+You should replace Express GraphQL's middleware with GraphQL Yoga's;
+
+```diff
+const express = require('express')
+- const { graphqlHTTP } = require('express-graphql')
++ const { createServer } = require('@graphql-yoga/node')
+const { schema } = require('./schema')
+
+const app = express()
+
+- app.use('/graphql', graphqlHTTP(req => ({
+-   schema: schema,
+-   context: {
+-     token: req.headers.authorization
+-   },
+-   graphiql: true
+- })))
+
++ const yoga = createServer({
++   schema,
++   context: (req) => ({ // Context factory gets called for every request
++     myToken: req.headers.get('authorization')
++   }),
++   graphiql: true
++ })
++
++ app.use('/graphql', yoga)
+
+app.listen(4000)
+console.log('Running a GraphQL API server at http://localhost:4000/graphql')
+```
+
+<Callout>
+  `schema`, `context` and other parameters can be passed dynamically per HTTP request. `context`
+  parameter of GraphQL Yoga can be a factory function but `schema` cannot. So you should use
+  [@envelop/use-lazy-loaded-schema](https://envelop.dev/plugins/use-lazy-loaded-schema) for the same
+  behavior.
+</Callout>
