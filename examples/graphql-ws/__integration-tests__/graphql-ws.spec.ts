@@ -187,4 +187,109 @@ describe('graphql-ws example integration', () => {
       server.close(() => resolve());
     });
   });
+
+  it('should use the schema returned by a schema factory', async () => {
+    const createGreetingSchema = (greeting: string) =>
+      createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hello: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            hello() {
+              return greeting;
+            },
+          },
+        },
+      });
+    const frenchSchema = createGreetingSchema('bonjour');
+    const englishSchema = createGreetingSchema('world');
+    const yoga = createYoga<{ connectionParams?: Readonly<Record<string, unknown>> }>({
+      schema: ({ connectionParams }) =>
+        connectionParams?.['lang'] === 'fr' ? frenchSchema : englishSchema,
+    });
+
+    const server = createServer(yoga);
+
+    const wsServer = useServer(
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => args.execute(args),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        subscribe: (args: any) => args.subscribe(args),
+        onSubscribe: async (ctx, _id, params) => {
+          const { schema, execute, subscribe, contextFactory, parse, validate } = yoga.getEnveloped(
+            {
+              ...ctx,
+              req: ctx.extra.request,
+              socket: ctx.extra.socket,
+              params,
+            },
+          );
+
+          const args = {
+            schema,
+            operationName: params.operationName,
+            document: parse(params.query),
+            variableValues: params.variables,
+            contextValue: await contextFactory(),
+            execute,
+            subscribe,
+          };
+
+          const errors = validate(args.schema, args.document);
+          if (errors.length) return errors;
+          return args;
+        },
+      },
+      new WebSocket.WebSocketServer({
+        server,
+        path: yoga.graphqlEndpoint,
+      }),
+    );
+
+    const port = await findAvailablePort();
+
+    await new Promise<void>((resolve, reject) => {
+      server.on('error', err => reject(err));
+      server.on('listening', () => resolve());
+      server.listen(port);
+    });
+
+    //
+
+    const queryHello = async (lang: string) => {
+      const client = createClient({
+        webSocketImpl: WebSocket,
+        url: `ws://localhost:${port}/graphql`,
+        connectionParams: { lang },
+        retryAttempts: 0, // fail right away
+      });
+      const onNext = jest.fn();
+      await new Promise<void>((resolve, reject) => {
+        client.subscribe(
+          { query: '{ hello }' },
+          {
+            next: onNext,
+            error: reject,
+            complete: resolve,
+          },
+        );
+      });
+      await client.dispose();
+      return onNext;
+    };
+
+    expect(await queryHello('fr')).toHaveBeenCalledWith({ data: { hello: 'bonjour' } });
+    expect(await queryHello('en')).toHaveBeenCalledWith({ data: { hello: 'world' } });
+
+    //
+
+    await wsServer.dispose();
+    await new Promise<void>(resolve => {
+      server.close(() => resolve());
+    });
+  });
 });

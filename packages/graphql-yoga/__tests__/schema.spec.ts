@@ -316,4 +316,52 @@ describe('schema', () => {
       foo: true,
     });
   });
+
+  it('schema factory gets the context passed to getEnveloped outside of the request pipeline', async () => {
+    const createRoleSchema = (role: string) =>
+      createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            role: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            role: () => role,
+          },
+        },
+      });
+    const adminSchema = createRoleSchema('admin');
+    const publicSchema = createRoleSchema('public');
+    const yoga = createYoga<{ isAdmin?: boolean }>({
+      schema: ({ isAdmin }) => (isAdmin ? adminSchema : publicSchema),
+    });
+    const executeRoleQuery = async (initialContext?: { isAdmin?: boolean }) => {
+      const { schema, execute, parse, contextFactory } = yoga.getEnveloped(initialContext);
+      return execute({
+        schema,
+        document: parse('{ role }'),
+        contextValue: await contextFactory(),
+      });
+    };
+    expect(await executeRoleQuery({ isAdmin: true })).toEqual({ data: { role: 'admin' } });
+    expect(await executeRoleQuery({ isAdmin: false })).toEqual({ data: { role: 'public' } });
+    expect(await executeRoleQuery()).toEqual({ data: { role: 'public' } });
+  });
+
+  it('fails if a schema factory returns a promise outside of the request pipeline', () => {
+    const yoga = createYoga({
+      schema: async () =>
+        createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              foo: Boolean
+            }
+          `,
+        }),
+    });
+    expect(() => yoga.getEnveloped()).toThrow(
+      'the factory function must return a GraphQLSchema synchronously',
+    );
+  });
 });
