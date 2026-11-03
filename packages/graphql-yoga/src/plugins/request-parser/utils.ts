@@ -19,6 +19,10 @@ export function parseURLSearchParams(requestBody: string): GraphQLParams {
   return handleURLSearchParams(searchParams);
 }
 
+export function isPostLikeRequest(request: Request, allowQueryMethod: boolean): boolean {
+  return request.method === 'POST' || (allowQueryMethod && request.method === 'QUERY');
+}
+
 export function isContentTypeMatch(request: Request, expectedContentType: string): boolean {
   let contentType = request.headers.get('content-type');
 

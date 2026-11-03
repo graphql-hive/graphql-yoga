@@ -1,8 +1,9 @@
+import { GraphQLError } from 'graphql';
 import type { Plugin } from '../types.js';
 
 export function isValidMethodForGraphQL(
   method: string,
-  allowQueryMethod = true,
+  allowQueryMethod = false,
 ): method is 'GET' | 'POST' | 'QUERY' {
   return method === 'GET' || method === 'POST' || (allowQueryMethod && method === 'QUERY');
 }
@@ -14,13 +15,13 @@ export interface CheckMethodForGraphQLOptions {
    *
    * @see https://github.com/graphql/graphql-over-http/pull/411
    *
-   * @default true
+   * @default false
    */
   queryMethod?: boolean | undefined;
 }
 
 export function useCheckMethodForGraphQL(options?: CheckMethodForGraphQLOptions): Plugin {
-  const allowQueryMethod = options?.queryMethod !== false;
+  const allowQueryMethod = options?.queryMethod === true;
   const allowedMethods = allowQueryMethod ? 'GET, POST, QUERY' : 'GET, POST';
   const message = allowQueryMethod
     ? 'GraphQL only supports GET, POST and QUERY requests.'
@@ -28,7 +29,7 @@ export function useCheckMethodForGraphQL(options?: CheckMethodForGraphQLOptions)
   return {
     onRequestParse({ request }) {
       if (!isValidMethodForGraphQL(request.method, allowQueryMethod)) {
-        throw createGraphQLError(message, {
+        throw new GraphQLError(message, {
           extensions: {
             http: {
               status: 405,

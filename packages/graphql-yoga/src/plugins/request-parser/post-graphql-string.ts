@@ -1,9 +1,9 @@
 import type { GraphQLParams } from '../../types.js';
-import { isContentTypeMatch } from './utils.js';
+import { isContentTypeMatch, isPostLikeRequest } from './utils.js';
 
 export function isPOSTGraphQLStringRequest(request: Request, allowQueryMethod = false) {
   return (
-    (request.method === 'POST' || (allowQueryMethod && request.method === 'QUERY')) &&
+    isPostLikeRequest(request, allowQueryMethod) &&
     isContentTypeMatch(request, 'application/graphql')
   );
 }

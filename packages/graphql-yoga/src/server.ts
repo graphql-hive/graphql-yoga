@@ -206,7 +206,7 @@ export type YogaServerOptions<TServerContext, TUserContext> = Omit<
    *
    * @see https://github.com/graphql/graphql-over-http/pull/411
    *
-   * @default true
+   * @default false
    */
   queryMethod?: boolean | undefined;
   id?: string | undefined;
@@ -379,7 +379,7 @@ export class YogaServer<
       }
     }
 
-    const allowQueryMethod = options?.queryMethod !== false;
+    const allowQueryMethod = options?.queryMethod === true;
 
     this.graphqlEndpoint = options?.graphqlEndpoint || '/graphql';
 
@@ -440,7 +440,7 @@ export class YogaServer<
       }),
       options?.multipart !== false &&
         useRequestParser({
-          match: request => isPOSTMultipartRequest(request, allowQueryMethod),
+          match: request => isPOSTMultipartRequest(request),
           parse: parsePOSTMultipartRequest,
         }),
 
