@@ -2,7 +2,7 @@ import { STATUS_CODES } from 'node:http';
 import { GraphQLError, GraphQLScalarType } from 'graphql';
 import type { ExecutionResult } from '@envelop/core';
 import type { Plugin } from '../src/index.js';
-import { createGraphQLError, createSchema, createYoga } from '../src/index.js';
+import { createSchema, createYoga } from '../src/index.js';
 
 describe('GraphQLError.extensions.http', () => {
   it('sets correct status code and headers for thrown GraphQLError in a resolver', async () => {
@@ -16,7 +16,7 @@ describe('GraphQLError.extensions.http', () => {
         resolvers: {
           Query: {
             a() {
-              throw createGraphQLError('A', {
+              throw new GraphQLError('A', {
                 extensions: {
                   http: {
                     status: 401,
@@ -57,7 +57,7 @@ describe('GraphQLError.extensions.http', () => {
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('A', {
+              throw new GraphQLError('A', {
                 extensions: {
                   http: {
                     status: 401,
@@ -66,7 +66,7 @@ describe('GraphQLError.extensions.http', () => {
               });
             },
             b: () => {
-              throw createGraphQLError('B', {
+              throw new GraphQLError('B', {
                 extensions: {
                   http: {
                     status: 503,
@@ -120,7 +120,7 @@ describe('GraphQLError.extensions.http', () => {
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('', {
+              throw new GraphQLError('', {
                 extensions: {
                   http: {
                     headers: {
@@ -131,7 +131,7 @@ describe('GraphQLError.extensions.http', () => {
               });
             },
             b: () => {
-              throw createGraphQLError('DB is not available', {
+              throw new GraphQLError('DB is not available', {
                 extensions: {
                   http: {
                     headers: {
@@ -174,7 +174,7 @@ describe('GraphQLError.extensions.http', () => {
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('Woah!', {
+              throw new GraphQLError('Woah!', {
                 extensions: {
                   http: {
                     status: 418,
@@ -279,7 +279,7 @@ describe('GraphQLError.extensions.http', () => {
         `,
       }),
       context: () => {
-        throw createGraphQLError('No http status extension', {
+        throw new GraphQLError('No http status extension', {
           extensions: { http: { headers: { 'x-foo': 'bar' } } },
         });
       },
@@ -358,18 +358,19 @@ describe('GraphQLError.extensions.http', () => {
         {
           onResultProcess({ result }) {
             result = result as ExecutionResult;
-            result.errors = result.errors?.map(err =>
-              createGraphQLError(err.message, {
-                nodes: err.nodes,
-                source: err.source,
-                positions: err.positions,
-                path: err.path,
-                originalError: err.originalError,
-                extensions: {
-                  ...err.extensions,
-                  ...extensions,
-                },
-              }),
+            result.errors = result.errors?.map(
+              err =>
+                new GraphQLError(err.message, {
+                  nodes: err.nodes,
+                  source: err.source,
+                  positions: err.positions,
+                  path: err.path,
+                  originalError: err.originalError,
+                  extensions: {
+                    ...err.extensions,
+                    ...extensions,
+                  },
+                }),
             );
             result.extensions = {
               ...result.extensions,
@@ -513,7 +514,7 @@ describe('Result Extensions', () => {
     result = {
       data: { hello: 'world' },
       errors: [
-        createGraphQLError('test', {
+        new GraphQLError('test', {
           extensions: {
             http: {
               status: 321,
@@ -549,14 +550,14 @@ describe('Result Extensions', () => {
     result = {
       data: { hello: 'world' },
       errors: [
-        createGraphQLError('test1', {
+        new GraphQLError('test1', {
           extensions: {
             http: {
               status: 300,
             },
           },
         }),
-        createGraphQLError('test2', {
+        new GraphQLError('test2', {
           extensions: {
             http: {
               status: 400,
@@ -592,7 +593,7 @@ describe('Result Extensions', () => {
         resolvers: {
           Query: {
             throw(_, { status }) {
-              throw createGraphQLError('Test', {
+              throw new GraphQLError('Test', {
                 extensions: {
                   http: {
                     status,

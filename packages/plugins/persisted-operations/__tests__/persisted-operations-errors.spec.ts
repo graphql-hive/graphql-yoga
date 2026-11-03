@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
+import { createSchema, createYoga } from 'graphql-yoga';
 import type { CustomPersistedQueryErrors } from '@graphql-yoga/plugin-persisted-operations';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations';
 
@@ -31,7 +32,7 @@ describe('Persisted Operations', () => {
     it('should allow to customize not found error message with a function', async () => {
       const error = await generateNotFoundError({
         notFound: () =>
-          createGraphQLError('Not found', {
+          new GraphQLError('Not found', {
             extensions: { code: 'NOT_FOUND' },
           }),
       });
@@ -60,7 +61,7 @@ describe('Persisted Operations', () => {
     it('should allow to customize error when key is not found with a function', async () => {
       const error = await generateKeyNotFoundError({
         keyNotFound: () =>
-          createGraphQLError('Key not found', {
+          new GraphQLError('Key not found', {
             extensions: { code: 'KEY_NOT_FOUND' },
           }),
       });
@@ -89,7 +90,7 @@ describe('Persisted Operations', () => {
     it('should allow to customize persisted query only error with a function', async () => {
       const error = await generatePersistedQueryOnlyError({
         persistedQueryOnly: () =>
-          createGraphQLError('Persisted query only', {
+          new GraphQLError('Persisted query only', {
             extensions: { code: 'PERSISTED_ONLY' },
           }),
       });

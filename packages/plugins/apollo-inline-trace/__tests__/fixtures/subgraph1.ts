@@ -1,7 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import type { GraphQLSchema } from 'graphql';
-import { parse } from 'graphql';
-import { createGraphQLError } from 'graphql-yoga';
+import { GraphQLError, parse } from 'graphql';
 
 const typeDefs = parse(/* GraphQL */ `
   type Query {
@@ -30,14 +29,14 @@ const resolvers = {
         sub1: true,
       }),
       nonNullableFail: () => {
-        throw createGraphQLError('My original subgraph error!', {
+        throw new GraphQLError('My original subgraph error!', {
           extensions: {
             code: 'BAD_REQUEST',
           },
         });
       },
       nullableFail: () => {
-        throw createGraphQLError('My original subgraph error!', {
+        throw new GraphQLError('My original subgraph error!', {
           extensions: {
             code: 'BAD_REQUEST',
           },

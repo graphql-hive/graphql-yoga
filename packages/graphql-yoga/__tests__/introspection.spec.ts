@@ -1,6 +1,6 @@
-import { getIntrospectionQuery } from 'graphql';
+import { getIntrospectionQuery, GraphQLError } from 'graphql';
 import { useDisableIntrospection } from '@envelop/disable-introspection';
-import { createGraphQLError, createSchema, createYoga } from '../src/index.js';
+import { createSchema, createYoga } from '../src/index.js';
 
 function createTestSchema() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,7 +14,7 @@ function createTestSchema() {
     resolvers: {
       Query: {
         hello: () => {
-          throw createGraphQLError('This error never gets masked.');
+          throw new GraphQLError('This error never gets masked.');
         },
         hi: () => {
           throw new Error('This error will get mask if you enable maskedError.');

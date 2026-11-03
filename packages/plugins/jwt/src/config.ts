@@ -1,4 +1,4 @@
-import { type PromiseOrValue } from 'graphql-yoga';
+import { type PromiseOrValue, type YogaConfigContext } from 'graphql-yoga';
 import type { VerifyOptions } from 'jsonwebtoken';
 import { extractFromHeader } from './utils.js';
 
@@ -7,7 +7,7 @@ type AtleastOneItem<T> = [T, ...T[]];
 export type ExtractTokenFunctionParams = {
   request: Request;
   url: URL;
-  serverContext: Record<string, unknown>;
+  serverContext: Record<string, unknown> & YogaConfigContext;
 };
 
 export type ExtractTokenFunction = (

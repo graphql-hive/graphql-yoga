@@ -2,16 +2,12 @@ import type { ServerResponse } from 'node:http';
 import { createServer, IncomingMessage, STATUS_CODES } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { setTimeout as setTimeout$ } from 'node:timers/promises';
+import { GraphQLError } from 'graphql';
 import type { ExecutionResult } from 'graphql';
 import { fetch } from '@whatwg-node/fetch';
 import { createDeferredPromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
-import {
-  createGraphQLError,
-  createSchema,
-  createYoga,
-  useExecutionCancellation,
-} from '../src/index.js';
+import { createSchema, createYoga, useExecutionCancellation } from '../src/index.js';
 
 describe('node-http', () => {
   it('should expose Node req and res objects in the context', async () => {
@@ -61,7 +57,7 @@ describe('node-http', () => {
         resolvers: {
           Query: {
             throw(_, { status }) {
-              throw createGraphQLError('Test', {
+              throw new GraphQLError('Test', {
                 extensions: {
                   http: {
                     status,

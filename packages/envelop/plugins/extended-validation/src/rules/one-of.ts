@@ -1,6 +1,13 @@
 import type { ArgumentNode, GraphQLType, ValidationContext } from 'graphql';
-import { getNamedType, GraphQLInputObjectType, GraphQLNonNull, isListType } from 'graphql';
-import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
+import {
+  getArgumentValues,
+  getNamedType,
+  GraphQLError,
+  GraphQLInputObjectType,
+  GraphQLNonNull,
+  isListType,
+} from 'graphql';
+import { asGetArgumentValuesVariables } from '@graphql-tools/utils';
 import type { ExtendedValidationRule } from '../common.js';
 import { getDirectiveFromAstNode } from '../common.js';
 
@@ -29,7 +36,7 @@ export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext,
         const values = getArgumentValues(
           fieldType,
           node,
-          executionArgs.variableValues || undefined,
+          asGetArgumentValuesVariables(executionArgs.variableValues),
         );
 
         const isOneOfFieldType =
@@ -38,7 +45,7 @@ export const OneOfInputObjectsRule: ExtendedValidationRule = (validationContext,
 
         if (isOneOfFieldType && Object.keys(values).length !== 1) {
           validationContext.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Exactly one key must be specified for input for field "${fieldType.type.toString()}.${
                 node.name.value
               }"`,
@@ -107,7 +114,7 @@ function traverseVariables(
 
   if (isOneOfInputType && Object.keys(currentValue).length !== 1) {
     validationContext.reportError(
-      createGraphQLError(`OneOf Input Object "${inputType.name}" must specify exactly one key.`, {
+      new GraphQLError(`OneOf Input Object "${inputType.name}" must specify exactly one key.`, {
         nodes: [arg],
       }),
     );

@@ -6,12 +6,21 @@ import type {
   GraphQLInputType,
   GraphQLType,
 } from 'graphql';
-import { GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLObjectType, isScalarType } from 'graphql';
+import {
+  getArgumentValues,
+  GraphQLError,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  isScalarType,
+} from 'graphql';
 import type { Plugin } from '@envelop/core';
 import { handleStreamOrSingleExecutionResult } from '@envelop/core';
 import type { ExtendedValidationRule } from '@envelop/extended-validation';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { createGraphQLError, getArgumentValues } from '@graphql-tools/utils';
+import { Logger } from '@graphql-hive/logger';
+import { asGetArgumentValuesVariables } from '@graphql-tools/utils';
 
 const getWrappedType = (
   graphqlType: GraphQLType,
@@ -76,14 +85,21 @@ export type ResourceLimitationValidationRuleParams = {
   paginationArgumentMinimum: number;
   paginationArgumentTypes?: string[];
   reportNodeCost?: (cost: number, executionArgs: ExecutionArgs) => void;
+  /**
+   * Logger used for the rule's own diagnostic messages.
+   * @default new Logger()
+   */
+  log?: Logger;
 };
 
 /**
  * Validate whether a user is allowed to execute a certain GraphQL operation.
  */
-export const ResourceLimitationValidationRule =
-  (params: ResourceLimitationValidationRuleParams): ExtendedValidationRule =>
-  (context, executionArgs) => {
+export const ResourceLimitationValidationRule = (
+  params: ResourceLimitationValidationRuleParams,
+): ExtendedValidationRule => {
+  const log = params.log ?? new Logger();
+  return (context, executionArgs) => {
     const { paginationArgumentMaximum, paginationArgumentMinimum } = params;
     const nodeCostStack: Array<number> = [];
     let totalNodeCost = 0;
@@ -100,7 +116,7 @@ export const ResourceLimitationValidationRule =
             const argumentValues = getArgumentValues(
               fieldDef,
               fieldNode,
-              executionArgs.variableValues || undefined,
+              asGetArgumentValuesVariables(executionArgs.variableValues),
             );
             const type = getWrappedType(fieldDef.type);
             if (type instanceof GraphQLObjectType && type.name.endsWith('Connection')) {
@@ -112,15 +128,14 @@ export const ResourceLimitationValidationRule =
                 params.paginationArgumentTypes,
               );
               if (hasFirst === false && hasLast === false) {
-                // eslint-disable-next-line no-console
-                console.warn('Encountered paginated field without pagination arguments.');
+                log.warn('Encountered paginated field without pagination arguments.');
               } else if (hasFirst === true || hasLast === true) {
                 if (
                   ('first' in argumentValues === false && 'last' in argumentValues === false) ||
                   (argumentValues['first'] === null && argumentValues['last'] === null)
                 ) {
                   context.reportError(
-                    createGraphQLError(
+                    new GraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
@@ -130,12 +145,14 @@ export const ResourceLimitationValidationRule =
                     ),
                   );
                 } else if ('first' in argumentValues && !argumentValues['last']) {
+                  const first = Number(argumentValues['first']);
                   if (
-                    argumentValues['first'] < paginationArgumentMinimum ||
-                    argumentValues['first'] > paginationArgumentMaximum
+                    !Number.isFinite(first) ||
+                    first < paginationArgumentMinimum ||
+                    first > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      createGraphQLError(
+                      new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
@@ -146,15 +163,17 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    nodeCost = argumentValues['first'] as number;
+                    nodeCost = first;
                   }
                 } else if (!argumentValues['first'] && 'last' in argumentValues) {
+                  const last = Number(argumentValues['last']);
                   if (
-                    argumentValues['last'] < paginationArgumentMinimum ||
-                    argumentValues['last'] > paginationArgumentMaximum
+                    !Number.isFinite(last) ||
+                    last < paginationArgumentMinimum ||
+                    last > paginationArgumentMaximum
                   ) {
                     context.reportError(
-                      createGraphQLError(
+                      new GraphQLError(
                         buildInvalidPaginationRangeErrorMessage({
                           paginationArgumentMaximum,
                           paginationArgumentMinimum,
@@ -165,11 +184,11 @@ export const ResourceLimitationValidationRule =
                       ),
                     );
                   } else {
-                    nodeCost = argumentValues['last'] as number;
+                    nodeCost = last;
                   }
                 } else {
                   context.reportError(
-                    createGraphQLError(
+                    new GraphQLError(
                       buildMissingPaginationFieldErrorMessage({
                         fieldName: fieldDef.name,
                         hasFirst,
@@ -199,7 +218,7 @@ export const ResourceLimitationValidationRule =
           }
           if (totalNodeCost > params.nodeCostLimit) {
             context.reportError(
-              createGraphQLError(
+              new GraphQLError(
                 `Cannot request more than ${params.nodeCostLimit} nodes in a single document. Please split your operation into multiple sub operations or reduce the amount of requested nodes.`,
                 { nodes: documentNode },
               ),
@@ -210,6 +229,7 @@ export const ResourceLimitationValidationRule =
       },
     };
   };
+};
 
 type UseResourceLimitationsParams = {
   /**
@@ -236,6 +256,11 @@ type UseResourceLimitationsParams = {
    * @default false
    */
   extensions?: boolean;
+  /**
+   * Logger used for the plugin's own diagnostic messages.
+   * @default new Logger()
+   */
+  log?: Logger;
 };
 
 export const useResourceLimitations = (params?: UseResourceLimitationsParams): Plugin => {
@@ -269,6 +294,7 @@ export const useResourceLimitations = (params?: UseResourceLimitationsParams): P
               paginationArgumentMaximum,
               paginationArgumentMinimum,
               paginationArgumentTypes: params?.paginationArgumentScalars,
+              log: params?.log,
               reportNodeCost: extensions
                 ? (nodeCost, ref) => {
                     nodeCostMap.set(ref, nodeCost);

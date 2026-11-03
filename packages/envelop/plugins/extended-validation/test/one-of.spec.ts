@@ -1,6 +1,7 @@
 import {
   buildSchema,
   GraphQLBoolean,
+  GraphQLError,
   GraphQLID,
   GraphQLInputObjectType,
   GraphQLInt,
@@ -12,7 +13,6 @@ import {
   versionInfo,
 } from 'graphql';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
-import { createGraphQLError } from '@graphql-tools/utils';
 import {
   ONE_OF_DIRECTIVE_SDL,
   OneOfInputObjectsRule,
@@ -589,7 +589,7 @@ describe('oneOf', () => {
         const result = await testInstance.execute(document, variables);
         assertSingleExecutionValue(result);
         if (expectedError) {
-          expect(result.errors).toContainEqual(createGraphQLError(expectedError));
+          expect(result.errors).toContainEqual(new GraphQLError(expectedError));
         } else {
           expect(result.errors).toBeUndefined();
         }
@@ -689,7 +689,7 @@ describe('oneOf', () => {
         const result = await testInstance.execute(document, variables);
         assertSingleExecutionValue(result);
         if (expectedError) {
-          expect(result.errors).toContainEqual(createGraphQLError(expectedError));
+          expect(result.errors).toContainEqual(new GraphQLError(expectedError));
         } else {
           expect(result.errors).toBeUndefined();
         }

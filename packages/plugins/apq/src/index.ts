@@ -1,17 +1,17 @@
+import { GraphQLError } from 'graphql';
 import type { Plugin, PromiseOrValue } from 'graphql-yoga';
-import { createGraphQLError, createLRUCache } from 'graphql-yoga';
+import { createLRUCache } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export function hashSHA256(
   text: string,
   api: {
-    crypto: Crypto;
     TextEncoder: (typeof globalThis)['TextEncoder'];
   } = globalThis,
 ) {
   const inputUint8Array = new api.TextEncoder().encode(text);
   return handleMaybePromise(
-    () => api.crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array),
+    () => crypto.subtle.digest({ name: 'SHA-256' }, inputUint8Array),
     arrayBuf => {
       const outputUint8Array = new Uint8Array(arrayBuf);
 
@@ -40,10 +40,7 @@ export function createInMemoryAPQStore(options: APQStoreOptions = {}): APQStore 
 
 export interface APQOptions {
   store?: APQStore;
-  hash?: (
-    str: string,
-    api: { crypto: Crypto; TextEncoder: typeof TextEncoder },
-  ) => PromiseOrValue<string>;
+  hash?: (str: string, api: { TextEncoder: typeof TextEncoder }) => PromiseOrValue<string>;
   responseConfig?: {
     /**
      * If set true, status code of the response (if the query
@@ -100,7 +97,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
           () => store.get(persistedQueryData.sha256Hash),
           persistedQuery => {
             if (persistedQuery == null) {
-              throw createGraphQLError('PersistedQueryNotFound', {
+              throw new GraphQLError('PersistedQueryNotFound', {
                 extensions: {
                   http: {
                     status: responseConfig.forceStatusCodeOk ? 200 : 404,
@@ -120,7 +117,7 @@ export function useAPQ(options: APQOptions = {}): Plugin {
         () => hash(params.query!, fetchAPI),
         expectedHash => {
           if (persistedQueryData.sha256Hash !== expectedHash) {
-            throw createGraphQLError('PersistedQueryMismatch', {
+            throw new GraphQLError('PersistedQueryMismatch', {
               extensions: {
                 http: {
                   status: responseConfig.forceStatusCodeOk ? 200 : 400,

@@ -1,5 +1,10 @@
 import { isAsyncIterable } from '@envelop/core';
-import { getMediaTypesForRequestInOrder, isMatchingMediaType } from './result-processor/accept.js';
+import {
+  DEFAULT_MULTIPART_CONTENT_TYPE,
+  getMediaTypesForRequestInOrder,
+  isMatchingMediaType,
+  negotiateIncrementalSpecFromMediaType,
+} from './result-processor/accept.js';
 import { processMultipartResult } from './result-processor/multipart.js';
 import { processRegularResult } from './result-processor/regular.js';
 import { getSSEProcessor } from './result-processor/sse.js';
@@ -9,12 +14,20 @@ interface ResultProcessorConfig {
   processResult: ResultProcessor;
   asyncIterables: boolean;
   mediaTypes: string[];
+  resolveAcceptedMediaType?: (requestMediaType: string) => string | 'unsupported';
 }
 
 const multipart: ResultProcessorConfig = {
   mediaTypes: ['multipart/mixed'],
   asyncIterables: true,
   processResult: processMultipartResult,
+  resolveAcceptedMediaType(requestMediaType) {
+    const negotiated = negotiateIncrementalSpecFromMediaType(requestMediaType);
+    if (negotiated === 'unsupported') {
+      return 'unsupported';
+    }
+    return negotiated?.contentType ?? DEFAULT_MULTIPART_CONTENT_TYPE;
+  },
 };
 
 function getSSEProcessorConfig(): ResultProcessorConfig {
@@ -57,9 +70,16 @@ export function useResultProcessors(): Plugin {
           }
           for (const processorMediaType of resultProcessorConfig.mediaTypes) {
             acceptableMediaTypes.push(processorMediaType);
-            if (isMatchingMediaType(processorMediaType, requestMediaType)) {
-              setResultProcessor(resultProcessorConfig.processResult, processorMediaType);
+            if (!isMatchingMediaType(processorMediaType, requestMediaType)) {
+              continue;
             }
+            const acceptedMediaType =
+              resultProcessorConfig.resolveAcceptedMediaType?.(requestMediaType) ??
+              processorMediaType;
+            if (acceptedMediaType === 'unsupported') {
+              continue;
+            }
+            setResultProcessor(resultProcessorConfig.processResult, acceptedMediaType);
           }
         }
       }

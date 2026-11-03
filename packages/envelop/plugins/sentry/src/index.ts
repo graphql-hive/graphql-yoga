@@ -32,6 +32,9 @@ export type SentryPluginOptions<PluginContext extends Record<string, any>> = {
    * By enabling this option, you can ensure that the GraphQL execution pipeline
    * is always wrapped in its own transaction.
    *
+   * Note: Sentry deprecated the underlying `forceTransaction` span option in v11 and plans to
+   * remove it in v12. It is still honored by `@sentry/node` v11.
+   *
    * @default false
    */
   forceTransaction?: boolean;

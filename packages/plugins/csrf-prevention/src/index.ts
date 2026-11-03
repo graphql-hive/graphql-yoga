@@ -1,5 +1,5 @@
+import { GraphQLError } from 'graphql';
 import type { Plugin, YogaInitialContext } from 'graphql-yoga';
-import { createGraphQLError } from 'graphql-yoga';
 
 const NON_PREFLIGHTED_CONTENT_TYPES = [
   'application/x-www-form-urlencoded',
@@ -39,7 +39,7 @@ export function useCSRFPrevention(
       if (requestHeaders.some(headerName => request.headers.has(headerName))) {
         return;
       }
-      throw createGraphQLError('Required CSRF header(s) not present', {
+      throw new GraphQLError('Required CSRF header(s) not present', {
         extensions: {
           http: {
             status: 403,

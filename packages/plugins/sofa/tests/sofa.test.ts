@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
+import { createSchema, createYoga } from 'graphql-yoga';
 import { useSofa } from '@graphql-yoga/plugin-sofa';
 
 describe('SOFA Plugin', () => {
@@ -46,7 +47,7 @@ describe('SOFA Plugin', () => {
         resolvers: {
           Query: {
             me: () => {
-              throw createGraphQLError('account not found', {
+              throw new GraphQLError('account not found', {
                 extensions: {
                   code: 'ACCOUNT_NOT_FOUND',
                   http: { status: 404 },

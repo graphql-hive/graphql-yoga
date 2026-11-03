@@ -1,0 +1,193 @@
+---
+title: Migration from Yoga V5
+sidebarTitle: Yoga v5
+description:
+  Migrate from Yoga V5 to Yoga V6. Learn about Hive Logger, the dropped Node.js/GraphQL support, and
+  the other breaking changes.
+---
+
+## Install the new NPM package
+
+```sh npm2yarn
+npm i graphql-yoga
+```
+
+## 1. Upgrade to Node.js 22 or later
+
+Node.js 18 and 20 have reached end of life. Yoga v6 requires Node.js 22 or later, and future
+releases will only support Node.js versions that are still in LTS.
+
+## 2. Upgrade GraphQL.js to v16 or later
+
+The minimum supported version of the `graphql-js` package is now 16.
+
+## 3. Switch to Hive Logger
+
+Yoga v6 replaces its console-based logger with
+[Hive Logger](https://the-guild.dev/graphql/hive/docs/logger), the same structured logger used
+across the Hive platform. You get log levels, attributes, child loggers, redaction and pluggable
+writers.
+
+If you passed a custom logger to Yoga or relied on the `Logger` type or `createLogger`, update that
+code:
+
+```diff
+- import { createLogger } from 'graphql-yoga'
++ import { Logger } from 'graphql-yoga'
+
+- const logging = createLogger('debug')
++ const logging = new Logger({ level: 'debug' })
+
+  createYoga({
+    logging,
+    // ...
+  })
+```
+
+## 4. Rename `context.logger`/`yoga.logger` to `context.log`/`yoga.log`
+
+Each request now gets its own
+[child logger](https://the-guild.dev/graphql/hive/docs/logger/child-loggers), available as
+`context.log` and tagged with that request's `requestId`. Use it from the context whenever you are
+handling a request, so your application logs, Yoga's lifecycle logs and masked errors can be
+correlated by the same id.
+
+```diff
+  const plugin = {
+    onYogaInit({ yoga }) {
+-     logger = yoga.logger
++     log = yoga.log
+    },
+  }
+```
+
+Use `yoga.log` for server-level messages only (for example in `onYogaInit`). For request-specific
+messages, read `context.log` in your context factory and resolvers, `serverContext.log` in HTTP
+hooks such as `onRequestParse`/`onResponse`, or `args.contextValue.log` in GraphQL execution hooks
+such as `onExecute`/`onSubscribe`.
+
+## 5. `@graphql-yoga/logger` package renamed
+
+If you depended on the standalone `@graphql-yoga/logger` package directly, it has been removed —
+install `@graphql-hive/logger` instead:
+
+```sh npm2yarn
+npm uninstall @graphql-yoga/logger
+npm i @graphql-hive/logger
+```
+
+```diff
+- import { Logger, MemoryLogWriter } from '@graphql-yoga/logger'
++ import { Logger, MemoryLogWriter } from '@graphql-hive/logger'
+```
+
+You can also keep importing `Logger`/`MemoryLogWriter` from `graphql-yoga` itself, which re-exports
+both.
+
+## 6. `logger` option renamed to `log` on several plugins
+
+If you passed a `logger` option to the built-in GraphiQL or health-check plugin config, or to
+`@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`,
+`@envelop/graphql-jit`, `@envelop/response-cache` or `@envelop/response-cache-cloudflare-kv`, rename
+it to `log`.
+
+`@envelop/apollo-federation`'s `useApolloFederation` keeps its `logger` option name, but it's now
+typed as `Logger` from `@graphql-hive/logger` instead of a loosely-typed
+`{ warn, debug, info, error }` interface, and defaults to `new Logger()` instead of the global
+`console`.
+
+## 7. `@graphql-yoga/nestjs` now logs by default
+
+If you use `@graphql-yoga/nestjs`, it now logs through Nest's own `Logger` by default instead of not
+logging at all.
+
+```ts
+// Keep the previous (silent) behavior
+logging: false
+```
+
+```ts
+// Keep logging through Fastify's Pino instance
+logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
+```
+
+## 8. `useRequestId` now prefers the host-assigned request id
+
+Yoga's `useRequestId` plugin (enabled by default) now prefers a request id your host framework
+already assigned (for example Fastify's `request.id`) over minting its own. The incoming
+`x-request-id` header is now only a fallback, used when no host-assigned id is available, and before
+that previously took priority over everything.
+
+If your server is directly reachable by clients rather than only through a proxy or gateway that
+sets the header itself, disable trusting the header with the new `trustHeader` option, so a client
+can't pick its own id and have it correlated across your logs as if it were trusted:
+
+```ts
+createYoga({
+  requestId: {
+    trustHeader: false
+  }
+})
+```
+
+## 9. `allowedHeaders.response` now applies after CORS and plugins
+
+`allowedHeaders.response` is now applied after the `cors` option and after your own plugins'
+`onResponse` hooks, instead of before. Headers added by `cors` or by a plugin are now subject to the
+allow-list and will be stripped unless included in it. If you use `allowedHeaders.response` together
+with `cors` or a plugin that sets response headers, add those header names to the allow-list.
+
+## 10. Removed re-exports from `@graphql-tools/*`
+
+Yoga's `@graphql-tools/utils`, `@graphql-tools/schema` and `@graphql-tools/executor` dependencies
+are now on their current major versions (`^13.1.1`, `^11.0.0` and `^4.1.2`). Yoga no longer
+re-exports the following upstream helpers — import them from their own packages instead:
+
+```diff
+- import { createGraphQLError } from 'graphql-yoga'
++ import { GraphQLError } from 'graphql'
+
+- import { mergeSchemas } from 'graphql-yoga'
++ import { mergeSchemas } from '@graphql-tools/schema'
+
+- import { DisposableSymbols } from 'graphql-yoga'
++ import { DisposableSymbols } from '@whatwg-node/server'
+
+- import { mapAsyncIterator, isPromise, mapMaybePromise, type MaybePromise } from 'graphql-yoga'
++ import {
++   mapAsyncIterator,
++   isPromise,
++   handleMaybePromise,
++   type MaybePromise,
++ } from '@whatwg-node/promise-helpers'
+```
+
+To attach Yoga's experimental schema coordinate to an error, use the new
+`withSchemaCoordinate(error, coordinate)` helper (read it back with `getSchemaCoordinate` from
+`@graphql-tools/utils`).
+
+`@envelop/core`'s `utils` export no longer re-exports `mapAsyncIterator` or `isPromise` either —
+import both from `@whatwg-node/promise-helpers`.
+
+If you depend on `@graphql-tools/utils`, `@graphql-tools/schema` or `@graphql-tools/executor`
+directly, update them to `^13.1.1`, `^11.0.0` and `^4.1.2` respectively.
+
+## 11. New incremental delivery (`defer`/`stream`) spec support
+
+Yoga can now speak the current `graphql-js` incremental delivery format (`pending`/`id`/`subPath`/
+`completed` entries), in addition to the legacy one (`path`/`label`). Existing clients are
+unaffected: a bare `multipart/mixed` Accept header, or one with `deferSpec=20220824`, still gets the
+legacy `v0.1` format.
+
+To opt into the new format, request it explicitly on the `Accept` header:
+
+```
+Accept: multipart/mixed;incrementalSpec=v0.2
+```
+
+Yoga echoes `incrementalSpec=v0.2` back on the response's `Content-Type` so clients can confirm
+which format they received. An unrecognized `spec` parameter value gets a `406 Not Acceptable`
+instead of a silently mismatched response.
+
+This is Yoga-only for now — Hive Gateway support for `incrementalSpec=v0.2` is coming in a follow-up
+release.

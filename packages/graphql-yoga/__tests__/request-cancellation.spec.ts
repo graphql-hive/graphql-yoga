@@ -2,7 +2,7 @@ import { setTimeout as setTimeout$ } from 'node:timers/promises';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { FetchAPI } from '../src/index';
-import { createLogger, createSchema, createYoga } from '../src/index';
+import { createSchema, createYoga, Logger, MemoryLogWriter } from '../src/index';
 import { useExecutionCancellation } from '../src/plugins/use-execution-cancellation';
 
 const variants: Array<[name: string, fetchAPI: undefined | FetchAPI]> = [
@@ -49,9 +49,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
         },
       },
     });
-    const logger = createLogger('silent');
-    const debugLogs = jest.fn();
-    logger.debug = debugLogs;
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yoga = createYoga({
       schema,
       fetchAPI,
@@ -75,10 +74,14 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     await expect(promise).rejects.toThrow('This operation was aborted');
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(aResolverGotInvoked).toBe(false);
-    expect(debugLogs.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Request aborted'],
+    expect(writer.logs.filter(log => log.level === 'debug').map(log => log.msg)).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Request aborted',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
     ]);
   });
 
@@ -119,9 +122,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
         },
       },
     });
-    const logger = createLogger('silent');
-    const debugLogs = jest.fn();
-    logger.debug = debugLogs;
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yoga = createYoga({
       schema,
       fetchAPI,
@@ -161,11 +163,15 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(aResolverGotInvoked).toBe(false);
 
-    expect(debugLogs.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Processing GraphQL Parameters done.'],
-      ['Request aborted'],
+    expect(writer.logs.filter(log => log.level === 'debug').map(log => log.msg)).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Processing GraphQL Parameters done.',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
+      'Request aborted',
     ]);
   });
 
@@ -206,9 +212,8 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
         },
       },
     });
-    const logger = createLogger('silent');
-    const debugLogs = jest.fn();
-    logger.debug = debugLogs;
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yoga = createYoga({
       schema,
       plugins: [useDeferStream(), useExecutionCancellation()],
@@ -259,11 +264,15 @@ describe.each(variants)('request cancellation (%s)', (_, fetchAPI) => {
     await expect(next$).rejects.toThrow('This operation was aborted');
     await waitAFewMillisecondsToMakeSureGraphQLExecutionIsNotResumingInBackground();
     expect(bResolverGotInvoked).toBe(false);
-    expect(debugLogs.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Processing GraphQL Parameters done.'],
-      ['Request aborted'],
+    expect(writer.logs.filter(log => log.level === 'debug').map(log => log.msg)).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Processing GraphQL Parameters done.',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
+      'Request aborted',
     ]);
   });
 });

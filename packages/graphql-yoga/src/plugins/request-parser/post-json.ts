@@ -1,8 +1,8 @@
 import type { GraphQLErrorExtensions } from 'graphql';
 import { GraphQLError } from 'graphql';
-import { createGraphQLError } from '@graphql-tools/utils';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
@@ -19,7 +19,7 @@ export function parsePOSTJsonRequest(request: Request): MaybePromise<GraphQLPara
     () => request.json(),
     (requestBody: GraphQLParams) => {
       if (requestBody == null) {
-        throw createGraphQLError(`POST body is expected to be object but received ${requestBody}`, {
+        throw new GraphQLError(`POST body is expected to be object but received ${requestBody}`, {
           extensions: {
             http: {
               status: 400,
@@ -31,7 +31,7 @@ export function parsePOSTJsonRequest(request: Request): MaybePromise<GraphQLPara
 
       const requestBodyTypeof = typeof requestBody;
       if (requestBodyTypeof !== 'object') {
-        throw createGraphQLError(
+        throw new GraphQLError(
           `POST body is expected to be object but received ${requestBodyTypeof}`,
           {
             extensions: {
@@ -46,7 +46,7 @@ export function parsePOSTJsonRequest(request: Request): MaybePromise<GraphQLPara
       return requestBody;
     },
     err => {
-      if (err instanceof GraphQLError) {
+      if (err instanceof GraphQLError || isRequestBodyLimitError(err)) {
         throw err;
       }
       const extensions: GraphQLErrorExtensions = {
@@ -62,7 +62,7 @@ export function parsePOSTJsonRequest(request: Request): MaybePromise<GraphQLPara
           message: err.message,
         };
       }
-      throw createGraphQLError('POST body sent invalid JSON.', {
+      throw new GraphQLError('POST body sent invalid JSON.', {
         extensions,
       });
     },

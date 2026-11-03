@@ -1,11 +1,17 @@
+import { versionInfo } from 'graphql';
 import type { YogaInitialContext, YogaServerInstance } from 'graphql-yoga';
-import { createSchema, createYoga } from 'graphql-yoga';
+import { createSchema, createYoga, Logger } from 'graphql-yoga';
 import type { ShouldCacheResultFunction } from '@envelop/response-cache';
 import { cacheControlDirective, defaultBuildResponseCacheKey } from '@envelop/response-cache';
 import { createKvCache } from '@envelop/response-cache-cloudflare-kv';
 import { createRedisCache } from '@envelop/response-cache-redis';
 import { useDeferStream } from '@graphql-yoga/plugin-defer-stream';
 import { createInMemoryCache, useResponseCache } from '@graphql-yoga/plugin-response-cache';
+
+const nullVariableMessage =
+  versionInfo.major >= 17
+    ? 'Variable "$person" has invalid value: Expected value of non-null type "String!" not to be null.'
+    : 'Variable "$person" of non-null type "String!" must not be null.';
 
 const schema = createSchema({
   typeDefs: /* GraphQL */ `
@@ -236,39 +242,25 @@ it('should miss cache if query variables change', async () => {
 
   // first invalid request, will be cached
   let res = await query(null);
-  await expect(res.json()).resolves.toMatchInlineSnapshot(`
-    {
-      "errors": [
-        {
-          "locations": [
-            {
-              "column": 16,
-              "line": 1,
-            },
-          ],
-          "message": "Variable "$person" of non-null type "String!" must not be null.",
-        },
-      ],
-    }
-  `);
+  await expect(res.json()).resolves.toEqual({
+    errors: [
+      {
+        locations: [{ column: 16, line: 1 }],
+        message: nullVariableMessage,
+      },
+    ],
+  });
 
   // second invalid request, cache hit
   res = await query(null);
-  await expect(res.json()).resolves.toMatchInlineSnapshot(`
-    {
-      "errors": [
-        {
-          "locations": [
-            {
-              "column": 16,
-              "line": 1,
-            },
-          ],
-          "message": "Variable "$person" of non-null type "String!" must not be null.",
-        },
-      ],
-    }
-  `);
+  await expect(res.json()).resolves.toEqual({
+    errors: [
+      {
+        locations: [{ column: 16, line: 1 }],
+        message: nullVariableMessage,
+      },
+    ],
+  });
 
   // third request, valid, cache miss
   res = await query('John');
@@ -904,12 +896,8 @@ describe('shouldCacheResult', () => {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   let yoga: YogaServerInstance<{}, {}>;
   let shouldCacheResultFn: ShouldCacheResultFunction | undefined;
-  const logging = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  };
+  let logging: Logger;
+  let debug: jest.SpiedFunction<typeof logging.debug>;
 
   function fetch(query: string) {
     return yoga.fetch('http://localhost:3000/graphql', {
@@ -980,7 +968,14 @@ describe('shouldCacheResult', () => {
   };
 
   beforeEach(() => {
+    logging = new Logger({ level: 'debug' });
+    // request-scoped child loggers are separate instances, so spy on the prototype
+    debug = jest.spyOn(Logger.prototype, 'debug');
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    debug.mockRestore();
   });
 
   describe('when server returns errors', () => {
@@ -1010,7 +1005,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).toHaveBeenCalledWith(
+        expect(debug).toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1038,7 +1033,7 @@ describe('shouldCacheResult', () => {
           // NOTE: This actually returns the unmasked error DUMMY instead of the original "Unexpected error."
           errors: expect.arrayContaining([expect.objectContaining({ message: 'DUMMY' })]),
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1064,7 +1059,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1097,7 +1092,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheHit,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1123,7 +1118,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheHit,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });
@@ -1149,7 +1144,7 @@ describe('shouldCacheResult', () => {
           ...expectedResponsePayload,
           ...cacheSkip,
         });
-        expect(logging.debug).not.toHaveBeenCalledWith(
+        expect(debug).not.toHaveBeenCalledWith(
           '[useResponseCache] Decided not to cache the response because it contains errors',
         );
       });

@@ -26,7 +26,7 @@ jobs:
           standalone: true
 
       - name: Install Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
         with:
           node-version-file: '.node-version'
 
@@ -78,10 +78,10 @@ jobs:
       GRAPHQL_VERSION: ${{ matrix.graphql-version }}
     strategy:
       matrix:
-        node-version: [18, 20, 24, 26]
+        node-version: [22, 24, 26]
         # graphql-js majors, all installed at once through npm aliases and picked at runtime by
         # jest through the `GRAPHQL_VERSION` env variable, see `scripts/graphql-versions.js`
-        graphql-version: [15, 16, 17]
+        graphql-version: [16, 17]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -92,7 +92,7 @@ jobs:
           standalone: true
 
       - name: Install Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -121,6 +121,13 @@ jobs:
           max_attempts: 3
           command: pnpm run test:unit --ci
 
+      - name: Run Nest Tests
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm run test:nest --ci
+
       - name: Run Leak Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
@@ -136,10 +143,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20, 24, 26]
+        node-version: [22, 24, 26]
         # graphql-js majors, all installed at once through npm aliases and picked at runtime by
         # jest through the `GRAPHQL_VERSION` env variable, see `scripts/graphql-versions.js`
-        graphql-version: [15, 16, 17]
+        graphql-version: [16, 17]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -150,7 +157,7 @@ jobs:
           standalone: true
 
       - name: Install Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -180,28 +187,14 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: >-
-            if [ "${{ matrix.node-version }}" = "18" ]; then
-              pnpm test:integration --ci \
-                --testPathIgnorePatterns='/(browser|sveltekit|defer-stream)\.spec\.ts$' &&
-              NODE_OPTIONS=--experimental-vm-modules pnpm test:integration --ci \
-            packages/plugins/defer-stream/__integration-tests__/defer-stream.spec.ts \
-            packages/graphql-yoga/__integration-tests__/browser.spec.ts \
-            examples/sveltekit/__integration-tests__/sveltekit.spec.ts; else
-              pnpm test:integration --ci;
-            fi
+          command: pnpm test:integration --ci
 
       - name: Run Leak Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: >-
-            if [ "${{ matrix.node-version }}" = "18" ]; then
-              pnpm test:integration:leaks --ci \
-                --testPathIgnorePatterns='/(browser|sveltekit)\.spec\.ts$'; else
-              pnpm test:integration:leaks --ci;
-            fi
+          command: pnpm test:integration:leaks --ci
 
   apollo-federation-compatibility:
     runs-on: ubuntu-latest
@@ -213,7 +206,7 @@ jobs:
         with:
           standalone: true
       - name: Install Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
         with:
           node-version-file: '.node-version'
       - name: Get pnpm store path
@@ -294,7 +287,7 @@ jobs:
           standalone: true
 
       - name: Install Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
         with:
           node-version-file: '.node-version'
 

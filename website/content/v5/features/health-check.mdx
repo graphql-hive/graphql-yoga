@@ -1,0 +1,128 @@
+---
+description:
+  Yoga is aware of the usefulness of a health check and gives the user maximum possibilities to use
+  the built-in check and create a "readiness" check through a simple plugin.
+title: Health Check
+---
+
+Yoga is aware of the usefulness of a health check and gives the user maximum possibilities to use
+the built-in check and create a "readiness" check through a simple plugin.
+
+## Types of health checks
+
+There are two types of health checks: **liveliness** and **readiness**, they both _are_ a health
+check but convey a different meaning:
+
+- **Liveliness** checks whether the service is alive and running
+- **Readiness** checks whether the service is ready to perform work
+
+The difference is that a service can be _live_ but not _ready_ - for example, server has started and
+is accepting requests (alive), but the read replica it uses is still unavailable (not ready).
+
+A liveliness check is something Yoga can offer out-of-the-box because Yoga is a server and Yoga
+knows when it's alive. However, a readiness check is something Yoga cannot figure out on its own, it
+is a check requiring user-land context.
+
+Having said this, Yoga has a `/health` route which is used for **liveliness** check and offers a
+`useReadinessCheck` plugin allowing you to implement your own **readiness** check.
+
+### Liveliness
+
+By default, you can check whether Yoga is alive by issuing a request to the `/health` endpoint and
+expecting the response `200 OK`.
+
+Of course, you can change this endpoint through the `healthCheckEndpoint` option.
+
+```ts
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { schema } from './my-service'
+
+const yoga = createYoga({
+  schema,
+  healthCheckEndpoint: '/live'
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+A successful response is just `200 OK` without a body.
+
+### Readiness
+
+Additionally, you might want an endpoint which checks whether the services powering Yoga are ready
+to perform work.
+
+Since this check requires more context that Yoga cannot assume, you're recommended to use the core
+`useReadinessPlugin` and implement your own check.
+
+```ts
+import { createServer } from 'node:http'
+import { createYoga, useReadinessCheck } from 'graphql-yoga'
+import { checkDbAvailable, schema } from './my-service'
+
+const yoga = createYoga({
+  schema,
+  plugins: [
+    useReadinessCheck({
+      endpoint: '/ready', // default
+      check: async () => {
+        // if resolves, respond with 200 OK
+        // if throw, respond with 503 Service Unavailable and error message as plaintext in body
+        await checkDbAvailable()
+      }
+    })
+  ]
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+Throwing an instance of `Error` in the `check` function will have Yoga respond with
+`503 Service Unavailable` with the error's message in the body.
+
+<Callout>
+  Please make sure that thrown errors are not leaking sensitive information in production
+  environments.
+</Callout>
+
+Alternatively, you can simply return `false` from the `check` function to have Yoga respond with
+just `503 Service Unavailable` and no body. This way you can make sure nothing sensitive leaks ever.
+
+```ts
+import { createServer } from 'node:http'
+import { createYoga, useReadinessCheck } from 'graphql-yoga'
+import { checkDbAvailable, schema } from './my-service'
+
+const yoga = createYoga({
+  schema,
+  plugins: [
+    useReadinessCheck({
+      endpoint: '/ready', // default
+      check: async () => {
+        try {
+          await checkDbAvailable()
+          // if true, respond with 200 OK
+          return false
+        } catch (err) {
+          // log the error on the server for debugging purposes
+          console.error(err)
+          // if false, respond with 503 Service Unavailable and no bdy
+          return false
+        }
+      }
+    })
+  ]
+})
+
+const server = createServer(yoga)
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```

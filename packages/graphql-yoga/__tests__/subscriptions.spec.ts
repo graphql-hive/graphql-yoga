@@ -1,7 +1,14 @@
 import { GraphQLError } from 'graphql';
 import { createDeferredPromise, fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
-import { createSchema, createYoga, getSSEProcessor, maskError } from '../src/index.js';
+import {
+  createSchema,
+  createYoga,
+  getSSEProcessor,
+  Logger,
+  maskError,
+  MemoryLogWriter,
+} from '../src/index.js';
 import { eventStream } from './utilities.js';
 
 describe('Subscription', () => {
@@ -320,12 +327,8 @@ data:
       },
     });
 
-    const logging = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
+    const writer = new MemoryLogWriter();
+    const logging = new Logger({ level: 'error', writers: [writer] });
 
     const yoga = createYoga({ schema, logging });
     const response = await yoga.fetch('http://yoga/graphql', {
@@ -359,12 +362,15 @@ data:
 "
 `);
 
-    expect(logging.error).toHaveBeenCalledTimes(1);
-    expect(logging.error.mock.calls[0]).toMatchInlineSnapshot(`
-      [
-        [GraphQLError: hi],
-      ]
-    `);
+    const errorLogs = writer.logs.filter(log => log.level === 'error');
+    expect(errorLogs).toHaveLength(1);
+    expect(errorLogs[0]).toEqual({
+      level: 'error',
+      attrs: {
+        err: { message: 'hi', locations: [{ column: 11, line: 2 }] },
+        requestId: expect.any(String),
+      },
+    });
   });
 
   test('erroring event stream should be handled (non GraphQL error; disabled error masking)', async () => {
@@ -389,12 +395,8 @@ data:
       },
     });
 
-    const logging = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
+    const writer = new MemoryLogWriter();
+    const logging = new Logger({ level: 'error', writers: [writer] });
 
     const yoga = createYoga({ schema, logging, maskedErrors: false });
     const response = await yoga.fetch('http://yoga/graphql', {
@@ -428,7 +430,7 @@ data:
 "
 `);
     // errors are only logged when error masking is enabled
-    expect(logging.error).toHaveBeenCalledTimes(0);
+    expect(writer.logs.filter(log => log.level === 'error')).toHaveLength(0);
   });
 
   test('erroring event stream should be handled (GraphQL error)', async () => {
@@ -453,12 +455,8 @@ data:
       },
     });
 
-    const logging = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
+    const writer = new MemoryLogWriter();
+    const logging = new Logger({ level: 'error', writers: [writer] });
 
     const yoga = createYoga({ schema, logging });
     const response = await yoga.fetch('http://yoga/graphql', {
@@ -492,7 +490,7 @@ data:
 "
 `);
 
-    expect(logging.error).toHaveBeenCalledTimes(0);
+    expect(writer.logs.filter(log => log.level === 'error')).toHaveLength(0);
   });
 });
 

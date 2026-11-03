@@ -1,4 +1,5 @@
-import { createGraphQLError, createSchema, createYoga } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
+import { createSchema, createYoga } from 'graphql-yoga';
 import { Trace } from '@apollo/usage-reporting-protobuf';
 import { useApolloInlineTrace } from '../src/index.js';
 
@@ -409,7 +410,7 @@ describe('Inline Trace', () => {
       schema,
       plugins: [
         useApolloInlineTrace({
-          rewriteError: () => createGraphQLError('bim', { extensions: { str: 'ing' } }),
+          rewriteError: () => new GraphQLError('bim', { extensions: { str: 'ing' } }),
         }),
       ],
       logging: false,

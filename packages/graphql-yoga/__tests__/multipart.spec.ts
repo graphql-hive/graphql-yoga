@@ -21,10 +21,10 @@ describe('Multipart', () => {
   // These cases assert Object.prototype directly, rather than only inferring
   // safety from a follow-up request succeeding.
   async function attemptPollution(mapPath: string) {
-    const form = new FormData();
+    const form = new yoga.fetchAPI.FormData();
     form.set('operations', JSON.stringify({ query: '{ hello }', variables: {} }));
     form.set('map', JSON.stringify({ 0: [mapPath] }));
-    form.set('0', new Blob(['x']), 'x.txt');
+    form.set('0', new yoga.fetchAPI.Blob(['x']), 'x.txt');
     return yoga.fetch('http://yoga/graphql', { method: 'POST', body: form });
   }
 
