@@ -45,7 +45,7 @@
     "start:docs": "pnpm --filter=website dev",
     "test:integration": "node scripts/ensure-playwright-chromium.js && cross-env INTEGRATION_TEST=true jest --forceExit",
     "test:integration:leaks": "cross-env LEAKS_TEST=true pnpm run test:integration --detectLeaks",
-    "test:nest": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --config packages/nestjs/jest.config.cjs",
+    "test:nest": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --projects packages/nestjs/jest.config.cjs packages/nestjs-federation/jest.config.cjs",
     "test:unit": "jest --detectOpenHandles",
     "test:unit:leaks": "cross-env LEAKS_TEST=true jest --detectOpenHandles --detectLeaks"
   },
