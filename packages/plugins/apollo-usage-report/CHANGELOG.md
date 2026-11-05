@@ -1,5 +1,14 @@
 # @graphql-yoga/plugin-apollo-usage-report
 
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`045fc2f`](https://github.com/graphql-hive/graphql-yoga/commit/045fc2f77953d9b81a9e242d8351e9924039b531)]:
+  - graphql-yoga@6.0.2
+  - @graphql-yoga/plugin-apollo-inline-trace@4.0.2
+
 ## 1.0.1
 
 ### Patch Changes

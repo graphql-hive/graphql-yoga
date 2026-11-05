@@ -1,5 +1,16 @@
 # graphql-yoga
 
+## 6.0.2
+
+### Patch Changes
+
+- [#4650](https://github.com/graphql-hive/graphql-yoga/pull/4650)
+  [`045fc2f`](https://github.com/graphql-hive/graphql-yoga/commit/045fc2f77953d9b81a9e242d8351e9924039b531)
+  Thanks [@Shaurya55555](https://github.com/Shaurya55555)! - Match the request `Content-Type` media
+  type case-insensitively and allow optional whitespace before its parameters, as required by
+  RFC 9110. A request sent with `Application/JSON` or `application/json ; charset=utf-8` was
+  rejected with `415 Unsupported Media Type`.
+
 ## 6.0.1
 
 ### Patch Changes
