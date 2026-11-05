@@ -1,5 +1,20 @@
 # @graphql-yoga/nestjs
 
+## 5.1.0
+
+### Minor Changes
+
+- [#4644](https://github.com/graphql-hive/graphql-yoga/pull/4644)
+  [`50712e4`](https://github.com/graphql-hive/graphql-yoga/commit/50712e41d7e3f8c195237b62169c1913de880f82)
+  Thanks [@jfairley](https://github.com/jfairley)! - Support the `@nestjs/platform-node` HTTP
+  adapter (`'node'` platform)
+
+### Patch Changes
+
+- Updated dependencies
+  [[`045fc2f`](https://github.com/graphql-hive/graphql-yoga/commit/045fc2f77953d9b81a9e242d8351e9924039b531)]:
+  - graphql-yoga@6.0.2
+
 ## 5.0.1
 
 ### Patch Changes
