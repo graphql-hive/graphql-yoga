@@ -499,6 +499,50 @@ describe('requests', () => {
     expect(body).toBeFalsy();
   });
 
+  it.each([
+    'Application/JSON',
+    'APPLICATION/JSON; charset=utf-8',
+    'application/json ; charset=utf-8',
+    'application/json;charset=utf-8',
+    'application/json, text/plain',
+  ])('accepts the JSON content-type %j', async contentType => {
+    const response = await yoga.fetch('http://yoga/test-graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': contentType,
+      },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { ping: 'pong' } });
+  });
+
+  it('accepts a form-urlencoded content-type with a different case', async () => {
+    const response = await yoga.fetch('http://yoga/test-graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'Application/X-WWW-Form-Urlencoded',
+      },
+      body: new URLSearchParams({ query: '{ ping }' }).toString(),
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { ping: 'pong' } });
+  });
+
+  it.each(['application/jsonx', 'application/json2; charset=utf-8', 'text/application/json'])(
+    'still returns 415 for the unrelated content-type %j',
+    async contentType => {
+      const response = await yoga.fetch('http://yoga/test-graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': contentType,
+        },
+        body: JSON.stringify({ query: '{ ping }' }),
+      });
+      expect(response.status).toBe(415);
+    },
+  );
+
   it('contains the correct request object in the unique execution context', async () => {
     const onExecuteFn = jest.fn((() => undefined) as OnExecuteHook<YogaInitialContext>);
     const yoga = createYoga({
