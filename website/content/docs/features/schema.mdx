@@ -52,3 +52,8 @@ server.listen(4000, () => {
   console.info('Server is running on http://localhost:4000/graphql')
 })
 ```
+
+When you call `yoga.getEnveloped(context)` yourself, for example to serve
+[GraphQL over WebSocket with `graphql-ws`](/docs/features/subscriptions#graphql-over-websocket-protocol-via-graphql-ws),
+the factory function is called with that `context` instead of the server context and `request`, and
+it has to return the schema synchronously.
