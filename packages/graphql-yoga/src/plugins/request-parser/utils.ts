@@ -22,12 +22,11 @@ export function parseURLSearchParams(requestBody: string): GraphQLParams {
 }
 
 export function isContentTypeMatch(request: Request, expectedContentType: string): boolean {
-  let contentType = request.headers.get('content-type');
+  const contentType = request.headers.get('content-type');
 
   // a list of content-types is not valid as per HTTP spec, but some clients dont care
-  contentType = contentType?.split(',')[0] || null;
+  // the media type is case-insensitive and may be followed by optional whitespace before the parameters
+  const mediaType = contentType?.split(',')[0]?.split(';')[0]?.trim().toLowerCase();
 
-  return (
-    contentType === expectedContentType || !!contentType?.startsWith(`${expectedContentType};`)
-  );
+  return mediaType === expectedContentType;
 }
