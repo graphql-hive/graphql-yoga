@@ -1,6 +1,6 @@
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
-import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, isPromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
 import type { Plugin } from './types.js';
 
@@ -99,6 +99,9 @@ export const useSchema = <
           (context ?? {}) as TServerContext & { request: YogaInitialContext['request'] },
         );
         if (!isGraphQLSchema(schema)) {
+          if (isPromise(schema)) {
+            schema.then(undefined, () => {});
+          }
           throw new Error(
             'No schema found for this context. Outside of the request pipeline (e.g. graphql-ws calling getEnveloped), the factory function must return a GraphQLSchema synchronously.',
           );

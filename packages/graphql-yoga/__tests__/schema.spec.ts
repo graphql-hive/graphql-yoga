@@ -364,4 +364,16 @@ describe('schema', () => {
       'the factory function must return a GraphQLSchema synchronously',
     );
   });
+
+  it('does not leave an unhandled rejection when an async schema factory rejects outside of the request pipeline', async () => {
+    const yoga = createYoga({
+      schema: async () => {
+        throw new Error('The schema factory failed');
+      },
+    });
+    expect(() => yoga.getEnveloped()).toThrow(
+      'the factory function must return a GraphQLSchema synchronously',
+    );
+    await new Promise(resolve => setImmediate(resolve));
+  });
 });
