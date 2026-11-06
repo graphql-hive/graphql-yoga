@@ -55,6 +55,7 @@ describe('Context', () => {
     expect(onExecuteFn.mock.lastCall?.[0].args.contextValue.params).toMatchInlineSnapshot(`
       {
         "extensions": undefined,
+        "onError": undefined,
         "operationName": undefined,
         "query": "{hello}",
         "variables": undefined,
@@ -88,6 +89,7 @@ describe('Context', () => {
     expect(onSubscribeFn.mock.lastCall?.[0].args.contextValue.params).toMatchInlineSnapshot(`
       {
         "extensions": undefined,
+        "onError": undefined,
         "operationName": undefined,
         "query": "subscription{greetings}",
         "variables": undefined,
