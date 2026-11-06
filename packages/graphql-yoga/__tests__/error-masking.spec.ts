@@ -1,6 +1,7 @@
-import type { ExecutionResult, GraphQLError } from 'graphql';
+import { GraphQLError } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 import { inspect } from '@graphql-tools/utils';
-import { createGraphQLError, createLogger, createSchema, createYoga } from '../src/index.js';
+import { createSchema, createYoga, Logger, MemoryLogWriter } from '../src/index.js';
 import { useErrorCoordinate } from '../src/plugins/use-error-coordinate.js';
 import { eventStream } from './utilities.js';
 
@@ -17,7 +18,7 @@ describe('error masking', () => {
       resolvers: {
         Query: {
           hello: () => {
-            throw createGraphQLError('This error never gets masked.');
+            throw new GraphQLError('This error never gets masked.');
           },
           hi: () => {
             throw new Error('This error will get mask if you enable maskedError.');
@@ -223,7 +224,7 @@ describe('error masking', () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        throw createGraphQLError('I like turtles');
+        throw new GraphQLError('I like turtles');
       },
       schema: createTestSchema(),
     });
@@ -247,7 +248,7 @@ describe('error masking', () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        throw createGraphQLError('I like turtles', {
+        throw new GraphQLError('I like turtles', {
           extensions: {
             foo: 1,
           },
@@ -433,7 +434,7 @@ describe('error masking', () => {
       maskedErrors: {
         errorMessage: 'My message',
         maskError: (error, message, isDev) => {
-          return createGraphQLError(
+          return new GraphQLError(
             inspect({
               errorStr: String(error),
               message,
@@ -462,17 +463,54 @@ describe('error masking', () => {
     expect(await response.json()).toMatchObject({
       errors: [
         {
-          message: '{ errorStr: "Error: I like turtles", message: "My message", isDev: true }',
+          message: "{ errorStr: 'Error: I like turtles', message: 'My message', isDev: true }",
         },
       ],
     });
+  });
+
+  it('passes the request context (not just a logger) to the custom maskError function', async () => {
+    let receivedContext: unknown;
+    const yoga = createYoga({
+      logging: false,
+      maskedErrors: {
+        maskError: (_error, message, _isDev, context) => {
+          receivedContext = context;
+          return new GraphQLError(message);
+        },
+      },
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            hi: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            hi() {
+              throw new Error('boom');
+            },
+          },
+        },
+      }),
+    });
+
+    await yoga.fetch('http://yoga/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{ hi }' }),
+    });
+
+    const context = receivedContext as { log?: { error?: unknown }; request?: { url?: string } };
+    expect(typeof context.log?.error).toBe('function');
+    expect(context.request?.url).toBe('http://yoga/graphql');
   });
 
   it('support errors with undefined extensions', async () => {
     const yoga = createYoga({
       logging: false,
       context: () => {
-        const error = createGraphQLError('I like turtles');
+        const error = new GraphQLError('I like turtles');
         Object.defineProperty(error, 'extensions', {
           get() {
             return undefined;
@@ -719,11 +757,8 @@ describe('error masking', () => {
       },
     });
 
-    const logger = createLogger('silent');
-    const error = jest.fn();
-    const debug = jest.fn();
-    logger.debug = debug;
-    logger.error = error;
+    const writer = new MemoryLogWriter();
+    const logger = new Logger({ level: 'debug', writers: [writer] });
     const yoga = createYoga({ schema, logging: logger });
 
     const result = await yoga.fetch('http://yoga/graphql', {
@@ -753,22 +788,39 @@ describe('error masking', () => {
         },
       ],
     });
-    // in the future this might change as we decide to within our graphql-tools/executor error handler treat DOMException similar to a normal Error
-    expect(error.mock.calls).toMatchObject([[{ message: 'This operation was aborted' }]]);
-    expect(debug.mock.calls).toEqual([
-      ['Parsing request to extract GraphQL parameters'],
-      ['Processing GraphQL Parameters'],
-      ['Processing GraphQL Parameters done.'],
+    const errorLogs = writer.logs.filter(log => log.level === 'error');
+    expect(errorLogs).toEqual([
+      {
+        level: 'error',
+        attrs: {
+          err: {
+            message: 'This operation was aborted',
+            locations: [{ column: 3, line: 1 }],
+            path: ['root'],
+          },
+          requestId: expect.any(String),
+        },
+      },
+    ]);
+    const debugMessages = writer.logs.filter(log => log.level === 'debug').map(log => log.msg);
+    expect(debugMessages).toEqual([
+      'Parsing request to extract GraphQL parameters',
+      'Processing GraphQL Parameters',
+      'Parsed GraphQL document',
+      'Processing GraphQL Parameters done.',
+      'Running onResultProcess hook',
+      'Result processor selected',
+      'Sending response',
     ]);
   });
 
   // Execution engine wraps errors recursively so the only way to make sure it is an unexpected error is to check originalError recursively
   it('respects wrapped original errors', async () => {
     const error = new Error('I like turtles');
-    const wrappedError = createGraphQLError('I like tortoises', {
+    const wrappedError = new GraphQLError('I like tortoises', {
       originalError: error,
     });
-    const wrappedOverWrappedError = createGraphQLError('I like animals', {
+    const wrappedOverWrappedError = new GraphQLError('I like animals', {
       originalError: wrappedError,
     });
 
@@ -807,7 +859,7 @@ describe('error masking', () => {
 
   // extensions may contain internal data and we dont want to leak it
   it('should not inherit the extensions of a graphql error with original error', async () => {
-    const wrappedError = createGraphQLError('I like tortoises', {
+    const wrappedError = new GraphQLError('I like tortoises', {
       extensions: {
         code: 'SOME_ERROR', // should not overwrite the INTERNAL_SERVER_ERROR code
         'x-hi': 'there',
@@ -884,7 +936,7 @@ describe('error masking', () => {
         resolvers: {
           Query: {
             a: () => {
-              throw createGraphQLError('Test Error');
+              throw new GraphQLError('Test Error');
             },
             b: () => {
               throw new Error('Test Error');

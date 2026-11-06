@@ -21,6 +21,7 @@ import type {
   GraphQLHTTPExtensions,
   GraphQLParams,
   MaybeArray,
+  YogaConfigContext,
   YogaInitialContext,
 } from '../types.js';
 
@@ -32,7 +33,7 @@ export type Plugin<
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   TUserContext = {},
 > = EnvelopPlugin<YogaInitialContext & PluginContext> &
-  ServerAdapterPlugin<TServerContext> & {
+  ServerAdapterPlugin<TServerContext & YogaConfigContext> & {
     /**
      * onExecute hook that is invoked before the execute function is invoked.
      */
@@ -129,7 +130,7 @@ export interface OnRequestParseEventPayload<TServerContext> {
   request: Request;
   url: URL;
   requestParser: RequestParser | undefined;
-  serverContext: TServerContext & ServerAdapterInitialContext;
+  serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext;
   setRequestParser: (parser: RequestParser) => void;
   fetchAPI: FetchAPI;
   endResponse: (response: Response) => void;
@@ -218,7 +219,7 @@ export interface OnResultProcessEventPayload<TServerContext> {
   resultProcessor?: ResultProcessor;
   acceptableMediaTypes: string[];
   setResultProcessor(resultProcessor: ResultProcessor, acceptedMediaType: string): void;
-  serverContext: TServerContext & ServerAdapterInitialContext;
+  serverContext: TServerContext & ServerAdapterInitialContext & YogaConfigContext;
 }
 
 /**

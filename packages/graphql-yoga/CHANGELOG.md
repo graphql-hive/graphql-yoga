@@ -1,5 +1,446 @@
 # graphql-yoga
 
+## 6.0.1
+
+### Patch Changes
+
+- [#4634](https://github.com/graphql-hive/graphql-yoga/pull/4634)
+  [`d73f61c`](https://github.com/graphql-hive/graphql-yoga/commit/d73f61cef09d7770282a2b777aa3771db7612f67)
+  Thanks [@ardatan](https://github.com/ardatan)! - dependencies: bump `@whatwg-node/server` to
+  `^0.13.1` so native `Request` subclasses (Next.js `NextRequest`, including the App Router
+  `proxyNextRequest` Proxy) are classified as the platform Fetch API. The body-size limiter no
+  longer throws a cross-realm `TypeError` / 500 on those requests; oversized bodies still
+  return 413.
+
+  See https://github.com/graphql-hive/graphql-yoga/issues/4633 and
+  https://github.com/ardatan/whatwg-node/pull/3717.
+
+## 6.0.0
+
+### Major Changes
+
+- [#4575](https://github.com/graphql-hive/graphql-yoga/pull/4575)
+  [`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Use
+  [`@graphql-hive/logger`](https://github.com/graphql-hive/logger) and add correlated, per-request
+  logging (closes #4048)
+
+  Every request now gets its own logger, available as `context.log` (and `serverContext.log` in
+  plugin hooks), tagged with a `requestId`. Everything logged while handling a request can be
+  correlated by that id.
+
+  The request id is taken from the host integration if it already assigned one (e.g. Fastify's
+  `request.id`), otherwise from the incoming `x-request-id` header, otherwise generated. It is also
+  sent back in the `x-request-id` response header. Configure it with the new `requestId` option:
+
+  ```ts
+  createYoga({
+    requestId: {
+      // don't trust the incoming header, recommended when clients can reach the server directly
+      trustHeader: false,
+      headerName: 'x-correlation-id',
+      generateRequestId: () => myId()
+    }
+  })
+  ```
+
+  Pass `requestId: false` to disable it.
+
+  At the `info` level, a single "Request processed" line is logged per request with the method,
+  path, operation name and type, response status, error count and duration. At the `debug` level,
+  more details about request processing are logged.
+
+  Masked errors are now logged with the request's logger, so they can be traced back to the request
+  that caused them. Custom `maskError` functions receive the request's context as an optional fourth
+  argument.
+
+  The `@envelop/newrelic`, `@envelop/auth0`, `@envelop/resource-limitations`, `@envelop/statsd`,
+  `@envelop/graphql-jit`, `@envelop/response-cache` and `@envelop/response-cache-cloudflare-kv`
+  plugins accept a new `log` option for their own messages, instead of always writing to the
+  console.
+
+  `@envelop/response-cache`'s `shouldCacheResult` now also receives the GraphQL `context`.
+
+  ### Breaking Changes
+  - The `@graphql-yoga/logger` package has been removed. `graphql-yoga` re-exports `Logger`,
+    `MemoryLogWriter` and `LogLevel` from `@graphql-hive/logger` instead.
+  - `createLogger` and the `YogaLogger` type are no longer exported. Use `new Logger(options)`
+    instead.
+  - The `logging` option now takes `boolean | Logger | LogLevel`, where `Logger` is the one from
+    `@graphql-hive/logger`.
+  - `yoga.logger` has been renamed to `yoga.log`.
+  - The `logger` option of `useGraphiQL` and `useHealthCheck` has been removed. They now log through
+    the request's logger.
+  - `@graphql-yoga/nestjs` now logs through Nest's `Logger` by default instead of not logging at
+    all. Pass `logging: false` to keep the previous behaviour. `logging: true` on Fastify no longer
+    logs through Fastify's logger, pass it explicitly instead (see below).
+  - `@envelop/apollo-federation`, `@envelop/auth0`, `@envelop/graphql-jit`, `@envelop/newrelic`,
+    `@envelop/resource-limitations`, `@envelop/response-cache`,
+    `@envelop/response-cache-cloudflare-kv` and `@envelop/statsd` now have a peer dependency on
+    `@graphql-hive/logger` that you must install.
+  - `@envelop/apollo-federation`'s `logger` option now expects a `Logger` from
+    `@graphql-hive/logger` and defaults to `new Logger()` instead of `console`.
+
+  ### Migration
+
+  Create loggers with `Logger`:
+
+  ```diff
+  - import { createLogger } from 'graphql-yoga';
+  + import { Logger } from 'graphql-yoga';
+
+    createYoga({
+  -   logging: createLogger('debug'),
+  +   logging: new Logger({ level: 'debug' }),
+    });
+  ```
+
+  Use `log` instead of `logger` on the Yoga instance:
+
+  ```diff
+    const plugin = {
+      onYogaInit({ yoga }) {
+  -     yoga.logger.info('ready');
+  +     yoga.log.info('ready');
+      },
+    };
+  ```
+
+  Prefer the request-scoped logger inside resolvers and plugin hooks so the logs carry the request
+  id:
+
+  ```ts
+  const resolvers = {
+    Query: {
+      hello: (_, __, context) => {
+        context.log.debug('resolving hello')
+        return 'world'
+      }
+    }
+  }
+  ```
+
+  If you use any of the `@envelop/*` plugins listed above, install the logger:
+
+  ```sh
+  npm i @graphql-hive/logger
+  ```
+
+  If you depended on `@graphql-yoga/logger` directly, switch to `@graphql-hive/logger`:
+
+  ```diff
+  - import { Logger } from '@graphql-yoga/logger';
+  + import { Logger } from '@graphql-hive/logger';
+  ```
+
+  To keep logging through Fastify's logger in `@graphql-yoga/nestjs`:
+
+  ```ts
+  import { Logger } from 'graphql-yoga'
+  import { PinoLogWriter } from '@graphql-hive/logger/writers/pino'
+
+  // in your yoga driver options
+  logging: new Logger({ writers: [new PinoLogWriter(app.log)] })
+  ```
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+- [#4623](https://github.com/graphql-hive/graphql-yoga/pull/4623)
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f)
+  Thanks [@ardatan](https://github.com/ardatan)! - ### Dependencies
+  - Bump `@graphql-tools/utils` to `^13.1.1`, `@graphql-tools/schema` to `^11.0.0`, and
+    `@graphql-tools/executor` to `^4.1.2`.
+
+  ### Incremental delivery
+
+  Yoga maps the GraphQL HTTP `Accept` header through `INCREMENTAL_DELIVERY_SPECS` from
+  `@graphql-tools/utils` onto executor `incrementalSpec`. `multipart/mixed;incrementalSpec=v0.2`
+  runs the v0.2 payload format and echoes that spec on `Content-Type`.
+  `multipart/mixed;deferSpec=20220824` or bare `multipart/mixed` stays on v0.1. An unsupported
+  incremental spec yields 406.
+
+  A later incremental spec is a graphql-tools table row plus an executor publisher. Yoga, Hive
+  Gateway, and HTTP executors pick it up by bumping `@graphql-tools/utils` /
+  `@graphql-tools/executor`.
+
+  ### Breaking Changes
+  - `createGraphQLError` is removed. Use `new GraphQLError(message, options)` from `graphql`. To
+    attach Yoga's experimental schema coordinate, use `withSchemaCoordinate(error, coordinate)` and
+    read with `getSchemaCoordinate` from `@graphql-tools/utils`.
+  - `mapMaybePromise` is removed (was exported from Yoga / `@envelop/core`). Use
+    `handleMaybePromise` from `@whatwg-node/promise-helpers`.
+  - Yoga no longer re-exports helpers that already live upstream:
+    - `getSchemaCoordinate` -> `@graphql-tools/utils`
+    - `mergeSchemas` -> `@graphql-tools/schema`
+    - `DisposableSymbols` -> `@whatwg-node/server`
+    - `mapAsyncIterator` / `isPromise` / `fakePromise` / `handleMaybePromise` / `MaybePromise` ->
+      `@whatwg-node/promise-helpers`
+  - `@envelop/core` `utils` no longer re-exports `mapAsyncIterator` or `isPromise`. Import from
+    `@whatwg-node/promise-helpers`.
+  - Use `asGetArgumentValuesVariables` / `coerceGetVariableValuesResult` from `@graphql-tools/utils`
+    for GraphQL 16/17 `VariableValues` compatibility.
+
+  ### Migration
+
+  ```ts
+  import { GraphQLError } from 'graphql'
+  import { withSchemaCoordinate } from 'graphql-yoga'
+  import { mergeSchemas } from '@graphql-tools/schema'
+  import { getSchemaCoordinate } from '@graphql-tools/utils'
+  import { handleMaybePromise, isPromise, type MaybePromise } from '@whatwg-node/promise-helpers'
+  import { DisposableSymbols } from '@whatwg-node/server'
+
+  throw withSchemaCoordinate(new GraphQLError('not found'), 'Query.user')
+  ```
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Dependencies
+  - Bump `@whatwg-node/server` to `^0.13.0`, `@whatwg-node/fetch` to `^0.12.0`, and
+    `@whatwg-node/promise-helpers` to `^2.0.0`.
+  - Delegate to @whatwg-node/server's useLimitRequestBodySize instead of a hand-rolled byte counter,
+    and swap in the native TransformStream when the incoming request already has a native
+    ReadableStream body — piping it through the ponyfill TransformStream throws since they're
+    different realms. Thread an optional `fetchAPI` param through handle/parseRequest/
+    getResultForParams so callers can override which fetchAPI (native vs ponyfill) the rest of the
+    pipeline uses.
+  - Unread request bodies are discarded after the response is decided (keep-alive friendly).
+  - Incoming global `Request` instances automatically use the native Fetch API
+    (`pickRightFetchAPI`), so Next.js no longer needs `fetchAPI: { Response }`.
+
+  ### Breaking Changes
+  - `engines.node` is now `>=22.15.0` (aligned with whatwg-node 0.12+/0.13).
+  - `@envelop/core` no longer exports `mapMaybePromise` (removed upstream in
+    `@whatwg-node/promise-helpers` v2). Use `handleMaybePromise(() => value, ...)` instead.
+  - `@whatwg-node/fetch` no longer exports `crypto`; use the platform `crypto` global. `TextEncoder`
+    still comes from `fetchAPI` where hashing goes through Yoga’s FetchAPI.
+
+### Patch Changes
+
+- [#4622](https://github.com/graphql-hive/graphql-yoga/pull/4622)
+  [`5334079`](https://github.com/graphql-hive/graphql-yoga/commit/5334079167b7e5008f933c8b005bb3617ddb9f86)
+  Thanks [@ardatan](https://github.com/ardatan)! - Stop swapping in `globalThis.TransformStream`
+  inside the request body-size limiter. `@whatwg-node/server` already passes the request-appropriate
+  Fetch API (native vs ponyfill) into Yoga as the handler's third argument, so `onRequestParse`
+  receives a realm-compatible `TransformStream` without an ad-hoc guard.
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - @envelop/core@6.0.0
+  - @envelop/instrumentation@2.0.0
+  - @graphql-yoga/subscription@6.0.0
+
+## 5.24.6
+
+### Patch Changes
+
+- [#4537](https://github.com/graphql-hive/graphql-yoga/pull/4537)
+  [`9294289`](https://github.com/graphql-hive/graphql-yoga/commit/9294289db7063889059ac16ef130480d42997e8a)
+  Thanks [@santino](https://github.com/santino)! - Fix to guard result-processor cancel against
+  undefined iterator
+
+## 5.24.5
+
+## 5.24.4
+
+### Patch Changes
+
+- [#4607](https://github.com/graphql-hive/graphql-yoga/pull/4607)
+  [`d8b8860`](https://github.com/graphql-hive/graphql-yoga/commit/d8b8860c4c0deea72bb8aec7948caef695fa7d2a)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/utils@^12.0.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/12.0.3)
+    (from `^11.2.2`, in `dependencies`)
+
+## 5.24.3
+
+### Patch Changes
+
+- [#4604](https://github.com/graphql-hive/graphql-yoga/pull/4604)
+  [`c6febdc`](https://github.com/graphql-hive/graphql-yoga/commit/c6febdc34e7f0d791c91f2e745ff0d388bf25b0c)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@graphql-tools/executor@^2.0.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/executor/v/2.0.3)
+    (from `^2.0.0`, in `dependencies`)
+  - Updated dependency
+    [`@graphql-tools/schema@^10.1.3` ↗︎](https://www.npmjs.com/package/@graphql-tools/schema/v/10.1.3)
+    (from `^10.0.11`, in `dependencies`)
+  - Updated dependency
+    [`@graphql-tools/utils@^11.2.2` ↗︎](https://www.npmjs.com/package/@graphql-tools/utils/v/11.2.2)
+    (from `^11.2.0`, in `dependencies`)
+
+## 5.24.2
+
+### Patch Changes
+
+- [#4589](https://github.com/graphql-hive/graphql-yoga/pull/4589)
+  [`c08efde`](https://github.com/graphql-hive/graphql-yoga/commit/c08efdefec2c237b5456fe796d893e86d261415a)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Remove the built-in `subscriptions` driver
+  option and its `graphql-ws` / `subscriptions-transport-ws` wiring (previously implemented via
+  `@nestjs/graphql`'s `GqlSubscriptionService`).
+
+  Fix open handle leak in multipart tests.
+
+  `@nestjs/graphql` v14 (required for NestJS 12 support) dropped server-side support for
+  `subscriptions-transport-ws`, and the driver-level `graphql-ws` integration held a socket open
+  after shutdown. Rather than keep a partial, driver-managed subscriptions setup, `YogaDriver` and
+  `YogaFederationDriver` no longer accept a `subscriptions` option. Wire up subscriptions yourself
+  using GraphQL Yoga's own subscription support (e.g. the `graphql-ws` package, or
+  `@graphql-yoga/plugin-graphql-sse`) the same way you would for a standalone `graphql-yoga` server.
+
+## 5.24.1
+
+### Patch Changes
+
+- [#4586](https://github.com/graphql-hive/graphql-yoga/pull/4586)
+  [`c6a9aa4`](https://github.com/graphql-hive/graphql-yoga/commit/c6a9aa4bf7e72762e6d296e052912315a0cf38b2)
+  Thanks [@ardatan](https://github.com/ardatan)! - Fixes the issue thrown in the plugin that limits
+  the incoming request body's size, when the incoming `Request` object is not the instance of the
+  `fetchAPI.Request` which is usually the ponyfill implementation from `@whatwg-node/node-fetch`.
+
+  This will be fixed in the following breaking release in `@whatwg-node/node-fetch` but in order to
+  unblock the current users of GraphQL Yoga, a small normalization layer has been added to the
+  plugin as a temporary workaround.
+
+  Since the native `Request.body` is a native `ReadableStream`, that doesn't support other
+  `TransformStream` implementation to its `pipeThrough` method, the limiting implementation didn't
+  work properly.
+
+  When the user ran Yoga within Next.js that uses the native `Request` object, it threw a
+  `TypeError` which causes a cryptic `500 Internal Server Error` for Next.js users.
+
+  This workaround checks whether the incoming `Request`'s body object is an instance of the native
+  `ReadableStream` and applies the appropriate `TransformStream` implementation to ensure the
+  request body size limiting works correctly.
+
+## 5.24.0
+
+### Minor Changes
+
+- [#4580](https://github.com/graphql-hive/graphql-yoga/pull/4580)
+  [`3763aca`](https://github.com/graphql-hive/graphql-yoga/commit/3763aca9ece351bb65b06babc05263d9a119c8f9)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Limit the size of incoming HTTP request
+  bodies by default to protect against denial-of-service attacks from oversized payloads.
+
+  Requests whose `Content-Length` exceeds the limit are rejected with an HTTP 413 response before
+  the body is read, and the limit is also enforced while streaming the body so that requests with a
+  missing, incorrect, or chunked-transfer-encoded body are covered too.
+
+  The default limit is 25 MB. Configure it with the new `maxRequestBodySize` option, or set it to
+  `false` to disable the limit (not recommended unless an upstream reverse proxy already enforces
+  one):
+
+  ```ts
+  createYoga({
+    // Allow bodies up to 25 MB
+    maxRequestBodySize: 25_000_000
+  })
+  ```
+
+  Also return an HTTP 400 response for malformed `multipart/form-data` requests (e.g. a missing or
+  invalid `boundary`), instead of masking the parse error as a generic 500 Internal Server Error.
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/instrumentation@1.0.1
+  - @envelop/core@5.6.1
+  - @graphql-yoga/subscription@5.1.1
+  - @graphql-yoga/logger@2.0.2
+
+## 5.23.0
+
+### Patch Changes
+
+- [#4569](https://github.com/graphql-hive/graphql-yoga/pull/4569)
+  [`c80f43c`](https://github.com/graphql-hive/graphql-yoga/commit/c80f43cd6d9924f32ca4256861578c830564dd3d)
+  Thanks [@Urigo](https://github.com/Urigo)! - Serve the favicon of the built-in GraphiQL and
+  landing pages from a file that stays in the repository (`packages/render-graphiql/favicon.ico`)
+  now that the website sources moved.
+
+- [#4573](https://github.com/graphql-hive/graphql-yoga/pull/4573)
+  [`d3b4164`](https://github.com/graphql-hive/graphql-yoga/commit/d3b41647cbc8c9266895002cf01ee5bd3b87dc84)
+  Thanks [@cpruijsen](https://github.com/cpruijsen)! - Keep SSE keep-alive pings running when the
+  stream reports backpressure (`desiredSize === 0`) instead of treating a full queue as a closed
+  connection.
+
+- Updated dependencies
+  [[`b70ad4a`](https://github.com/graphql-hive/graphql-yoga/commit/b70ad4af7b29348900959f02f7426c32607ab22a)]:
+  - @graphql-yoga/subscription@5.1.0
+
+## 5.22.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/core@5.6.0
+
+## 5.21.3
+
+### Patch Changes
+
+- [#4557](https://github.com/graphql-hive/graphql-yoga/pull/4557)
+  [`04014d2`](https://github.com/graphql-hive/graphql-yoga/commit/04014d248ed9300835b1550a0d53ff61d83023b5)
+  Thanks [@jdolle](https://github.com/jdolle)! - Patch prototype pollution vulnerability in
+  multipart parser
+
+## 5.21.2
+
+### Patch Changes
+
+- [#4518](https://github.com/graphql-hive/graphql-yoga/pull/4518)
+  [`39b55ba`](https://github.com/graphql-hive/graphql-yoga/commit/39b55bada507c8796e84bdbac1dccc81bce8cff0)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Fix provenance attestations when publishing
+  with pnpm
+
+## 5.21.1
+
+### Patch Changes
+
+- [#4513](https://github.com/graphql-hive/graphql-yoga/pull/4513)
+  [`4b43efd`](https://github.com/graphql-hive/graphql-yoga/commit/4b43efd8f39a7200c4401a5efbd4dbff772b3355)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - dependencies updates:
+  - Updated dependency
+    [`@whatwg-node/server@^0.11.0` ↗︎](https://www.npmjs.com/package/@whatwg-node/server/v/0.11.0)
+    (from `^0.10.14`, in `dependencies`)
+
 ## 5.21.0
 
 ### Minor Changes

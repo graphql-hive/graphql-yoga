@@ -1,4 +1,4 @@
-import { createGraphQLError } from 'graphql-yoga';
+import { GraphQLError } from 'graphql';
 import { JwksClient, type Options as JwksClientOptions } from 'jwks-rsa';
 import type { ExtractTokenFunction, GetSigningKeyFunction } from './config.js';
 import '@whatwg-node/server-plugin-cookies';
@@ -104,9 +104,9 @@ export function extractFromConnectionParams(options: { name: string }): ExtractT
 
 export function badRequestError(
   message: string,
-  options?: Parameters<typeof createGraphQLError>[1],
+  options?: ConstructorParameters<typeof GraphQLError>[1],
 ) {
-  return createGraphQLError(message, {
+  return new GraphQLError(message, {
     extensions: {
       http: {
         status: 400,
@@ -118,9 +118,9 @@ export function badRequestError(
 
 export function unauthorizedError(
   message: string,
-  options?: Parameters<typeof createGraphQLError>[1],
+  options?: ConstructorParameters<typeof GraphQLError>[1],
 ) {
-  return createGraphQLError(message, {
+  return new GraphQLError(message, {
     extensions: {
       http: {
         status: 401,

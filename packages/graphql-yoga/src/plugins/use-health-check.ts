@@ -1,21 +1,18 @@
-import type { YogaLogger } from '@graphql-yoga/logger';
 import type { Plugin } from './types.js';
 
 export interface HealthCheckPluginOptions {
   id?: string;
-  logger?: YogaLogger;
   endpoint?: string;
 }
 
 export function useHealthCheck({
   id = Date.now().toString(),
-  logger = console,
   endpoint = '/health',
 }: HealthCheckPluginOptions = {}): Plugin {
   return {
-    onRequest({ endResponse, fetchAPI, request }) {
+    onRequest({ endResponse, fetchAPI, request, serverContext }) {
       if (request.url.endsWith(endpoint)) {
-        logger.debug('Responding Health Check');
+        serverContext.log.debug('Responding Health Check');
         const response = new fetchAPI.Response(null, {
           status: 200,
           headers: {

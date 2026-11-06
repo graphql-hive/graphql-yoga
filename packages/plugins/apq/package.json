@@ -1,6 +1,6 @@
 {
   "name": "@graphql-yoga/plugin-apq",
-  "version": "3.21.0",
+  "version": "4.0.1",
   "type": "module",
   "description": "APQ plugin for GraphQL Yoga.",
   "repository": {
@@ -8,10 +8,14 @@
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/apq"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/plugins/apq#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Arda TANRIKULU <ardatanrikulu@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -37,14 +41,16 @@
     "check": "tsgo --pretty --noEmit"
   },
   "peerDependencies": {
+    "graphql": "^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "dependencies": {
-    "@whatwg-node/promise-helpers": "^1.3.2"
+    "@whatwg-node/promise-helpers": "^2.0.0"
   },
   "devDependencies": {
     "@apollo/client": "4.0.9",
     "crypto-hash": "4.0.0",
+    "graphql": "17.0.2",
     "graphql-yoga": "workspace:*"
   },
   "publishConfig": {

@@ -1,5 +1,4 @@
 import type { PromiseOrValue } from '@envelop/core';
-import type { YogaLogger } from '@graphql-yoga/logger';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import graphiqlHTML from '../graphiql-html.js';
 import type { Plugin } from './types.js';
@@ -161,7 +160,6 @@ export interface GraphiQLPluginConfig<TServerContext> {
   getGraphQLEndpointURLPattern(): URLPattern;
   options?: GraphiQLOptionsOrFactory<TServerContext>;
   render?: GraphiQLRenderer;
-  logger?: YogaLogger;
 }
 
 export type GraphiQLRenderer = (options: GraphiQLOptions) => PromiseOrValue<BodyInit>;
@@ -171,7 +169,6 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
   config: GraphiQLPluginConfig<TServerContext>,
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 ): Plugin<{}, TServerContext> {
-  const logger = config.logger ?? console;
   let graphiqlOptionsFactory: GraphiQLOptionsFactory<TServerContext>;
   if (typeof config?.options === 'function') {
     graphiqlOptionsFactory = config?.options;
@@ -195,7 +192,7 @@ export function useGraphiQL<TServerContext extends Record<string, any>>(
           url.pathname === `${graphqlEndpoint}/` ||
           config.getGraphQLEndpointURLPattern().test(url))
       ) {
-        logger.debug(`Rendering GraphiQL`);
+        serverContext.log.debug(`Rendering GraphiQL`);
         return handleMaybePromise(
           () => graphiqlOptionsFactory(request, serverContext as TServerContext),
           graphiqlOptions => {

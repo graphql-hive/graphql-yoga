@@ -1,5 +1,80 @@
 # @envelop/opentelemetry
 
+## 10.0.0
+
+### Major Changes
+
+- [#4574](https://github.com/graphql-hive/graphql-yoga/pull/4574)
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - ### Breaking Changes
+  - **Node**: minimum supported version is now Node 22. Node 18 and 20 are no longer supported.
+    Future releases will only support Node >=22.
+  - **GraphQL**: minimum supported version is now GraphQL 16. GraphQL 14 and 15 are no longer
+    supported.
+  - **Request body parsing**: Yoga now limits request bodies to 25,000,000 bytes by default.
+    Enforcing this limit streams the body through a byte counter, making POST body parsing
+    asynchronous even for an in-memory body. As a result, `yoga.fetch()` can return a Promise where
+    it previously returned a synchronous Response, even when all resolvers and plugins are
+    synchronous.
+
+  ### Migration
+  - If you're on Node 18/20, upgrade to Node 22 or later before upgrading this package.
+  - If you're on graphql 14/15, upgrade to graphql 16 or 17 first.
+  - Await `yoga.fetch()` and response body parsing instead of relying on synchronous results. Set
+    `maxRequestBodySize: false` in `createYoga` to disable the body-size limit and preserve
+    synchronous parsing for in-memory bodies, but only if you enforce an appropriate request-body
+    limit elsewhere.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`862447a`](https://github.com/graphql-hive/graphql-yoga/commit/862447ad622be3cf945fe943b506add460eaf674),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b),
+  [`be89d05`](https://github.com/graphql-hive/graphql-yoga/commit/be89d0595fbdc2f8db838befd5d08287fcaad13f),
+  [`79b0e8b`](https://github.com/graphql-hive/graphql-yoga/commit/79b0e8b0fc344b5e205e5d99aed33fdf0a98bd6b)]:
+  - @envelop/core@6.0.0
+  - @envelop/on-resolve@8.0.0
+
+## 9.2.2
+
+### Patch Changes
+
+- [#4584](https://github.com/graphql-hive/graphql-yoga/pull/4584)
+  [`6b8d0b6`](https://github.com/graphql-hive/graphql-yoga/commit/6b8d0b677b6c4135db60eb86223fc72ec1f12c22)
+  Thanks [@darkship](https://github.com/darkship)! - When a resolver finishes, the resolver span
+  must be ended even if there is an error. Leaving it open results in broken or missing trace data.
+
+## 9.2.1
+
+### Patch Changes
+
+- [#4577](https://github.com/graphql-hive/graphql-yoga/pull/4577)
+  [`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add homepage and bugs.url to package.json
+  files
+
+- Updated dependencies
+  [[`7bff35c`](https://github.com/graphql-hive/graphql-yoga/commit/7bff35cf0274d59ad5eaeeee3bfd0390fe593871)]:
+  - @envelop/on-resolve@7.2.1
+  - @envelop/core@5.6.1
+
+## 9.2.0
+
+### Minor Changes
+
+- [#4545](https://github.com/graphql-hive/graphql-yoga/pull/4545)
+  [`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Update to support graphql-js 17
+
+  Bump package versions, fix expected typing, and update compatability with subscribe.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`94ebe5b`](https://github.com/graphql-hive/graphql-yoga/commit/94ebe5b875d05c65506c5f0f9dcf89a84a9b6d76)]:
+  - @envelop/on-resolve@7.2.0
+  - @envelop/core@5.6.0
+
 ## 9.1.1
 
 ### Patch Changes
@@ -134,8 +209,8 @@
   [`75b73fb`](https://github.com/n1ru4l/envelop/commit/75b73fbc8b56f3b6e2efbb37dab42fb6c3ed171c)
   Thanks [@EmrysMyrddin](https://github.com/EmrysMyrddin)! - dependencies updates:
   - Updated dependency
-    [`@opentelemetry/api@^1.8.0` ↗︎](https://www.npmjs.com/package/@opentelemetry/api/v/1.8.0) (from
-    `^1.0.0`, in `dependencies`)
+    [`@opentelemetry/api@^1.8.0` ↗︎](https://www.npmjs.com/package/@opentelemetry/api/v/1.8.0)
+    (from `^1.0.0`, in `dependencies`)
 
 - Updated dependencies
   [[`dc1222f`](https://github.com/n1ru4l/envelop/commit/dc1222f440942ec796d72fb7ff0c77e03d29c58b)]:
@@ -216,8 +291,8 @@
     [`@envelop/on-resolve@^3.0.2` ↗︎](https://www.npmjs.com/package/@envelop/on-resolve/v/3.0.2)
     (from `^3.0.1`, in `dependencies`)
   - Updated dependency
-    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from `^4.0.1`,
-    in `peerDependencies`)
+    [`@envelop/core@^4.0.2` ↗︎](https://www.npmjs.com/package/@envelop/core/v/4.0.2) (from
+    `^4.0.1`, in `peerDependencies`)
 
 - Updated dependencies
   [[`dee6b8d2`](https://github.com/n1ru4l/envelop/commit/dee6b8d215f21301660090037b6685e86d217593)]:

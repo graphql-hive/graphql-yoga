@@ -2,7 +2,6 @@ import type {
   ASTNode,
   ExecutionArgs,
   FieldNode,
-  GraphQLError,
   GraphQLField,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -11,6 +10,8 @@ import type {
 import {
   getNamedType,
   getOperationAST,
+  getVariableValues,
+  GraphQLError,
   isAbstractType,
   isInterfaceType,
   isIntrospectionType,
@@ -20,9 +21,9 @@ import {
 } from 'graphql';
 import type { DefaultContext, Maybe, Plugin, PromiseOrValue } from '@envelop/core';
 import { useExtendedValidation } from '@envelop/extended-validation';
-import { getVariableValues } from '@graphql-tools/executor';
+import type { VariableValues } from '@graphql-tools/utils';
 import {
-  createGraphQLError,
+  coerceGetVariableValuesResult,
   getDefinedRootType,
   getDirectiveExtensions,
   shouldIncludeNode,
@@ -186,7 +187,7 @@ export function createUnauthenticatedError(params?: {
   message?: string;
   statusCode?: number;
 }) {
-  return createGraphQLError(params?.message ?? 'Unauthorized field or type', {
+  return new GraphQLError(params?.message ?? 'Unauthorized field or type', {
     nodes: params?.fieldNode ? [params.fieldNode] : undefined,
     path: params?.path,
     extensions: {
@@ -326,17 +327,18 @@ export const useGenericAuth = <
                 const schema = context.getSchema();
                 const operationAST = getOperationAST(args.document, args.operationName);
                 const variableDefinitions = operationAST?.variableDefinitions;
-                let variableValues: typeof args.variableValues | undefined;
-                if (variableDefinitions?.length) {
-                  const { coerced } = getVariableValues(
-                    schema,
-                    variableDefinitions,
-                    args.variableValues || {},
-                  );
-                  variableValues = coerced;
-                } else {
-                  variableValues = args.variableValues;
+                const coercedVariables = coerceGetVariableValuesResult(
+                  getVariableValues(schema, variableDefinitions ?? [], args.variableValues || {}),
+                );
+                // Fail closed: invalid variables must not skip @include/@skip and auth-check
+                // fields that would never execute.
+                if ('errors' in coercedVariables) {
+                  for (const error of coercedVariables.errors) {
+                    context.reportError(error);
+                  }
+                  return {};
                 }
+                const { variableValues } = coercedVariables;
                 const operationType = operationAST?.operation ?? ('query' as OperationTypeNode);
 
                 const fragmentPaths = new Map<string, ReadonlyArray<string | number>>();
@@ -417,7 +419,7 @@ export const useGenericAuth = <
                     getDefinedRootType(schema, operationType),
                   );
 
-                  return validateUser({
+                  const error = validateUser({
                     user,
                     fieldNode,
                     parentType,
@@ -435,6 +437,12 @@ export const useGenericAuth = <
                     path: resolvePath,
                     userPolicies,
                   });
+                  // partial denials should leave http status selection to
+                  // the server, unless customized
+                  if (error && !rejectUnauthenticated && !options.validateUser) {
+                    delete error.extensions['http'];
+                  }
+                  return error;
                 };
 
                 return {
@@ -450,7 +458,7 @@ export const useGenericAuth = <
                     }
                   },
                   Field(node, key, parent, path, ancestors) {
-                    if (variableValues && !shouldIncludeNode(variableValues, node)) {
+                    if (!shouldIncludeNode(variableValues as VariableValues, node)) {
                       return;
                     }
 

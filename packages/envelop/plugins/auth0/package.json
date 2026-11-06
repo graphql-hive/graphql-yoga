@@ -1,16 +1,20 @@
 {
   "name": "@envelop/auth0",
-  "version": "9.1.1",
+  "version": "10.0.0",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/envelop/plugins/auth0"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/auth0#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Dotan Simha <dotansimha@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -47,16 +51,18 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "@envelop/core": "workspace:^"
+    "@envelop/core": "workspace:^",
+    "@graphql-hive/logger": "^1.1.1"
   },
   "dependencies": {
-    "@whatwg-node/promise-helpers": "^1.2.4",
+    "@whatwg-node/promise-helpers": "^2.0.0",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.1",
     "tslib": "^2.5.0"
   },
   "devDependencies": {
     "@envelop/core": "workspace:^",
+    "@graphql-hive/logger": "^1.1.1",
     "@types/jsonwebtoken": "9.0.10",
     "typescript": "6.0.2"
   },

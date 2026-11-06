@@ -1,0 +1,54 @@
+---
+description: GraphQL Yoga makes no assumptions about the schema building library you want to use.
+title: GraphQL Schema
+---
+
+GraphQL Yoga makes no assumptions about the schema building library you want to use. Whether you're
+using a library such as [Pothos](https://pothos-graphql.dev), [GraphQL Nexus](https://nexusjs.org),
+[gqtx](https://github.com/sikanhe/gqtx), or vanilla
+[`graphql-js`](https://graphql.org/graphql-js/type/#graphqlschema), as long as it provides you with
+a `GraphQLSchema` to `schema`, you can pass it to GraphQL Yoga.
+
+## Providing a Schema
+
+Simply pass an schema to the `schema` option:
+
+```ts title="Provide a conditional schema"
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { schema } from './schema.js'
+
+const yoga = createYoga({ schema })
+const server = createServer(yoga)
+
+// Start the server and you're done!
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```
+
+## Conditional Schema
+
+You can also pass a factory function for your schema that can return a `Promise`. The factory
+function is invoked for **every** GraphQL request.
+
+<Callout type="warning">
+  We do not recommend building a GraphQL schema from scratch for every single incoming request.
+  Please, use a caching mechanism or pre-build your GraphQL schemas before starting the server.
+</Callout>
+
+```ts title="Provide a sync conditional schema" {6-7}
+import { createServer } from 'node:http'
+import { createYoga } from 'graphql-yoga'
+import { getSchemaForViewer } from './schema.js'
+
+const yoga = createYoga({
+  schema: async request => getSchemaForViewer(request.headers.get('x-schema') ?? 'default')
+})
+const server = createServer(yoga)
+
+// Start the server and you're done!
+server.listen(4000, () => {
+  console.info('Server is running on http://localhost:4000/graphql')
+})
+```

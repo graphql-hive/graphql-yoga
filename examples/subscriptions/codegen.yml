@@ -1,5 +1,7 @@
 overwrite: true
-schema: './src/**/*.ts'
+schema:
+  - './src/**/*.ts'
+  - '!./src/generated/**'
 generates:
   ./src/generated/graphql.ts:
     plugins:

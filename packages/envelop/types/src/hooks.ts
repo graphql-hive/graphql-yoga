@@ -494,12 +494,18 @@ export type SubscribeResultHook<ContextType> = (
   options: OnSubscribeResultEventPayload<ContextType>,
 ) => void | OnSubscribeResultResult<ContextType>;
 
-export type SubscribeErrorHookPayload = {
+export type SubscribeErrorHookPayload<ContextType> = {
   error: unknown;
   setError: (err: unknown) => void;
+  /**
+   * The context object for the subscription that errored.
+   */
+  context: Readonly<ContextType>;
 };
 
-export type SubscribeErrorHook = (payload: SubscribeErrorHookPayload) => void;
+export type SubscribeErrorHook<ContextType> = (
+  payload: SubscribeErrorHookPayload<ContextType>,
+) => void;
 
 export type OnSubscribeHookResult<ContextType> = {
   /**
@@ -509,7 +515,7 @@ export type OnSubscribeHookResult<ContextType> = {
   /**
    * Invoked if the source stream returned from subscribe throws an error.
    */
-  onSubscribeError?: SubscribeErrorHook;
+  onSubscribeError?: SubscribeErrorHook<ContextType>;
 };
 
 /**

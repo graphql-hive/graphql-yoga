@@ -1,5 +1,6 @@
-import { createGraphQLError, getSchemaCoordinate } from '@graphql-tools/utils';
-import { isGraphQLError, isOriginalGraphQLError } from '../error.js';
+import { GraphQLError } from 'graphql';
+import { getSchemaCoordinate } from '@graphql-tools/utils';
+import { isGraphQLError, isOriginalGraphQLError, withSchemaCoordinate } from '../error.js';
 import type { MaskError } from '../types.js';
 
 function serializeError(error: unknown) {
@@ -28,15 +29,16 @@ export const maskError: MaskError = (
     code: 'INTERNAL_SERVER_ERROR',
     unexpected: true,
   };
-  const errorOptions: Parameters<typeof createGraphQLError>[1] = {
+  const errorOptions: ConstructorParameters<typeof GraphQLError>[1] = {
     extensions: errorExtensions,
   };
+  let coordinate: string | undefined;
   if (isGraphQLError(error)) {
     errorOptions.nodes = error.nodes;
     errorOptions.source = error.source;
     errorOptions.positions = error.positions;
     errorOptions.path = error.path;
-    errorOptions.coordinate = getSchemaCoordinate(error);
+    coordinate = getSchemaCoordinate(error);
     if (isDev && error.originalError) {
       errorExtensions['originalError'] = serializeError(error.originalError);
     }
@@ -47,5 +49,5 @@ export const maskError: MaskError = (
     errorExtensions['originalError'] = serializeError(error);
   }
 
-  return createGraphQLError(message, errorOptions);
+  return withSchemaCoordinate(new GraphQLError(message, errorOptions), coordinate);
 };

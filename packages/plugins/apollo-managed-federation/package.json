@@ -1,16 +1,20 @@
 {
   "name": "@graphql-yoga/apollo-managed-federation",
-  "version": "0.20.0",
+  "version": "1.0.1",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/plugins/apollo-inline-trace"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/plugins/apollo-managed-federation#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Valentin Cocaud <v.cocaud@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -47,17 +51,17 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0",
+    "graphql": "^16.0.0 || ^17.0.0",
     "graphql-yoga": "workspace:^"
   },
   "dependencies": {
-    "@graphql-tools/federation": "^4.0.0",
+    "@graphql-tools/federation": "^4.5.3",
     "tslib": "^2.5.0"
   },
   "devDependencies": {
-    "@whatwg-node/fetch": "^0.10.6",
-    "@whatwg-node/server": "^0.10.14",
-    "graphql": "16.12.0",
+    "@whatwg-node/fetch": "^0.12.0",
+    "@whatwg-node/server": "^0.13.0",
+    "graphql": "17.0.2",
     "graphql-yoga": "workspace:^",
     "typescript": "6.0.2"
   },

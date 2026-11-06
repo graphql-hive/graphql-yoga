@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import crypto from 'node:crypto';
-import { parse, version } from 'graphql';
+import { parse } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
 import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries';
@@ -11,10 +11,6 @@ function sha256(input: string) {
 }
 
 describe('Automatic Persisted Queries', () => {
-  if (version.startsWith('15')) {
-    it('noop', () => {});
-    return;
-  }
   const server = createYoga({
     schema: createSchema({
       typeDefs: /* GraphQL */ `

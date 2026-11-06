@@ -1,16 +1,20 @@
 {
   "name": "@envelop/apollo-tracing",
-  "version": "9.1.1",
+  "version": "10.0.0",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-hive/graphql-yoga.git",
     "directory": "packages/envelop/plugins/apollo-tracing"
   },
+  "homepage": "https://github.com/graphql-hive/graphql-yoga/tree/main/packages/envelop/plugins/apollo-tracing#readme",
+  "bugs": {
+    "url": "https://github.com/graphql-hive/graphql-yoga/issues"
+  },
   "author": "Dotan Simha <dotansimha@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.15.0"
   },
   "main": "dist/cjs/index.js",
   "typings": "dist/typings/index.d.ts",
@@ -49,7 +53,7 @@
   "peerDependencies": {
     "@envelop/core": "workspace:^",
     "@envelop/types": "workspace:^",
-    "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"
+    "graphql": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
     "@envelop/on-resolve": "workspace:^",
@@ -58,8 +62,8 @@
   },
   "devDependencies": {
     "@envelop/core": "workspace:^",
-    "@graphql-tools/schema": "10.0.31",
-    "graphql": "16.12.0",
+    "@graphql-tools/schema": "11.0.0",
+    "graphql": "17.0.2",
     "reflect-metadata": "^0.2.2",
     "typescript": "6.0.2"
   },

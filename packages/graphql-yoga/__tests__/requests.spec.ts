@@ -1,7 +1,8 @@
+import { GraphQLError } from 'graphql';
 import type { OnExecuteHook } from '@envelop/core';
 import { Request } from '@whatwg-node/fetch';
 import type { YogaInitialContext } from '../src';
-import { createGraphQLError, createSchema, createYoga } from '../src';
+import { createSchema, createYoga } from '../src';
 
 describe('requests', () => {
   const schema = createSchema({
@@ -498,6 +499,50 @@ describe('requests', () => {
     expect(body).toBeFalsy();
   });
 
+  it.each([
+    'Application/JSON',
+    'APPLICATION/JSON; charset=utf-8',
+    'application/json ; charset=utf-8',
+    'application/json;charset=utf-8',
+    'application/json, text/plain',
+  ])('accepts the JSON content-type %j', async contentType => {
+    const response = await yoga.fetch('http://yoga/test-graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': contentType,
+      },
+      body: JSON.stringify({ query: '{ ping }' }),
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { ping: 'pong' } });
+  });
+
+  it('accepts a form-urlencoded content-type with a different case', async () => {
+    const response = await yoga.fetch('http://yoga/test-graphql', {
+      method: 'POST',
+      headers: {
+        'content-type': 'Application/X-WWW-Form-Urlencoded',
+      },
+      body: new URLSearchParams({ query: '{ ping }' }).toString(),
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { ping: 'pong' } });
+  });
+
+  it.each(['application/jsonx', 'application/json2; charset=utf-8', 'text/application/json'])(
+    'still returns 415 for the unrelated content-type %j',
+    async contentType => {
+      const response = await yoga.fetch('http://yoga/test-graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': contentType,
+        },
+        body: JSON.stringify({ query: '{ ping }' }),
+      });
+      expect(response.status).toBe(415);
+    },
+  );
+
   it('contains the correct request object in the unique execution context', async () => {
     const onExecuteFn = jest.fn((() => undefined) as OnExecuteHook<YogaInitialContext>);
     const yoga = createYoga({
@@ -535,7 +580,9 @@ describe('requests', () => {
     const firstResBody = await firstRes.json();
     expect(firstResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(1);
-    expect(onExecuteFn.mock.calls[0]?.[0].args.contextValue.request).toBe(firstReq);
+    // Compared as a boolean (not `.toBe(firstReq)` directly) so a failure never triggers
+    // pretty-format on the stream-backed Request object, which can crash on some Node versions.
+    expect(onExecuteFn.mock.calls[0]?.[0].args.contextValue.request === firstReq).toBe(true);
     const secondReq = new Request('http://yoga/graphql', {
       method: 'POST',
       headers: {
@@ -548,10 +595,11 @@ describe('requests', () => {
     const secondResBody = await secondRes.json();
     expect(secondResBody.data.greetings).toBe('Hello world!');
     expect(onExecuteFn).toHaveBeenCalledTimes(2);
-    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue.request).toBe(secondReq);
-    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue).not.toBe(
-      onExecuteFn.mock.calls[0]![0].args.contextValue,
-    );
+    expect(onExecuteFn.mock.calls[1]?.[0].args.contextValue.request === secondReq).toBe(true);
+    expect(
+      onExecuteFn.mock.calls[1]?.[0].args.contextValue ===
+        onExecuteFn.mock.calls[0]![0].args.contextValue,
+    ).toBe(false);
   });
   it('allows you to change the graphql endpoint after the initialization', async () => {
     const yoga = createYoga({
@@ -604,7 +652,7 @@ describe('requests', () => {
                     query: '{ ping }',
                   };
                 }
-                throw createGraphQLError('Invalid request body', {
+                throw new GraphQLError('Invalid request body', {
                   extensions: {
                     code: 'BAD_REQUEST',
                   },

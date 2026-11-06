@@ -6,7 +6,7 @@ const directoryName = path.dirname(fileURLToPath(import.meta.url));
 const inputPath = path.resolve(directoryName, '..', '..', 'graphiql', 'dist');
 const jsFile = path.resolve(inputPath, 'yoga-graphiql.umd.js');
 const cssFile = path.resolve(inputPath, 'graphiql.css');
-const faviconFile = path.resolve(directoryName, '../../../website/src/app/favicon.ico');
+const faviconFile = path.resolve(directoryName, '..', 'favicon.ico');
 const editorWorkerServiceFile = path.resolve(
   inputPath,
   'monacoeditorwork',

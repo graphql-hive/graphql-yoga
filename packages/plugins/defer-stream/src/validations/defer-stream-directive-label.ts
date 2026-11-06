@@ -1,6 +1,5 @@
 import type { ASTVisitor, ValidationContext } from 'graphql';
-import { Kind } from 'graphql';
-import { createGraphQLError } from 'graphql-yoga';
+import { GraphQLError, Kind } from 'graphql';
 import { GraphQLDeferDirective, GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**
@@ -23,14 +22,14 @@ export function DeferStreamDirectiveLabelRule(context: ValidationContext): ASTVi
         }
         if (labelValue.kind !== Kind.STRING) {
           context.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Directive "${node.name.value}"'s label argument must be a static string.`,
               { nodes: node },
             ),
           );
         } else if (knownLabels[labelValue.value]) {
           context.reportError(
-            createGraphQLError('Defer/Stream directive label argument must be unique.', {
+            new GraphQLError('Defer/Stream directive label argument must be unique.', {
               nodes: [knownLabels[labelValue.value], node],
             }),
           );

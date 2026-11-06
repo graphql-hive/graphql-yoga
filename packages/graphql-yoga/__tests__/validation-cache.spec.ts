@@ -1,6 +1,11 @@
-import { validate } from 'graphql';
+import { validate, versionInfo } from 'graphql';
 import type { Plugin } from '../src';
 import { createSchema, createYoga } from '../src';
+
+const nullVariableMessage =
+  versionInfo.major >= 17
+    ? 'Variable "$person" has invalid value: Expected value of non-null type "String!" not to be null.'
+    : 'Variable "$person" of non-null type "String!" must not be null.';
 
 describe('validation cache', () => {
   test('validation is cached', async () => {
@@ -211,39 +216,25 @@ describe('validation cache', () => {
 
     // first invalid request, will be cached
     let res = await query(null);
-    await expect(res.json()).resolves.toMatchInlineSnapshot(`
-      {
-        "errors": [
-          {
-            "locations": [
-              {
-                "column": 16,
-                "line": 1,
-              },
-            ],
-            "message": "Variable "$person" of non-null type "String!" must not be null.",
-          },
-        ],
-      }
-    `);
+    await expect(res.json()).resolves.toEqual({
+      errors: [
+        {
+          locations: [{ column: 16, line: 1 }],
+          message: nullVariableMessage,
+        },
+      ],
+    });
 
     // second invalid request, cache hit
     res = await query(null);
-    await expect(res.json()).resolves.toMatchInlineSnapshot(`
-      {
-        "errors": [
-          {
-            "locations": [
-              {
-                "column": 16,
-                "line": 1,
-              },
-            ],
-            "message": "Variable "$person" of non-null type "String!" must not be null.",
-          },
-        ],
-      }
-    `);
+    await expect(res.json()).resolves.toEqual({
+      errors: [
+        {
+          locations: [{ column: 16, line: 1 }],
+          message: nullVariableMessage,
+        },
+      ],
+    });
     expect(validateFn).toHaveBeenCalledTimes(1);
 
     // third request, valid, cache miss

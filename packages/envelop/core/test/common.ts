@@ -11,6 +11,10 @@ export const schema = makeExecutableSchema({
       name: String!
     }
 
+    type Mutation {
+      createUser: User!
+    }
+
     type Subscription {
       alphabet: String!
       message: String!
@@ -20,6 +24,11 @@ export const schema = makeExecutableSchema({
     Query: {
       me: () => {
         return { _id: 1, firstName: 'Dotan', lastName: 'Simha' };
+      },
+    },
+    Mutation: {
+      createUser: () => {
+        return { _id: 2, firstName: 'John', lastName: 'Doe' };
       },
     },
     Subscription: {

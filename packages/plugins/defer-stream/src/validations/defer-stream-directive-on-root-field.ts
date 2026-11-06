@@ -1,5 +1,5 @@
+import { GraphQLError } from 'graphql';
 import type { ASTVisitor, ValidationContext } from 'graphql';
-import { createGraphQLError } from 'graphql-yoga';
 import { GraphQLDeferDirective, GraphQLStreamDirective } from '@graphql-tools/utils';
 
 /**
@@ -16,7 +16,7 @@ export function DeferStreamDirectiveOnRootFieldRule(context: ValidationContext):
       if (parentType && node.name.value === GraphQLDeferDirective.name) {
         if (mutationType && parentType === mutationType) {
           context.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Defer directive cannot be used on root mutation type "${parentType.name}".`,
               { nodes: node },
             ),
@@ -24,7 +24,7 @@ export function DeferStreamDirectiveOnRootFieldRule(context: ValidationContext):
         }
         if (subscriptionType && parentType === subscriptionType) {
           context.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Defer directive cannot be used on root subscription type "${parentType.name}".`,
               { nodes: node },
             ),
@@ -34,7 +34,7 @@ export function DeferStreamDirectiveOnRootFieldRule(context: ValidationContext):
       if (parentType && node.name.value === GraphQLStreamDirective.name) {
         if (mutationType && parentType === mutationType) {
           context.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Stream directive cannot be used on root mutation type "${parentType.name}".`,
               { nodes: node },
             ),
@@ -42,7 +42,7 @@ export function DeferStreamDirectiveOnRootFieldRule(context: ValidationContext):
         }
         if (subscriptionType && parentType === subscriptionType) {
           context.reportError(
-            createGraphQLError(
+            new GraphQLError(
               `Stream directive cannot be used on root subscription type "${parentType.name}".`,
               { nodes: node },
             ),
