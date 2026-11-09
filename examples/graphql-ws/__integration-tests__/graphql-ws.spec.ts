@@ -4,6 +4,7 @@ import { createClient } from 'graphql-ws';
 import { useServer } from 'graphql-ws/use/ws';
 import { createSchema, createYoga } from 'graphql-yoga';
 import WebSocket from 'ws';
+import { normalizeNodeRequest } from '@whatwg-node/server';
 import { buildApp } from '../src/app.js';
 
 describe('graphql-ws example integration', () => {
@@ -225,6 +226,7 @@ describe('graphql-ws example integration', () => {
               ...ctx,
               req: ctx.extra.request,
               socket: ctx.extra.socket,
+              request: normalizeNodeRequest(ctx.extra.request, yoga.fetchAPI),
               params,
             },
           );

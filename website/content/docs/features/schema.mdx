@@ -55,5 +55,5 @@ server.listen(4000, () => {
 
 When you call `yoga.getEnveloped(context)` yourself, for example to serve
 [GraphQL over WebSocket with `graphql-ws`](/docs/features/subscriptions#graphql-over-websocket-protocol-via-graphql-ws),
-the factory function is called with that `context` instead of the server context and `request`, and
-it has to return the schema synchronously.
+`context` must include a Fetch API `Request` as `request`. The factory function is called with that
+`context`, and it has to return the schema synchronously.
