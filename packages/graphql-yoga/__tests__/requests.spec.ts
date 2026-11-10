@@ -162,6 +162,28 @@ describe('requests', () => {
     );
   });
 
+  it('sending mutation over GET method is prohibited for a WebSocket upgrade request', async () => {
+    const response = await yoga.fetch(
+      `http://yoga/test-graphql?query=${encodeURIComponent('mutation { __typename }')}`,
+      {
+        method: 'GET',
+        headers: {
+          accept: 'application/graphql-response+json',
+          connection: 'Upgrade',
+          upgrade: 'websocket',
+        },
+      },
+    );
+
+    expect(response.status).toBe(405);
+    const body = await response.json();
+    expect(body.data).toBeUndefined();
+    expect(body.errors).toHaveLength(1);
+    expect(body.errors[0].message).toEqual(
+      'Can only perform a mutation operation from a POST request.',
+    );
+  });
+
   it('should send basic mutation', async () => {
     const response = await yoga.fetch(`http://yoga/test-graphql`, {
       method: 'POST',
