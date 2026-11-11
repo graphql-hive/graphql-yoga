@@ -1,8 +1,8 @@
 import type { GraphQLParams } from '../../types.js';
-import { isContentTypeMatch } from './utils.js';
+import { isBodyBasedRequest, isContentTypeMatch } from './utils.js';
 
 export function isPOSTGraphQLStringRequest(request: Request) {
-  return request.method === 'POST' && isContentTypeMatch(request, 'application/graphql');
+  return isBodyBasedRequest(request) && isContentTypeMatch(request, 'application/graphql');
 }
 
 export function parsePOSTGraphQLStringRequest(request: Request): Promise<GraphQLParams> {
