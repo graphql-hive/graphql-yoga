@@ -49,7 +49,7 @@ export function checkGraphQLQueryParams(
         http: {
           status: 400,
           headers: {
-            Allow: 'GET, POST',
+            Allow: 'GET, POST, QUERY',
           },
         },
         code: 'BAD_REQUEST',
@@ -66,7 +66,7 @@ export function checkGraphQLQueryParams(
           spec: true,
           status: 400,
           headers: {
-            Allow: 'GET, POST',
+            Allow: 'GET, POST, QUERY',
           },
         },
         code: 'BAD_REQUEST',
@@ -81,7 +81,7 @@ export function checkGraphQLQueryParams(
         http: {
           status: 400,
           headers: {
-            Allow: 'GET, POST',
+            Allow: 'GET, POST, QUERY',
           },
         },
         code: 'BAD_REQUEST',
@@ -98,7 +98,7 @@ export function checkGraphQLQueryParams(
           http: {
             status: 400,
             headers: {
-              Allow: 'GET, POST',
+              Allow: 'GET, POST, QUERY',
             },
           },
           code: 'BAD_REQUEST',
@@ -116,7 +116,7 @@ export function checkGraphQLQueryParams(
           http: {
             status: 400,
             headers: {
-              Allow: 'GET, POST',
+              Allow: 'GET, POST, QUERY',
             },
           },
           code: 'BAD_REQUEST',
