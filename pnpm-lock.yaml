@@ -2083,10 +2083,10 @@ importers:
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: 7.0.0
-        version: 7.0.0(@sveltejs/kit@2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))
+        version: 7.0.0(@sveltejs/kit@2.70.4(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))
       '@sveltejs/kit':
         specifier: ^2.53.3
-        version: 2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))
+        version: 2.70.4(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))
       '@sveltejs/vite-plugin-svelte':
         specifier: 6.2.1
         version: 6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))
@@ -9750,7 +9750,9 @@ packages:
   '@smithy/core@3.24.3':
     resolution: {integrity: sha512-Ep/7tPamGY8mgESE3LyLKtxJyy6U52WWAqr/3wial47Sj4u3PiIF73AOGI27UyLy9duTkhZbgzodOfLV4TduZg==}
     engines: {node: '>=18.0.0'}
-    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with this
+        version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.3.3':
     resolution: {integrity: sha512-I2Bti0DKFo2IJyN28ijCsx51BAumEYR4/1yZ1FXyBygy9MqbnMqCev4JPth/MbpRfBSRAX35hITSnAdJRo1u5w==}
@@ -9806,8 +9808,8 @@ packages:
     peerDependencies:
       '@sveltejs/kit': ^2.53.3
 
-  '@sveltejs/kit@2.70.3':
-    resolution: {integrity: sha512-UDvEYuZqAMbfB/oXIoqKvbKcb7YczK5zYrzmsGV1zRJk03jntwp8dXiYoIJotxAndsKvcPFtx9H1GRSKFdSHgg==}
+  '@sveltejs/kit@2.70.4':
+    resolution: {integrity: sha512-IDfRnmSXgtlmv5Q+KyvP1HGr2XUvZooo0yBwzTnJA7CBbczy+sSMHXubfbcI9gz4EKksRSyYx44y/eCcf/B+rg==}
     engines: {node: '>=18.13'}
     hasBin: true
     peerDependencies:
@@ -14532,6 +14534,7 @@ packages:
   image-size@2.0.2:
     resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
     engines: {node: '>=16.x'}
+    deprecated: Use latest 2.x please
     hasBin: true
 
   immutable@5.1.9:
@@ -19126,8 +19129,8 @@ packages:
     resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
     engines: {node: '>=20.18.1'}
 
-  undici@7.30.1:
-    resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
+  undici@7.30.2:
+    resolution: {integrity: sha512-mLyPQnHwUxaM/rideoK/+KL8DaAJLRl4aBCfmX444aCSLnIaomqPLtNRe2jdCYcsk5wZzXrDIQC8ZeYNRAYyIA==}
     engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.24:
@@ -24496,7 +24499,7 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       http-cache-semantics: 4.2.0
-      undici: 7.30.1
+      undici: 7.30.2
 
   '@miniflare/core@2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)':
     dependencies:
@@ -24508,7 +24511,7 @@ snapshots:
       dotenv: 10.0.0
       kleur: 4.1.5
       set-cookie-parser: 2.7.2
-      undici: 7.30.1
+      undici: 7.30.2
       urlpattern-polyfill: 4.0.3
 
   '@miniflare/d1@2.14.4':
@@ -24521,14 +24524,14 @@ snapshots:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       '@miniflare/storage-memory': 2.14.4
-      undici: 7.30.1
+      undici: 7.30.2
 
   '@miniflare/html-rewriter@2.14.4':
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
       html-rewriter-wasm: 0.4.1
-      undici: 7.30.1
+      undici: 7.30.2
 
   '@miniflare/kv@2.14.4':
     dependencies:
@@ -24542,7 +24545,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.30.1
+      undici: 7.30.2
 
   '@miniflare/runner-vm@2.14.4':
     dependencies:
@@ -24597,7 +24600,7 @@ snapshots:
     dependencies:
       '@miniflare/core': 2.14.4(patch_hash=4cfa1b4e390dce8caf76bb09372d77b00f2f57aba9098bb64c4abced3ed7d100)
       '@miniflare/shared': 2.14.4
-      undici: 7.30.1
+      undici: 7.30.2
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -27053,11 +27056,11 @@ snapshots:
     dependencies:
       acorn: 8.16.0
 
-  '@sveltejs/adapter-auto@7.0.0(@sveltejs/kit@2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))':
+  '@sveltejs/adapter-auto@7.0.0(@sveltejs/kit@2.70.4(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))':
     dependencies:
-      '@sveltejs/kit': 2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))
+      '@sveltejs/kit': 2.70.4(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))
 
-  '@sveltejs/kit@2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))':
+  '@sveltejs/kit@2.70.4(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.55.7(@typescript-eslint/types@8.59.4))(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0)))(svelte@5.55.7(@typescript-eslint/types@8.59.4))(typescript@6.0.2)(vite@7.3.7(@types/node@25.5.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.20.6)(yaml@2.9.0))':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@sveltejs/acorn-typescript': 1.0.10(acorn@8.16.0)
@@ -29655,7 +29658,7 @@ snapshots:
     dependencies:
       '@hapi/bourne': 3.0.0
       inflation: 2.1.0
-      qs: 6.16.1
+      qs: 6.17.1
       raw-body: 2.5.3
       type-is: 1.6.18
 
@@ -38973,7 +38976,7 @@ snapshots:
 
   undici@7.30.0: {}
 
-  undici@7.30.1: {}
+  undici@7.30.2: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
@@ -39210,7 +39213,7 @@ snapshots:
       pump: 3.0.4
       qs: 6.17.1
       type-fest: 4.41.0
-      undici: 7.30.1
+      undici: 7.30.2
       ylru: 1.4.0
 
   urllib@4.9.0:
@@ -39220,7 +39223,7 @@ snapshots:
       mime-types: 2.1.35
       qs: 6.17.1
       type-fest: 4.41.0
-      undici: 7.30.1
+      undici: 7.30.2
       ylru: 2.0.0
 
   urlpattern-polyfill@10.1.0: {}
