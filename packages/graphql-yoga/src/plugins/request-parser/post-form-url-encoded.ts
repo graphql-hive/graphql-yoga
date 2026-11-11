@@ -1,10 +1,9 @@
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch, isPostLikeRequest, parseURLSearchParams } from './utils.js';
 
-export function isPOSTFormUrlEncodedRequest(request: Request, allowQueryMethod = false) {
+export function isPOSTFormUrlEncodedRequest(request: Request) {
   return (
-    isPostLikeRequest(request, allowQueryMethod) &&
-    isContentTypeMatch(request, 'application/x-www-form-urlencoded')
+    isPostLikeRequest(request) && isContentTypeMatch(request, 'application/x-www-form-urlencoded')
   );
 }
 

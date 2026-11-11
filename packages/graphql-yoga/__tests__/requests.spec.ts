@@ -162,28 +162,11 @@ describe('requests', () => {
     );
   });
 
-  it('rejects QUERY requests by default', async () => {
-    const response = await yoga.fetch('http://yoga/test-graphql', {
-      method: 'QUERY',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: '{ ping }' }),
-    });
-
-    expect(response.status).toBe(405);
-    expect(response.headers.get('allow')).toEqual('GET, POST');
-    const body = await response.json();
-
-    expect(body.data).toBeUndefined();
-    expect(body.errors).toHaveLength(1);
-    expect(body.errors[0].message).toEqual('GraphQL only supports GET and POST requests.');
-  });
-
   it('should send basic query with QUERY method', async () => {
     const yoga = createYoga({
       schema,
       logging: false,
       graphqlEndpoint: endpoint,
-      queryMethod: true,
     });
     const response = await yoga.fetch('http://yoga/test-graphql', {
       method: 'QUERY',
@@ -202,7 +185,6 @@ describe('requests', () => {
       schema,
       logging: false,
       graphqlEndpoint: endpoint,
-      queryMethod: true,
     });
     const response = await yoga.fetch('http://yoga/test-graphql', {
       method: 'QUERY',
@@ -223,7 +205,6 @@ describe('requests', () => {
       schema,
       logging: false,
       graphqlEndpoint: endpoint,
-      queryMethod: true,
     });
     const response = await yoga.fetch('http://yoga/test-graphql', {
       method: 'QUERY',
@@ -244,7 +225,6 @@ describe('requests', () => {
       schema,
       logging: false,
       graphqlEndpoint: endpoint,
-      queryMethod: true,
     });
     const response = await yoga.fetch('http://yoga/test-graphql', {
       method: 'QUERY',
@@ -267,12 +247,11 @@ describe('requests', () => {
     );
   });
 
-  it('rejects multipart requests sent over QUERY even when queryMethod is enabled', async () => {
+  it('rejects multipart requests sent over QUERY', async () => {
     const yoga = createYoga({
       schema,
       logging: false,
       graphqlEndpoint: endpoint,
-      queryMethod: true,
     });
     const form = new FormData();
     form.set('operations', JSON.stringify({ query: '{ ping }' }));
@@ -282,28 +261,6 @@ describe('requests', () => {
     });
 
     expect(response.status).toBe(415);
-  });
-
-  it('rejects QUERY requests when the queryMethod option is disabled', async () => {
-    const yoga = createYoga({
-      schema,
-      logging: false,
-      graphqlEndpoint: endpoint,
-      queryMethod: false,
-    });
-    const response = await yoga.fetch('http://yoga/test-graphql', {
-      method: 'QUERY',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: '{ ping }' }),
-    });
-
-    expect(response.status).toBe(405);
-    expect(response.headers.get('allow')).toEqual('GET, POST');
-    const body = await response.json();
-
-    expect(body.data).toBeUndefined();
-    expect(body.errors).toHaveLength(1);
-    expect(body.errors[0].message).toEqual('GraphQL only supports GET and POST requests.');
   });
 
   it('should send basic mutation', async () => {
