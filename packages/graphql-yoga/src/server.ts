@@ -464,7 +464,7 @@ export class YogaServer<
       }),
       // We check the method after user-land plugins because the plugin might support more methods (like graphql-sse).
       useCheckMethodForGraphQL(),
-      // We make sure that the user doesn't send a mutation with GET
+      // We make sure that the user doesn't send a mutation with GET or QUERY
       usePreventMutationViaGET(),
       // Always throw AbortError instead of masking it.
       maskedErrors !== null && {
