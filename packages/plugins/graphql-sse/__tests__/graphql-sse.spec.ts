@@ -7,6 +7,7 @@ describe('graphql-sse', () => {
     typeDefs: /* GraphQL */ `
       type Query {
         hello: String!
+        double(n: Int): Int
       }
       type Subscription {
         greetings: String!
@@ -17,6 +18,7 @@ describe('graphql-sse', () => {
         async hello() {
           return 'world';
         },
+        double: (_root: unknown, { n }: { n?: number | null }) => (n ?? 0) * 2,
       },
       Subscription: {
         greetings: {
@@ -252,5 +254,69 @@ describe('graphql-sse', () => {
       }
     `,
     );
+  });
+
+  describe('errors raised before execution', () => {
+    async function request(body: Record<string, unknown>) {
+      const response = await yoga.fetch('http://yoga/graphql/stream', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: JSON.stringify(body),
+      });
+      return response;
+    }
+
+    async function subscribeErrors(params: { query: string; variables?: Record<string, unknown> }) {
+      const client = createClient({
+        url: 'http://yoga/graphql/stream',
+        fetchFn: yoga.fetch,
+        abortControllerImpl: AbortController,
+        singleConnection: false,
+        retryAttempts: 0,
+      });
+      return new Promise<unknown[]>((resolve, reject) => {
+        const msgs: unknown[] = [];
+        client.subscribe(params, {
+          next: msg => msgs.push(msg),
+          error: reject,
+          complete: () => resolve(msgs),
+        });
+      });
+    }
+
+    it('should report syntax errors as GraphQL errors instead of a 500', async () => {
+      const response = await request({ query: '{' });
+      expect(response.status).not.toBe(500);
+      expect(response.headers.get('content-type')).not.toContain('text/plain');
+      const text = await response.text();
+      expect(text).toContain('Syntax Error: Expected Name, found <EOF>.');
+      expect(text).not.toContain('    at ');
+    });
+
+    it('should report validation errors with their real message', async () => {
+      const response = await request({ query: '{ nope }' });
+      const text = await response.text();
+      expect(text).toContain('Cannot query field \\"nope\\" on type \\"Query\\".');
+      expect(text).not.toContain('Unable to detect operation AST');
+    });
+
+    it('should report variable coercion errors with their real message', async () => {
+      const response = await request({
+        query: 'query ($n: Int!) { double(n: $n) }',
+        variables: { n: 'x' },
+      });
+      const text = await response.text();
+      expect(text).toMatch(/Variable \\+"\$n\\+" (got|has) invalid value/);
+      expect(text).not.toContain('Unable to detect operation AST');
+    });
+
+    it('should deliver the errors to graphql-sse clients as a next event', async () => {
+      await expect(subscribeErrors({ query: '{ nope }' })).resolves.toMatchObject([
+        { data: null, errors: [{ message: 'Cannot query field "nope" on type "Query".' }] },
+      ]);
+      await expect(subscribeErrors({ query: '{' })).resolves.toMatchObject([
+        { data: null, errors: [{ message: 'Syntax Error: Expected Name, found <EOF>.' }] },
+      ]);
+    });
   });
 });

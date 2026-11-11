@@ -1,4 +1,5 @@
-import { getOperationAST } from 'graphql';
+import type { DocumentNode } from 'graphql';
+import { getOperationAST, GraphQLError } from 'graphql';
 import type { HandlerOptions } from 'graphql-sse';
 import type { RequestContext } from 'graphql-sse/lib/use/fetch';
 import { createHandler } from 'graphql-sse/lib/use/fetch';
@@ -17,6 +18,22 @@ export interface GraphQLSSEPluginOptions
    * @default '/graphql/stream'
    */
   endpoint?: string;
+}
+
+// graphql-sse only recognizes an object as an execution result when it has a `data` key.
+function errorResult(errors: readonly GraphQLError[]) {
+  return { data: null, errors };
+}
+
+function isErrorOnlyResult(result: unknown): result is { errors: readonly GraphQLError[] } {
+  return (
+    typeof result === 'object' &&
+    result !== null &&
+    !(Symbol.asyncIterator in result) &&
+    !('data' in result) &&
+    'errors' in result &&
+    Array.isArray(result.errors)
+  );
 }
 
 /**
@@ -41,12 +58,23 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
               params,
             });
 
-            const document = enveloped.parse(params.query);
+            let document: DocumentNode;
+            try {
+              document = enveloped.parse(params.query);
+            } catch (error) {
+              return errorResult([
+                error instanceof GraphQLError
+                  ? error
+                  : new GraphQLError(error instanceof Error ? error.message : String(error), {
+                      originalError: error instanceof Error ? error : undefined,
+                    }),
+              ]);
+            }
 
             const errors = enveloped.validate(enveloped.schema, document);
 
             if (errors.length > 0) {
-              return { errors };
+              return errorResult(errors);
             }
 
             return handleMaybePromise(
@@ -65,7 +93,13 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
                 const executeFn =
                   operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
 
-                return executeFn(executionArgs);
+                return handleMaybePromise(
+                  () => executeFn(executionArgs),
+                  // Errors raised before execution (e.g. variable coercion) are
+                  // returned without a `data` key, which graphql-sse does not
+                  // recognize as an execution result.
+                  result => (isErrorOnlyResult(result) ? errorResult(result.errors) : result),
+                );
               },
             );
           },
