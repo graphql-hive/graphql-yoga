@@ -7,6 +7,7 @@ import next from 'next';
 import { useServer } from 'graphql-ws/use/ws';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { WebSocketServer } from 'ws';
+import { normalizeNodeRequest } from '@whatwg-node/server';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -111,6 +112,7 @@ async function start(port, handle) {
           ...ctx,
           req: ctx.extra.request,
           socket: ctx.extra.socket,
+          request: normalizeNodeRequest(ctx.extra.request, yoga.fetchAPI),
           params,
         });
 

@@ -316,4 +316,82 @@ describe('schema', () => {
       foo: true,
     });
   });
+
+  it('schema factory gets the request passed to getEnveloped outside of the request pipeline', async () => {
+    const createRoleSchema = (role: string) =>
+      createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            role: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            role: () => role,
+          },
+        },
+      });
+    const adminSchema = createRoleSchema('admin');
+    const publicSchema = createRoleSchema('public');
+    const yoga = createYoga({
+      schema: ({ request }) =>
+        request.headers.get('x-role') === 'admin' ? adminSchema : publicSchema,
+    });
+    const executeRoleQuery = async (headers: Record<string, string>) => {
+      const { schema, execute, parse, contextFactory } = yoga.getEnveloped({
+        request: new yoga.fetchAPI.Request('http://yoga/graphql', { headers }),
+      });
+      return execute({
+        schema,
+        document: parse('{ role }'),
+        contextValue: await contextFactory(),
+      });
+    };
+    expect(await executeRoleQuery({ 'x-role': 'admin' })).toEqual({ data: { role: 'admin' } });
+    expect(await executeRoleQuery({})).toEqual({ data: { role: 'public' } });
+  });
+
+  it('fails if getEnveloped is called without a request when the schema is a factory', () => {
+    const yoga = createYoga({
+      schema: () =>
+        createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              foo: Boolean
+            }
+          `,
+        }),
+    });
+    expect(() => yoga.getEnveloped()).toThrow(
+      'pass a Fetch API Request as `request` when you call getEnveloped yourself',
+    );
+  });
+
+  it('fails if a schema factory returns a promise outside of the request pipeline', () => {
+    const yoga = createYoga({
+      schema: async () =>
+        createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              foo: Boolean
+            }
+          `,
+        }),
+    });
+    expect(() =>
+      yoga.getEnveloped({ request: new yoga.fetchAPI.Request('http://yoga/graphql') }),
+    ).toThrow('the factory function must return a GraphQLSchema synchronously');
+  });
+
+  it('does not leave an unhandled rejection when an async schema factory rejects outside of the request pipeline', async () => {
+    const yoga = createYoga({
+      schema: async () => {
+        throw new Error('The schema factory failed');
+      },
+    });
+    expect(() =>
+      yoga.getEnveloped({ request: new yoga.fetchAPI.Request('http://yoga/graphql') }),
+    ).toThrow('the factory function must return a GraphQLSchema synchronously');
+    await new Promise(resolve => setImmediate(resolve));
+  });
 });
