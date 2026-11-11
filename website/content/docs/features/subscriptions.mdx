@@ -186,11 +186,17 @@ To have the same execution pipeline in `graphql-ws`, we can use the **Envelop** 
 GraphQL Yoga like below in Node.JS. Also, you can set `subscriptionsProtocol` in GraphiQL options to
 use WebSockets instead of Server-Sent Events within GraphiQL.
 
+Pass a Fetch API `Request` as `request` to `getEnveloped`, so that plugins and a
+[schema factory function](/docs/features/schema#conditional-schema) get the same `request` they get
+over HTTP. `normalizeNodeRequest` from `@whatwg-node/server` builds one from the WebSocket upgrade
+request.
+
 ```ts title="yoga-with-ws.ts"
 import { createServer } from 'node:http'
 import { useServer } from 'graphql-ws/use/ws'
 import { createYoga } from 'graphql-yoga'
 import { WebSocketServer } from 'ws'
+import { normalizeNodeRequest } from '@whatwg-node/server'
 
 const yogaApp = createYoga({
   graphiql: {
@@ -217,6 +223,7 @@ useServer(
         ...ctx,
         req: ctx.extra.request,
         socket: ctx.extra.socket,
+        request: normalizeNodeRequest(ctx.extra.request, yogaApp.fetchAPI),
         params
       })
 

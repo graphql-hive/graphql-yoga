@@ -3,6 +3,7 @@ import { Socket } from 'node:net';
 import { useServer } from 'graphql-ws/use/ws';
 import { createSchema, createYoga } from 'graphql-yoga';
 import { WebSocketServer } from 'ws';
+import { normalizeNodeRequest } from '@whatwg-node/server';
 
 export function buildApp() {
   const yoga = createYoga({
@@ -62,6 +63,7 @@ export function buildApp() {
           ...ctx,
           req: ctx.extra.request,
           socket: ctx.extra.socket,
+          request: normalizeNodeRequest(ctx.extra.request, yoga.fetchAPI),
           params,
         });
 

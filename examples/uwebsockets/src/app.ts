@@ -56,7 +56,16 @@ const wsHandler = makeBehavior({
   execute: args => (args as EnvelopedExecutionArgs).rootValue.execute(args),
   subscribe: args => (args as EnvelopedExecutionArgs).rootValue.subscribe(args),
   onSubscribe: async (ctx, _id, params) => {
-    const { schema, execute, subscribe, contextFactory, parse, validate } = yoga.getEnveloped(ctx);
+    const { url, query, headers } = ctx.extra.persistedRequest;
+    const { schema, execute, subscribe, contextFactory, parse, validate } = yoga.getEnveloped({
+      ...ctx,
+      request: new yoga.fetchAPI.Request(
+        `http://${headers.host}${url}${query ? `?${query}` : ''}`,
+        {
+          headers: headers as Record<string, string>,
+        },
+      ),
+    });
 
     const args: EnvelopedExecutionArgs = {
       schema,
