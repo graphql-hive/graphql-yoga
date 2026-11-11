@@ -4,11 +4,11 @@ import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 import { isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
-import { isContentTypeMatch, isPostLikeRequest } from './utils.js';
+import { isBodyBasedRequest, isContentTypeMatch } from './utils.js';
 
 export function isPOSTJsonRequest(request: Request) {
   return (
-    isPostLikeRequest(request) &&
+    isBodyBasedRequest(request) &&
     (isContentTypeMatch(request, 'application/json') ||
       isContentTypeMatch(request, 'application/graphql+json'))
   );

@@ -19,7 +19,8 @@ export function parseURLSearchParams(requestBody: string): GraphQLParams {
   return handleURLSearchParams(searchParams);
 }
 
-export function isPostLikeRequest(request: Request): boolean {
+/** Whether params for this method are carried in the request body (vs. the URL, as `GET` uses). */
+export function isBodyBasedRequest(request: Request): boolean {
   return request.method === 'POST' || request.method === 'QUERY';
 }
 
