@@ -1,5 +1,13 @@
 # @envelop/statsd
 
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/core@6.0.1
+
 ## 9.0.0
 
 ### Major Changes
