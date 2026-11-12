@@ -24,7 +24,7 @@ export function assertMutationViaGet(
     });
   }
 
-  if (operation.operation === 'mutation' && method === 'GET') {
+  if (operation.operation === 'mutation' && (method === 'GET' || method === 'QUERY')) {
     throw new GraphQLError('Can only perform a mutation operation from a POST request.', {
       extensions: {
         http: {
@@ -40,7 +40,13 @@ export function assertMutationViaGet(
 }
 
 export function usePreventMutationViaGET(): Plugin<YogaInitialContext> {
+  // a request that only reached getEnveloped (e.g. the upgrade request of a WebSocket) sends its
+  // operations over another transport, so its HTTP method says nothing about them
+  const requestsParsedOverHTTP = new WeakSet<Request>();
   return {
+    onRequestParse({ request }) {
+      requestsParsedOverHTTP.add(request);
+    },
     onParse() {
       // We should improve this by getting Yoga stuff from the hook params directly instead of the context
       return ({
@@ -68,7 +74,7 @@ export function usePreventMutationViaGET(): Plugin<YogaInitialContext> {
             httpExtensions.spec ||= true;
             httpExtensions.status ||= 400;
           }
-        } else {
+        } else if (requestsParsedOverHTTP.has(request)) {
           assertMutationViaGet(request.method, result, operationName);
         }
       };

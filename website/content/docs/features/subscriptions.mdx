@@ -182,15 +182,43 @@ Please refer to the [`graphql-sse` client recipes](https://the-guild.dev/graphql
 Suppose you want to use the
 [`graphql-transport-ws`](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) protocol
 with GraphQL Yoga, you can use the [`graphql-ws`](https://github.com/enisdenjo/graphql-ws) library.
-To have the same execution pipeline in `graphql-ws`, we can use the **Envelop** instance from
-GraphQL Yoga like below in Node.JS. Also, you can set `subscriptionsProtocol` in GraphiQL options to
-use WebSockets instead of Server-Sent Events within GraphiQL.
+To have the same request pipeline in `graphql-ws` that Yoga uses over HTTP, we can route each
+operation through Yoga's own request handling like below in Node.JS. Also, you can set
+`subscriptionsProtocol` in GraphiQL options to use WebSockets instead of Server-Sent Events within
+GraphiQL.
+
+Pass a Fetch API `Request` as `request` to `getResultForParams`, so that plugins and a
+[schema factory function](/docs/features/schema#conditional-schema) get the same `request` they get
+over HTTP. `normalizeNodeRequest` from `@whatwg-node/server` builds one from the WebSocket upgrade
+request.
+
+Route the operation through `yogaApp.getResultForParams` rather than calling `getEnveloped`'s
+`parse`/`validate`/`execute` directly. `getResultForParams` is the same method Yoga's own HTTP
+request pipeline uses, and it runs Yoga's `onParams` hooks before parsing and executing - which
+matters because plugins such as `usePersistedOperations` enforce their allowlist exclusively in
+`onParams`. Calling `parse`/`validate`/`execute` by hand skips that hook, so an app combining
+`usePersistedOperations` with a hand-rolled `graphql-ws` integration would accept arbitrary
+operations over WebSocket even though its HTTP endpoint rejects them.
+
+`graphql-ws` still needs `onSubscribe` to return something shaped like `ExecutionArgs` (so it can
+tell a query from a subscription before dispatching to `execute`/`subscribe` below), even though the
+operation has already run. The placeholder document below is never otherwise used: both `execute`
+and `subscribe` just hand back the result that was already computed.
 
 ```ts title="yoga-with-ws.ts"
 import { createServer } from 'node:http'
+import { GraphQLError, parse } from 'graphql'
 import { useServer } from 'graphql-ws/use/ws'
 import { createYoga } from 'graphql-yoga'
 import { WebSocketServer } from 'ws'
+import { normalizeNodeRequest } from '@whatwg-node/server'
+
+function isAsyncIterable(value: unknown): value is AsyncIterable<unknown> {
+  return typeof value === 'object' && value !== null && Symbol.asyncIterator in value
+}
+
+// See the comment on `onSubscribe` below for why this placeholder document is needed.
+const PLACEHOLDER_DOCUMENT = parse('{ __typename }')
 
 const yogaApp = createYoga({
   graphiql: {
@@ -207,34 +235,46 @@ const wsServer = new WebSocketServer({
   path: yogaApp.graphqlEndpoint
 })
 
-// Integrate Yoga's Envelop instance and NodeJS server with graphql-ws
+// Integrate Yoga's request pipeline and NodeJS server with graphql-ws
 useServer(
   {
-    execute: (args: any) => args.rootValue.execute(args),
-    subscribe: (args: any) => args.rootValue.subscribe(args),
+    // The operation already ran inside `onSubscribe` below, so `execute`/`subscribe` here just
+    // hand back the result that was stashed on `args`.
+    execute: (args: any) => args.result,
+    subscribe: (args: any) => args.result,
     onSubscribe: async (ctx, _id, params) => {
-      const { schema, execute, subscribe, contextFactory, parse, validate } = yogaApp.getEnveloped({
-        ...ctx,
-        req: ctx.extra.request,
-        socket: ctx.extra.socket,
-        params
-      })
+      const request = normalizeNodeRequest(ctx.extra.request, yogaApp.fetchAPI)
 
-      const args = {
-        schema,
-        operationName: params.operationName,
-        document: parse(params.query),
-        variableValues: params.variables,
-        contextValue: await contextFactory(),
-        rootValue: {
-          execute,
-          subscribe
-        }
+      let result
+      try {
+        result = await yogaApp.getResultForParams(
+          // `graphql-ws`'s `SubscribePayload` allows `null` for these fields; Yoga's
+          // `GraphQLParams` only accepts `undefined`.
+          {
+            params: {
+              ...params,
+              operationName: params.operationName ?? undefined,
+              variables: params.variables ?? undefined,
+              extensions: params.extensions ?? undefined
+            },
+            request
+          },
+          { ...ctx, req: ctx.extra.request, socket: ctx.extra.socket }
+        )
+      } catch (error) {
+        // Report the error for just this operation instead of throwing, which would close the
+        // whole socket and take down every other operation sharing it.
+        return [error instanceof GraphQLError ? error : new GraphQLError('Internal server error.')]
       }
 
-      const errors = validate(args.schema, args.document)
-      if (errors.length) return errors
-      return args
+      if (!result) {
+        return [new GraphQLError('Unexpected empty result.')]
+      }
+      if (!isAsyncIterable(result) && result.data == null && result.errors) {
+        return result.errors
+      }
+
+      return { document: PLACEHOLDER_DOCUMENT, result }
     }
   },
   wsServer

@@ -1,6 +1,6 @@
 import type { GraphQLSchema } from 'graphql';
 import type { PromiseOrValue } from '@envelop/core';
-import { handleMaybePromise } from '@whatwg-node/promise-helpers';
+import { handleMaybePromise, isPromise } from '@whatwg-node/promise-helpers';
 import type { GraphQLSchemaWithContext, YogaInitialContext } from '../types.js';
 import type { Plugin } from './types.js';
 
@@ -90,13 +90,17 @@ export const useSchema = <
       onEnveloped({ setSchema, context }) {
         if (context?.request == null) {
           throw new Error(
-            'Request object is not available in the context. Make sure you use this plugin with GraphQL Yoga.',
+            'Request object is not available in the context. Make sure you use this plugin with GraphQL Yoga, and pass a Fetch API Request as `request` when you call getEnveloped yourself (e.g. for graphql-ws).',
           );
         }
-        const schema = schemaByRequest.get(context.request);
-        if (schema == null) {
+        // a request that skipped onRequestParse (e.g. one built for graphql-ws) gets its schema here
+        const schema = schemaByRequest.get(context.request) ?? schemaDef(context);
+        if (!isGraphQLSchema(schema)) {
+          if (isPromise(schema)) {
+            schema.then(undefined, () => {});
+          }
           throw new Error(
-            `No schema found for this request. Make sure you use this plugin with GraphQL Yoga.`,
+            'No schema found for this request. When getEnveloped is called outside of the request pipeline (e.g. by graphql-ws), the factory function must return a GraphQLSchema synchronously.',
           );
         }
         setSchema(schema);

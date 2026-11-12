@@ -5,6 +5,8 @@ import { isAbortError, isRequestBodyLimitError } from '../../error.js';
 import type { GraphQLParams } from '../../types.js';
 import { isContentTypeMatch } from './utils.js';
 
+// Deliberately `POST`-only, not `isBodyBasedRequest()`: `QUERY` is meant to stay
+// side-effect-free, and file uploads have no place in a safe/read-only request.
 export function isPOSTMultipartRequest(request: Request): boolean {
   return request.method === 'POST' && isContentTypeMatch(request, 'multipart/form-data');
 }

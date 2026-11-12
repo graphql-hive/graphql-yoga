@@ -21,6 +21,11 @@ export function parseURLSearchParams(requestBody: string): GraphQLParams {
   return handleURLSearchParams(searchParams);
 }
 
+/** Whether params for this method are carried in the request body (vs. the URL, as `GET` uses). */
+export function isBodyBasedRequest(request: Request): boolean {
+  return request.method === 'POST' || request.method === 'QUERY';
+}
+
 export function isContentTypeMatch(request: Request, expectedContentType: string): boolean {
   const contentType = request.headers.get('content-type');
 

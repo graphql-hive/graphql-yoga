@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import crypto from 'node:crypto';
 import { parse } from 'graphql';
 import { createSchema, createYoga } from 'graphql-yoga';
