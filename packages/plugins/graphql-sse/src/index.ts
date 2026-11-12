@@ -1,4 +1,4 @@
-import { getOperationAST } from 'graphql';
+import { GraphQLError } from 'graphql';
 import type { HandlerOptions } from 'graphql-sse';
 import type { RequestContext } from 'graphql-sse/lib/use/fetch';
 import { createHandler } from 'graphql-sse/lib/use/fetch';
@@ -35,37 +35,26 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
         {
           ...handlerOptions,
           onSubscribe(req, params) {
-            const enveloped = yoga.getEnveloped({
-              ...ctxForReq.get(req.raw),
-              request: req.raw,
-              params,
-            });
-
-            const document = enveloped.parse(params.query);
-
-            const errors = enveloped.validate(enveloped.schema, document);
-
-            if (errors.length > 0) {
-              return { errors };
-            }
-
+            // Route through `getResultForParams` (rather than calling `getEnveloped`'s
+            // `parse`/`validate`/`execute` directly) so that Yoga's `onParams` hooks run first.
+            // Plugins such as `usePersistedOperations` enforce their allowlist exclusively in
+            // `onParams`;
+            const context = ctxForReq.get(req.raw) ?? {};
             return handleMaybePromise(
-              () => enveloped.contextFactory(),
-              contextValue => {
-                const executionArgs = {
-                  schema: enveloped.schema,
-                  document,
-                  contextValue,
-                  variableValues: params.variables,
-                  operationName: params.operationName,
-                };
-
-                const operation = getOperationAST(document, params.operationName);
-
-                const executeFn =
-                  operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
-
-                return executeFn(executionArgs);
+              () => yoga.getResultForParams({ params, request: req.raw }, context),
+              result =>
+                result ?? { data: null, errors: [new GraphQLError('Unexpected empty result.')] },
+              error => {
+                // `onParams` hooks reject by throwing (e.g. persisted-operations' "PersistedQueryOnly"),
+                // same as a parse/validate error would. Shape it as a normal GraphQL error result
+                // instead of letting it crash the handler. `data: null` is required here: unlike
+                // the HTTP pipeline, graphql-sse's own result detection only recognizes an object
+                // as an `ExecutionResult` (vs. mistaking it for raw `ExecutionArgs`) when it has a
+                // `data` key.
+                if (error instanceof GraphQLError) {
+                  return { data: null, errors: [error] };
+                }
+                throw error;
               },
             );
           },

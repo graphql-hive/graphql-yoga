@@ -1,5 +1,6 @@
 import { createClient } from 'graphql-sse';
 import { createSchema, createYoga } from 'graphql-yoga';
+import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations';
 import { useGraphQLSSE } from '../src/index.js';
 
 describe('graphql-sse', () => {
@@ -252,5 +253,148 @@ describe('graphql-sse', () => {
       }
     `,
     );
+  });
+
+  describe('persisted operations enforcement', () => {
+    let dangerousCallCount = 0;
+
+    const persistedSchema = createSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          secret: String!
+        }
+        type Mutation {
+          dangerous: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          secret: () => 'leaked',
+        },
+        Mutation: {
+          dangerous: () => {
+            dangerousCallCount++;
+            return 'done';
+          },
+        },
+      },
+    });
+
+    const store = new Map<string, string>([['allowed', '{ secret }']]);
+
+    function createProtectedYoga() {
+      return createYoga({
+        schema: persistedSchema,
+        plugins: [
+          usePersistedOperations({
+            getPersistedOperation(key) {
+              return store.get(key) ?? null;
+            },
+          }),
+          useGraphQLSSE(),
+        ],
+        maskedErrors: false,
+      });
+    }
+
+    beforeEach(() => {
+      dangerousCallCount = 0;
+    });
+
+    it('rejects the same arbitrary query over /graphql as a control', async () => {
+      const yoga = createProtectedYoga();
+
+      const response = await yoga.fetch('http://yoga/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: '{ secret }' }),
+      });
+
+      const body = await response.json();
+      expect(body.errors?.[0]?.message).toBe('PersistedQueryOnly');
+    });
+
+    it.each([
+      ['distinct connection mode', false],
+      ['single connection mode', true],
+    ])(
+      'rejects an arbitrary query sent over the SSE endpoint, %s',
+      async (_name, singleConnection) => {
+        const yoga = createProtectedYoga();
+        const client = createClient({
+          url: 'http://yoga/graphql/stream',
+          fetchFn: yoga.fetch,
+          abortControllerImpl: AbortController,
+          singleConnection,
+          retryAttempts: 0,
+        });
+
+        const result = await new Promise<unknown>((resolve, reject) => {
+          client.subscribe(
+            { query: '{ secret }' },
+            {
+              next: resolve,
+              error: reject,
+              complete: () => reject(new Error('expected a result')),
+            },
+          );
+        });
+
+        expect((result as { errors?: Array<{ message: string }> }).errors?.[0]?.message).toBe(
+          'PersistedQueryOnly',
+        );
+        client.dispose();
+      },
+    );
+
+    it('does not run the mutation resolver for a non-persisted mutation sent over SSE', async () => {
+      const yoga = createProtectedYoga();
+      const client = createClient({
+        url: 'http://yoga/graphql/stream',
+        fetchFn: yoga.fetch,
+        abortControllerImpl: AbortController,
+        singleConnection: false,
+        retryAttempts: 0,
+      });
+
+      const result = await new Promise<unknown>((resolve, reject) => {
+        client.subscribe(
+          { query: 'mutation { dangerous }' },
+          { next: resolve, error: reject, complete: () => reject(new Error('expected a result')) },
+        );
+      });
+
+      expect((result as { errors?: Array<{ message: string }> }).errors?.[0]?.message).toBe(
+        'PersistedQueryOnly',
+      );
+      expect(dangerousCallCount).toBe(0);
+      client.dispose();
+    });
+
+    it('still executes a persisted operation sent over the SSE endpoint', async () => {
+      const yoga = createProtectedYoga();
+      const client = createClient({
+        url: 'http://yoga/graphql/stream',
+        fetchFn: yoga.fetch,
+        abortControllerImpl: AbortController,
+        singleConnection: false,
+        retryAttempts: 0,
+      });
+
+      const result = await new Promise<unknown>((resolve, reject) => {
+        client.subscribe(
+          {
+            query: '',
+            extensions: {
+              persistedQuery: { version: 1, sha256Hash: 'allowed' },
+            },
+          },
+          { next: resolve, error: reject, complete: () => reject(new Error('expected a result')) },
+        );
+      });
+
+      expect(result).toEqual({ data: { secret: 'leaked' } });
+      client.dispose();
+    });
   });
 });
