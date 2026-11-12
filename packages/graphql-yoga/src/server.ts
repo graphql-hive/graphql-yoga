@@ -69,6 +69,7 @@ import type {
 import { useConfigInServerContext } from './plugins/use-config-in-server-context.js';
 import type { GraphiQLOptions, GraphiQLOptionsOrFactory } from './plugins/use-graphiql.js';
 import { useGraphiQL } from './plugins/use-graphiql.js';
+import { useHaltOnError } from './plugins/use-halt-on-error.js';
 import { useHealthCheck } from './plugins/use-health-check.js';
 import type { ParserAndValidationCacheOptions } from './plugins/use-parser-and-validation-cache.js';
 import { useParserAndValidationCache } from './plugins/use-parser-and-validation-cache.js';
@@ -455,6 +456,7 @@ export class YogaServer<
         ),
       useLimitBatching(batchingLimit),
       useCheckGraphQLQueryParams(options?.extraParamNames),
+      useHaltOnError(),
       useUnhandledRoute({
         getGraphQLEndpoint: () => this.graphqlEndpoint,
         getGraphQLEndpointURLPattern: () => this.getUrlPatternForGraphQLEndpoint(),

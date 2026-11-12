@@ -1,8 +1,15 @@
 import { GraphQLError } from 'graphql';
+import { resolveOnError } from '../../on-error.js';
 import type { GraphQLParams } from '../../types.js';
 import type { Plugin } from '../types.js';
 
-const expectedParameters = new Set(['query', 'variables', 'operationName', 'extensions']);
+const expectedParameters = new Set([
+  'query',
+  'variables',
+  'operationName',
+  'extensions',
+  'onError',
+]);
 
 export function assertInvalidParams(
   params: unknown,
@@ -124,6 +131,9 @@ export function checkGraphQLQueryParams(
       },
     );
   }
+
+  // Called for the throw; `processRequest` and `useHaltOnError` resolve the value itself.
+  resolveOnError(params['onError']);
 
   return params;
 }
