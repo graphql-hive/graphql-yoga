@@ -1,5 +1,25 @@
 # @graphql-yoga/nestjs-federation
 
+## 5.1.0
+
+### Minor Changes
+
+- [#4644](https://github.com/graphql-hive/graphql-yoga/pull/4644)
+  [`50712e4`](https://github.com/graphql-hive/graphql-yoga/commit/50712e41d7e3f8c195237b62169c1913de880f82)
+  Thanks [@jfairley](https://github.com/jfairley)! - Support the `@nestjs/platform-node` HTTP
+  adapter (`'node'` platform)
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`50712e4`](https://github.com/graphql-hive/graphql-yoga/commit/50712e41d7e3f8c195237b62169c1913de880f82)]:
+  - @envelop/core@6.0.1
+  - @graphql-yoga/plugin-apollo-inline-trace@4.1.0
+  - @graphql-yoga/nestjs@5.1.0
+  - @envelop/apollo-federation@9.0.1
+
 ## 5.0.1
 
 ### Patch Changes

@@ -1,5 +1,61 @@
 # graphql-yoga
 
+## 6.1.0
+
+### Minor Changes
+
+- [#4647](https://github.com/graphql-hive/graphql-yoga/pull/4647)
+  [`cfd0092`](https://github.com/graphql-hive/graphql-yoga/commit/cfd00928667ccae8f0418938a2b24a4dae9d3314)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Add support for the HTTP `QUERY` method as
+  described in
+  [graphql/graphql-over-http#411](https://github.com/graphql/graphql-over-http/pull/411).
+
+  `QUERY` requests carry the GraphQL params in the request body, exactly like `POST`
+  (`application/json`, `application/graphql+json`, `application/graphql`, and
+  `application/x-www-form-urlencoded` are all supported), but are treated as safe/read-only like
+  `GET`: sending a mutation over `QUERY` is rejected with a `405 Method Not Allowed` response, the
+  same way it already is for `GET`.
+
+### Patch Changes
+
+- [#4650](https://github.com/graphql-hive/graphql-yoga/pull/4650)
+  [`045fc2f`](https://github.com/graphql-hive/graphql-yoga/commit/045fc2f77953d9b81a9e242d8351e9924039b531)
+  Thanks [@Shaurya55555](https://github.com/Shaurya55555)! - Match the request `Content-Type` media
+  type case-insensitively and allow optional whitespace before its parameters, as required by
+  RFC 9110. A request sent with `Application/JSON` or `application/json ; charset=utf-8` was
+  rejected with `415 Unsupported Media Type`.
+
+- [#4658](https://github.com/graphql-hive/graphql-yoga/pull/4658)
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - dependencies updates:
+  - Updated dependency
+    [`@whatwg-node/promise-helpers@^2.0.2` ↗︎](https://www.npmjs.com/package/@whatwg-node/promise-helpers/v/2.0.2)
+    (from `^2.0.0`, in `dependencies`)
+  - Updated dependency
+    [`@whatwg-node/server@^0.13.3` ↗︎](https://www.npmjs.com/package/@whatwg-node/server/v/0.13.3)
+    (from `^0.13.1`, in `dependencies`)
+
+- [#4646](https://github.com/graphql-hive/graphql-yoga/pull/4646)
+  [`35501fe`](https://github.com/graphql-hive/graphql-yoga/commit/35501fe17bfb15405c64759c7c41adb4559b1679)
+  Thanks [@mattkrick](https://github.com/mattkrick)! - A schema factory function now works when
+  `getEnveloped` is called outside of the request pipeline, for example by `graphql-ws`. When the
+  context passed to `getEnveloped` has a Fetch API `Request` as `request`, the factory is called
+  with that context instead of throwing "No schema found for this request", and it has to return the
+  schema synchronously there. The WebSocket recipes now pass the upgrade request as `request`.
+
+- [#4656](https://github.com/graphql-hive/graphql-yoga/pull/4656)
+  [`807c7af`](https://github.com/graphql-hive/graphql-yoga/commit/807c7afc78151457a09c5940e1985f59f15136f1)
+  Thanks [@mattkrick](https://github.com/mattkrick)! - Mutations sent over a WebSocket no longer
+  fail with "Can only perform a mutation operation from a POST request." when the WebSocket server
+  passes the upgrade request to `getEnveloped` or `getResultForParams`. The check now applies only
+  to requests that Yoga's HTTP handler parsed.
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/core@6.0.1
+  - @envelop/instrumentation@2.0.1
+
 ## 6.0.1
 
 ### Patch Changes
