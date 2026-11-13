@@ -109,7 +109,7 @@ const yoga = createYoga({
         try {
           await checkDbAvailable()
           // if true, respond with 200 OK
-          return false
+          return true
         } catch (err) {
           // log the error on the server for debugging purposes
           console.error(err)
