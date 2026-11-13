@@ -1,5 +1,19 @@
 # @envelop/response-cache-redis
 
+## 5.0.1
+
+### Patch Changes
+
+- [#4658](https://github.com/graphql-hive/graphql-yoga/pull/4658)
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - dependencies updates:
+  - Updated dependency
+    [`@whatwg-node/promise-helpers@^2.0.2` ↗︎](https://www.npmjs.com/package/@whatwg-node/promise-helpers/v/2.0.2)
+    (from `^2.0.0`, in `dependencies`)
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/response-cache@10.0.1
+
 ## 5.0.0
 
 ### Major Changes
