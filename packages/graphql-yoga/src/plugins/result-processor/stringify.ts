@@ -4,22 +4,28 @@ import { isGraphQLError, withSchemaCoordinate } from '../../error.js';
 import type { MaybeArray } from '../../types.js';
 import type { ExecutionResultWithSerializer } from '../types.js';
 
-// JSON stringifier that adjusts the result error extensions while serialising
-export function jsonStringifyResultWithoutInternals(
-  result: MaybeArray<ExecutionResultWithSerializer>,
-) {
-  if (Array.isArray(result)) {
-    return `[${result
-      .map(r => {
-        const sanitizedResult = omitInternalsFromResultErrors(r);
-        const stringifier = r.stringify || JSON.stringify;
-        return stringifier(sanitizedResult);
-      })
-      .join(',')}]`;
-  }
+const textDecoder = new TextDecoder();
+
+// Serializers may return the UTF-8 encoded JSON text; decode where a string is needed.
+export function serializedResultToString(serialized: string | Uint8Array): string {
+  return typeof serialized === 'string' ? serialized : textDecoder.decode(serialized);
+}
+
+function stringifyOne(result: ExecutionResultWithSerializer): string | Uint8Array {
   const sanitizedResult = omitInternalsFromResultErrors(result);
   const stringifier = result.stringify || JSON.stringify;
   return stringifier(sanitizedResult);
+}
+
+// JSON stringifier that adjusts the result error extensions while serialising.
+// A single result is returned as the serializer produced it (string or bytes).
+export function jsonStringifyResultWithoutInternals(
+  result: MaybeArray<ExecutionResultWithSerializer>,
+): string | Uint8Array {
+  if (Array.isArray(result)) {
+    return `[${result.map(r => serializedResultToString(stringifyOne(r))).join(',')}]`;
+  }
+  return stringifyOne(result);
 }
 export function omitInternalsFromResultErrors(
   result: ExecutionResultWithSerializer,
