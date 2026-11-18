@@ -1,5 +1,16 @@
 # graphql-yoga
 
+## 6.1.1
+
+### Patch Changes
+
+- [#4664](https://github.com/graphql-hive/graphql-yoga/pull/4664)
+  [`ce73ba2`](https://github.com/graphql-hive/graphql-yoga/commit/ce73ba2c3b954dd8df9c43c2eaf0d378811fd06d)
+  Thanks [@seckardt](https://github.com/seckardt)! - `allowedHeaders` now removes every unlisted
+  header when the request is a native `Request`. Previously, deleting a header while iterating a
+  native `Headers` skipped the entry after each deleted one, so about every second unlisted header
+  in a row stayed on the request seen by resolvers and on the response.
+
 ## 6.1.0
 
 ### Minor Changes
