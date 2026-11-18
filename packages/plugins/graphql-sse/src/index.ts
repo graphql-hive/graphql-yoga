@@ -42,8 +42,17 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
             const context = ctxForReq.get(req.raw) ?? {};
             return handleMaybePromise(
               () => yoga.getResultForParams({ params, request: req.raw }, context),
-              result =>
-                result ?? { data: null, errors: [new GraphQLError('Unexpected empty result.')] },
+              result => {
+                if (!result) {
+                  return { data: null, errors: [new GraphQLError('Unexpected empty result.')] };
+                }
+                // Errors raised before execution (syntax, validation, variable coercion) come back
+                // without a `data` key, which graphql-sse would not recognize as an `ExecutionResult`.
+                if (!('data' in result) && 'errors' in result) {
+                  return { data: null, ...result };
+                }
+                return result;
+              },
               error => {
                 // `onParams` hooks reject by throwing (e.g. persisted-operations' "PersistedQueryOnly"),
                 // same as a parse/validate error would. Shape it as a normal GraphQL error result
