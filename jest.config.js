@@ -28,7 +28,7 @@ function createTestMatch(graphqlMajor) {
   const testMatch = [];
 
   if (process.env.INTEGRATION_TEST === 'true') {
-    testMatch.push('<rootDir>/**/__integration-tests__/**/?(*.)+(spec|test).[jt]s?(x)');
+    testMatch.push('<rootDir>/**/__integration-tests__/**/*(*.)+(spec|test).[jt]s?(x)');
     if (nodeMajor <= 14) {
       testMatch.push('!**/examples/sveltekit/**', '!**/examples/fastify*/**');
     }
@@ -41,7 +41,7 @@ function createTestMatch(graphqlMajor) {
     }
   } else {
     testMatch.push(
-      '<rootDir>/packages/**/?(*.)+(spec|test).[jt]s?(x)',
+      '<rootDir>/packages/**/*(*.)+(spec|test).[jt]s?(x)',
       '!**/__integration-tests__/**',
     );
   }
