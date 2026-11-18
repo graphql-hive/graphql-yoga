@@ -45,8 +45,8 @@ export function useUnhandledRoute(args: {
     onRequest({ request, fetchAPI, endResponse, url }): PromiseOrValue<void> {
       const graphqlEndpoint = args.getGraphQLEndpoint();
       if (
-        !request.url.endsWith(graphqlEndpoint) &&
-        !request.url.endsWith(`${graphqlEndpoint}/`) &&
+        !url.pathname.endsWith(graphqlEndpoint) &&
+        !url.pathname.endsWith(`${graphqlEndpoint}/`) &&
         url.pathname !== graphqlEndpoint &&
         url.pathname !== `${graphqlEndpoint}/` &&
         !args.getGraphQLEndpointURLPattern().test(url)

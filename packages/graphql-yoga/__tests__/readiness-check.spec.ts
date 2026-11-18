@@ -121,4 +121,20 @@ describe('Readiness Check', () => {
     expect(response.status).toBe(201);
     expect(await response.text()).toBe(message);
   });
+  it('does not run the readiness check for an endpoint in the query string', async () => {
+    const check = jest.fn(() => true);
+    const yoga = createYoga({ schema, plugins: [useReadinessCheck({ check })] });
+    const response = await yoga.fetch('http://yoga/graphql?query=%7Bhello%7D&target=/ready');
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { hello: 'world' } });
+    expect(check).not.toHaveBeenCalled();
+  });
+
+  it('keeps matching mounted readiness endpoints with query strings', async () => {
+    const check = jest.fn(() => true);
+    const yoga = createYoga({ schema, plugins: [useReadinessCheck({ check })] });
+    const response = await yoga.fetch('http://yoga/mounted/ready?probe=1');
+    expect(response.status).toBe(200);
+    expect(check).toHaveBeenCalledTimes(1);
+  });
 });
