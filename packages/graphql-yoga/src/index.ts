@@ -61,6 +61,7 @@ export {
   composeInstrumentation,
 } from '@envelop/instrumentation';
 export { withSchemaCoordinate } from './error.js';
+export { resolveOnError, type OnErrorBehavior, type OnErrorRequestValue } from './on-error.js';
 export { getSSEProcessor } from './plugins/result-processor/sse.js';
 export { processRegularResult } from './plugins/result-processor/regular.js';
 export { useExecutionCancellation } from './plugins/use-execution-cancellation.js';

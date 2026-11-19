@@ -1,4 +1,5 @@
 import { URLSearchParams } from '@whatwg-node/fetch';
+import type { OnErrorRequestValue } from '../../on-error.js';
 import type { GraphQLParams } from '../../types.js';
 
 export function handleURLSearchParams(searchParams: URLSearchParams): GraphQLParams {
@@ -11,6 +12,7 @@ export function handleURLSearchParams(searchParams: URLSearchParams): GraphQLPar
     query,
     variables: variablesStr ? JSON.parse(variablesStr) : undefined,
     extensions: extensionsStr ? JSON.parse(extensionsStr) : undefined,
+    onError: (searchParams.get('onError') as OnErrorRequestValue) || undefined,
   };
 }
 
