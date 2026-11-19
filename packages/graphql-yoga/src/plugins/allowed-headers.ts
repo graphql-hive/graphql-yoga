@@ -26,7 +26,9 @@ function removeDisallowedHeaders(headers: Headers, allowedHeaderNames: Set<strin
   // Header names are case-insensitive (e.g. built-in result processors send `Content-Type`),
   // so the allow-list must be compared case-insensitively too, or else legitimately allowed
   // headers get stripped whenever their casing doesn't match the list verbatim.
-  for (const headerName of headers.keys()) {
+  // Iterate over a snapshot: the `keys()` iterator of a native `Headers` is live, so deleting
+  // while iterating it skips the entry that follows every deleted one.
+  for (const headerName of Array.from(headers.keys())) {
     if (!allowedHeaderNames.has(headerName.toLowerCase())) {
       headers.delete(headerName);
     }
