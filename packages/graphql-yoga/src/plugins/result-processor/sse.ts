@@ -5,7 +5,7 @@ import { fakePromise } from '@whatwg-node/server';
 import { getResponseInitByRespectingErrors } from '../../error.js';
 import type { FetchAPI, MaybeArray } from '../../types.js';
 import type { ResultProcessor, ResultProcessorInput } from '../types.js';
-import { jsonStringifyResultWithoutInternals } from './stringify.js';
+import { jsonStringifyResultWithoutInternals, serializedResultToString } from './stringify.js';
 
 export function getSSEProcessor(): ResultProcessor {
   return function processSSEResult(result: ResultProcessorInput, fetchAPI: FetchAPI): Response {
@@ -68,7 +68,9 @@ export function getSSEProcessor(): ResultProcessor {
           result => {
             if (result.value != null) {
               controller.enqueue(textEncoder.encode(`event: next\n`));
-              const chunk = jsonStringifyResultWithoutInternals(result.value);
+              const chunk = serializedResultToString(
+                jsonStringifyResultWithoutInternals(result.value),
+              );
               controller.enqueue(textEncoder.encode(`data: ${chunk}\n\n`));
             }
             if (result.done) {
