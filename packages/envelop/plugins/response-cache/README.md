@@ -282,6 +282,19 @@ const getEnveloped = envelop({
 })
 ```
 
+By default, a result is cached as soon as it contains one cacheable type, even if it also contains
+types without a TTL. To opt out of caching for every type that is not explicitly listed, pass a
+function instead of an object to `ttlPerSchemaCoordinate` (it receives schema coordinates such as
+`Query.stock` as well as type names such as `Stock`) or to `ttlPerType` (type names only):
+
+```ts
+const ttls: Record<string, number> = { Stock: 500 }
+
+useResponseCache({
+  ttlPerType: typeName => ttls[typeName] ?? 0 // never cache results containing other types
+})
+```
+
 It is also possible to define the TTL by using the `@cacheControl` directive in your schema.
 
 ```ts

@@ -77,8 +77,12 @@ export type UseResponseCacheParameter<PluginContext extends Record<string, any> 
   ttl?: number;
   /**
    * @deprecated Use `ttlPerSchemaCoordinate` instead.
+   *
+   * Can also be a function receiving the type name and returning its TTL (or `undefined` to
+   * ignore the type). This allows to opt out of caching by default, e.g.
+   * `typeName => ttls[typeName] ?? 0`.
    */
-  ttlPerType?: Record<string, number>;
+  ttlPerType?: Record<string, number> | ((typeName: string) => number | undefined);
   /**
    * Overwrite the ttl for query operations whose selection contains a specific schema coordinate (e.g. Query.users).
    * Useful if the selection of a specific field should reduce the TTL of the query operation.
@@ -86,8 +90,16 @@ export type UseResponseCacheParameter<PluginContext extends Record<string, any> 
    * The default value is `{}` and it will be merged with a `{ 'Query.__schema': 0 }` object.
    * In the unusual case where you actually want to cache introspection query operations,
    * you need to provide the value `{ 'Query.__schema': undefined }`.
+   *
+   * Can also be a function receiving a schema coordinate (e.g. `Query.users`) or a type name
+   * (e.g. `User`) and returning its TTL, or `undefined` to ignore it. This allows to opt out of
+   * caching by default, for example by returning `0` for every type that is not explicitly listed.
+   * Entries coming from the `@cacheControl` directive and the `Query.__schema` default take
+   * precedence over the function.
    */
-  ttlPerSchemaCoordinate?: Record<string, number | undefined>;
+  ttlPerSchemaCoordinate?:
+    | Record<string, number | undefined>
+    | ((schemaCoordinateOrType: string) => number | undefined);
   scopePerSchemaCoordinate?: Record<string, 'PRIVATE' | 'PUBLIC' | undefined>;
   /**
    * Allows to cache responses based on the resolved session id.
@@ -236,10 +248,10 @@ const getDocumentWithMetadataAndTTL = memoize4(function addTypeNameToDocument(
   document: DocumentNode,
   {
     invalidateViaMutation,
-    ttlPerSchemaCoordinate,
+    getCoordinateTtl,
   }: {
     invalidateViaMutation: boolean;
-    ttlPerSchemaCoordinate?: Record<string, number | undefined>;
+    getCoordinateTtl?: (schemaCoordinate: string) => unknown;
   },
   schema: any,
   idFieldByTypeName: Map<string, string>,
@@ -257,13 +269,12 @@ const getDocumentWithMetadataAndTTL = memoize4(function addTypeNameToDocument(
         }
       },
     },
-    ...(ttlPerSchemaCoordinate != null && {
+    ...(getCoordinateTtl != null && {
       Field(fieldNode) {
         const parentType = typeInfo.getParentType();
         if (parentType) {
           const schemaCoordinate = `${parentType.name}.${fieldNode.name.value}`;
-          const maybeTtl = ttlPerSchemaCoordinate[schemaCoordinate] as unknown;
-          ttl = calculateTtl(maybeTtl, ttl);
+          ttl = calculateTtl(getCoordinateTtl(schemaCoordinate), ttl);
         }
       },
     }),
@@ -319,7 +330,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   enabled,
   ignoredTypes = [],
   ttlPerType,
-  ttlPerSchemaCoordinate = {},
+  ttlPerSchemaCoordinate: ttlPerSchemaCoordinateOption = {},
   scopePerSchemaCoordinate = {},
   idFields = ['id'],
   invalidateViaMutation = true,
@@ -337,20 +348,61 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
   const typePerSchemaCoordinateMap = new Map<string, string[]>();
   enabled = enabled ? memoize1(enabled) : enabled;
 
-  // never cache Introspections
-  ttlPerSchemaCoordinate = { 'Query.__schema': 0, ...ttlPerSchemaCoordinate };
+  // Static TTLs: introspection default, explicit records, deprecated `ttlPerType` record and
+  // `@cacheControl` directives (which are added later, once the schema is known).
+  const ttlPerSchemaCoordinate: Record<string, number | undefined> = {
+    // never cache Introspections
+    'Query.__schema': 0,
+    ...(typeof ttlPerSchemaCoordinateOption === 'function' ? {} : ttlPerSchemaCoordinateOption),
+  };
+  // Dynamic TTLs: functions are used as a fallback for what is not statically defined.
+  const ttlPerSchemaCoordinateFn =
+    typeof ttlPerSchemaCoordinateOption === 'function' ? ttlPerSchemaCoordinateOption : undefined;
+  let ttlPerTypeFn: ((typeName: string) => number | undefined) | undefined;
   if (ttlPerType) {
     log.warn(
       '[useResponseCache] `ttlForType` is deprecated. To migrate, merge it with `ttlForSchemaCoordinate` option',
     );
-    for (const [typeName, ttl] of Object.entries(ttlPerType)) {
-      ttlPerSchemaCoordinate[typeName] = ttl;
+    if (typeof ttlPerType === 'function') {
+      ttlPerTypeFn = ttlPerType;
+    } else {
+      for (const [typeName, ttl] of Object.entries(ttlPerType)) {
+        ttlPerSchemaCoordinate[typeName] = ttl;
+      }
     }
   }
 
+  // The root operation types (`Query`, ...) are part of every result: user provided functions are
+  // not consulted for them, so that e.g. `typeName => ttls[typeName] ?? 0` doesn't disable caching
+  // for everything. Use an explicit `Query: 0` entry to still enforce a TTL on them.
+  function isRootType(typeName: string): boolean {
+    return (
+      schema != null &&
+      (schema.getQueryType?.()?.name === typeName ||
+        schema.getMutationType?.()?.name === typeName ||
+        schema.getSubscriptionType?.()?.name === typeName)
+    );
+  }
+
+  function getCoordinateTtl(schemaCoordinate: string): unknown {
+    if (schemaCoordinate in ttlPerSchemaCoordinate) {
+      return ttlPerSchemaCoordinate[schemaCoordinate];
+    }
+    if (!schemaCoordinate.includes('.') && isRootType(schemaCoordinate)) {
+      return undefined;
+    }
+    return ttlPerSchemaCoordinateFn?.(schemaCoordinate);
+  }
+
+  function getTypeTtl(typeName: string): unknown {
+    return (
+      getCoordinateTtl(typeName) ?? (isRootType(typeName) ? undefined : ttlPerTypeFn?.(typeName))
+    );
+  }
+
   const documentMetadataOptions = {
-    queries: { invalidateViaMutation, ttlPerSchemaCoordinate },
-    mutations: { invalidateViaMutation }, // remove ttlPerSchemaCoordinate for mutations to skip TTL calculation
+    queries: { invalidateViaMutation, getCoordinateTtl },
+    mutations: { invalidateViaMutation }, // no getCoordinateTtl for mutations to skip TTL calculation
   };
   const idFieldByTypeName = new Map<string, string>();
   let schema: any;
@@ -479,10 +531,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
           }
         }
 
-        if (entity.typename in ttlPerSchemaCoordinate) {
-          const maybeTtl = ttlPerSchemaCoordinate[entity.typename] as unknown;
-          currentTtl = calculateTtl(maybeTtl, currentTtl);
-        }
+        currentTtl = calculateTtl(getTypeTtl(entity.typename), currentTtl);
         if (entity.id != null) {
           identifier.set(`${entity.typename}:${entity.id}`, entity);
         }
@@ -492,10 +541,7 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
             const inferredTypes = typePerSchemaCoordinateMap.get(`${entity.typename}.${fieldName}`);
             if (inferredTypes)
               for (const inferredType of inferredTypes) {
-                if (inferredType in ttlPerSchemaCoordinate) {
-                  const maybeTtl = ttlPerSchemaCoordinate[inferredType] as unknown;
-                  currentTtl = calculateTtl(maybeTtl, currentTtl);
-                }
+                currentTtl = calculateTtl(getTypeTtl(inferredType), currentTtl);
                 identifier.set(inferredType, { typename: inferredType });
               }
           }

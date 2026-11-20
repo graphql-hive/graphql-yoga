@@ -201,6 +201,137 @@ describe('useResponseCache', () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
+  describe('ttl as a function (opt out of caching by default)', () => {
+    const makeSchema = (spies: { first: jest.Mock; second: jest.Mock }) =>
+      makeExecutableSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            first: First!
+            second: Second!
+          }
+          type First {
+            id: ID!
+          }
+          type Second {
+            id: ID!
+          }
+        `,
+        resolvers: { Query: { first: spies.first, second: spies.second } },
+      });
+    const query = /* GraphQL */ `
+      {
+        first {
+          id
+        }
+        second {
+          id
+        }
+      }
+    `;
+    const firstOnlyQuery = /* GraphQL */ `
+      {
+        first {
+          id
+        }
+      }
+    `;
+
+    function setup(plugin: Parameters<typeof useResponseCache>[0]) {
+      const spies = { first: jest.fn(() => ({ id: 1 })), second: jest.fn(() => ({ id: 2 })) };
+      const testInstance = createTestkit([useResponseCache(plugin)], makeSchema(spies));
+      return { spies, testInstance };
+    }
+
+    it('ttlPerType function: types without an explicit ttl are not cached', async () => {
+      const ttls: Record<string, number> = { First: 3_600_000 };
+      const { spies, testInstance } = setup({
+        session: () => null,
+        ttl: Infinity,
+        ttlPerType: typeName => ttls[typeName] ?? 0,
+        includeExtensionMetadata: true,
+      });
+
+      for (let i = 0; i < 2; i++) {
+        const result = await testInstance.execute(query);
+        assertSingleExecutionValue(result);
+        expect(result.extensions).toEqual({ responseCache: { hit: false, didCache: false } });
+      }
+      expect(spies.first).toHaveBeenCalledTimes(2);
+      expect(spies.second).toHaveBeenCalledTimes(2);
+
+      // a result only containing the explicitly cacheable type is still cached
+      let result = await testInstance.execute(firstOnlyQuery);
+      assertSingleExecutionValue(result);
+      expect(result.extensions).toEqual({
+        responseCache: { hit: false, didCache: true, ttl: 3_600_000 },
+      });
+      result = await testInstance.execute(firstOnlyQuery);
+      assertSingleExecutionValue(result);
+      expect(result.extensions).toEqual({ responseCache: { hit: true } });
+    });
+
+    it('ttlPerSchemaCoordinate function: types without an explicit ttl are not cached', async () => {
+      const ttls: Record<string, number> = { First: 3_600_000 };
+      const { testInstance } = setup({
+        session: () => null,
+        ttlPerSchemaCoordinate: name => (name.includes('.') ? undefined : (ttls[name] ?? 0)),
+        includeExtensionMetadata: true,
+      });
+
+      const result = await testInstance.execute(query);
+      assertSingleExecutionValue(result);
+      expect(result.extensions).toEqual({ responseCache: { hit: false, didCache: false } });
+
+      let firstOnly = await testInstance.execute(firstOnlyQuery);
+      assertSingleExecutionValue(firstOnly);
+      expect(firstOnly.extensions).toEqual({
+        responseCache: { hit: false, didCache: true, ttl: 3_600_000 },
+      });
+      firstOnly = await testInstance.execute(firstOnlyQuery);
+      assertSingleExecutionValue(firstOnly);
+      expect(firstOnly.extensions).toEqual({ responseCache: { hit: true } });
+    });
+
+    it('ttlPerSchemaCoordinate function receives schema coordinates and never overrides the introspection default', async () => {
+      const seen = new Set<string>();
+      const { testInstance } = setup({
+        session: () => null,
+        ttlPerSchemaCoordinate: name => {
+          seen.add(name);
+          return undefined;
+        },
+        includeExtensionMetadata: true,
+      });
+
+      await testInstance.execute(query);
+      expect(seen).toContain('Query.first');
+      expect(seen).toContain('First');
+      expect(seen).toContain('Second');
+      // root operation types are not passed to the function
+      expect(seen).not.toContain('Query');
+
+      const introspection = await testInstance.execute('{ __schema { queryType { name } } }');
+      assertSingleExecutionValue(introspection);
+      expect(introspection.extensions).toEqual({
+        responseCache: { hit: false, didCache: false },
+      });
+    });
+
+    it('without the function, the whole result is still cached (unchanged behavior)', async () => {
+      const { testInstance } = setup({
+        session: () => null,
+        ttl: 0,
+        ttlPerType: { First: 3_600_000 },
+        includeExtensionMetadata: true,
+      });
+      const result = await testInstance.execute(query);
+      assertSingleExecutionValue(result);
+      expect(result.extensions).toEqual({
+        responseCache: { hit: false, didCache: true, ttl: 3_600_000 },
+      });
+    });
+  });
+
   it('reuses the cache if the same query operation is executed in sequence without a TTL', async () => {
     const spy = jest.fn(() => [
       {
