@@ -2012,6 +2012,175 @@ describe('useResponseCache', () => {
     });
   });
 
+  it('should not cache a result containing a top-level type without a ttlPerType entry when the global ttl is 0', async () => {
+    const firstSpy = jest.fn(() => ({ id: 1, field: 'first' }));
+    const secondSpy = jest.fn(() => ({ id: 2, field: 'second' }));
+
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          first: First
+          second: Second
+        }
+
+        type First {
+          id: ID!
+          field: String
+        }
+
+        type Second {
+          id: ID!
+          field: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          first: firstSpy,
+          second: secondSpy,
+        },
+      },
+    });
+
+    const testInstance = createTestkit(
+      [
+        useResponseCache({
+          session: () => null,
+          ttl: 0,
+          ttlPerType: {
+            First: 3600_000,
+          },
+          includeExtensionMetadata: true,
+        }),
+      ],
+      schema,
+    );
+
+    // a result that only contains the type with a ttlPerType entry is cached
+    const firstOnlyQuery = /* GraphQL */ `
+      query test {
+        first {
+          id
+          field
+        }
+      }
+    `;
+
+    let result = await testInstance.execute(firstOnlyQuery);
+    assertSingleExecutionValue(result);
+    expect(result.extensions).toEqual({
+      responseCache: {
+        didCache: true,
+        hit: false,
+        ttl: 3600_000,
+      },
+    });
+
+    result = await testInstance.execute(firstOnlyQuery);
+    assertSingleExecutionValue(result);
+    expect(result.extensions).toEqual({
+      responseCache: {
+        hit: true,
+      },
+    });
+    expect(firstSpy).toHaveBeenCalledTimes(1);
+
+    // a result that also contains a top-level type without a ttlPerType
+    // entry falls back to the global ttl of 0 and is not cached
+    const mixedQuery = /* GraphQL */ `
+      query test {
+        first {
+          id
+          field
+        }
+        second {
+          id
+          field
+        }
+      }
+    `;
+
+    result = await testInstance.execute(mixedQuery);
+    assertSingleExecutionValue(result);
+    expect(result.extensions).toEqual({
+      responseCache: {
+        didCache: false,
+        hit: false,
+      },
+    });
+
+    result = await testInstance.execute(mixedQuery);
+    assertSingleExecutionValue(result);
+    expect(result.extensions).toEqual({
+      responseCache: {
+        didCache: false,
+        hit: false,
+      },
+    });
+    expect(secondSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('should apply the global ttl to a result containing a top-level type without a ttlPerType entry', async () => {
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          first: First
+          second: Second
+        }
+
+        type First {
+          id: ID!
+          field: String
+        }
+
+        type Second {
+          id: ID!
+          field: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          first: () => ({ id: 1, field: 'first' }),
+          second: () => ({ id: 2, field: 'second' }),
+        },
+      },
+    });
+
+    const testInstance = createTestkit(
+      [
+        useResponseCache({
+          session: () => null,
+          ttl: 100,
+          ttlPerType: {
+            First: 3600_000,
+          },
+          includeExtensionMetadata: true,
+        }),
+      ],
+      schema,
+    );
+
+    const result = await testInstance.execute(/* GraphQL */ `
+      query test {
+        first {
+          id
+          field
+        }
+        second {
+          id
+          field
+        }
+      }
+    `);
+    assertSingleExecutionValue(result);
+    expect(result.extensions).toEqual({
+      responseCache: {
+        didCache: true,
+        hit: false,
+        ttl: 100,
+      },
+    });
+  });
+
   it('execution results with errors are never cached by default', async () => {
     const spy = jest.fn(() => {
       throw new Error('Do not cache an error');
