@@ -8,7 +8,7 @@ export function assertInvalidParams(
   params: unknown,
   extraParamNames?: string[],
 ): asserts params is GraphQLParams {
-  if (params == null || typeof params !== 'object') {
+  if (params == null || typeof params !== 'object' || Array.isArray(params)) {
     throw new GraphQLError('Invalid "params" in the request body', {
       extensions: {
         http: {
@@ -111,6 +111,24 @@ export function checkGraphQLQueryParams(
   if (!['object', 'null', 'undefined'].includes(extensionsParamType)) {
     throw new GraphQLError(
       `Expected "extensions" param to be empty or an object, but given ${extensionsParamType}.`,
+      {
+        extensions: {
+          http: {
+            status: 400,
+            headers: {
+              Allow: 'GET, POST, QUERY',
+            },
+          },
+          code: 'BAD_REQUEST',
+        },
+      },
+    );
+  }
+
+  const operationNameParamType = extendedTypeof(params['operationName']);
+  if (!['string', 'null', 'undefined'].includes(operationNameParamType)) {
+    throw new GraphQLError(
+      `Expected "operationName" param to be empty or a string, but given ${operationNameParamType}.`,
       {
         extensions: {
           http: {
