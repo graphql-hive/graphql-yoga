@@ -41,7 +41,12 @@ export function useReadinessCheck({
       urlPattern = new yoga.fetchAPI.URLPattern({ pathname: endpoint });
     },
     onRequest({ request, endResponse, fetchAPI, url }) {
-      if (request.url.endsWith(endpoint) || url.pathname === endpoint || urlPattern.test(url)) {
+      if (
+        (!request.url.includes('?') && request.url.endsWith(endpoint)) ||
+        url.pathname.endsWith(endpoint) ||
+        url.pathname === endpoint ||
+        urlPattern.test(url)
+      ) {
         return handleMaybePromise(
           () => check({ request, fetchAPI }),
           readyOrResponse => {
