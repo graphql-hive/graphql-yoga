@@ -99,4 +99,21 @@ describe('incremental Accept negotiation', () => {
       ),
     ).toEqual(['multipart/mixed;legacyinc=1']);
   });
+
+  it('handles quoted utf-8 charset and ignores non-charset parameters containing charset=', () => {
+    const quotedUtf8 = new Request('http://yoga/graphql', {
+      headers: { accept: 'application/json; charset="utf-8"' },
+    });
+    expect(getMediaTypesForRequestInOrder(quotedUtf8)).toEqual(['application/json']);
+
+    const otherParam = new Request('http://yoga/graphql', {
+      headers: { accept: 'application/json; x-charset=latin1' },
+    });
+    expect(getMediaTypesForRequestInOrder(otherParam)).toEqual(['application/json']);
+
+    const nonUtf8 = new Request('http://yoga/graphql', {
+      headers: { accept: 'application/json; charset="utf-16", text/plain; charset=latin1' },
+    });
+    expect(getMediaTypesForRequestInOrder(nonUtf8)).toEqual([]);
+  });
 });
