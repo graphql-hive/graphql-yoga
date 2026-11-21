@@ -56,11 +56,16 @@ export function getMediaTypesForRequestInOrder(
     const [mediaType, ...params] = accept.split(';');
     if (mediaType === undefined) continue; // If true, malformed header.
 
-    const charset = params?.find(param => param.includes('charset=')) || 'charset=utf-8'; // utf-8 is assumed when not specified;
-
-    if (charset !== 'charset=utf-8') {
-      // only utf-8 is supported
-      continue;
+    const charsetParam = params.find(param => param.startsWith('charset='));
+    if (charsetParam !== undefined) {
+      let charsetValue = charsetParam.slice('charset='.length);
+      if (charsetValue.startsWith('"') && charsetValue.endsWith('"') && charsetValue.length >= 2) {
+        charsetValue = charsetValue.slice(1, -1);
+      }
+      if (charsetValue !== 'utf-8') {
+        // only utf-8 is supported
+        continue;
+      }
     }
     const specParams = params.filter(param => {
       const name = param.split('=')[0];
