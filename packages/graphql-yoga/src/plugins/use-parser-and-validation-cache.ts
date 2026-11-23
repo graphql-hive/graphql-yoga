@@ -14,9 +14,13 @@ export interface ParserAndValidationCacheOptions {
   validationCache?: boolean | Cache<typeof validate>;
 }
 
+// parsed documents can take a few hundred times more memory than their text, so the
+// default caches are bounded by the total length of cached document strings too
+const DEFAULT_MAX_DOCUMENTS_SIZE = 1024 * 1024;
+
 export function useParserAndValidationCache({
-  documentCache = _createLRUCache(),
-  errorCache = _createLRUCache(),
+  documentCache = _createLRUCache({ maxSize: DEFAULT_MAX_DOCUMENTS_SIZE }),
+  errorCache = _createLRUCache({ maxSize: DEFAULT_MAX_DOCUMENTS_SIZE }),
   validationCache = true,
 }: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 ParserAndValidationCacheOptions): Plugin<{}> {
