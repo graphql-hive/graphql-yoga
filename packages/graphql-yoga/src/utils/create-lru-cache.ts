@@ -34,6 +34,12 @@ export type _LRUCache<T extends {}> = LRU<string, T>;
 export interface _LRUCacheOptions {
   max?: number;
   ttl?: number;
+  /**
+   * Maximum total length of all keys in the cache. When set, entries are sized by the
+   * length of their key, entries whose key is longer than this are not stored, and the
+   * least recently used entries are evicted to stay within the limit.
+   */
+  maxSize?: number;
 }
 /**
  * @internal This is an internal utility, and you should use it with your own risk.
@@ -42,6 +48,11 @@ export interface _LRUCacheOptions {
 export function _createLRUCache<T extends {}>({
   max = DEFAULT_MAX,
   ttl = DEFAULT_TTL,
+  maxSize,
 }: _LRUCacheOptions = {}) {
+  if (maxSize) {
+    // lru-cache rejects zero sizes, so the empty key counts as 1
+    return new LRU<string, T>({ max, ttl, maxSize, sizeCalculation: (_, key) => key.length || 1 });
+  }
   return new LRU<string, T>({ max, ttl });
 }

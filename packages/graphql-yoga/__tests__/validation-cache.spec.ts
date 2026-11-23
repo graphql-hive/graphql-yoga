@@ -1,4 +1,4 @@
-import { validate, versionInfo } from 'graphql';
+import { parse, validate, versionInfo } from 'graphql';
 import type { Plugin } from '../src';
 import { createSchema, createYoga } from '../src';
 
@@ -249,5 +249,80 @@ describe('validation cache', () => {
 
     // validation function doesnt validate args
     expect(validateFn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('parser cache', () => {
+  const schema = createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hi: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        hi: () => 'hi',
+      },
+    },
+  });
+
+  function createYogaWithParseSpy() {
+    const parseFn = jest.fn(parse);
+    const plugin: Plugin = {
+      onParse({ setParseFn }) {
+        setParseFn(parseFn);
+      },
+    };
+    const yoga = createYoga({
+      schema,
+      plugins: [plugin],
+    });
+    async function query(query: string) {
+      const response = await yoga.fetch('/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+      return response.json();
+    }
+    return { parseFn, query };
+  }
+
+  test('caches small documents', async () => {
+    const { parseFn, query } = createYogaWithParseSpy();
+    await expect(query('{ hi }')).resolves.toEqual({ data: { hi: 'hi' } });
+    await expect(query('{ hi }')).resolves.toEqual({ data: { hi: 'hi' } });
+    expect(parseFn).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not cache documents larger than the size limit', async () => {
+    const { parseFn, query } = createYogaWithParseSpy();
+    const document = '{ hi }' + ' '.repeat(1024 * 1024);
+    await expect(query(document)).resolves.toEqual({ data: { hi: 'hi' } });
+    await expect(query(document)).resolves.toEqual({ data: { hi: 'hi' } });
+    expect(parseFn).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not cache parse errors of documents larger than the size limit', async () => {
+    const { parseFn, query } = createYogaWithParseSpy();
+    const document = '{ hi ' + ' '.repeat(1024 * 1024);
+    await query(document);
+    await query(document);
+    expect(parseFn).toHaveBeenCalledTimes(2);
+  });
+
+  test('evicts least recently used documents when the total size limit is exceeded', async () => {
+    const { parseFn, query } = createYogaWithParseSpy();
+    const first = '{ hi }' + ' '.repeat(600 * 1024);
+    const second = '{ hi }' + '\n'.repeat(600 * 1024);
+    await query(first);
+    await query(second);
+    expect(parseFn).toHaveBeenCalledTimes(2);
+    await query(second);
+    expect(parseFn).toHaveBeenCalledTimes(2);
+    await query(first);
+    expect(parseFn).toHaveBeenCalledTimes(3);
   });
 });
