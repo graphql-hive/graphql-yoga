@@ -1,9 +1,9 @@
 import type { DocumentNode, ExecutionResult } from 'graphql';
-import { buildASTSchema, execute, parse, subscribe } from 'graphql';
-import { envelop, useEngine, useSchema, type Plugin } from '@envelop/core';
+import { buildASTSchema, parse } from 'graphql';
+import { envelop, useSchema, type Plugin } from '@envelop/core';
 import { useExtendContextValuePerExecuteSubscriptionEvent } from '@envelop/execute-subscription-event';
 import { useGenericAuth } from '@envelop/generic-auth';
-import { createTestkit } from '@envelop/testing';
+import { createTestkit, useGraphQLJSEngine } from '@envelop/testing';
 import { addResolversToSchema, makeExecutableSchema } from '@graphql-tools/schema';
 
 describe('Auth Directives', () => {
@@ -1137,7 +1137,7 @@ describe('Auth Directives', () => {
     const setup = async (plugins: Plugin[] = []) => {
       const enveloped = envelop({
         plugins: [
-          useEngine({ execute, subscribe }),
+          useGraphQLJSEngine(),
           useSchema(schema),
           useGenericAuth({ mode: 'protect-granular', resolveUserFn: () => null }),
           ...plugins,

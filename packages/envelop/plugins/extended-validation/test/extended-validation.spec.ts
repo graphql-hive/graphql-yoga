@@ -1,6 +1,6 @@
-import { buildSchema, execute, GraphQLError, parse } from 'graphql';
-import { envelop, useEngine, useSchema } from '@envelop/core';
-import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
+import { buildSchema, GraphQLError, parse } from 'graphql';
+import { envelop, useSchema } from '@envelop/core';
+import { assertSingleExecutionValue, createTestkit, useGraphQLJSEngine } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useExtendedValidation } from '../src/index.js';
 
@@ -105,7 +105,7 @@ describe('useExtendedValidation', () => {
     `);
     const getEnveloped = envelop({
       plugins: [
-        useEngine({ execute }),
+        useGraphQLJSEngine(),
         useSchema(schema),
         useExtendedValidation({
           rules: [
