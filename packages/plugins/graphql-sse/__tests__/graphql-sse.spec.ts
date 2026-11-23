@@ -255,6 +255,83 @@ describe('graphql-sse', () => {
     );
   });
 
+  describe('pre-execution errors (https://github.com/graphql-hive/graphql-yoga/issues/4653)', () => {
+    function createErrorYoga() {
+      return createYoga({
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              hello(n: Int): String
+            }
+          `,
+          resolvers: {
+            Query: {
+              hello: () => 'world',
+            },
+          },
+        }),
+        plugins: [useGraphQLSSE()],
+        maskedErrors: true,
+      });
+    }
+
+    it('reports a syntax error as a masked GraphQL error instead of a raw stack trace', async () => {
+      const yoga = createErrorYoga();
+      const res = await yoga.fetch('http://yoga/graphql/stream', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: JSON.stringify({ query: '{' }),
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toContain('text/event-stream');
+      const text = await res.text();
+      expect(text).toContain('event: next');
+      const [, data] = text.match(/data: (.+)/) ?? [];
+      expect(JSON.parse(data!)).toMatchObject({
+        data: null,
+        errors: [{ message: expect.stringContaining('Syntax Error') }],
+      });
+    });
+
+    it('reports a validation error with its real message', async () => {
+      const yoga = createErrorYoga();
+      const res = await yoga.fetch('http://yoga/graphql/stream', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: JSON.stringify({ query: '{ nope }' }),
+      });
+
+      expect(res.status).toBe(200);
+      const text = await res.text();
+      const [, data] = text.match(/data: (.+)/) ?? [];
+      expect(JSON.parse(data!)).toMatchObject({
+        data: null,
+        errors: [{ message: expect.stringContaining('Cannot query field "nope"') }],
+      });
+    });
+
+    it('reports a variable coercion error with its real message', async () => {
+      const yoga = createErrorYoga();
+      const res = await yoga.fetch('http://yoga/graphql/stream', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: JSON.stringify({
+          query: 'query($n: Int!) { hello(n: $n) }',
+          variables: { n: 'x' },
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const text = await res.text();
+      const [, data] = text.match(/data: (.+)/) ?? [];
+      expect(JSON.parse(data!)).toMatchObject({
+        data: null,
+        errors: [{ message: expect.stringContaining('Variable "$n"') }],
+      });
+    });
+  });
+
   describe('persisted operations enforcement', () => {
     let dangerousCallCount = 0;
 

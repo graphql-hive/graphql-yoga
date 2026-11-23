@@ -3452,8 +3452,8 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(graphql@17.0.2)
       graphql-sse:
-        specifier: 2.6.0
-        version: 2.6.0(graphql@17.0.2)
+        specifier: 2.6.4
+        version: 2.6.4(graphql@17.0.2)
       html-minifier-terser:
         specifier: 7.2.0
         version: 7.2.0
@@ -13937,6 +13937,12 @@ packages:
     engines: {node: '>=12'}
     peerDependencies:
       graphql: '>=0.11 <=16'
+
+  graphql-sse@2.6.4:
+    resolution: {integrity: sha512-5FJucErfubgQGXXmu6kQiIZ5/pp6eeIXmr+ypqhIjJx0H/xA1koD+xLu3Z0ptSRWp/w9N8Ua9Qnc9+mnWSj0bA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      graphql: '>=0.11 <=17'
 
   graphql-subscriptions@1.2.1:
     resolution: {integrity: sha512-95yD/tKi24q8xYa7Q9rhQN16AYj5wPbrb8tmHGM3WRc9EBmWrG/0kkMl+tQG8wcEuE9ibR4zyOM31p5Sdr2v4g==}
@@ -32062,6 +32068,10 @@ snapshots:
       yup: 0.32.11
 
   graphql-sse@2.6.0(graphql@17.0.2):
+    dependencies:
+      graphql: 17.0.2
+
+  graphql-sse@2.6.4(graphql@17.0.2):
     dependencies:
       graphql: 17.0.2
 
