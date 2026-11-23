@@ -1,5 +1,5 @@
-import { buildSchema, GraphQLError, parse } from 'graphql';
-import { envelop, useSchema } from '@envelop/core';
+import { buildSchema, execute, GraphQLError, parse } from 'graphql';
+import { envelop, useEngine, useSchema } from '@envelop/core';
 import { assertSingleExecutionValue, createTestkit } from '@envelop/testing';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { useExtendedValidation } from '../src/index.js';
@@ -95,6 +95,37 @@ describe('useExtendedValidation', () => {
 
     await testInstance.execute(operation);
     expect(extendedValidationRunCount).toEqual(1);
+  });
+  it('runs the extended validation phase for every execution sharing a context', async () => {
+    const schema = buildSchema(/* GraphQL */ `
+      type Query {
+        foo: String
+        bar: String
+      }
+    `);
+    const getEnveloped = envelop({
+      plugins: [
+        useEngine({ execute }),
+        useSchema(schema),
+        useExtendedValidation({
+          rules: [
+            ctx => ({
+              Field(node) {
+                if (node.name.value === 'bar') {
+                  ctx.reportError(new GraphQLError('No bar'));
+                }
+              },
+            }),
+          ],
+        }),
+      ],
+    });
+    const enveloped = getEnveloped();
+    const contextValue = await enveloped.contextFactory();
+    const run = (query: string) =>
+      enveloped.execute({ schema: enveloped.schema, document: parse(query), contextValue });
+    expect(await run('{ foo }')).toEqual({ data: { foo: null } });
+    expect(await run('{ bar }')).toEqual({ data: null, errors: [new GraphQLError('No bar')] });
   });
   it('execute throws an error if "contextFactory" has not been invoked', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -219,5 +250,47 @@ describe('useExtendedValidation', () => {
         ],
       }
     `);
+  });
+  it('does not replace nulls produced by execution when patching partial results', async () => {
+    const schema = makeExecutableSchema({
+      typeDefs: /* GraphQL */ `
+        type Query {
+          items: [Item]
+          broken: Item
+        }
+        type Item {
+          id: ID!
+          denied: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          items: () => [{ id: '1' }, { id: null }],
+          broken: () => ({ id: null }),
+        },
+      },
+    });
+    const testkit = createTestkit(
+      [
+        useExtendedValidation({
+          rejectOnErrors: false,
+          rules: [
+            context => ({
+              OperationDefinition() {
+                context.reportError(new GraphQLError('Denied', { path: ['items', '@', 'denied'] }));
+                context.reportError(new GraphQLError('Denied', { path: ['broken', 'denied'] }));
+              },
+              Field(node) {
+                return node.name.value === 'denied' ? null : undefined;
+              },
+            }),
+          ],
+        }),
+      ],
+      schema,
+    );
+    const result = await testkit.execute('{ items { id denied } broken { id denied } }');
+    assertSingleExecutionValue(result);
+    expect(result.data).toEqual({ items: [{ id: '1', denied: null }, null], broken: null });
   });
 });
