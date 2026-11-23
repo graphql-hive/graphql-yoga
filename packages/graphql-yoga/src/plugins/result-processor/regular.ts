@@ -6,6 +6,7 @@ import {
 } from '../../error.js';
 import type { FetchAPI } from '../../types.js';
 import type { ResultProcessorInput } from '../types.js';
+import { closeAsyncIterable } from './close-async-iterable.js';
 import { jsonStringifyResultWithoutInternals } from './stringify.js';
 
 export function processRegularResult(
@@ -14,6 +15,7 @@ export function processRegularResult(
   acceptedHeader: string,
 ): Response {
   if (isAsyncIterable(executionResult)) {
+    closeAsyncIterable(executionResult);
     return new fetchAPI.Response(null, {
       status: 406,
       statusText: 'Not Acceptable',
