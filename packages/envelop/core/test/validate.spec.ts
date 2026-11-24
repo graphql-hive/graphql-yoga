@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
-import { GraphQLError, GraphQLSchema, validate } from 'graphql';
+import { GraphQLError, GraphQLSchema, parse, validate } from 'graphql';
 import { assertSingleExecutionValue, createSpiedPlugin, createTestkit } from '@envelop/testing';
+import { envelop, useEngine, useSchema } from '../src/index.js';
 import { useValidationRule } from '../src/plugins/use-validation-rule.js';
 import { query, schema } from './common.js';
 
@@ -216,5 +217,38 @@ describe('validate', () => {
 
     expect(context.foo).toEqual('bar');
     expect(context.bar).toEqual('foo');
+  });
+
+  it('Should expose validation options (4th argument) as params.options and forward them in order', () => {
+    const onValidate = jest.fn();
+    const replacementFn = jest.fn(validate);
+    const getEnveloped = envelop({
+      plugins: [
+        useEngine({ parse, validate }),
+        useSchema(schema),
+        {
+          onValidate: payload => {
+            onValidate(payload.params);
+            payload.setValidationFn(replacementFn);
+          },
+        },
+      ],
+    });
+    const { validate: envelopedValidate, schema: envelopedSchema } = getEnveloped();
+    const document = parse(query);
+    const options = { maxErrors: 10 };
+
+    envelopedValidate(envelopedSchema, document, undefined, options);
+
+    expect(onValidate).toHaveBeenCalledWith(
+      expect.objectContaining({ options, typeInfo: undefined }),
+    );
+    expect(replacementFn).toHaveBeenCalledWith(
+      envelopedSchema,
+      document,
+      undefined,
+      options,
+      undefined,
+    );
   });
 });
