@@ -1,5 +1,5 @@
-import type { ASTNode } from 'graphql';
-import { buildSchema, print as graphQLPrint } from 'graphql';
+import type { ASTNode, GraphQLSchema } from 'graphql';
+import { buildSchema, print as graphQLPrint, parse } from 'graphql';
 import { Registry } from 'prom-client';
 import type { Plugin } from '@envelop/core';
 import { useExtendContext } from '@envelop/core';
@@ -13,6 +13,7 @@ import type {
 } from '../src/config.js';
 import type { PrometheusTracingPluginConfig } from '../src/index.js';
 import { createCounter, createHistogram, usePrometheus } from '../src/index.js';
+import * as utils from '../src/utils.js';
 import { createSummary, registerHistogram, type FillLabelsFnParams } from '../src/utils.js';
 
 // Graphql.js 16 and 15 produce different results
@@ -1192,6 +1193,41 @@ describe('Prom Metrics plugin', () => {
       expect(metric).toContain(
         '{operationName="MutationWithDeprecatedFields",operationType="mutation",fieldName="deprecatedInput",typeName="mutationWithDeprecatedFields"}',
       );
+    });
+
+    it('should not walk a cached document again until the schema changes', async () => {
+      const extractDeprecatedFields = jest.spyOn(utils, 'extractDeprecatedFields');
+      const document = parse('query { deprecatedField }');
+      let currentSchema: GraphQLSchema = schema;
+      const { execute, metricValue } = prepare(
+        { metrics: { graphql_envelop_deprecated_field: true } },
+        undefined,
+        [
+          {
+            onEnveloped({ setSchema }) {
+              setSchema(currentSchema);
+            },
+            // like a parser cache, return the same document for the same source
+            onParse({ setParsedDocument }) {
+              setParsedDocument(document);
+            },
+          },
+        ],
+      );
+
+      assertSingleExecutionValue(await execute('query { deprecatedField }'));
+      assertSingleExecutionValue(await execute('query { deprecatedField }'));
+      expect(await metricValue('graphql_envelop_deprecated_field')).toBe(2);
+      expect(extractDeprecatedFields).toHaveBeenCalledTimes(1);
+
+      currentSchema = buildSchema(/* GraphQL */ `
+        type Query {
+          deprecatedField: String
+        }
+      `);
+      assertSingleExecutionValue(await execute('query { deprecatedField }'));
+      expect(await metricValue('graphql_envelop_deprecated_field')).toBe(2);
+      expect(extractDeprecatedFields).toHaveBeenCalledTimes(2);
     });
   });
 
