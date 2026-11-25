@@ -438,7 +438,7 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
         for (const depField of deprecatedFields) {
           const deprecationLabelParams = {
             ...params,
-            deprecationInfo: depField,
+            deprecationInfo: { ...depField },
           };
 
           if (deprecationCounter.shouldObserve(deprecationLabelParams, context)) {

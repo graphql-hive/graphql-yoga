@@ -1226,9 +1226,70 @@ describe('Prom Metrics plugin', () => {
         }
       `);
       assertSingleExecutionValue(await execute('query { deprecatedField }'));
+      assertSingleExecutionValue(await execute('query { deprecatedField }'));
       expect(await metricValue('graphql_envelop_deprecated_field')).toBe(2);
       expect(extractDeprecatedFields).toHaveBeenCalledTimes(2);
+
+      currentSchema = schema;
+      assertSingleExecutionValue(await execute('query { deprecatedField }'));
+      expect(await metricValue('graphql_envelop_deprecated_field')).toBe(3);
+      expect(extractDeprecatedFields).toHaveBeenCalledTimes(3);
     });
+
+    it.each(['shouldObserve', 'fillLabelsFn'])(
+      'should isolate cached deprecation info from changes made by %s',
+      async callback => {
+        const extractDeprecatedFields = jest.spyOn(utils, 'extractDeprecatedFields');
+        const document = parse('query { deprecatedField }');
+        const registry = new Registry();
+        const shouldObserve = jest.fn((params: FillLabelsFnParams) => {
+          if (callback === 'shouldObserve' && params.deprecationInfo) {
+            params.deprecationInfo.fieldName += '!';
+          }
+          return true;
+        });
+        const fillLabelsFn = jest.fn((params: FillLabelsFnParams) => {
+          if (callback === 'fillLabelsFn') {
+            params.deprecationInfo!.fieldName += '!';
+          }
+          return { fieldName: params.deprecationInfo!.fieldName };
+        });
+        const { execute, metricCount, metricString } = prepare(
+          {
+            metrics: {
+              graphql_envelop_deprecated_field: createCounter({
+                registry,
+                counter: {
+                  name: 'test_deprecated_field',
+                  help: 'test',
+                  labelNames: ['fieldName'] as const,
+                },
+                shouldObserve,
+                fillLabelsFn,
+              }),
+            },
+          },
+          registry,
+          [
+            {
+              onParse({ setParsedDocument }) {
+                setParsedDocument(document);
+              },
+            },
+          ],
+        );
+
+        assertSingleExecutionValue(await execute('query { deprecatedField }'));
+        assertSingleExecutionValue(await execute('query { deprecatedField }'));
+        expect(extractDeprecatedFields).toHaveBeenCalledTimes(1);
+        expect(shouldObserve).toHaveBeenCalledTimes(4);
+        expect(fillLabelsFn).toHaveBeenCalledTimes(2);
+        expect(await metricCount('test_deprecated_field')).toBe(1);
+        expect(await metricString('test_deprecated_field')).toContain(
+          'test_deprecated_field{fieldName="deprecatedField!"} 2',
+        );
+      },
+    );
   });
 
   describe('requestCount', () => {
