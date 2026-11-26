@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql';
 import type { HandlerOptions } from 'graphql-sse';
 import type { RequestContext } from 'graphql-sse/lib/use/fetch';
 import { createHandler } from 'graphql-sse/lib/use/fetch';
-import type { Plugin, YogaInitialContext } from 'graphql-yoga';
+import { isAsyncIterable, type Plugin, type YogaInitialContext } from 'graphql-yoga';
 import { handleMaybePromise } from '@whatwg-node/promise-helpers';
 
 export interface GraphQLSSEPluginOptions
@@ -42,8 +42,15 @@ export function useGraphQLSSE(options: GraphQLSSEPluginOptions = {}): Plugin<Yog
             const context = ctxForReq.get(req.raw) ?? {};
             return handleMaybePromise(
               () => yoga.getResultForParams({ params, request: req.raw }, context),
-              result =>
-                result ?? { data: null, errors: [new GraphQLError('Unexpected empty result.')] },
+              result => {
+                if (result == null) {
+                  return { data: null, errors: [new GraphQLError('Unexpected empty result.')] };
+                }
+                if (!isAsyncIterable(result) && !('data' in result)) {
+                  return { data: null, ...result };
+                }
+                return result;
+              },
               error => {
                 // `onParams` hooks reject by throwing (e.g. persisted-operations' "PersistedQueryOnly"),
                 // same as a parse/validate error would. Shape it as a normal GraphQL error result

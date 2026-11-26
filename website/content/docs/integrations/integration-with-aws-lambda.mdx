@@ -62,10 +62,16 @@ export const handler = awslambda.streamifyResponse(async function handler(
     }
   )
 
+  // `Set-Cookie` can appear multiple times, so it cannot be represented in the headers object.
+  // Lambda expects each cookie as a separate entry in `cookies` instead.
+  const headers = Object.fromEntries(response.headers.entries())
+  delete headers['set-cookie']
+
   // Attach the metadata to the response stream
   res = awslambda.HttpResponseStream.from(res, {
     statusCode: response.status,
-    headers: Object.fromEntries(response.headers.entries())
+    headers,
+    cookies: response.headers.getSetCookie()
   })
 
   // Pipe the response body to the response stream

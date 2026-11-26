@@ -1,5 +1,26 @@
 # @envelop/extended-validation
 
+## 8.0.2
+
+### Patch Changes
+
+- [`170e128`](https://github.com/graphql-hive/graphql-yoga/commit/170e12866b4dbf6c7f72b23bb3aa5fd547379643)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Run the extended validation phase for every
+  execution, including executions that share a context, instead of only for the first execution of a
+  context
+
+- [`170e128`](https://github.com/graphql-hive/graphql-yoga/commit/170e12866b4dbf6c7f72b23bb3aa5fd547379643)
+  Thanks [@egoodwinx](https://github.com/egoodwinx)! - Do not replace `null` values produced by
+  execution with objects when patching partial results for `rejectOnErrors: false`
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/core@6.0.1
+
 ## 8.0.0
 
 ### Major Changes

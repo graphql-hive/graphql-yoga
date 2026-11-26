@@ -247,7 +247,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
 
   const customValidate: EnvelopContextFnWrapper<typeof validate, any> = beforeCallbacks.validate
     .length
-    ? initialContext => (schema, documentAST, rules, typeInfo, validationOptions) => {
+    ? initialContext => (schema, documentAST, rules, validationOptions, typeInfo) => {
         let actualRules: undefined | any[] = rules ? [...rules] : undefined;
         let validateFn = validate;
         let result: null | readonly any[] = null;
@@ -265,8 +265,8 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
               schema,
               documentAST,
               rules: actualRules,
-              typeInfo,
               options: validationOptions,
+              typeInfo,
             },
             validateFn,
             addValidationRule: rule => {
@@ -285,7 +285,7 @@ export function createEnvelopOrchestrator<PluginsContext extends DefaultContext>
           afterFn && afterCalls.push(afterFn);
         }
 
-        result ||= validateFn(schema, documentAST, actualRules, typeInfo, validationOptions);
+        result ||= validateFn(schema, documentAST, actualRules, validationOptions, typeInfo);
 
         if (!result) {
           return;

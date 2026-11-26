@@ -1,5 +1,13 @@
 # @envelop/response-cache-cloudflare-kv
 
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/response-cache@10.0.1
+
 ## 7.0.0
 
 ### Major Changes

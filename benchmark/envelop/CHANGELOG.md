@@ -1,5 +1,18 @@
 # @envelop/benchmark
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/core@6.0.1
+  - @envelop/graphql-jit@12.0.1
+  - @envelop/parser-cache@11.0.1
+  - @envelop/prometheus@15.0.1
+  - @envelop/validation-cache@11.0.1
+
 ## 4.0.0
 
 ### Patch Changes

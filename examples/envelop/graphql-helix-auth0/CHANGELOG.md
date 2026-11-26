@@ -1,5 +1,15 @@
 # @envelop-examples/graphql-helix-auth0
 
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8)]:
+  - @envelop/auth0@10.0.1
+  - @envelop/core@6.0.1
+
 ## 2.0.0
 
 ### Patch Changes

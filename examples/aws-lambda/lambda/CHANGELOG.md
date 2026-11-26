@@ -1,5 +1,26 @@
 # graphql-lambda
 
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ce73ba2`](https://github.com/graphql-hive/graphql-yoga/commit/ce73ba2c3b954dd8df9c43c2eaf0d378811fd06d),
+  [`3285ba5`](https://github.com/graphql-hive/graphql-yoga/commit/3285ba5d9361f00221f4440d808f389a06b57aa2)]:
+  - graphql-yoga@6.1.1
+
+## 4.1.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`045fc2f`](https://github.com/graphql-hive/graphql-yoga/commit/045fc2f77953d9b81a9e242d8351e9924039b531),
+  [`38e9f1b`](https://github.com/graphql-hive/graphql-yoga/commit/38e9f1bf5500a4100104d00832b2208e234ba1d8),
+  [`cfd0092`](https://github.com/graphql-hive/graphql-yoga/commit/cfd00928667ccae8f0418938a2b24a4dae9d3314),
+  [`35501fe`](https://github.com/graphql-hive/graphql-yoga/commit/35501fe17bfb15405c64759c7c41adb4559b1679),
+  [`807c7af`](https://github.com/graphql-hive/graphql-yoga/commit/807c7afc78151457a09c5940e1985f59f15136f1)]:
+  - graphql-yoga@6.1.0
+
 ## 4.0.1
 
 ### Patch Changes
