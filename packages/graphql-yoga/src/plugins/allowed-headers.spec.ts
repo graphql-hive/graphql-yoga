@@ -22,6 +22,75 @@ describe('useAllowedHeaders', () => {
     expect(response.headers.get('x-disallowed-custom-header-2')).toBeNull();
   });
 
+  // A native `Headers` iterator is live: deleting an entry while iterating skips the next one.
+  // `yoga.fetch(url, init)` builds the `Request` with whatwg-node's `Headers`, which does not
+  // do that, so a native `Request` is what exercises this.
+  describe('with a native `Request`', () => {
+    const names = ['x-a', 'x-b', 'x-c', 'x-d'];
+
+    async function fetchWithAdjacentUnlistedHeaders() {
+      const yoga = createYoga({
+        schema: createSchema({
+          typeDefs: /* GraphQL */ `
+            type Query {
+              header(name: String!): String
+            }
+          `,
+          resolvers: {
+            Query: {
+              header: (_root, { name }: { name: string }, { request }: { request: Request }) =>
+                request.headers.get(name),
+            },
+          },
+        }),
+        allowedHeaders: {
+          request: ['accept', 'content-type'],
+          response: ['content-type', 'content-length'],
+        },
+        plugins: [
+          {
+            onResponse({ response }) {
+              for (const name of names) {
+                response.headers.set(name, '1');
+              }
+            },
+          },
+        ],
+        landingPage: false,
+      });
+
+      const request = new globalThis.Request('http://localhost/graphql', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'application/json',
+          ...Object.fromEntries(names.map(name => [name, '1'])),
+        },
+        body: JSON.stringify({
+          query: `{ ${names.map(name => `${name.replace('-', '_')}: header(name: "${name}")`).join(' ')} }`,
+        }),
+      });
+      return yoga.fetch(request);
+    }
+
+    it('strips every unlisted request header', async () => {
+      const response = await fetchWithAdjacentUnlistedHeaders();
+
+      expect((await response.json()).data).toEqual({
+        x_a: null,
+        x_b: null,
+        x_c: null,
+        x_d: null,
+      });
+    });
+
+    it('strips every unlisted response header', async () => {
+      const response = await fetchWithAdjacentUnlistedHeaders();
+
+      expect(names.filter(name => response.headers.has(name))).toEqual([]);
+    });
+  });
+
   it('strips headers added by a user plugin and by CORS when configured via `allowedHeaders.response`', async () => {
     const yoga = createYoga({
       schema,

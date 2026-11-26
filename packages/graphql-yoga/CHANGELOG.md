@@ -1,5 +1,25 @@
 # graphql-yoga
 
+## 6.1.1
+
+### Patch Changes
+
+- [#4664](https://github.com/graphql-hive/graphql-yoga/pull/4664)
+  [`ce73ba2`](https://github.com/graphql-hive/graphql-yoga/commit/ce73ba2c3b954dd8df9c43c2eaf0d378811fd06d)
+  Thanks [@seckardt](https://github.com/seckardt)! - `allowedHeaders` now removes every unlisted
+  header when the request is a native `Request`. Previously, deleting a header while iterating a
+  native `Headers` skipped the entry after each deleted one, so about every second unlisted header
+  in a row stayed on the request seen by resolvers and on the response.
+
+- [`3285ba5`](https://github.com/graphql-hive/graphql-yoga/commit/3285ba5d9361f00221f4440d808f389a06b57aa2)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - The default parser and validation caches are
+  now also bounded by the total length of cached document strings (1 MiB), not only by entry count
+  and TTL. A parsed document can take a few hundred times more memory than its text, so previously
+  caching many large documents (including ones that fail validation) could exhaust the process
+  memory. Documents and parse errors whose source is larger than this limit are no longer cached,
+  and the least recently used entries are evicted to stay within it. Custom `documentCache` and
+  `errorCache` implementations are not affected.
+
 ## 6.1.0
 
 ### Minor Changes

@@ -49,10 +49,14 @@ export type ValidateFunctionParameter = {
    */
   rules?: Parameters<ValidateFunction>[2];
   /**
-   * TypeInfo instance which is used for getting schema information during validation
+   * Validation options (e.g. `maxErrors`, `hideSuggestions`).
    */
-  typeInfo?: Parameters<ValidateFunction>[3];
-  options?: Parameters<ValidateFunction>[4];
+  options?: Parameters<ValidateFunction>[3];
+  /**
+   * TypeInfo instance which is used for getting schema information during validation.
+   * @deprecated Deprecated in graphql 16 and removed in graphql 17.
+   */
+  typeInfo?: Parameters<ValidateFunction>[4];
 };
 
 /** @private */

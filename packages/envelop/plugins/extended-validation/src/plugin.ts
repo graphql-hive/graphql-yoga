@@ -15,8 +15,10 @@ const symbolExtendedValidationRules = Symbol('extendedValidationContext');
 
 type ExtendedValidationContext = {
   rules: Array<ExtendedValidationRule>;
-  didRun: boolean;
 };
+
+// a context can be reused by many executions, so track the runs per execution args instead
+const validatedExecutions = new WeakSet<object>();
 
 type OnValidationFailedCallback = (params: {
   args: ExecutionArgs;
@@ -58,7 +60,6 @@ export const useExtendedValidation = <PluginContext extends Record<string, any> 
       if (validationRulesContext === undefined) {
         validationRulesContext = {
           rules: [],
-          didRun: false,
         };
         extendContext({
           ...context,
@@ -110,8 +111,8 @@ function buildHandler(
       );
     }
     // we only want to run the extended execution once.
-    if (validationRulesContext.didRun === false) {
-      validationRulesContext.didRun = true;
+    if (!validatedExecutions.has(args)) {
+      validatedExecutions.add(args);
       if (validationRulesContext.rules.length !== 0) {
         const errors: GraphQLError[] = [];
 
@@ -161,9 +162,16 @@ function buildHandler(
                 errors: [...(result.errors || []), ...errors],
               };
               function visitPath(path: readonly (string | number)[], data: any = {}) {
+                // null was produced by execution (e.g. a bubbled field error), nothing to patch
+                if (data === null) {
+                  return data;
+                }
                 let currentData = (data ||= typeof path[0] === 'number' ? [] : {});
                 for (const pathItemIndex in path.slice(0, -1)) {
                   const pathItem = path[pathItemIndex]!;
+                  if (currentData[pathItem] === null) {
+                    return data;
+                  }
                   currentData = currentData[pathItem] ||=
                     typeof path[Number(pathItemIndex) + 1] === 'number' ? [] : {};
                   if (Array.isArray(currentData)) {
