@@ -4,6 +4,7 @@ import type { PromiseOrValue } from '@envelop/core';
 import type { Logger } from '@graphql-hive/logger';
 import type { createFetch } from '@whatwg-node/fetch';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
+import type { OnErrorRequestValue } from './on-error.js';
 
 export type GraphQLSchemaWithContext<TContext> = GraphQLSchema & {
   _context?: TContext;
@@ -17,6 +18,14 @@ export interface GraphQLParams<
   query?: string;
   variables?: TVariables;
   extensions?: TExtensions;
+  /**
+   * How execution errors on non-null fields are handled.
+   * graphql/graphql-spec#1163. Defaults to `'PROPAGATE'`.
+   *
+   * `'NULL'` is accepted by the type (it is valid on the wire) and rejected at
+   * the request boundary, because the execution engine does not implement it.
+   */
+  onError?: OnErrorRequestValue;
 }
 
 export type YogaConfigContext = {

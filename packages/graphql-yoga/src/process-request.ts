@@ -5,6 +5,7 @@ import type { ExecutionArgs } from '@graphql-tools/executor';
 import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
+import { assertHaltAllowedForDocument, resolveOnError } from './on-error.js';
 import { getIncrementalSpecForRequest } from './plugins/result-processor/accept.js';
 import type { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import type { FetchAPI, GraphQLParams, YogaConfigContext } from './types.js';
@@ -116,6 +117,8 @@ export function processRequest({
     return { errors };
   }
 
+  const onError = resolveOnError(params.onError);
+
   // Build the context for the execution
   return handleMaybePromise(
     () => enveloped.contextFactory(),
@@ -135,11 +138,16 @@ export function processRequest({
         }
       }
 
+      // Pre-execution, so a deferred mutation has no side effects behind the refusal.
+      // Not keyed on negotiation: the executor runs @defer/@stream incrementally
+      // regardless of whether the client asked for the multipart wire format.
+      assertHaltAllowedForDocument(onError, document);
+
       // Choose the right executor
       const executeFn =
         operation?.operation === 'subscription' ? enveloped.subscribe : enveloped.execute;
 
-      // Get the result to be processed
+      // `useHaltOnError`'s `onExecutionResult` hook applies `onError` to this result.
       return executeFn(executionArgs);
     },
   );
