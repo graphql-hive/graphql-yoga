@@ -1,3 +1,4 @@
+import { EventEmitter, on } from 'node:events';
 import type { ExecutionResult } from 'graphql';
 import { fakePromise } from '@whatwg-node/server';
 import type { Plugin } from '../src/index.js';
@@ -161,6 +162,40 @@ describe('accept header', () => {
       },
     });
     expect(response.status).toEqual(406);
+  });
+
+  it.each([
+    ['accept: application/json', 'application/json'],
+    ['an accept header no result processor matches', 'application/xml'],
+  ])('closes the subscription source when it responds 406 for %s', async (_name, accept) => {
+    const emitter = new EventEmitter();
+    const yoga = createYoga({
+      schema: createSchema({
+        typeDefs: /* GraphQL */ `
+          type Query {
+            ping: String
+          }
+          type Subscription {
+            counter: Int
+          }
+        `,
+        resolvers: {
+          Subscription: {
+            counter: {
+              // `on` attaches its listener when it is called, not on the first `next()`.
+              subscribe: () => on(emitter, 'counter'),
+              resolve: (args: unknown[]) => args[0],
+            },
+          },
+        },
+      }),
+    });
+
+    const response = await yoga.fetch(`http://yoga/graphql?query=subscription{counter}`, {
+      headers: { accept },
+    });
+    expect(response.status).toEqual(406);
+    expect(emitter.listenerCount('counter')).toEqual(0);
   });
 
   it('server rejects request for AsyncIterable source (defer/stream) when client only accepts application/json', async () => {

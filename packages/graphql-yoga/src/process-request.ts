@@ -6,6 +6,7 @@ import type { MaybePromise } from '@whatwg-node/promise-helpers';
 import { handleMaybePromise, iterateAsync } from '@whatwg-node/promise-helpers';
 import type { ServerAdapterInitialContext } from '@whatwg-node/server';
 import { getIncrementalSpecForRequest } from './plugins/result-processor/accept.js';
+import { closeAsyncIterable } from './plugins/result-processor/close-async-iterable.js';
 import type { OnResultProcess, ResultProcessor, ResultProcessorInput } from './plugins/types.js';
 import type { FetchAPI, GraphQLParams, YogaConfigContext } from './types.js';
 
@@ -57,6 +58,7 @@ export function processResult<TServerContext>({
           { accept: request.headers.get('accept'), acceptableMediaTypes },
           'No result processor matched, responding 406',
         );
+        closeAsyncIterable(result);
         const response = new fetchAPI.Response(null, {
           status: 406,
           statusText: 'Not Acceptable',
