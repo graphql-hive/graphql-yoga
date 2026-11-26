@@ -458,7 +458,11 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         };
       }
 
-      function onEntity(entity: CacheEntityRecord, data: Record<string, unknown>): void {
+      function onEntity(
+        entity: CacheEntityRecord,
+        data: Record<string, unknown>,
+        depth: number,
+      ): void {
         if (skip) {
           return;
         }
@@ -482,6 +486,13 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
         if (entity.typename in ttlPerSchemaCoordinate) {
           const maybeTtl = ttlPerSchemaCoordinate[entity.typename] as unknown;
           currentTtl = calculateTtl(maybeTtl, currentTtl);
+        } else if (depth === 1) {
+          // Entities returned by top-level fields whose type has no specific
+          // TTL fall back to the global TTL. Otherwise a result that mixes a
+          // type with a `ttlPerType` entry and a type without one would be
+          // cached solely based on the listed type, ignoring the global TTL
+          // (e.g. `ttl: 0` combined with `ttlPerType`).
+          currentTtl = calculateTtl(globalTtl, currentTtl);
         }
         if (entity.id != null) {
           identifier.set(`${entity.typename}:${entity.id}`, entity);
@@ -495,6 +506,11 @@ export function useResponseCache<PluginContext extends Record<string, any> = {}>
                 if (inferredType in ttlPerSchemaCoordinate) {
                   const maybeTtl = ttlPerSchemaCoordinate[inferredType] as unknown;
                   currentTtl = calculateTtl(maybeTtl, currentTtl);
+                } else if (depth === 0) {
+                  // A top-level field that returned no data still contributes
+                  // its type to the result, so apply the same global TTL
+                  // fallback as for non-empty top-level results.
+                  currentTtl = calculateTtl(globalTtl, currentTtl);
                 }
                 identifier.set(inferredType, { typename: inferredType });
               }
@@ -774,26 +790,31 @@ export const cacheControlDirective = /* GraphQL */ `
 type OnEntityHandler = (
   entity: CacheEntityRecord,
   data: Record<string, unknown>,
+  depth: number,
 ) => void | Promise<void>;
 
 function removeMetadataFieldsFromResult(
   data: Record<string, unknown>,
   onEntity?: OnEntityHandler,
+  depth?: number,
 ): Record<string, unknown>;
 function removeMetadataFieldsFromResult(
   data: Array<Record<string, unknown>>,
   onEntity?: OnEntityHandler,
+  depth?: number,
 ): Array<Record<string, unknown>>;
 function removeMetadataFieldsFromResult(
   data: null | undefined,
   onEntity?: OnEntityHandler,
+  depth?: number,
 ): null | undefined;
 function removeMetadataFieldsFromResult(
   data: Record<string, unknown> | Array<Record<string, unknown>> | null | undefined,
   onEntity?: OnEntityHandler,
+  depth = 0,
 ): Record<string, unknown> | Array<unknown> | null | undefined {
   if (Array.isArray(data)) {
-    return data.map(record => removeMetadataFieldsFromResult(record, onEntity));
+    return data.map(record => removeMetadataFieldsFromResult(record, onEntity, depth));
   }
 
   if (typeof data !== 'object' || data == null) {
@@ -823,15 +844,15 @@ function removeMetadataFieldsFromResult(
       delete data['__responseCacheId'];
     }
 
-    onEntity?.(entity, data);
+    onEntity?.(entity, data, depth);
   }
 
   for (const key in data) {
     const value = data[key];
     if (Array.isArray(value)) {
-      data[key] = removeMetadataFieldsFromResult(value, onEntity);
+      data[key] = removeMetadataFieldsFromResult(value, onEntity, depth + 1);
     } else if (value !== null && typeof value === 'object') {
-      data[key] = removeMetadataFieldsFromResult(value as Record<string, unknown>, onEntity);
+      data[key] = removeMetadataFieldsFromResult(value as Record<string, unknown>, onEntity, depth + 1);
     }
   }
 
