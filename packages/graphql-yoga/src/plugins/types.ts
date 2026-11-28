@@ -186,7 +186,12 @@ export type ExecutionResultWithSerializer<TData = any, TExtensions = any> = Exec
   TData,
   TExtensions
 > & {
-  stringify?: (result: ExecutionResult<TData, TExtensions>) => string;
+  /**
+   * Custom serializer of the result. It may return the JSON text, or the UTF-8 encoded JSON text
+   * as bytes (e.g. when the bytes already exist and decoding then re-encoding them is wasteful).
+   * Bytes must be the UTF-8 encoded JSON text of the result.
+   */
+  stringify?: (result: ExecutionResult<TData, TExtensions>) => string | Uint8Array;
 };
 
 export type OnExecutionResultHook<TServerContext> = (

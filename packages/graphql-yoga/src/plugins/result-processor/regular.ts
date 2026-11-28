@@ -42,5 +42,6 @@ export function processRegularResult(
 
   const responseBody = jsonStringifyResultWithoutInternals(executionResult);
 
-  return new fetchAPI.Response(responseBody, responseInit);
+  // bytes are the UTF-8 encoded JSON text; the cast only narrows `Uint8Array<ArrayBufferLike>`
+  return new fetchAPI.Response(responseBody as BodyInit, responseInit);
 }

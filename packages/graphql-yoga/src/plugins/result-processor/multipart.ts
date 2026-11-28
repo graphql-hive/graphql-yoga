@@ -55,7 +55,7 @@ export function processMultipartResult(
             controller.enqueue(textEncoder.encode('\r\n'));
 
             const chunk = jsonStringifyResultWithoutInternals(value);
-            const encodedChunk = textEncoder.encode(chunk);
+            const encodedChunk = typeof chunk === 'string' ? textEncoder.encode(chunk) : chunk;
 
             controller.enqueue(textEncoder.encode('Content-Length: ' + encodedChunk.byteLength));
             controller.enqueue(textEncoder.encode('\r\n'));
