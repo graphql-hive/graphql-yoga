@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { TypeInfo, type ExecutionResult, type GraphQLError, type GraphQLSchema } from 'graphql';
+import {
+  TypeInfo,
+  type DocumentNode,
+  type ExecutionResult,
+  type GraphQLError,
+  type GraphQLSchema,
+} from 'graphql';
 import { register as defaultRegistry } from 'prom-client';
 import {
   isAsyncIterable,
@@ -35,6 +41,7 @@ import {
   instrumentRegistry,
   shouldTraceFieldResolver,
   type CounterAndLabels,
+  type DeprecatedFieldInfo,
   type FillLabelsFnParams,
   type HistogramAndLabels,
   type SummaryAndLabels,
@@ -411,8 +418,10 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
   );
   if (deprecationCounter) {
     let typeInfo: TypeInfo | null = null;
+    let deprecatedFieldsCache = new WeakMap<DocumentNode, DeprecatedFieldInfo[]>();
     phasesToHook.schema.push(({ schema }) => {
       typeInfo = new TypeInfo(schema);
+      deprecatedFieldsCache = new WeakMap();
     });
 
     phasesToHook.parse.push({
@@ -420,12 +429,16 @@ export const usePrometheus = (config: PrometheusTracingPluginConfig): Plugin => 
         // If parse error happens, we can't explore the query document
         !!typeInfo && !params.errorPhase && deprecationCounter.shouldObserve(params, context),
       handler: ({ params, context }) => {
-        const deprecatedFields = extractDeprecatedFields(params.document!, typeInfo!);
+        let deprecatedFields = deprecatedFieldsCache.get(params.document!);
+        if (!deprecatedFields) {
+          deprecatedFields = extractDeprecatedFields(params.document!, typeInfo!);
+          deprecatedFieldsCache.set(params.document!, deprecatedFields);
+        }
 
         for (const depField of deprecatedFields) {
           const deprecationLabelParams = {
             ...params,
-            deprecationInfo: depField,
+            deprecationInfo: { ...depField },
           };
 
           if (deprecationCounter.shouldObserve(deprecationLabelParams, context)) {
