@@ -1,5 +1,14 @@
 # @envelop/resource-limitations
 
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d450b6e`](https://github.com/graphql-hive/graphql-yoga/commit/d450b6ea2acb7594dc4135c359a8989bd85ba2ba)]:
+  - @envelop/core@6.0.2
+  - @envelop/extended-validation@8.0.3
+
 ## 9.0.2
 
 ### Patch Changes

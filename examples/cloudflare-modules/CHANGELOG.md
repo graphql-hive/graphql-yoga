@@ -1,5 +1,12 @@
 # cloudflare
 
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@6.1.2
+
 ## 4.1.1
 
 ### Patch Changes

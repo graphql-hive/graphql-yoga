@@ -1,5 +1,12 @@
 # nextjs-app
 
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - graphql-yoga@6.1.2
+
 ## 3.1.1
 
 ### Patch Changes

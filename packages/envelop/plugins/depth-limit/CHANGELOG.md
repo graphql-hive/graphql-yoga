@@ -1,5 +1,13 @@
 # @envelop/depth-limit
 
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d450b6e`](https://github.com/graphql-hive/graphql-yoga/commit/d450b6ea2acb7594dc4135c359a8989bd85ba2ba)]:
+  - @envelop/core@6.0.2
+
 ## 8.0.1
 
 ### Patch Changes
