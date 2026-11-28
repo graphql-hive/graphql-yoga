@@ -48,17 +48,26 @@ export const useGraphQlJit = (
   const jitCacheByDocumentString = pluginOptions.cache;
   const log = pluginOptions.log ?? new Logger();
 
-  const jitCacheByDocument = new WeakMap<DocumentNode, JITCacheEntry>();
+  const jitCacheByDocument = new WeakMap<DocumentNode, Map<string, JITCacheEntry>>();
 
   function getCacheEntry(args: ExecutionArgs): JITCacheEntry {
     let cacheEntry: JITCacheEntry | undefined;
+    const operationName = args.operationName ?? '';
 
-    cacheEntry = jitCacheByDocument.get(args.document);
+    let cacheByOperationName = jitCacheByDocument.get(args.document);
+    if (!cacheByOperationName) {
+      cacheByOperationName = new Map();
+      jitCacheByDocument.set(args.document, cacheByOperationName);
+    }
 
+    cacheEntry = cacheByOperationName.get(operationName);
+
+    let documentCacheKey: string | undefined;
     if (!cacheEntry && jitCacheByDocumentString) {
       const documentSource = getDocumentString(args.document);
       if (documentSource) {
-        cacheEntry = jitCacheByDocumentString.get(documentSource);
+        documentCacheKey = operationName ? `${operationName}\n${documentSource}` : documentSource;
+        cacheEntry = jitCacheByDocumentString.get(documentCacheKey);
       }
     }
 
@@ -84,12 +93,9 @@ export const useGraphQlJit = (
         };
       }
 
-      jitCacheByDocument.set(args.document, cacheEntry);
-      if (jitCacheByDocumentString) {
-        const documentSource = getDocumentString(args.document);
-        if (documentSource) {
-          jitCacheByDocumentString.set(documentSource, cacheEntry);
-        }
+      cacheByOperationName.set(operationName, cacheEntry);
+      if (jitCacheByDocumentString && documentCacheKey) {
+        jitCacheByDocumentString.set(documentCacheKey, cacheEntry);
       }
     }
     return cacheEntry;

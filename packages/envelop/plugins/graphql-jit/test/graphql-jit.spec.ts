@@ -214,6 +214,35 @@ describe('useGraphQlJit', () => {
     expect(cache.set).toHaveBeenCalledTimes(1);
   });
 
+  it('executes the requested operation when the parsed document is cached', async () => {
+    const testInstance = createTestkit([useParserCache(), useGraphQlJit()], schema);
+    const document = `query First { first: test } query Second { second: test }`;
+
+    const first = await testInstance.execute(document, {}, {}, 'First');
+    assertSingleExecutionValue(first);
+    expect(first.data).toEqual({ first: 'boop' });
+
+    const second = await testInstance.execute(document, {}, {}, 'Second');
+    assertSingleExecutionValue(second);
+    expect(second.data).toEqual({ second: 'boop' });
+  });
+
+  it('executes the requested operation when the custom cache has the document', async () => {
+    const cache: JITCache = new LRUCache({
+      max: 100,
+    });
+    const testInstance = createTestkit([useGraphQlJit({}, { cache })], schema);
+    const document = `query First { first: test } query Second { second: test }`;
+
+    const first = await testInstance.execute(document, {}, {}, 'First');
+    assertSingleExecutionValue(first);
+    expect(first.data).toEqual({ first: 'boop' });
+
+    const second = await testInstance.execute(document, {}, {}, 'Second');
+    assertSingleExecutionValue(second);
+    expect(second.data).toEqual({ second: 'boop' });
+  });
+
   it('provides a custom serializer', async () => {
     const testInstance = createTestkit([useGraphQlJit()], schema);
 
