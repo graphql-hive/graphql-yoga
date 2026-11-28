@@ -1,5 +1,13 @@
 # apollo-federation-gateway-with-yoga
 
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @envelop/apollo-federation@9.0.2
+  - graphql-yoga@6.1.2
+
 ## 4.1.1
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @envelop/prometheus
 
+## 15.0.2
+
+### Patch Changes
+
+- [#4683](https://github.com/graphql-hive/graphql-yoga/pull/4683)
+  [`3f0338c`](https://github.com/graphql-hive/graphql-yoga/commit/3f0338cc67259925c0220485a4acc20ac1d09c8f)
+  Thanks [@clean99](https://github.com/clean99)! - `graphql_envelop_deprecated_field` no longer
+  walks the same document again on every request. The deprecated fields found in a document are now
+  kept per document until the schema changes, so a document returned by the parser cache is only
+  visited once. Counter values are unchanged, and custom metric callbacks still receive separate
+  deprecation info for each request.
+
+- Updated dependencies
+  [[`d450b6e`](https://github.com/graphql-hive/graphql-yoga/commit/d450b6ea2acb7594dc4135c359a8989bd85ba2ba)]:
+  - @envelop/core@6.0.2
+  - @envelop/on-resolve@8.0.2
+
 ## 15.0.1
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # @envelop/core
 
+## 6.0.2
+
+### Patch Changes
+
+- [#4681](https://github.com/graphql-hive/graphql-yoga/pull/4681)
+  [`d450b6e`](https://github.com/graphql-hive/graphql-yoga/commit/d450b6ea2acb7594dc4135c359a8989bd85ba2ba)
+  Thanks [@n1ru4l](https://github.com/n1ru4l)! - Fix swapped `options` and `typeInfo` in the
+  `onValidate` hook params.
+
+  The validate wrapper now follows the graphql-js v16/v17
+  `validate(schema, documentAST, rules, options, typeInfo)` argument order, so `params.options`
+  contains the validation options (e.g. `maxErrors`, `hideSuggestions`) and `params.typeInfo`
+  contains the (deprecated) `TypeInfo` instance. Previously, the two were swapped. Arguments are
+  still forwarded to the validate function in the same positions they were passed.
+
+- Updated dependencies
+  [[`d450b6e`](https://github.com/graphql-hive/graphql-yoga/commit/d450b6ea2acb7594dc4135c359a8989bd85ba2ba)]:
+  - @envelop/types@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes

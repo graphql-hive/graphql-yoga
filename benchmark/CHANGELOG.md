@@ -1,5 +1,14 @@
 # hello-world-benchmark
 
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @envelop/graphql-jit@12.0.2
+  - graphql-yoga@6.1.2
+  - @graphql-yoga/plugin-response-cache@4.1.2
+
 ## 4.1.1
 
 ### Patch Changes
